@@ -1,0 +1,16 @@
+// src/App.tsx
+
+import { BrowserRouter } from 'react-router-dom'
+import AppRoutes from '../src/router'
+
+function App() {
+  return (
+    <div className="min-h-screen bg-background text-text-main font-sans">
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </div>
+  )
+}
+
+export default App
