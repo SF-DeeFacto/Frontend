@@ -2,13 +2,13 @@
 import { Routes, Route } from "react-router-dom"
 import Login from "../pages/Login"
 import Home from "../pages/Home"
-import Report from "../pages/nav/Report"
-import MainZone from "../pages/nav/MainZone"
-import ChatBot from "../pages/nav/ChatBot"
-import Sensor from "../pages/nav/Sensor"
+import Report from "../pages/Report"
+import MainZone from "../pages/zone/Zone1"
+import ChatBot from "../pages/ChatBot"
+import Sensor from "../pages/Sensor"
 import Alarm from "../pages/Alarm"
-import Setting from "../setting/Setting"
-
+import Setting from "../pages/setting/Setting"
+import Graph from "../pages/Graph"
 import NotFound from "../pages/NotFound"
 
 export default function AppRoutes() {
@@ -23,6 +23,7 @@ export default function AppRoutes() {
       <Route path="/mainzone" element={<MainZone />} />
       <Route path="/report" element={<Report />} />
       <Route path="/sensor" element={<Sensor />} />
+      <Route path="/graph" element={<Graph />} />      
       <Route path="/chatbot" element={<ChatBot />} />
 
       
