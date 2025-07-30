@@ -1,3 +1,13 @@
-export default function report() {
-  return <div>리포팅 페이지 입니다..</div>
-} 
+import React from 'react';
+
+const Report = () => {
+
+
+  return (
+    <div>
+      <h1>Report 페이지입니다.</h1>
+    </div>
+  );
+};
+
+export default Report; 

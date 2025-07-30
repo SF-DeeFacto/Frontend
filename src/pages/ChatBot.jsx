@@ -1,3 +1,12 @@
-export default function chatbot() {
-  return <div>챗봇 페이지 입니다..작은 창으로 해야함요.</div>
-} 
+import React, { useState } from 'react';
+
+const ChatBot = () => {
+
+  return (
+    <div>
+      <h1>ChatBot 페이지입니다.</h1>
+    </div>
+  );
+};
+
+export default ChatBot; 

@@ -1,15 +1,53 @@
-import Navbar from "../components/Navbar";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function Home() {
+const Home = () => {
+  const navigate = useNavigate();
+
+  const zones = [
+    { id: 'a', name: 'Zone A'},
+    { id: 'b', name: 'Zone B'},
+    { id: 'c', name: 'Zone C'},
+    { id: 'd', name: 'Zone D'},
+    { id: 'e', name: 'Zone E'},
+    { id: 'f', name: 'Zone F'},
+    { id: 'g', name: 'Zone G'},
+    { id: 'h', name: 'Zone H'},
+  ];
+
   return (
-    <div className="flex">
-      {/* 왼쪽에 고정된 Navbar */}
-      <Navbar />
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Dashboard</h1>
 
-      {/* 오른쪽에 메인 콘텐츠 */}
-      <div className="p-4 flex-1">
-        메인 홈 화면 입니다..
+      {/* Zone 카드들 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {zones.map((zone) => (
+          <div 
+            key={zone.id}
+            onClick={() => navigate(`/zone/${zone.id}`)}
+            className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">{zone.name}</h3>
+              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                {zone.status}
+              </span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-500">Temperature</span>
+                <span className="text-sm font-medium text-blue-600">{zone.temp}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-500">Humidity</span>
+                <span className="text-sm font-medium text-green-600">{zone.humidity}</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
-}
+};
+
+export default Home; 
