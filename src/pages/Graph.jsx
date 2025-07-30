@@ -2,9 +2,9 @@ import React from 'react';
 
 const Graph = () => {
   return (
-    <div>
-      <h1>Graph 페이지입니다.</h1>
-    </div>
+    <>
+      {/* 기존 Graph 페이지 내용만 남김 */}
+    </>
   );
 };
 

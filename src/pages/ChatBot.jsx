@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const ChatBot = () => {
-
   return (
-    <div>
-      <h1>ChatBot 페이지입니다.</h1>
-    </div>
+    <>
+      {/* 기존 ChatBot 페이지 내용만 남김 */}
+    </>
   );
 };
 
