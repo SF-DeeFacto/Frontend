@@ -1,4 +1,5 @@
 import React from 'react';
+//테스트 임
 
 const WarningLight = ({ position, isActive = false, targetPosition = null }) => {
   return (
