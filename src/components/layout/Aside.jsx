@@ -67,7 +67,28 @@ const Aside = () => {
     {
       icon: <FiMessageCircle />,
       label: "Chatbot",
-      onClick: () => navigate("/chatbot"),
+      onClick: () => {
+        // 기존 챗봇 창이 있는지 확인
+        const existingWindow = window.open('', 'ChatBot');
+        
+        if (existingWindow && !existingWindow.closed) {
+          // 기존 창이 있으면 포커스
+          existingWindow.focus();
+        } else {
+          // 기존 창이 없으면 새 창 열기
+          const chatBotWindow = window.open(
+            '/chatbot?new=true',
+            'ChatBot',
+            'width=400,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
+          );
+          
+          if (chatBotWindow) {
+            chatBotWindow.focus();
+          } else {
+            alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+          }
+        }
+      },
     },
     {
       icon: <FiLogOut />,

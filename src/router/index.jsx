@@ -24,7 +24,7 @@ const AppRoutes = () => {
       <Route path="/graph" element={<MainLayout title="Graph"><Graph /></MainLayout>} />
       <Route path="/report" element={<MainLayout title="Report"><Report /></MainLayout>} />
       <Route path="/alarm" element={<MainLayout title="Alarm"><Alarm /></MainLayout>} />
-      <Route path="/chatbot" element={<MainLayout title="ChatBot"><ChatBot /></MainLayout>} />
+      <Route path="/chatbot" element={<ChatBot />} />
       <Route path="/setting" element={<MainLayout title="Setting"><Setting /></MainLayout>} />
       <Route path="/zone/a" element={
         <MainLayout title="ZoneA">
