@@ -1,8 +1,8 @@
 import React from 'react';
 
 const PageTitle = ({ children }) => (
-  <div className="flex flex-col w-[1200px] px-[30px] py-[11px] items-start flex-shrink-0">
-    <div className="w-[1154px] h-[35px] flex items-center">
+  <div className="flex flex-col w-full items-start flex-shrink-0" style={{ paddingTop: '20px', paddingBottom: '11px' }}>
+    <div className="w-full h-[35px] flex items-center">
       <span
         style={{
           fontSize: "28px",

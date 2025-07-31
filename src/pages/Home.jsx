@@ -5,11 +5,34 @@ const Home = () => {
   const navigate = useNavigate();
 
   const zones = [
-    { id: 'a', name: 'Zone A'},
+    { 
+      id: 'a', 
+      name: 'Zone A',
+    },
   ];
 
   return (
-    <>
+    <div>
+      {/* 전체도면 섹션 */}
+      <div style={{ 
+        display: 'flex',
+        width: 'full',
+        height: '500px',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: '8px',
+        backgroundColor: '#f0f8ff',
+        border: '2px solid #4a90e2',
+        borderRadius: '8px',
+        padding: '16px',
+        position: 'relative',
+        marginBottom: '32px'
+      }}>
+        <div className="w-full text-center">
+          <h2 className="text-2xl font-bold text-blue-800">전체도면을 넣어주세용</h2>
+        </div>
+      </div>
+
       {/* Zone 카드들 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {zones.map((zone) => (
@@ -24,20 +47,10 @@ const Home = () => {
                 {zone.status}
               </span>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Temperature</span>
-                <span className="text-sm font-medium text-blue-600">{zone.temp}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-500">Humidity</span>
-                <span className="text-sm font-medium text-green-600">{zone.humidity}</span>
-              </div>
-            </div>
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

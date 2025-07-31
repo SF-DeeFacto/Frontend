@@ -9,7 +9,7 @@ const MainLayout = ({ title, children }) => (
     <Header />
     <div className="flex">
       <Aside />
-      <div className="flex-1 bg-gray-50">
+      <div className="flex-1 bg-gray-50 px-[30px]">
         {title && <PageTitle>{title}</PageTitle>}
         {children}
       </div>

@@ -4,23 +4,30 @@ const MenuItem = ({ icon, label, onClick, collapsed, rightIcon }) => {
   return (
     <div
       onClick={onClick}
-      className="flex w-[180px] h-[37px] px-[12px] py-[8px] items-center gap-[12px] rounded-md cursor-pointer hover:bg-[#E9EDFB] text-gray-700"
+      className={`flex h-[37px] px-[12px] py-[8px] items-center rounded-md cursor-pointer hover:bg-[#E9EDFB] text-gray-700 ${
+        collapsed ? 'w-[46px] justify-center' : 'w-[180px] justify-between'
+      }`}
     >
-      <div className="w-5 h-5">{icon}</div>
-      {!collapsed && (
-        <span
-          className="ml-2"
-          style={{
-            fontSize: "14px",
-            fontStyle: "normal",
-            fontWeight: 500,
-            lineHeight: "21px"
-          }}
-        >
-          {label}
-        </span>
+      <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center w-5 h-5">{icon}</div>
+        {!collapsed && (
+          <span
+            style={{
+              fontSize: "14px",
+              fontStyle: "normal",
+              fontWeight: 500,
+              lineHeight: "21px"
+            }}
+          >
+            {label}
+          </span>
+        )}
+      </div>
+      {!collapsed && rightIcon && (
+        <div className="flex items-center justify-center">
+          {rightIcon}
+        </div>
       )}
-      {!collapsed && rightIcon}
     </div>
   );
 };
