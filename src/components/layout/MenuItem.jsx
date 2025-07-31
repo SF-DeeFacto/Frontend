@@ -1,4 +1,5 @@
 import React from "react";
+import Text from "../common/Text";
 
 const MenuItem = ({ icon, label, onClick, collapsed, rightIcon }) => {
   return (
@@ -11,16 +12,9 @@ const MenuItem = ({ icon, label, onClick, collapsed, rightIcon }) => {
       <div className="flex items-center gap-3">
         <div className="flex items-center justify-center w-5 h-5">{icon}</div>
         {!collapsed && (
-          <span
-            style={{
-              fontSize: "14px",
-              fontStyle: "normal",
-              fontWeight: 500,
-              lineHeight: "21px"
-            }}
-          >
+          <Text variant="menu" size="sm" weight="medium">
             {label}
-          </span>
+          </Text>
         )}
       </div>
       {!collapsed && rightIcon && (

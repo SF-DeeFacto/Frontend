@@ -2,16 +2,24 @@
 import React from 'react';
 import Header from './Header';
 import Aside from './Aside';
-import PageTitle from './PageTitle';
+import Text from '../common/Text';
 
 const MainLayout = ({ title, children }) => (
-  <div className="flex flex-col">
+  <div className="flex flex-col min-h-screen">
     <Header />
-    <div className="flex">
+    <div className="flex flex-1">
       <Aside />
-      <div className="flex-1 bg-gray-50 px-[30px]">
-        {title && <PageTitle>{title}</PageTitle>}
-        {children}
+      <div className="flex-1 bg-gray-50">
+        {title && (
+          <div className="px-[30px] py-[12px]">
+            <Text variant="title" size="28px" weight="bold" color="gray-900">
+              {title}
+            </Text>
+          </div>
+        )}
+        <div className="px-[30px] py-[12px]">
+          {children}
+        </div>
       </div>
     </div>
   </div>

@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
+import Text from '../common/Text';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -30,20 +31,10 @@ const Header = () => {
       height: '100%'
     },
     timeInfo: {
-      fontFeatureSettings: "'dlig' on",
-      fontSize: "13px",
-      fontStyle: "normal",
-      fontWeight: 700,
-      lineHeight: "30px",
       marginRight: '50px'
     },
     userNav: {
       marginRight: '40px'
-    },
-    logoText: {
-      fontSize: '24px',
-      lineHeight: '26.4px',
-      fontWeight: 700
     },
     logoIcon: {
       fontSize: '24px',
@@ -71,12 +62,15 @@ const Header = () => {
       >
         🧊
       </span>
-      <span
-        className="ml-3 font-bold text-[#4D5DFA]"
-        style={styles.logoText}
+      <Text
+        variant="title"
+        size="xl"
+        weight="extrabold"
+        color="blue-600"
+        className="ml-3"
       >
         Deefacto
-      </span>
+      </Text>
     </div>
   );
 
@@ -86,8 +80,12 @@ const Header = () => {
       className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
       style={styles.timeInfo}
     >
-      {dateString} {weekdayString} {timeString}
-      <span style={styles.weatherInfo}>날씨 정보 가져왕왕</span>
+      <Text variant="body" size="sm" weight="bold">
+        {dateString} {weekdayString} {timeString}
+      </Text>
+      <Text variant="body" size="sm" weight="normal" className="ml-6">
+        날씨 정보 가져왕왕
+      </Text>
     </div>
   );
 
@@ -109,12 +107,16 @@ const Header = () => {
         <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
       </div>
       
-      <span 
-        className="text-sm font-medium text-gray-800 whitespace-nowrap" 
+      <Text 
+        variant="body" 
+        size="sm" 
+        weight="medium" 
+        color="gray-800"
+        className="whitespace-nowrap"
         style={styles.userName}
       >
         홍길동 사원
-      </span>
+      </Text>
     </nav>
   );
 

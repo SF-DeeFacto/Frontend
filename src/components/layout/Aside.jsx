@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
+import Text from '../common/Text';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -30,14 +31,10 @@ const Aside = () => {
       key={label}
       onClick={() => navigate(path)}
       className="text-gray-600 cursor-pointer hover:bg-[#DDE3FA] px-6 py-2 rounded-md ml-8 transition-colors duration-200 pr-[75px]"
-      style={{
-        fontSize: "14px",
-        fontStyle: "normal",
-        fontWeight: 500,
-        lineHeight: "21px"
-      }}
     >
-      {label}
+      <Text variant="menu" size="sm" weight="medium" color="gray-600">
+        {label}
+      </Text>
     </div>
   );
 

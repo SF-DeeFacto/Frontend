@@ -68,19 +68,7 @@ const ChatBot = () => {
     }
   };
 
-  const openChatBotInNewWindow = () => {
-    const chatBotWindow = window.open(
-      '/chatbot?new=true',
-      'ChatBot',
-      'width=400,height=600,scrollbars=yes,resizable=yes,status=yes,location=yes,toolbar=no,menubar=no'
-    );
-    
-    if (chatBotWindow) {
-      chatBotWindow.focus();
-    } else {
-      alert('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
-    }
-  };
+
 
   // URL 파라미터로 새창 여부 확인
   const isNewWindow = new URLSearchParams(window.location.search).get('new') === 'true';
@@ -168,7 +156,7 @@ const ChatBot = () => {
     );
   }
 
-  // 메인 페이지에서는 새창 열기 버튼 표시
+  // 메인 페이지에서는 간단한 안내 메시지 표시
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
@@ -179,17 +167,11 @@ const ChatBot = () => {
             </svg>
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            챗봇 대화
+            챗봇
           </h2>
-          <p className="text-gray-600 mb-6">
-            새로운 창에서 챗봇과 대화를 시작하세요.
+          <p className="text-gray-600">
+            사이드바의 챗봇 메뉴를 클릭하여 대화를 시작하세요.
           </p>
-          <button
-            onClick={openChatBotInNewWindow}
-            className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-          >
-            챗봇 새창으로 열기
-          </button>
         </div>
       </div>
     </div>
