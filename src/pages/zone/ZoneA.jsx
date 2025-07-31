@@ -21,6 +21,8 @@ const ZoneA = () => {
       padding: '16px',
       position: 'relative'
     }}>
+
+      
       <Canvas
         camera={{ position: [15, 10, 15], fov: 60 }}
         style={{ width: '100%', height: '100%' }}

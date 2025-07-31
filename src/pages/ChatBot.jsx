@@ -30,7 +30,7 @@ const ChatBot = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // 챗봇 응답 시뮬레이션
+    // 챗봇 응답 시뮬레이션 넣어보자...
     setTimeout(() => {
       const botResponse = {
         id: messages.length + 2,
