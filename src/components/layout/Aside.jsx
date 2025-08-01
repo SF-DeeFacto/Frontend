@@ -13,6 +13,7 @@ import {
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
+import { handleDummyLogout } from '../../dummy/services/auth';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -90,10 +91,37 @@ const Aside = () => {
     {
       icon: <FiLogOut />,
       label: "Logout",
-      onClick: () => {
-        localStorage.removeItem("token");
-        alert("로그아웃되었습니다.");
-        navigate("/");
+      onClick: async () => {
+        try {
+          const token = localStorage.getItem('token');
+          
+          // 실제 백엔드 API 호출 시도
+          const response = await fetch('/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (response.ok) {
+            // 실제 백엔드 응답 처리
+            alert("로그아웃되었습니다.");
+          } else {
+            // 백엔드 API가 실패하면 더미 로그아웃으로 처리
+            console.log('백엔드 API 호출 실패, 더미 로그아웃으로 처리');
+            handleDummyLogout();
+            alert("로그아웃되었습니다.");
+          }
+          
+          navigate("/login");
+        } catch (error) {
+          // 네트워크 오류 등으로 API 호출이 실패하면 더미 로그아웃으로 처리
+          console.log('API 호출 중 오류 발생, 더미 로그아웃으로 처리:', error);
+          handleDummyLogout();
+          alert("로그아웃되었습니다.");
+          navigate("/login");
+        }
       },
     },
   ];

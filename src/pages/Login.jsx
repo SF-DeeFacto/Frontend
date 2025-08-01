@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../components/common/Button';
+import Text from '../components/common/Text';
+import { handleDummyLogin } from '../dummy/services/auth';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
@@ -17,22 +20,46 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // 실제 로그인 API 호출을 시뮬레이션
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // 간단한 유효성 검사
-      if (!credentials.username || !credentials.password) {
-        throw new Error('사용자명과 비밀번호를 입력해주세요.');
-      }
+      // 실제 백엔드 API 호출 시도
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          password: credentials.password,
+        }),
+      });
 
-      // 로그인 성공
-      localStorage.setItem('token', 'dummy-token');
-      localStorage.setItem('user', JSON.stringify({ username: credentials.username }));
-      navigate('/home');
+      if (response.ok) {
+        // 실제 백엔드 응답 처리
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        navigate('/home');
+      } else {
+        // 백엔드 API가 실패하면 더미 로그인으로 처리
+        console.log('백엔드 API 호출 실패, 더미 로그인으로 처리');
+        handleDummyLoginFallback();
+      }
     } catch (err) {
-      setError(err.message || '로그인에 실패했습니다. 다시 시도해주세요.');
+      // 네트워크 오류 등으로 API 호출이 실패하면 더미 로그인으로 처리
+      console.log('API 호출 중 오류 발생, 더미 로그인으로 처리:', err.message);
+      handleDummyLoginFallback();
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // 더미 로그인 폴백 처리
+  const handleDummyLoginFallback = () => {
+    const result = handleDummyLogin(credentials);
+    
+    if (result.success) {
+      navigate('/home');
+    } else {
+      setError(result.error);
     }
   };
 
@@ -41,118 +68,175 @@ const Login = () => {
     if (error) setError('');
   };
 
+  const styles = {
+    loginContainer: {
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      backgroundColor: '#fff'
+    },
+    loginForm: {
+      background: 'white',
+      padding: '48px 40px',
+      borderRadius: '12px',
+      boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08)',
+      width: '350px',
+      maxWidth: '90vw',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch'
+    },
+    formGroup: {
+      marginBottom: '18px'
+    },
+    letter: {
+      color: '#000000',
+      fontWeight: 'bold',
+      marginBottom: '6px',
+      display: 'block',
+      textAlign: 'left'
+    },
+    formInput: {
+      width: '100%',
+      padding: '12px',
+      border: '1px solid #ccc',
+      borderRadius: '6px',
+      fontSize: '16px',
+      boxSizing: 'border-box',
+      backgroundColor: '#fff',
+      color: '#333'
+    },
+    errorMessage: {
+      color: 'red',
+      fontSize: '13px',
+      marginBottom: '12px',
+      textAlign: 'center'
+    },
+    signIn: {
+      color: '#888',
+      textAlign: 'left',
+      marginBottom: '18px',
+      fontSize: '15px'
+    },
+    dummyInfo: {
+      color: '#666',
+      fontSize: '12px',
+      textAlign: 'center',
+      marginTop: '16px',
+      padding: '12px',
+      backgroundColor: '#f8f9fa',
+      borderRadius: '6px',
+      border: '1px solid #e9ecef'
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      <div className="max-w-md w-full mx-4">
-        {/* 제목 */}
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">
-            DeeFacto에 오신 것을 환영합니다
-          </h2>
-          <p className="text-gray-600">
-            계정에 로그인하여 시작하세요
-          </p>
-        </div>
-
-        {/* 로그인 폼 */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 사용자명 입력 */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                사용자명
-              </label>
-              <div className="relative">
-                <input
-                  id="username"
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400"
-                  placeholder="사용자명을 입력하세요"
-                  value={credentials.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    <div style={styles.loginContainer}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <form onSubmit={handleSubmit} style={styles.loginForm}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
+            <span style={{ fontSize: '32px', marginRight: '12px' }}>🧊</span>
+            <Text variant="title" size="28px" weight="bold" color="black">
+              DeeFacto
+            </Text>
+          </div>
+          <div style={styles.formGroup}>
+            <Text variant="body" size="sm" weight="bold" color="black" style={styles.letter}>
+              사원번호
+            </Text>
+            <input
+              type="text"
+              value={credentials.username}
+              onChange={(e) => handleInputChange('username', e.target.value)}
+              required
+              placeholder="사원번호를 입력하세요"
+              style={styles.formInput}
+              autoComplete="username"
+              onFocus={(e) => {
+                e.target.style.borderColor = '#000000';
+                e.target.style.outline = 'none';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#ccc';
+              }}
+            />
+          </div>
+          <div style={styles.formGroup}>
+            <Text variant="body" size="sm" weight="bold" color="black" style={styles.letter}>
+              비밀번호
+            </Text>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={credentials.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                required
+                placeholder="비밀번호를 입력하세요"
+                style={{...styles.formInput, paddingRight: '48px'}}
+                autoComplete="current-password"
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#000000';
+                  e.target.style.outline = 'none';
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#ccc';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
+              >
+                {showPassword ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <ellipse cx="12" cy="12" rx="9" ry="6" />
+                    <circle cx="12" cy="12" r="2.5" />
+                    <line x1="3" y1="21" x2="21" y2="3" />
                   </svg>
-                </div>
-              </div>
+                ) : (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <ellipse cx="12" cy="12" rx="9" ry="6" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
+                )}
+              </button>
             </div>
-
-            {/* 비밀번호 입력 */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                비밀번호
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 placeholder-gray-400 pr-12"
-                  placeholder="비밀번호를 입력하세요"
-                  value={credentials.password}
-                  onChange={(e) => handleInputChange('password', e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
-                    </svg>
-                  ) : (
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* 에러 메시지 */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <div className="flex">
-                  <svg className="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="ml-3 text-sm text-red-700">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {/* 로그인 버튼 */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  로그인 중...
-                </div>
-              ) : (
-                '로그인'
-              )}
-            </button>
-          </form>
-
-
-        </div>
-
-        {/* 하단 정보 */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>© 2024 DeeFacto. 모든 권리 보유.</p>
-        </div>
+          </div>
+          <Text variant="body" size="xs" color="gray-600" style={styles.signIn}>
+            로그인에 문제가 있는 경우 관리자에게 문의하십시오
+          </Text>
+          {error && (
+            <Text variant="body" size="xs" color="red" style={styles.errorMessage}>
+              {error}
+            </Text>
+          )}
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            style={{
+              marginTop: '8px',
+              fontSize: '18px'
+            }}
+          >
+            {isLoading ? '로그인 중...' : '로그인'}
+          </Button>
+          
+        </form>
+      </div>
+      <div style={{ textAlign: 'center', color: '#bbb', fontSize: '13px', marginBottom: '16px' }}>
+        © 2024 DeeFacto. All rights reserved.
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ const AppRoutes = () => {
           </Suspense>
         </MainLayout>
       } />
-      <Route path="*" element={<MainLayout title="Not Found"><NotFound /></MainLayout>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 };

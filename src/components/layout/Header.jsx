@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
@@ -6,6 +6,20 @@ import Text from '../common/Text';
 
 const Header = () => {
   const navigate = useNavigate();
+  const [currentUser, setCurrentUser] = useState(null);
+
+  // 현재 로그인한 사용자 정보 가져오기
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        const userData = JSON.parse(user);
+        setCurrentUser(userData);
+      } catch (error) {
+        console.error('사용자 정보 파싱 오류:', error);
+      }
+    }
+  }, []);
 
   // 현재 시간 정보 가져오기
   const getCurrentTimeInfo = () => {
@@ -48,7 +62,8 @@ const Header = () => {
     },
     weatherInfo: {
       marginLeft: '25px'
-    }
+    },
+
   };
 
   const { dateString, weekdayString, timeString } = getCurrentTimeInfo();
@@ -115,10 +130,12 @@ const Header = () => {
         className="whitespace-nowrap"
         style={styles.userName}
       >
-        홍길동 사원
+        {currentUser ? `${currentUser.name} 사원` : '사용자'}
       </Text>
     </nav>
   );
+
+
 
   return (
     <header 
