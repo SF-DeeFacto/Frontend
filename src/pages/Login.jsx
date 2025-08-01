@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
-import { handleDummyLogin } from '../dummy/services/auth';
+import { handleDummyLogin } from '../dummy/services/user';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({

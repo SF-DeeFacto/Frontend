@@ -13,7 +13,7 @@ import {
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { handleDummyLogout } from '../../dummy/services/auth';
+import { handleDummyLogout } from '../../dummy/services/user';
 
 const Aside = () => {
   const navigate = useNavigate();

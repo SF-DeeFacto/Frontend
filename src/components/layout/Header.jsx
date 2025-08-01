@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
+import { fetchWeatherData } from '../../dummy/services/weather';
 
 const Header = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
 
   // 현재 로그인한 사용자 정보 가져오기
   useEffect(() => {
@@ -19,6 +21,25 @@ const Header = () => {
         console.error('사용자 정보 파싱 오류:', error);
       }
     }
+  }, []);
+
+  // 날씨 정보 가져오기
+  useEffect(() => {
+    const getWeatherInfo = async () => {
+      try {
+        const result = await fetchWeatherData();
+        if (result.success) {
+          setWeatherData(result.data);
+        }
+      } catch (error) {
+        console.error('날씨 정보 가져오기 실패:', error);
+      }
+    };
+
+    getWeatherInfo();
+    // 5분마다 날씨 정보 업데이트
+    const interval = setInterval(getWeatherInfo, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // 현재 시간 정보 가져오기
@@ -99,7 +120,7 @@ const Header = () => {
         {dateString} {weekdayString} {timeString}
       </Text>
       <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
-        날씨 정보 가져왕왕
+        {weatherData ? `${weatherData.weather} ${weatherData.temperature}°C` : '날씨 정보 로딩중...'}
       </Text>
     </div>
   );
