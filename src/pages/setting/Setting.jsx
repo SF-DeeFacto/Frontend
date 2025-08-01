@@ -1,95 +1,55 @@
 import React, { useState } from 'react';
+import Equipset from './tabs/Equipset';
+import Userset from './tabs/Userset';
+import PwudTab from './tabs/PwudTab';
+import PreferTab from './tabs/PreferTab';
+import ProfileTab from './tabs/ProfileTab';
 
 const Setting = () => {
-  const [settings, setSettings] = useState({
-    notifications: true,
-    autoRefresh: true,
-    theme: 'light',
-    language: 'ko'
-  });
+  const [activeTab, setActiveTab] = useState('profile');
 
-  const handleSettingChange = (key, value) => {
-    setSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
+  const tabs = [
+    { id: 'profile', name: '프로필', component: ProfileTab },
+    { id: 'prefer', name: '환경설정', component: PreferTab },
+    { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
+    { id: 'userset', name: '사용자 설정', component: Userset },
+    { id: 'equipset', name: '장비 설정', component: Equipset }
+  ];
+
+  const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Settings</h1>
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">Preferences</h3>
         </div>
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Notifications</h4>
-              <p className="text-sm text-gray-500">Receive alerts and notifications</p>
-            </div>
-            <button
-              onClick={() => handleSettingChange('notifications', !settings.notifications)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                settings.notifications ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                settings.notifications ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-          </div>
+        
+        {/* 탭 네비게이션 */}
+        <div className="border-b border-gray-200">
+          <nav className="flex space-x-8 px-6" aria-label="Tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+        </div>
 
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Auto Refresh</h4>
-              <p className="text-sm text-gray-500">Automatically refresh data</p>
-            </div>
-            <button
-              onClick={() => handleSettingChange('autoRefresh', !settings.autoRefresh)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                settings.autoRefresh ? 'bg-blue-600' : 'bg-gray-200'
-              }`}
-            >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                settings.autoRefresh ? 'translate-x-6' : 'translate-x-1'
-              }`} />
-            </button>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Theme</h4>
-              <p className="text-sm text-gray-500">Choose your preferred theme</p>
-            </div>
-            <select
-              value={settings.theme}
-              onChange={(e) => handleSettingChange('theme', e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-            </select>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <h4 className="text-sm font-medium text-gray-900">Language</h4>
-              <p className="text-sm text-gray-500">Select your language</p>
-            </div>
-            <select
-              value={settings.language}
-              onChange={(e) => handleSettingChange('language', e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-            >
-              <option value="ko">한국어</option>
-              <option value="en">English</option>
-            </select>
-          </div>
+        {/* 탭 컨텐츠 */}
+        <div className="p-6">
+          {ActiveComponent && <ActiveComponent />}
         </div>
       </div>
     </div>
   );
 };
 
-export default Setting; 
+export default Setting;
