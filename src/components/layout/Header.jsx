@@ -98,7 +98,7 @@ const Header = () => {
       <Text variant="body" size="sm" weight="bold">
         {dateString} {weekdayString} {timeString}
       </Text>
-      <Text variant="body" size="sm" weight="normal" className="ml-6">
+      <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
         날씨 정보 가져왕왕
       </Text>
     </div>
