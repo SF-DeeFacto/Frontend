@@ -14,6 +14,7 @@ import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { handleDummyLogout } from '../../dummy/services/user';
+import { hasZoneAccess, isAdmin } from '../../utils/permissions';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -27,17 +28,39 @@ const Aside = () => {
   };
 
   // 서브메뉴 아이템 렌더링 함수
-  const renderSubMenuItem = (label, path) => (
+  const renderSubMenuItem = (label, path, key) => (
     <div
-      key={label}
+      key={key}
       onClick={() => navigate(path)}
-      className="text-gray-600 cursor-pointer hover:bg-[#DDE3FA] px-6 py-2 rounded-md ml-8 transition-colors duration-200 pr-[75px]"
+      className="text-gray-600 cursor-pointer hover:bg-[#E9EDFB] px-6 py-2 rounded-md ml-8 transition-colors duration-200 pr-[75px]"
     >
       <Text variant="menu" size="sm" weight="medium" color="gray-600">
         {label}
       </Text>
     </div>
   );
+
+  // 권한에 맞는 Zone 서브메뉴 아이템들 생성
+  const getAccessibleZoneItems = () => {
+    const allZoneItems = [
+      { label: 'A01', path: '/zone/a', zoneId: 'a' },
+      { label: 'A02', path: '/zone/b', zoneId: 'b' },
+      { label: 'B01', path: '/zone/c', zoneId: 'c' },
+      { label: 'B02', path: '/zone/d', zoneId: 'd' },
+      { label: 'B03', path: '/zone/e', zoneId: 'e' },
+      { label: 'B04', path: '/zone/f', zoneId: 'f' },
+      { label: 'C01', path: '/zone/g', zoneId: 'g' },
+      { label: 'C02', path: '/zone/h', zoneId: 'h' }
+    ];
+
+    // 관리자는 모든 Zone에 접근 가능
+    if (isAdmin()) {
+      return allZoneItems;
+    }
+    
+    // 일반 사용자는 자신의 권한에 맞는 Zone만 접근 가능
+    return allZoneItems.filter(item => hasZoneAccess(item.zoneId));
+  };
 
   // 메뉴 아이템 데이터
   const menuItems = [
@@ -141,47 +164,49 @@ const Aside = () => {
   };
 
   return (
-              <aside
-       className={`${
-         isCollapsed ? "w-[70px]" : "w-[240px]"
-       } h-[calc(100vh-64px)] shadow-sm flex flex-col items-center px-3 pt-5 transition-all duration-300 ease-in-out border-r`}
-       style={sidebarStyle}
-     >
-       {/* 토글 버튼 */}
-       <button
-         onClick={toggleSidebar}
-         className="text-gray-500 hover:text-gray-700 transition-colors p-1 self-end mb-2"
-         style={toggleButtonStyle}
-       >
-         {isCollapsed ? (
-           <Icon><FiChevronsRight /></Icon>
-         ) : (
-           <Icon><FiChevronsLeft /></Icon>
-         )}
-       </button>
-       
-               {/* 메뉴 네비게이션 */}
-        <nav className="flex flex-col space-y-[10px]">
-                {/* 메인 메뉴 아이템들 */}
-         {menuItems.map((item, index) => (
-           <div key={index}>
-             <MenuItem
-               icon={<Icon>{item.icon}</Icon>}
-               label={item.label}
-               onClick={item.onClick}
-               collapsed={isCollapsed}
-             />
-             
-             {/* Zone 서브메뉴 - Zone 메뉴 바로 밑에 렌더링 */}
-             {item.label === "Zone" && zoneOpen && !isCollapsed && (
-               <div className="space-y-1 mt-2">
-                 {renderSubMenuItem("ZoneA", "/zone/a")}
+    <aside
+      className={`${
+        isCollapsed ? "w-[70px]" : "w-[240px]"
+      } h-[calc(100vh-64px)] shadow-sm flex flex-col items-center px-3 pt-5 transition-all duration-300 ease-in-out border-r`}
+      style={sidebarStyle}
+    >
+      {/* 토글 버튼 */}
+      <button
+        onClick={toggleSidebar}
+        className="text-gray-500 hover:text-gray-700 transition-colors p-1 self-end mb-2"
+        style={toggleButtonStyle}
+      >
+        {isCollapsed ? (
+          <Icon><FiChevronsRight /></Icon>
+        ) : (
+          <Icon><FiChevronsLeft /></Icon>
+        )}
+      </button>
+      
+      {/* 메뉴 네비게이션 */}
+      <nav className="flex flex-col space-y-[10px]">
+        {/* 메인 메뉴 아이템들 */}
+        {menuItems.map((item, index) => (
+          <div key={index}>
+            <MenuItem
+              icon={<Icon>{item.icon}</Icon>}
+              label={item.label}
+              onClick={item.onClick}
+              collapsed={isCollapsed}
+            />
+            
+                         {/* Zone 서브메뉴 - 권한에 맞는 Zone만 표시 */}
+             {item.label === "Zone" && (
+               <div className="space-y-1 mt-2" style={{ minHeight: zoneOpen && !isCollapsed ? '120px' : '0px', overflow: 'hidden', transition: 'min-height 0.3s ease-in-out' }}>
+                 {zoneOpen && !isCollapsed && getAccessibleZoneItems().map(zone => 
+                   renderSubMenuItem(zone.label, zone.path, zone.zoneId)
+                 )}
                </div>
              )}
-           </div>
-         ))}
-       </nav>
-     </aside>
+          </div>
+        ))}
+      </nav>
+    </aside>
   );
 };
 

@@ -1,39 +1,36 @@
-import React, { Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, useParams } from 'react-router-dom';
 import MainLayout from '../components/layout/MainLayout';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
-import Sensor from '../pages/Sensor';
 import Graph from '../pages/Graph';
 import Report from '../pages/Report';
-import Alarm from '../pages/Alarm';
 import ChatBot from '../pages/ChatBot';
+import Alarm from '../pages/Alarm';
 import Setting from '../pages/setting/Setting';
+import Zone from '../pages/zone/Zone';
 import NotFound from '../pages/NotFound';
 
-// ZoneA를 lazy loading으로 변경
-const ZoneA = lazy(() => import('../pages/zone/ZoneA'));
+// 동적 Zone 컴포넌트
+const DynamicZone = () => {
+  const { zoneId } = useParams();
+  return <Zone zoneId={zoneId} />;
+};
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/home" element={<MainLayout title="Dashboard"><Home /></MainLayout>} />
       <Route path="/login" element={<Login />} />
-      <Route path="/sensor" element={<MainLayout title="Sensor"><Sensor /></MainLayout>} />
-      <Route path="/graph" element={<MainLayout title="Graph"><Graph /></MainLayout>} />
-      <Route path="/report" element={<MainLayout title="Report"><Report /></MainLayout>} />
-      <Route path="/alarm" element={<MainLayout title="Alarm"><Alarm /></MainLayout>} />
-      <Route path="/chatbot" element={<ChatBot />} />
-      <Route path="/setting" element={<MainLayout title="Setting"><Setting /></MainLayout>} />
-      <Route path="/zone/a" element={
-        <MainLayout title="ZoneA">
-          <Suspense fallback={<div>Loading...</div>}>
-            <ZoneA />
-          </Suspense>
-        </MainLayout>
-      } />
-      <Route path="*" element={<NotFound />} />
+      <Route path="/" element={<MainLayout />}>
+        <Route path="/home" element={<Home />} />
+        <Route path="/graph" element={<Graph />} />
+        <Route path="/report" element={<Report />} />
+        <Route path="/chatbot" element={<ChatBot />} />
+        <Route path="/alarm" element={<Alarm />} />
+        <Route path="/setting" element={<Setting />} />
+        <Route path="/zone/:zoneId" element={<DynamicZone />} />
+        <Route path="*" element={<NotFound />} />
+      </Route>
     </Routes>
   );
 };
