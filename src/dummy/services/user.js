@@ -10,17 +10,8 @@ export const handleDummyLogin = (credentials) => {
     // 더미 토큰 생성 (실제로는 JWT 토큰이어야 함)
     const dummyToken = `dummy_token_${Date.now()}`;
     
-    // 로컬 스토리지에 저장
+    // 토큰만 로컬 스토리지에 저장 (사용자 정보는 Context에서 관리)
     localStorage.setItem('token', dummyToken);
-    localStorage.setItem('user', JSON.stringify({
-      id: user.id,
-      employee_id: user.employee_id,
-      name: user.name,
-      email: user.email,
-      department: user.department,
-      position: user.position,
-      role: user.role
-    }));
 
     console.log('더미 로그인 성공:', user.name);
     return { success: true, user };
@@ -32,7 +23,6 @@ export const handleDummyLogin = (credentials) => {
 // 더미 로그아웃 처리 함수
 export const handleDummyLogout = () => {
   localStorage.removeItem('token');
-  localStorage.removeItem('user');
   console.log('더미 로그아웃 완료');
   return { success: true };
 };
@@ -40,15 +30,9 @@ export const handleDummyLogout = () => {
 // 더미 토큰 검증 함수
 export const validateDummyToken = () => {
   const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
   
-  if (token && user) {
-    try {
-      const userData = JSON.parse(user);
-      return { valid: true, user: userData };
-    } catch (error) {
-      return { valid: false };
-    }
+  if (token && token.startsWith('dummy_token_')) {
+    return { valid: true };
   }
   
   return { valid: false };

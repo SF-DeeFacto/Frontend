@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
+import { useAuth } from '../contexts/AuthContext';
 import { handleDummyLogin } from '../dummy/services/user';
 
 const Login = () => {
@@ -13,6 +14,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,7 +38,7 @@ const Login = () => {
         // 실제 백엔드 응답 처리
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        login(data.user); // Context API의 login 함수 사용
         navigate('/home');
       } else {
         // 백엔드 API가 실패하면 더미 로그인으로 처리
@@ -57,6 +59,7 @@ const Login = () => {
     const result = handleDummyLogin(credentials);
     
     if (result.success) {
+      login(result.user); // Context API의 login 함수 사용
       navigate('/home');
     } else {
       setError(result.error);
