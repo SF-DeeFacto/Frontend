@@ -4,32 +4,22 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Aside from './Aside';
 import Text from '../common/Text';
-import { usePermissions } from '../../hooks/usePermissions';
 
 const MainLayout = () => {
   const location = useLocation();
-  const { hasZoneAccess, getZoneDisplayName } = usePermissions();
   
   // 경로에 따른 타이틀 매핑
   const getTitle = () => {
     const path = location.pathname;
     
     if (path === '/home') return 'Dashboard';
-    if (path === '/graph') return 'Graph';
-    if (path === '/report') return 'Report';
-    if (path === '/alarm') return 'Alarm';
-    if (path === '/setting') return 'Setting';
-    if (path.startsWith('/zone/')) {
-      const zoneId = path.split('/')[2]?.toLowerCase();
-      
-      if (!zoneId) return '';
-      
-      // 권한 체크
-      if (!hasZoneAccess(zoneId)) {
-        return '접근 권한 없음';
-      }
-      
-      return getZoneDisplayName(zoneId);
+    if (path === '/home/graph') return 'Graph';
+    if (path === '/home/report') return 'Report';
+    if (path === '/home/alarm') return 'Alarm';
+    if (path === '/home/setting') return 'Setting';
+    if (path.startsWith('/home/zone/')) {
+      const zoneId = path.split('/')[3]?.toLowerCase();
+      return `Zone ${zoneId?.toUpperCase() || 'Unknown'}`;
     }
     
     return '';

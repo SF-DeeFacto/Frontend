@@ -1,31 +1,12 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { hasZoneAccess, showPermissionError, getZoneDisplayName } from '../../utils/permissions';
-// import { Canvas } from '@react-three/fiber'
-// import { OrbitControls } from '@react-three/drei'
-// import ThreeElement from '../../ThreeElement.jsx';
-// import WarningLight from '../../components/WarningLight.jsx';
 
 const Zone = ({ zoneId }) => {
   const navigate = useNavigate();
   const params = useParams();
   const currentZoneId = zoneId || params.zoneId;
-  
-  // 권한 체크
-  useEffect(() => {
-    if (!hasZoneAccess(currentZoneId)) {
-      showPermissionError(currentZoneId);
-      navigate('/home'); // 권한이 없으면 홈으로 리다이렉트
-      return;
-    }
-  }, [currentZoneId, navigate]);
 
-  // 권한이 없으면 아무것도 렌더링하지 않음
-  if (!hasZoneAccess(currentZoneId)) {
-    return null;
-  }
-
-  const zoneName = getZoneDisplayName(currentZoneId);
+  const zoneName = `Zone ${currentZoneId?.toUpperCase() || 'Unknown'}`;
 
   return (
     <div style={{ 

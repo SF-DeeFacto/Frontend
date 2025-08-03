@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
-import { useAuth } from '../contexts/AuthContext';
 import { handleDummyLogin } from '../dummy/services/user';
 
 const Login = () => {
@@ -14,7 +13,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -38,7 +36,7 @@ const Login = () => {
         // 실제 백엔드 응답 처리
         const data = await response.json();
         localStorage.setItem('token', data.token);
-        login(data.user); // Context API의 login 함수 사용
+        localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/home');
       } else {
         // 백엔드 API가 실패하면 더미 로그인으로 처리
@@ -59,7 +57,6 @@ const Login = () => {
     const result = handleDummyLogin(credentials);
     
     if (result.success) {
-      login(result.user); // Context API의 login 함수 사용
       navigate('/home');
     } else {
       setError(result.error);
@@ -121,16 +118,6 @@ const Login = () => {
       textAlign: 'left',
       marginBottom: '18px',
       fontSize: '15px'
-    },
-    dummyInfo: {
-      color: '#666',
-      fontSize: '12px',
-      textAlign: 'center',
-      marginTop: '16px',
-      padding: '12px',
-      backgroundColor: '#f8f9fa',
-      borderRadius: '6px',
-      border: '1px solid #e9ecef'
     }
   };
 
@@ -235,7 +222,6 @@ const Login = () => {
           >
             {isLoading ? '로그인 중...' : '로그인'}
           </Button>
-          
         </form>
       </div>
       <div style={{ textAlign: 'center', color: '#bbb', fontSize: '13px', marginBottom: '16px' }}>
