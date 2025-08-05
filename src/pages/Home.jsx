@@ -2,15 +2,43 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
+import Button from '../components/common/Button';
 
 const Home = () => {
   const navigate = useNavigate();
 
   const zones = [
     { 
-      id: 'a', 
-      name: 'Zone A',
-      status: '정상'
+      id: 'a01', 
+      name: 'Zone A01',
+    },
+    { 
+      id: 'a02', 
+      name: 'Zone A02',
+    },
+    { 
+      id: 'b01', 
+      name: 'Zone B01',
+    },
+    { 
+      id: 'b02', 
+      name: 'Zone B02',
+    },
+    { 
+      id: 'b03', 
+      name: 'Zone B03',
+    },
+    { 
+      id: 'b04', 
+      name: 'Zone B04',
+    },
+    { 
+      id: 'c01', 
+      name: 'Zone C01',
+    },
+    { 
+      id: 'c02', 
+      name: 'Zone C02',
     },
   ];
 
@@ -19,8 +47,9 @@ const Home = () => {
       {/* 전체도면 섹션 */}
       <div style={{ 
         display: 'flex',
+        flexDirection: 'column',
         width: 'full',
-        height: '500px',
+        height: '600px',
         justifyContent: 'center',
         alignItems: 'center',
         gap: '8px',
@@ -31,32 +60,52 @@ const Home = () => {
         position: 'relative',
         marginBottom: '32px'
       }}>
-        <div className="w-full h-full">
+        {/* 3D 모델 영역 */}
+        <div className="w-full h-[500px]">
           <Canvas
-            camera={{ position: [0, 6, 3], fov: 60 }}
+            camera={{ position: [5, 7, 5], fov: 45 }}
             style={{ background: 'transparent' }}
             shadows
           >
             <ModelViewer />
           </Canvas>
         </div>
-      </div>
 
-      {/* Zone 카드들 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {zones.map((zone) => (
-          <div 
-            key={zone.id}
-            onClick={() => navigate(`/zone/${zone.id}`)}
-            className="bg-white p-6 rounded-lg shadow cursor-pointer hover:shadow-lg transition-shadow"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">{zone.name}</h3>
-              <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                {zone.status}
-              </span>
+        {/* 신호등 표시 */}
+        <div className="flex w-[666.36px] h-[31.88px] items-center justify-center gap-[15.59px] relative">
+          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+            <div className="bg-[#10b981] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
+            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+              안전
             </div>
           </div>
+
+          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+            <div className="bg-[#fff27a] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
+            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+              경고
+            </div>
+          </div>
+
+          <div className="inline-flex flex-[0_0_auto] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+            <div className="bg-[#fb5d5d] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
+            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+              위험
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Zone 버튼들 */}
+      <div className="flex flex-wrap gap-[30px] justify-center">
+        {zones.map((zone) => (
+          <Button
+            key={zone.id}
+            onClick={() => navigate(`/home/zone/${zone.id}`)}
+            className="text-black font-bold bg-white border border-gray-300 hover:bg-gray-50"
+          >
+            {zone.name}
+          </Button>
         ))}
       </div>
     </div>

@@ -42,14 +42,14 @@ const Aside = () => {
   // 모든 Zone 서브메뉴 아이템들
   const getAllZoneItems = () => {
     return [
-      { label: 'A01', path: '/home/zone/a', zoneId: 'a' },
-      { label: 'A02', path: '/home/zone/b', zoneId: 'b' },
-      { label: 'B01', path: '/home/zone/c', zoneId: 'c' },
-      { label: 'B02', path: '/home/zone/d', zoneId: 'd' },
-      { label: 'B03', path: '/home/zone/e', zoneId: 'e' },
-      { label: 'B04', path: '/home/zone/f', zoneId: 'f' },
-      { label: 'C01', path: '/home/zone/g', zoneId: 'g' },
-      { label: 'C02', path: '/home/zone/h', zoneId: 'h' }
+      { label: 'A01', path: '/home/zone/a01', zoneId: 'a01' },
+      { label: 'A02', path: '/home/zone/a02', zoneId: 'a02' },
+      { label: 'B01', path: '/home/zone/b01', zoneId: 'b01' },
+      { label: 'B02', path: '/home/zone/b02', zoneId: 'b02' },
+      { label: 'B03', path: '/home/zone/b03', zoneId: 'b03' },
+      { label: 'B04', path: '/home/zone/b04', zoneId: 'b04' },
+      { label: 'C01', path: '/home/zone/c01', zoneId: 'c01' },
+      { label: 'C02', path: '/home/zone/c02', zoneId: 'c02' }
     ];
   };
 

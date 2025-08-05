@@ -102,8 +102,6 @@ function Model() {
       const targetPath = event.object.userData.targetPath;
       if (targetPath) {
         navigate(targetPath);
-      } else {
-        navigate('/home/zone/a');
       }
     } else {
       console.log('클릭 불가능한 메시:', event.object.name);
