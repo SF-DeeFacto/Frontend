@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Canvas } from '@react-three/fiber';
+import ModelViewer from '../components/3d/ModelViewer';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -8,6 +10,7 @@ const Home = () => {
     { 
       id: 'a', 
       name: 'Zone A',
+      status: '정상'
     },
   ];
 
@@ -28,8 +31,14 @@ const Home = () => {
         position: 'relative',
         marginBottom: '32px'
       }}>
-        <div className="w-full text-center">
-          <h2 className="text-2xl font-bold text-blue-800">전체도면을 넣어주세용</h2>
+        <div className="w-full h-full">
+          <Canvas
+            camera={{ position: [0, 6, 3], fov: 60 }}
+            style={{ background: 'transparent' }}
+            shadows
+          >
+            <ModelViewer />
+          </Canvas>
         </div>
       </div>
 
