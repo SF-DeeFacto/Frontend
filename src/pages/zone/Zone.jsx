@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import A01ModelViewer from '../../components/3d/A01ModelViewer';
 
 const Zone = ({ zoneId }) => {
   const navigate = useNavigate();
@@ -7,6 +8,7 @@ const Zone = ({ zoneId }) => {
   const currentZoneId = zoneId || params.zoneId;
 
   const zoneName = `Zone ${currentZoneId?.toUpperCase() || 'Unknown'}`;
+  const isA01 = currentZoneId?.toUpperCase() === 'A01';
 
   return (
     <div style={{ 
@@ -22,29 +24,15 @@ const Zone = ({ zoneId }) => {
       padding: '16px',
       position: 'relative'
     }}>
-      <div className="w-full text-center">
-        <h2 className="text-2xl font-bold text-blue-800">
-          {zoneName} 도면을 넣거에용용
-        </h2>
-        <p className="text-lg text-gray-600 mt-2">
-          현재 Zone: {zoneName}
-        </p>
-      </div>
-      {/* <Canvas
-        camera={{ position: [15, 10, 15], fov: 60 }}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <ThreeElement />
-        <OrbitControls />
-      </Canvas> */}
-      
-      {/* 경고등 */}
-      {/* <WarningLight 
-        position={{ x: 435, y: 248 }}
-        isActive={true}
-        targetPosition={{ x: 435, y: 248 }}
-      />
-       */}
+      {isA01 ? (
+        <A01ModelViewer />
+      ) : (
+        <div className="w-full text-center">
+          <h2 className="text-2xl font-bold text-blue-800">
+            {zoneName} 도면을 넣거에용용
+          </h2>
+        </div>
+      )} 
 
     </div>
   );
