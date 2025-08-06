@@ -129,12 +129,12 @@ const Header = () => {
   const UserNavigation = () => (
     <nav className="flex items-center justify-center h-full" style={styles.userNav}>
       <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors">
-        <FiSettings onClick={() => navigate("/setting")} />
+        <FiSettings onClick={() => navigate("/home/setting")} />
       </Icon>
       
       <div
         className="relative cursor-pointer"
-        onClick={() => navigate("/alarm")}
+        onClick={() => navigate("/home/alarm")}
         style={styles.notificationDot}
       >
         <Icon className="text-gray-500 hover:text-gray-700 transition-colors">
