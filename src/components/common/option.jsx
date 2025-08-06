@@ -1,31 +1,35 @@
 import React, { useState } from "react";
+import { FiChevronDown } from "react-icons/fi";
+import Text from "./Text";
 
 // 아래로 향하는 아이콘 (토글)
 const ChevronDown = ({ isOpen }) => (
-  <svg
-    className={`w-5 h-5 transform transition-transform ${isOpen ? "rotate-180" : ""}`}
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    viewBox="0 0 24 24"
-  >
-    <path d="M6 9l6 6 6-6" />
-  </svg>
+  <FiChevronDown
+    className="w-5 h-5"
+  />
 );
 
 // 옵션 프레임
-export const OptionFrame = ({ children }) => {
+export const OptionFrame = ({ children, onToggle }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleToggle = () => {
+    const newIsOpen = !isOpen;
+    setIsOpen(newIsOpen);
+    if (onToggle) {
+      onToggle(newIsOpen);
+    }
+  };
+
   return (
-    <div className="w-[1100px] flex flex-col items-start justify-start p-4 border border-gray-200 rounded-md bg-white shadow">
+    <div className="w-full flex flex-col items-start justify-start p-4">
       {/* 옵션 텍스트 + 아이콘 버튼 */}
-      <div className="flex items-center border-b border-gray-300 w-full pb-2 mb-4">
-        <div className="text-blue-900 text-lg font-medium mr-2">옵션</div>
+      <div className="flex items-center w-full pb-2 mb-9">
+        <div className="text-blue-600 font-bold mr-2" style={{ fontSize: '20px' }}>옵션</div>
 
         <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          className="p-1 rounded hover:bg-gray-100 transition"
+          onClick={handleToggle}
+          className="p-1 bg-transparent border-none outline-none focus:outline-none"
         >
           <ChevronDown isOpen={isOpen} />
         </button>
