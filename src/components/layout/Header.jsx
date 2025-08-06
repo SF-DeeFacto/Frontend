@@ -13,17 +13,31 @@ const Header = () => {
   // 현재 로그인한 사용자 정보 가져오기
   useEffect(() => {
     const user = localStorage.getItem('user');
-    if (user) {
-      try {
-        const userData = JSON.parse(user);
-        setCurrentUser(userData);
-      } catch (error) {
-        console.error('사용자 정보 파싱 오류:', error);
-      }
+    const token = localStorage.getItem('access_token');
+    
+    // 토큰이나 사용자 정보가 없으면 로그인 페이지로 리다이렉트
+    if (!token || !user) {
+      console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
+      navigate('/login');
+      return;
     }
-  }, []);
+    
+    try {
+      const userData = JSON.parse(user);
+      // 사용자 정보에 name이 없으면 로그인 페이지로 리다이렉트
+      if (!userData.name) {
+        console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
+        navigate('/login');
+        return;
+      }
+      setCurrentUser(userData);
+    } catch (error) {
+      console.error('사용자 정보 파싱 오류:', error);
+      navigate('/login');
+    }
+  }, [navigate]);
 
-  // 날씨 정보 가져오기
+  // 날씨 정보 가져오기 (더미 데이터 사용)
   useEffect(() => {
     const getWeatherInfo = async () => {
       try {
@@ -129,12 +143,12 @@ const Header = () => {
   const UserNavigation = () => (
     <nav className="flex items-center justify-center h-full" style={styles.userNav}>
       <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors">
-        <FiSettings onClick={() => navigate("/setting")} />
+        <FiSettings onClick={() => navigate("/home/setting")} />
       </Icon>
       
       <div
         className="relative cursor-pointer"
-        onClick={() => navigate("/alarm")}
+        onClick={() => navigate("/home/alarm")}
         style={styles.notificationDot}
       >
         <Icon className="text-gray-500 hover:text-gray-700 transition-colors">
@@ -151,7 +165,7 @@ const Header = () => {
         className="whitespace-nowrap"
         style={styles.userName}
       >
-        {currentUser ? `${currentUser.name} 사원` : '사용자'}
+        {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
       </Text>
     </nav>
   );

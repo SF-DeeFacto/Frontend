@@ -6,6 +6,7 @@ import {
   FiBarChart2,
   FiFileText,
   FiMessageCircle,
+  FiSettings,
   FiLogOut,
   FiChevronsLeft,
   FiChevronsRight,
@@ -13,7 +14,7 @@ import {
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { handleDummyLogout } from '../../dummy/services/user';
+import { logout } from '../../services/api/auth';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -103,6 +104,11 @@ const Aside = () => {
       },
     },
     {
+      icon: <FiSettings />,
+      label: "Settings",
+      onClick: () => navigate("/home/setting"),
+    },
+    {
       icon: <FiLogOut />,
       label: "Logout",
       onClick: async () => {
@@ -122,17 +128,17 @@ const Aside = () => {
             // 실제 백엔드 응답 처리
             alert("로그아웃되었습니다.");
           } else {
-            // 백엔드 API가 실패하면 더미 로그아웃으로 처리
-            console.log('백엔드 API 호출 실패, 더미 로그아웃으로 처리');
-            handleDummyLogout();
+            // 백엔드 API가 실패하면 로컬 로그아웃으로 처리
+            console.log('백엔드 API 호출 실패, 로컬 로그아웃으로 처리');
+            await logout();
             alert("로그아웃되었습니다.");
           }
           
           navigate("/login");
         } catch (error) {
-          // 네트워크 오류 등으로 API 호출이 실패하면 더미 로그아웃으로 처리
-          console.log('API 호출 중 오류 발생, 더미 로그아웃으로 처리:', error);
-          handleDummyLogout();
+          // 네트워크 오류 등으로 API 호출이 실패하면 로컬 로그아웃으로 처리
+          console.log('API 호출 중 오류 발생, 로컬 로그아웃으로 처리:', error);
+          await logout();
           alert("로그아웃되었습니다.");
           navigate("/login");
         }

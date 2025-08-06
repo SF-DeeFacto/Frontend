@@ -2,17 +2,19 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
-import { handleDummyLogin } from '../dummy/services/user';
+import { login } from '../services/api/auth';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleInputChange = (field, value) => {
+    setCredentials(prev => ({ ...prev, [field]: value }));
+    if (error) setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,52 +22,17 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // 실제 백엔드 API 호출 시도
-      const response = await fetch('/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password,
-        }),
-      });
-
-      if (response.ok) {
-        // 실제 백엔드 응답 처리
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      const result = await login(credentials);
+      if (result.success) {
         navigate('/home');
       } else {
-        // 백엔드 API가 실패하면 더미 로그인으로 처리
-        console.log('백엔드 API 호출 실패, 더미 로그인으로 처리');
-        handleDummyLoginFallback();
+        setError(result.error);
       }
-    } catch (err) {
-      // 네트워크 오류 등으로 API 호출이 실패하면 더미 로그인으로 처리
-      console.log('API 호출 중 오류 발생, 더미 로그인으로 처리:', err.message);
-      handleDummyLoginFallback();
+    } catch (e) {
+      setError('로그인 중 오류 발생');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // 더미 로그인 폴백 처리
-  const handleDummyLoginFallback = () => {
-    const result = handleDummyLogin(credentials);
-    
-    if (result.success) {
-      navigate('/home');
-    } else {
-      setError(result.error);
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setCredentials(prev => ({ ...prev, [field]: value }));
-    if (error) setError('');
   };
 
   const styles = {
