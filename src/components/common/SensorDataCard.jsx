@@ -109,45 +109,47 @@ const SensorDataCard = ({ sensorData, zoneConfig }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-2 border border-gray-200 hover:shadow-lg transition-shadow w-full">
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="font-semibold text-gray-800 text-sm capitalize truncate">
-          {sensorData.sensor_type === 'esd' ? '정전기' : 
-           sensorData.sensor_type === 'particle' ? '먼지' :
-           sensorData.sensor_type === 'windDir' ? '풍향' :
-           sensorData.sensor_type === 'temperature' ? '온도' :
-           sensorData.sensor_type === 'humidity' ? '습도' : sensorData.sensor_type}
-        </h3>
-        <span className="text-xs text-gray-500 bg-gray-100 px-1 py-0.5 rounded">
-          {sensorData.sensor_id}
-        </span>
-      </div>
+    <div className={`sensor-card ${sensorData.sensor_type}`}>
+      <div className="sensor-card-content">
+        <div className="sensor-header">
+          <h3 className="sensor-title">
+            {sensorData.sensor_type === 'esd' ? '정전기' : 
+             sensorData.sensor_type === 'particle' ? '먼지' :
+             sensorData.sensor_type === 'windDir' ? '풍향' :
+             sensorData.sensor_type === 'temperature' ? '온도' :
+             sensorData.sensor_type === 'humidity' ? '습도' : sensorData.sensor_type}
+          </h3>
+          <span className="sensor-id-badge">
+            {sensorData.sensor_id}
+          </span>
+        </div>
       
 
       
-                    <div className="text-center">
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <div 
-            className="w-3 h-3 rounded-full border border-gray-300" 
-            style={{ 
-              backgroundColor: getStatusBgColor(sensorData),
-              minWidth: '12px',
-              minHeight: '12px'
-            }}
-            title={`상태: ${sensorData.val || sensorData.val_0_5}`}
-          ></div>
-          <div className={`text-xl font-bold ${getStatusColor(sensorData)}`}>
-            {getSensorValue(sensorData)}
-            <span className="text-xs ml-1">{getSensorUnit(sensorData.sensor_type)}</span>
+                    <div className="sensor-value-section">
+          <div className="sensor-value-container">
+            <div 
+              className="status-indicator" 
+              style={{ 
+                backgroundColor: getStatusBgColor(sensorData),
+                minWidth: '16px',
+                minHeight: '16px'
+              }}
+              title={`상태: ${sensorData.val || sensorData.val_0_5}`}
+            ></div>
+            <div className={`sensor-value ${getStatusColor(sensorData)}`}>
+              {getSensorValue(sensorData)}
+              <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
+            </div>
           </div>
+          
+          {sensorData.sensor_type === 'particle' && (
+            <div className="particle-details">
+              <div className="particle-detail-item">0.1μm: {sensorData.val_0_1?.toFixed(2) || 0}</div>
+              <div className="particle-detail-item">0.3μm: {sensorData.val_0_3?.toFixed(2) || 0}</div>
+            </div>
+          )}
         </div>
-        
-        {sensorData.sensor_type === 'particle' && (
-          <div className="text-xs text-gray-500 mt-1">
-            <div>0.1μm: {sensorData.val_0_1?.toFixed(2) || 0}</div>
-            <div>0.3μm: {sensorData.val_0_3?.toFixed(2) || 0}</div>
-          </div>
-        )}
       </div>
     </div>
   );

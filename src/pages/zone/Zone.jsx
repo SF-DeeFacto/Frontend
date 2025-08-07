@@ -4,6 +4,7 @@ import ZoneModelViewer from '../../components/3d/ZoneModelViewer';
 import SensorDataCard from '../../components/common/SensorDataCard';
 import zoneService from '../../services/zoneService';
 import { getZoneConfig } from '../../config/zoneConfig';
+import '../../styles/zone.css';
 
 const Zone = ({ zoneId }) => {
   const navigate = useNavigate();
