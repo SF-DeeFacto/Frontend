@@ -9,7 +9,11 @@ import ChatBot from '../pages/ChatBot';
 import Alarm from '../pages/Alarm';
 import Setting from '../pages/setting/Setting';
 import Zone from '../pages/zone/Zone';
+import GrafanaDashboard from '../pages/GrafanaDashboard';
+import GrafanaTest from '../pages/GrafanaTest';
 import NotFound from '../pages/NotFound';
+import DashboardChart from '../pages/GrafanaTest_2';
+import GrafanaIframe from '../pages/GrafanaIframe';
 
 // 로그인 상태 확인 함수
 const isAuthenticated = () => {
@@ -82,6 +86,10 @@ const AppRoutes = () => {
       >
         <Route index element={<Home />} />
         <Route path="/home/graph" element={<Graph />} />
+        {/* <Route path="/home/grafana" element={<GrafanaDashboard />} /> */}
+        <Route path="/home/grafana-test2" element={<DashboardChart />} />
+        <Route path="/home/grafana-test3" element={<GrafanaIframe />} />
+        {/* <Route path="/home/grafana-test" element={<GrafanaTest />} /> */}
         <Route path="/home/report" element={<Report />} />
         <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
