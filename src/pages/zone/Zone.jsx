@@ -122,7 +122,7 @@ const Zone = ({ zoneId }) => {
                         </h4>
                         <div className={sensors.length > 1 ? "flex gap-2" : "flex flex-col gap-2"}>
                           {sensors.map((sensor, index) => (
-                            <div key={`${sensor.sensor_id}-${index}`} className="w-[300px]">
+                            <div key={`${sensor.sensor_id}-${index}`} className="w-[250px]">
                               <SensorDataCard 
                                 sensorData={sensor} 
                                 zoneConfig={zoneConfig}

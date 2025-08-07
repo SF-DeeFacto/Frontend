@@ -8,13 +8,13 @@ class ZoneService {
     this.isConnected = false;
   }
 
-  // Zone별 센서 데이터 구독
+  // Zone별 센서 데이터 구독 (백엔드 API 연결)
   subscribeToZoneData(zoneId, callback) {
     if (this.eventSource) {
       this.eventSource.close();
     }
 
-    // 실제 백엔드 API 엔드포인트로 연결
+    // 백엔드 API 엔드포인트로 연결
     const apiUrl = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}/sensor-stream`;
     
     this.eventSource = new EventSource(apiUrl);
@@ -23,7 +23,7 @@ class ZoneService {
       try {
         const data = JSON.parse(event.data);
         if (data.success && data.data) {
-          // Zone별로 센서 데이터 필터링
+          // Zone별로 센서 데이터 필터링 (백엔드 데이터 형식)
           const zoneSensors = data.data.filter(sensor => 
             sensor.zone_id?.toUpperCase() === zoneId?.toUpperCase()
           );
@@ -85,7 +85,7 @@ class ZoneService {
     }
   }
 
-  // Zone별 기본 센서 설정 (임시 데이터)
+  // Zone별 기본 센서 설정 (백엔드 형식에 맞춘 임시 데이터)
   getZoneDefaultSensors(zoneId) {
     const zoneConfig = getZoneConfig(zoneId);
     if (!zoneConfig) {
@@ -98,7 +98,7 @@ class ZoneService {
       };
     }
 
-    // 설정에서 센서 정보를 가져와서 임시 데이터 생성
+    // 설정에서 센서 정보를 가져와서 백엔드 형식에 맞춘 임시 데이터 생성
     const defaultSensors = {
       temperature: [],
       humidity: [],
@@ -107,17 +107,18 @@ class ZoneService {
       windDir: []
     };
 
-    // 각 센서 타입별로 임시 데이터 생성
+    // 각 센서 타입별로 백엔드 형식에 맞춘 임시 데이터 생성
     Object.keys(zoneConfig.sensors).forEach(sensorType => {
       zoneConfig.sensors[sensorType].forEach(sensor => {
+        // 백엔드 GenericSensorDataDto/ParticleSensorDataDto 형식에 맞춤
         const sensorData = {
           sensor_id: sensor.sensor_id,
-          sensor_type: sensorType,
           zone_id: zoneId,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          sensor_type: sensorType
         };
 
-        // 센서 타입별 기본값 설정
+        // 센서 타입별 기본값 설정 (백엔드 형식)
         switch (sensorType) {
           case 'temperature':
             sensorData.val = 23 + Math.random() * 5; // 23-28°C
@@ -129,6 +130,7 @@ class ZoneService {
             sensorData.val = 10 + Math.random() * 20; // 10-30V
             break;
           case 'particle':
+            // ParticleSensorDataDto 형식
             sensorData.val_0_1 = 10 + Math.random() * 10; // 10-20 μg/m³
             sensorData.val_0_3 = 5 + Math.random() * 8; // 5-13 μg/m³
             sensorData.val_0_5 = 3 + Math.random() * 5; // 3-8 μg/m³
