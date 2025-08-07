@@ -1,82 +1,100 @@
-# React + TypeScript + Vite
+# Frontend Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 백엔드 서비스 연동 설정
 
-## 백엔드 연동 설정
+이 프로젝트는 두 개의 백엔드 서비스와 연동됩니다:
 
-### 1. 환경 변수 설정
-프로젝트 루트에 `.env` 파일을 생성하고 다음 내용을 추가하세요:
+### 1. UserService 백엔드 (포트 8081)
+- **용도**: 사용자 인증, 사용자 정보 관리
+- **프록시 경로**: `/api`
+- **환경 변수**: `VITE_API_BASE_URL`
 
-```env
-# API 설정
-VITE_API_BASE_URL=/api
+### 2. Dashboard 백엔드 (포트 8083)
+- **용도**: 대시보드 데이터, 실시간 모니터링
+- **프록시 경로**: `/dashboard-api`
+- **환경 변수**: `VITE_DASHBOARD_API_BASE_URL`
 
-# 개발 환경 백엔드 서버 주소 (필요시 변경)
-# VITE_API_BASE_URL=http://localhost:8081
+## 개발 환경 설정
+
+1. 환경 변수 파일 생성:
+```bash
+cp env.example .env
 ```
 
-### 2. 백엔드 서버 주소 설정
-`vite.config.js` 파일에서 프록시 설정의 target을 백엔드 서버 주소로 변경하세요:
+2. 백엔드 서비스 실행:
+```bash
+# UserService (포트 8081)
+cd C:\BE\Backend-UserService\user-service
+npm start
 
-```js
-server: {
-  proxy: {
-    '/api': {
-      target: 'http://localhost:8080', // 백엔드 서버 주소
-      changeOrigin: true,
-      rewrite: (path) => path.replace(/^\/api/, '')
-    }
-  }
-}
+# Dashboard 백엔드 (포트 8083)
+cd C:\BE\Backend-dashboard\backend-dashboard
+npm start
 ```
 
-### 3. API 서비스 사용법
+3. 프론트엔드 실행:
+```bash
+npm run dev
+```
 
-#### 인증 서비스
-```js
-import { login, logout, validateToken } from './services/auth.js';
+## API 사용 예시
+
+### UserService API (인증)
+```javascript
+import { login, logout, getCurrentUser } from './services/api/auth';
 
 // 로그인
-const result = await login({ username: 'user', password: 'pass' });
+const result = await login({ username: 'employee123', password: 'password' });
 
 // 로그아웃
 await logout();
 
-// 토큰 검증
-const validation = await validateToken();
+// 현재 사용자 정보
+const user = getCurrentUser();
 ```
 
-#### 날씨 서비스
-```js
-import { fetchWeatherData, fetchWeatherForecast } from './services/weather.js';
+### Dashboard API (대시보드 데이터)
+```javascript
+import { dashboardApi, connectMainSSE, connectZoneSSE } from './services/api/dashboard_api';
 
-// 현재 날씨
-const weather = await fetchWeatherData();
+// 일반 HTTP API
+const dashboardData = await dashboardApi.getDashboardData();
+const zoneData = await dashboardApi.getZoneData('zone_A01');
 
-// 날씨 예보
-const forecast = await fetchWeatherForecast();
+// SSE 실시간 연결
+const disconnect = connectMainSSE({
+  onMessage: (data) => {
+    console.log('실시간 데이터:', data);
+  },
+  onError: (error) => {
+    console.error('SSE 오류:', error);
+  }
+});
+
+// 연결 해제
+disconnect();
 ```
 
-#### 구역 서비스
-```js
-import { fetchZoneStatus, controlZone } from './services/zone.js';
+## 프록시 설정
 
-// 구역 상태
-const zones = await fetchZoneStatus();
+`vite.config.js`에서 프록시 설정을 통해 CORS 문제를 해결합니다:
 
-// 구역 제어
-await controlZone('zone1', 'on');
-```
-
-#### 센서 서비스
-```js
-import { fetchSensorData, fetchSensorHistory } from './services/sensor.js';
-
-// 센서 데이터
-const sensors = await fetchSensorData();
-
-// 센서 히스토리
-const history = await fetchSensorHistory('sensor1', '24h');
+```javascript
+server: {
+  proxy: {
+    // UserService 백엔드
+    '/api': {
+      target: 'http://localhost:8081',
+      changeOrigin: true
+    },
+    // Dashboard 백엔드
+    '/dashboard-api': {
+      target: 'http://localhost:8083',
+      changeOrigin: true,
+      rewrite: (path) => path.replace(/^\/dashboard-api/, '')
+    }
+  }
+}
 ```
 
 ## Expanding the ESLint configuration
@@ -138,12 +156,6 @@ export default tseslint.config([
     },
   },
 ])
-```
-
-## 개발 서버 실행
-
-```bash
-npm run dev
 ```
 
 ## 빌드

@@ -56,7 +56,7 @@ const Login = () => {
     }
     // ===== 개발용 더미 로그인 기능 끝 =====
 
-    // ===== 실제 백엔드 로그인 기능 시작 =====
+    // 실제 백엔드 로그인 기능 시작
     try {
       const result = await login(credentials);
       if (result.success) {
