@@ -7,7 +7,24 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // UserService 백엔드 (포트 8081)
+      '/grafana-api': {
+        target: 'http://192.168.55.180:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/grafana-api/, ''),
+        // secure: false,
+        // configure: (proxy, options) => {
+        //   proxy.on('error', (err, req, res) => {
+        //     console.log('Proxy error:', err);
+        //   });
+        //   proxy.on('proxyReq', (proxyReq, req, res) => {
+        //     console.log('Proxy request:', req.method, req.url);
+        //   });
+        //   proxy.on('proxyRes', (proxyRes, req, res) => {
+        //     console.log('Proxy response:', proxyRes.statusCode, req.url);
+        //   });
+        // }
+      },
+      //유저 포트
       '/api': {
         target: 'http://localhost:8081',
         changeOrigin: true,
@@ -29,4 +46,5 @@ export default defineConfig({
       }
     }
   }
-})
+}); 
+      
