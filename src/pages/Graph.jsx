@@ -73,21 +73,6 @@ const Graph = () => {
               <Button>먼지</Button>
             </div>
           </div>
-
-          {/* Section 3: 기간 */}
-          <div className="flex items-center space-x-4 pb-3 pt-4 border-b border-gray-200">
-            <span className="w-[70px]">기간</span>
-            <div className="flex space-x-[25px]">
-              <Button>1시간</Button>
-              <Button>3시간</Button>
-              <Button>6시간</Button>
-              <Button>12시간</Button>
-              <Button>1일</Button>
-              <Button>3일</Button>
-              <Button>1주</Button>
-              <Button>직접입력</Button>
-            </div>
-          </div>
         </div>
       </OptionFrame>
 
