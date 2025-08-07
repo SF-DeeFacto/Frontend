@@ -2,7 +2,8 @@ import React from 'react';
 
 const Graph = () => {
   // http://localhost:3000/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512
-  const dashboardUrl=`http://192.168.55.180:3000/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512`;
+  //const dashboardUrl=`http://192.168.55.180:3000/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512`;
+  const dashboardUrl=`http://222.235.142.221:12333/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512?refresh=auto&from=now-5m&to=now&timezone=browser&theme=light`;
 
   return (
     
