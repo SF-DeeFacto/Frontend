@@ -3,6 +3,12 @@ import authApiClient from '../index';
 // 로그인
 export const login = async (credentials) => {
   try {
+    // 로그인 요청 전에 기존 토큰 정리 (인터셉터에서 자동 추가되는 것을 방지)
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('employeeId');
+    localStorage.removeItem('user');
+    
     console.log('=== 로그인 요청 디버깅 ===');
     console.log('authApiClient:', authApiClient);
     console.log('authApiClient.defaults:', authApiClient?.defaults);
@@ -20,6 +26,10 @@ export const login = async (credentials) => {
       employeeId: credentials.username,
       password: credentials.password
     });
+    
+    // 요청 헤더 확인
+    console.log('=== 요청 헤더 확인 ===');
+    console.log('authApiClient.defaults.headers:', authApiClient.defaults.headers);
     
     const response = await authApiClient.post('/auth/login', {
       employeeId: credentials.username,
