@@ -6,21 +6,22 @@ export const zoneConfig = {
     modelType: 'B01',
     sensors: {
       temperature: [
-        { sensor_id: 'B01_TEMP_01', name: '온도 센서 1', location: '입구' },
-        { sensor_id: 'B01_TEMP_02', name: '온도 센서 2', location: '중앙' }
+        { sensor_id: 'B01_TEMP_01' },
+        { sensor_id: 'B01_TEMP_02' },
+        { sensor_id: 'B01_TEMP_03' }
       ],
       humidity: [
-        { sensor_id: 'B01_HUMI_01', name: '습도 센서 1', location: '입구' },
-        { sensor_id: 'B01_HUMI_02', name: '습도 센서 2', location: '중앙' }
+        { sensor_id: 'B01_HUMI_01' },
+        { sensor_id: 'B01_HUMI_02' }
       ],
       esd: [
-        { sensor_id: 'B01_ESD_01', name: '정전기 센서 1', location: '작업대' }
+        { sensor_id: 'B01_ESD_01' }
       ],
       particle: [
-        { sensor_id: 'B01_PART_01', name: '먼지 센서 1', location: '환기구' }
+        { sensor_id: 'B01_PART_01' }
       ],
       windDir: [
-        { sensor_id: 'B01_WIND_01', name: '풍향 센서 1', location: '외부' }
+        { sensor_id: 'B01_WIND_01' }
       ]
     },
     thresholds: {
