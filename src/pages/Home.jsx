@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
 import Button from '../components/common/Button';
+import { connectMainSSE } from '../services/api/dashboard_api';
 import { zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4 } from '../dummy/data/zoneStatus';
 
 const Home = () => {
@@ -36,109 +37,188 @@ const Home = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // API 호출 시뮬레이션 (백엔드 연동 실패 시 더미 데이터 사용)
-    const fetchZoneStatus = async () => {
-      try {
-        // 실제 API 호출 시도
-        const response = await fetch('/api/home/status');
-        const data = await response.json();
-        
-        if (data.code === 'SUCCESS') {
-          const statusMap = {};
-          data.data.zones.forEach(zone => {
-            statusMap[zone.zone_name] = zone.status;
-          });
-          setZoneStatuses(statusMap);
-          console.log('실제 API 데이터 로드됨:', data);
-        } else {
-          // API 응답이 성공이 아닌 경우 더미 데이터 사용
-          throw new Error('API 응답 실패');
+    console.log('Home 컴포넌트 마운트 - SSE 연결 시작');
+    let disconnectSSE = null;
+    let interval = null;
+    
+    // SSE 연결을 통한 실시간 데이터 수신
+    try {
+      console.log('SSE 연결 초기화 중...');
+      disconnectSSE = connectMainSSE({
+        onMessage: (data) => {
+          console.log('SSE 메인 데이터 수신:', data);
+          try {
+            if (data.code === 'OK') {
+              const statusMap = {};
+              data.data.forEach(zone => {
+                statusMap[zone.zoneName] = zone.status;
+              });
+              setZoneStatuses(statusMap);
+              
+              // 실시간 데이터로 업데이트된 존들 목록 출력 (A01, B01만)
+              const realtimeZones = Object.keys(statusMap).filter(zoneName => 
+                zoneName === 'zone_A' || zoneName === 'zone_B'
+              );
+              console.log('SSE 데이터 처리 완료 - 존 상태 업데이트:', statusMap);
+              console.log(`실시간 데이터 사용 중인 존들:`, realtimeZones);
+              
+              // 각 존별로 실시간 데이터임을 표시 (A01, B01만)
+              realtimeZones.forEach(zoneName => {
+                console.log(`Zone ${zoneName}: 실시간 SSE 데이터 사용 (상태: ${statusMap[zoneName]})`);
+              });
+              
+              // 나머지 존들은 더미 데이터 사용 중임을 표시
+              const dummyZones = ['zone_A02', 'zone_B02', 'zone_B03', 'zone_B04', 'zone_C01', 'zone_C02'];
+              dummyZones.forEach(zoneName => {
+                if (statusMap[zoneName]) {
+                  console.log(`Zone ${zoneName}: 더미 데이터 사용 (상태: ${statusMap[zoneName]})`);
+                }
+              });
+            } else {
+              console.log('SSE 응답이 성공이 아닙니다:', data);
+              // SSE 응답이 실패한 경우 더미 데이터 사용
+              useFallbackData();
+            }
+          } catch (error) {
+            console.error('SSE 데이터 처리 오류:', error);
+            useFallbackData();
+          }
+        },
+        onError: (error) => {
+          console.error('SSE 연결 오류:', error);
+          console.log('더미 데이터로 폴백합니다.');
+          useFallbackData();
         }
-      } catch (error) {
-        console.error('Zone status fetch error:', error);
-        console.log('더미 데이터로 폴백합니다.');
-        
-        // 에러 발생 시 더미 데이터 사용 (버전별로 순환)
-        let fallbackData;
-        switch (dataVersion) {
-          case 1:
-            fallbackData = zoneStatusData;
-            break;
-          case 2:
-            fallbackData = zoneStatusDataV2;
-            break;
-          case 3:
-            fallbackData = zoneStatusDataV3;
-            break;
-          case 4:
-            fallbackData = zoneStatusDataV4;
-            break;
-          default:
-            fallbackData = zoneStatusData;
-        }
-        
-        const statusMap = {};
-        fallbackData.data.zones.forEach(zone => {
-          statusMap[zone.zone_name] = zone.status;
-        });
-        setZoneStatuses(statusMap);
-        console.log(`더미 데이터 버전 ${dataVersion} 사용:`, fallbackData);
+      });
+      console.log('SSE 연결 초기화 완료');
+    } catch (error) {
+      console.error('SSE 연결 초기화 오류:', error);
+      useFallbackData();
+    }
+
+    // 더미 데이터 사용 함수
+    const useFallbackData = () => {
+      console.log(`더미 데이터 사용 (버전 ${dataVersion})`);
+      let fallbackData;
+      switch (dataVersion) {
+        case 1:
+          fallbackData = zoneStatusData;
+          break;
+        case 2:
+          fallbackData = zoneStatusDataV2;
+          break;
+        case 3:
+          fallbackData = zoneStatusDataV3;
+          break;
+        case 4:
+          fallbackData = zoneStatusDataV4;
+          break;
+        default:
+          fallbackData = zoneStatusData;
+      }
+      
+      const statusMap = {};
+      fallbackData.data.forEach(zone => {
+        statusMap[zone.zoneName] = zone.status;
+      });
+      setZoneStatuses(statusMap);
+      
+      // 더미 데이터로 설정된 존들 목록 출력 (A01, B01 제외)
+      const dummyZones = Object.keys(statusMap).filter(zoneName => 
+        zoneName !== 'zone_A' && zoneName !== 'zone_B'
+      );
+      console.log(`더미 데이터 버전 ${dataVersion} 적용:`, statusMap);
+      console.log(`더미 데이터 사용 중인 존들:`, dummyZones);
+      
+      // 각 존별로 더미 데이터임을 표시 (A01, B01 제외)
+      dummyZones.forEach(zoneName => {
+        console.log(` Zone ${zoneName}: 더미 데이터 사용 (상태: ${statusMap[zoneName]})`);
+      });
+      
+      // A01, B01은 실시간 데이터 대기 중임을 표시
+      if (statusMap['zone_A']) {
+        console.log(`Zone zone_A (A01): 실시간 SSE 데이터 대기 중 (현재 상태: ${statusMap['zone_A']})`);
+      }
+      if (statusMap['zone_B']) {
+        console.log(`Zone zone_B (B01): 실시간 SSE 데이터 대기 중 (현재 상태: ${statusMap['zone_B']})`);
       }
     };
 
-    // 초기 데이터 로드
-    fetchZoneStatus();
+    // 초기 더미 데이터 로드 (SSE 연결 전까지)
+    console.log('초기 더미 데이터 로드');
+    useFallbackData();
 
-    // 20초마다 데이터 업데이트
-    const interval = setInterval(() => {
-      // 더미 데이터 버전 순환 (1-4)
-      setDataVersion(prev => prev === 4 ? 1 : prev + 1);
-      fetchZoneStatus();
-    }, 20000); // 20초
+    // 5초마다 더미 데이터 버전 순환 (적당한 주기)
+    interval = setInterval(() => {
+      console.log('더미 데이터 버전 순환');
+      setDataVersion(prev => {
+        const newVersion = prev === 4 ? 1 : prev + 1;
+        console.log(`더미 데이터 버전 변경: ${prev} → ${newVersion}`);
+        return newVersion;
+      });
+    }, 5000); // 5초로 변경
 
-    return () => clearInterval(interval);
+    // 컴포넌트 언마운트 시 SSE 연결 해제 및 인터벌 정리
+    return () => {
+      console.log('Home 컴포넌트 언마운트 - 리소스 정리 시작');
+      if (disconnectSSE) {
+        try {
+          console.log('SSE 연결 해제 중...');
+          disconnectSSE();
+          console.log('SSE 연결 해제 완료');
+        } catch (error) {
+          console.log(' SSE 연결 해제 중 오류:', error);
+        }
+      }
+      if (interval) {
+        console.log('인터벌 정리 중...');
+        clearInterval(interval);
+        console.log('인터벌 정리 완료');
+      }
+      console.log('Home 컴포넌트 리소스 정리 완료');
+    };
   }, [dataVersion]);
 
   const zones = [
     { 
       id: 'a01', 
       name: 'Zone A01',
-      zone_name: 'Zone_A01'
+      zone_name: 'zone_A'
     },
     { 
       id: 'a02', 
       name: 'Zone A02',
-      zone_name: 'Zone_A02'
+      zone_name: 'zone_A02'
     },
     { 
       id: 'b01', 
       name: 'Zone B01',
-      zone_name: 'Zone_B01'
+      zone_name: 'zone_B'
     },
     { 
       id: 'b02', 
       name: 'Zone B02',
-      zone_name: 'Zone_B02'
+      zone_name: 'zone_B02'
     },
     { 
       id: 'b03', 
       name: 'Zone B03',
-      zone_name: 'Zone_B03'
+      zone_name: 'zone_B03'
     },
     { 
       id: 'b04', 
       name: 'Zone B04',
-      zone_name: 'Zone_B04'
+      zone_name: 'zone_B04'
     },
     { 
       id: 'c01', 
       name: 'Zone C01',
-      zone_name: 'Zone_C01'
+      zone_name: 'zone_C01'
     },
     { 
       id: 'c02', 
       name: 'Zone C02',
-      zone_name: 'Zone_C02'
+      zone_name: 'zone_C02'
     },
   ];
 
@@ -215,7 +295,13 @@ const Home = () => {
         {zones.map((zone) => {
           const status = zoneStatuses[zone.zone_name];
           const statusColor = getStatusColor(status);
-          console.log(`Zone ${zone.name}: status=${status}, color=${statusColor}`);
+          
+          // A01과 B01은 실시간 데이터, 나머지는 더미 데이터
+          const isRealtimeZone = zone.zone_name === 'zone_A' || zone.zone_name === 'zone_B';
+          const isDummyData = !status || status === 'UNKNOWN' || !isRealtimeZone;
+          const dataSource = isDummyData ? '더미 데이터' : '실시간 SSE 데이터';
+          
+          console.log(`Zone ${zone.name}: status=${status}, color=${statusColor}, 데이터소스=${dataSource} (실시간존: ${isRealtimeZone})`);
           
           return (
             <div
@@ -230,7 +316,7 @@ const Home = () => {
               <div 
                 className={`w-[17.54px] h-[17.54px] rounded-[8.77px] border border-gray-300 ${statusColor}`}
                 style={{ backgroundColor: status === 'GREEN' ? '#10b981' : status === 'YELLOW' ? '#fbbf24' : status === 'RED' ? '#ef4444' : '#9ca3af' }}
-                title={`Status: ${status || 'Unknown'}`}
+                title={`Status: ${status || 'Unknown'} (${dataSource})`}
               ></div>
             </div>
           );
