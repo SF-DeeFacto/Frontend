@@ -2,70 +2,75 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
-import { handleDummyLogin } from '../dummy/services/user';
+import { login } from '../services/api/auth';
+// ===== 개발용 더미 로그인 기능 시작 =====
+import { dummyUsers } from '../dummy/data/users';
+// ===== 개발용 더미 로그인 기능 끝 =====
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
+  const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const handleInputChange = (field, value) => {
+    setCredentials(prev => ({ ...prev, [field]: value }));
+    if (error) setError('');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    try {
-      // 실제 백엔드 API 호출 시도
-      const response = await fetch('/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: credentials.username,
-          password: credentials.password,
-        }),
-      });
+    // ===== 개발용 더미 로그인 기능 시작 =====
+    // 먼저 더미 데이터에서 사용자 찾기
+    const dummyUser = dummyUsers.find(user => 
+      user.employee_id === credentials.username && 
+      user.password === credentials.password
+    );
+    
+    if (dummyUser) {
+      // 더미 토큰 생성
+      const dummyToken = 'dummy_token_' + Date.now();
+      const dummyRefreshToken = 'dummy_refresh_token_' + Date.now();
+      
+      // localStorage에 더미 데이터 저장
+      localStorage.setItem('access_token', dummyToken);
+      localStorage.setItem('refresh_token', dummyRefreshToken);
+      localStorage.setItem('employeeId', dummyUser.employee_id);
+      localStorage.setItem('user', JSON.stringify({
+        employeeId: dummyUser.employee_id,
+        name: dummyUser.name,
+        email: dummyUser.email,
+        department: dummyUser.department,
+        position: dummyUser.position,
+        role: dummyUser.role
+      }));
+      
+      console.log('더미 데이터로 로그인 성공:', dummyUser);
+      navigate('/home');
+      setIsLoading(false);
+      return;
+    }
+    // ===== 개발용 더미 로그인 기능 끝 =====
 
-      if (response.ok) {
-        // 실제 백엔드 응답 처리
-        const data = await response.json();
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+    // ===== 실제 백엔드 로그인 기능 시작 =====
+    try {
+      const result = await login(credentials);
+      if (result.success) {
         navigate('/home');
       } else {
-        // 백엔드 API가 실패하면 더미 로그인으로 처리
-        console.log('백엔드 API 호출 실패, 더미 로그인으로 처리');
-        handleDummyLoginFallback();
+        setError(result.error);
       }
-    } catch (err) {
-      // 네트워크 오류 등으로 API 호출이 실패하면 더미 로그인으로 처리
-      console.log('API 호출 중 오류 발생, 더미 로그인으로 처리:', err.message);
-      handleDummyLoginFallback();
+    } catch (e) {
+      console.log('백엔드 연동 실패');
+      setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // 더미 로그인 폴백 처리
-  const handleDummyLoginFallback = () => {
-    const result = handleDummyLogin(credentials);
-    
-    if (result.success) {
-      navigate('/home');
-    } else {
-      setError(result.error);
-    }
-  };
-
-  const handleInputChange = (field, value) => {
-    setCredentials(prev => ({ ...prev, [field]: value }));
-    if (error) setError('');
+    // ===== 실제 백엔드 로그인 기능 끝 =====
   };
 
   const styles = {
@@ -222,6 +227,8 @@ const Login = () => {
           >
             {isLoading ? '로그인 중...' : '로그인'}
           </Button>
+          
+                     
         </form>
       </div>
       <div style={{ textAlign: 'center', color: '#bbb', fontSize: '13px', marginBottom: '16px' }}>

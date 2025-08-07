@@ -1,4 +1,5 @@
-// 더미 사용자 데이터 (실제 DB 구조에 맞춤)
+//더미 사용자 데이터 (실제 DB 구조에 맞춤)
+
 export const dummyUsers = [
   {
     id: 1,

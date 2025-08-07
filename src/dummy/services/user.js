@@ -37,6 +37,9 @@ export const handleDummyLogout = () => {
   console.log('더미 로그아웃 실행');
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('employeeId');
   console.log('더미 로그아웃 완료');
   return { success: true };
 };
