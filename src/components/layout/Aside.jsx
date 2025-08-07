@@ -6,7 +6,6 @@ import {
   FiBarChart2,
   FiFileText,
   FiMessageCircle,
-  FiSettings,
   FiLogOut,
   FiChevronsLeft,
   FiChevronsRight,
@@ -233,11 +232,7 @@ const Aside = () => {
         }
       },
     },
-    {
-      icon: <FiSettings />,
-      label: "Settings",
-      onClick: () => navigate("/home/setting"),
-    },
+
     {
       icon: <FiLogOut />,
       label: "Logout",
