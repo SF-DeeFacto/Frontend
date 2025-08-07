@@ -1,4 +1,7 @@
 import React from 'react';
+import { OptionFrame } from '../components/common/option';
+import ChartSection from '../components/common/ChartSection';
+import Button from '../components/common/Button';
 
 const Graph = () => {
   // http://localhost:3000/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512

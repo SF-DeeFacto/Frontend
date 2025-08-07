@@ -34,10 +34,19 @@ const MainLayout = () => {
         <Aside />
         <div className="flex-1 bg-gray-50">
           {title && (
-            <div className="px-[30px] py-[12px]">
-              <Text variant="title" size="28px" weight="bold" color="gray-900">
-                {title}
-              </Text>
+            <div className="flex flex-col w-full items-start flex-shrink-0" style={{ paddingTop: '20px', paddingBottom: '11px' }}>
+              <div className="w-full h-[35px] flex items-center px-[30px]">
+                <span
+                  style={{
+                    fontSize: "28px",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    lineHeight: "35px"
+                  }}
+                >
+                  {title}
+                </span>
+              </div>
             </div>
           )}
           <div className="px-[30px] py-[12px]">

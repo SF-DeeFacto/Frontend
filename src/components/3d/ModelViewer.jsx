@@ -13,8 +13,17 @@ function Model() {
     // 모델 로딩 후 객체별 클릭 가능 여부와 이동 경로 설정
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
+        // object_11은 A01로 이동
+        if (child.name === 'object_11') {
+          child.userData = {
+            isClickable: true,
+            blockName: child.name,
+            targetPath: '/home/zone/a01'
+          };
+          console.log('클릭 가능한 메시 설정:', child.name, '-> A01');
+        }
         // object_2는 C01로 이동
-        if (child.name === 'object_2') {
+        else if (child.name === 'object_2') {
           child.userData = {
             isClickable: true,
             blockName: child.name,
@@ -22,23 +31,41 @@ function Model() {
           };
           console.log('클릭 가능한 메시 설정:', child.name, '-> C01');
         }
-        // object_9는 C02로 이동
-        else if (child.name === 'object_9') {
+        // object_36은 B04로 이동
+        else if (child.name === 'object_36') {
           child.userData = {
             isClickable: true,
             blockName: child.name,
-            targetPath: '/home/zone/c02'
+            targetPath: '/home/zone/b04'
           };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> C02');
+          console.log('클릭 가능한 메시 설정:', child.name, '-> B04');
         }
-        // object_11은 A01로 이동
-        else if (child.name === 'object_11') {
+        // object_37은 B03으로 이동
+        else if (child.name === 'object_37') {
           child.userData = {
             isClickable: true,
             blockName: child.name,
-            targetPath: '/home/zone/a01'
+            targetPath: '/home/zone/b03'
           };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> A01');
+          console.log('클릭 가능한 메시 설정:', child.name, '-> B03');
+        }
+        // object_38은 B02로 이동
+        else if (child.name === 'object_38') {
+          child.userData = {
+            isClickable: true,
+            blockName: child.name,
+            targetPath: '/home/zone/b02'
+          };
+          console.log('클릭 가능한 메시 설정:', child.name, '-> B02');
+        }
+        // object_39은 B01로 이동
+        else if (child.name === 'object_39') {
+          child.userData = {
+            isClickable: true,
+            blockName: child.name,
+            targetPath: '/home/zone/b01'
+          };
+          console.log('클릭 가능한 메시 설정:', child.name, '-> B01');
         }
         // object_40은 A02로 이동
         else if (child.name === 'object_40') {
@@ -49,38 +76,14 @@ function Model() {
           };
           console.log('클릭 가능한 메시 설정:', child.name, '-> A02');
         }
-        // object_39부터는 B01부터 B04로 이동
-        else if (child.name === 'object_39') {
+        // object_9는 C02로 이동
+        else if (child.name === 'object_9') {
           child.userData = {
             isClickable: true,
             blockName: child.name,
-            targetPath: '/home/zone/b01'
+            targetPath: '/home/zone/c02'
           };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> B01');
-        }
-        else if (child.name === 'object_38') {
-          child.userData = {
-            isClickable: true,
-            blockName: child.name,
-            targetPath: '/home/zone/b02'
-          };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> B02');
-        }
-        else if (child.name === 'object_37') {
-          child.userData = {
-            isClickable: true,
-            blockName: child.name,
-            targetPath: '/home/zone/b03'
-          };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> B03');
-        }
-        else if (child.name === 'object_36') {
-          child.userData = {
-            isClickable: true,
-            blockName: child.name,
-            targetPath: '/home/zone/b04'
-          };
-          console.log('클릭 가능한 메시 설정:', child.name, '-> B04');
+          console.log('클릭 가능한 메시 설정:', child.name, '-> C02');
         }
         else {
           // 다른 메시들은 클릭 불가능하게 설정

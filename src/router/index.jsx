@@ -17,7 +17,7 @@ import GrafanaIframe from '../pages/GrafanaIframe';
 
 // 로그인 상태 확인 함수
 const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('access_token');
   const user = localStorage.getItem('user');
   
   console.log('인증 체크:', { token: !!token, user: !!user });
@@ -36,8 +36,8 @@ const isAuthenticated = () => {
       return false;
     }
     
-    // 더미 로그인 데이터 구조에 맞게 검증
-    if (!userData.employee_id || !userData.name) {
+    // 실제 저장된 데이터 구조에 맞게 검증
+    if (!userData.employeeId || !userData.name) {
       console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
       return false;
     }
