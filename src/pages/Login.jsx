@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
 import { login } from '../services/api/auth';
+import { dummyUsers } from '../dummy/data/users';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -21,6 +22,37 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
+    // 먼저 더미 데이터에서 사용자 찾기
+    const dummyUser = dummyUsers.find(user => 
+      user.employee_id === credentials.username && 
+      user.password === credentials.password
+    );
+    
+    if (dummyUser) {
+      // 더미 토큰 생성
+      const dummyToken = 'dummy_token_' + Date.now();
+      const dummyRefreshToken = 'dummy_refresh_token_' + Date.now();
+      
+      // localStorage에 더미 데이터 저장
+      localStorage.setItem('access_token', dummyToken);
+      localStorage.setItem('refresh_token', dummyRefreshToken);
+      localStorage.setItem('employeeId', dummyUser.employee_id);
+      localStorage.setItem('user', JSON.stringify({
+        employeeId: dummyUser.employee_id,
+        name: dummyUser.name,
+        email: dummyUser.email,
+        department: dummyUser.department,
+        position: dummyUser.position,
+        role: dummyUser.role
+      }));
+      
+      console.log('더미 데이터로 로그인 성공:', dummyUser);
+      navigate('/home');
+      setIsLoading(false);
+      return;
+    }
+
+    // 더미 데이터에 없으면 백엔드 시도
     try {
       const result = await login(credentials);
       if (result.success) {
@@ -29,7 +61,8 @@ const Login = () => {
         setError(result.error);
       }
     } catch (e) {
-      setError('로그인 중 오류 발생');
+      console.log('백엔드 연동 실패');
+      setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -189,6 +222,8 @@ const Login = () => {
           >
             {isLoading ? '로그인 중...' : '로그인'}
           </Button>
+          
+                     
         </form>
       </div>
       <div style={{ textAlign: 'center', color: '#bbb', fontSize: '13px', marginBottom: '16px' }}>
