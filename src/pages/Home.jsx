@@ -29,7 +29,6 @@ const Home = () => {
     const user = localStorage.getItem('user');
     
     if (!token || !user) {
-      console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
       navigate('/login');
       return;
     }
@@ -37,12 +36,10 @@ const Home = () => {
     try {
       const userData = JSON.parse(user);
       if (!userData.name) {
-        console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
         navigate('/login');
         return;
       }
     } catch (error) {
-      console.error('사용자 정보 파싱 오류:', error);
       navigate('/login');
       return;
     }
@@ -95,6 +92,8 @@ const Home = () => {
                   }
                 }
               });
+            } else {
+              console.log('메인 SSE 응답이 올바르지 않습니다:', data);
             }
           } catch (error) {
             console.error('메인 SSE 데이터 처리 오류:', error);
@@ -102,12 +101,14 @@ const Home = () => {
         },
         onError: (error) => {
           console.error('메인 SSE 연결 오류:', error);
+          console.log('더미 데이터로 폴백합니다.');
           setConnectionStates(prev => ({
             ...prev,
             mainSSE: 'error'
           }));
         }
       });
+      console.log('메인 SSE 연결 초기화 완료');
     } catch (error) {
       console.error('메인 SSE 연결 초기화 오류:', error);
       setConnectionStates(prev => ({
@@ -159,7 +160,7 @@ const Home = () => {
                     [zoneData.zoneName]: updateTime
                   }));
                   
-                  console.log(`존 ${zoneId} 상태 업데이트: ${zoneData.status}`);
+                  console.log(`존 ${zoneId} 상태 업데이트: ${zoneData.status} (${updateTime})`);
                 }
               }
             } catch (error) {
@@ -179,6 +180,7 @@ const Home = () => {
         });
         
         disconnectZoneSSE[zoneId] = disconnect;
+        console.log(`존 ${zoneId} SSE 연결 완료`);
       } catch (error) {
         console.error(`존 ${zoneId} SSE 연결 초기화 오류:`, error);
         setConnectionStates(prev => ({
@@ -197,7 +199,7 @@ const Home = () => {
 
     // 클린업
     return () => {
-      console.log('SSE 연결 정리');
+      console.log('Home 컴포넌트 언마운트 - 리소스 정리 시작');
       
       if (disconnectMainSSE) {
         try {
@@ -214,6 +216,7 @@ const Home = () => {
           console.log(`존 ${zoneId} SSE 연결 해제 중 오류:`, error);
         }
       });
+      console.log('Home 컴포넌트 리소스 정리 완료');
     };
   }, []);
 
