@@ -24,9 +24,9 @@ export default defineConfig({
         //   });
         // }
       },
-      //유저 포트
+      //유저 포트 - API Gateway를 통해 요청
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         //상세히..
         configure: (proxy, options) => {
