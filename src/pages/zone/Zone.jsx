@@ -211,8 +211,7 @@ const Zone = ({ zoneId }) => {
         {/* Zone 도면 영역 */}
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">도면</h2>
-            <div className="w-full h-96">
+            <div className="w-full h-[600px]">
               {renderZoneDrawing()}
             </div>
           </div>
