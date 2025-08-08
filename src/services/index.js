@@ -1,3 +1,4 @@
+// 프록시 설정
 import axios from "axios";
 import { connectMainSSE, connectZoneSSE, SSE_URLS } from './sse';
 
