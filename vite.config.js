@@ -1,4 +1,5 @@
 // vite.config.js
+// 프록시 설정
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react' 
