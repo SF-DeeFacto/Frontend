@@ -11,8 +11,8 @@ const Graph = () => {
   // 센서 여러 개 선택 시 쿼리 파라미터 예시 (실제 Grafana 대시보드에서 지원해야 적용됨)
   // 예: ...&var-zone=A-1&var-sensor=온도,습도
   const sensorParam = selectedSensors.join(',');
-  const dev_ip = '192.168.55.180:3000';
-  //const dev_ip = '222.235.142.221:12333';
+  //const dev_ip = '192.168.55.180:3000';
+  const dev_ip = '222.235.142.221:12333';
   // zone index에 따라 dashboardUrl 분기
   const zoneIndex = ZONES.indexOf(selectedZone);
   let dashboardUrl = '';
