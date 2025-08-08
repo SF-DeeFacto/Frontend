@@ -88,7 +88,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
 
   return (
     <div 
-      className={`sensor-card ${sensorData.sensor_type}`}
+      className={`sensor-card ${sensorData.sensor_type} w-[350px]`}
       onClick={handleCardClick}
       style={{ cursor: 'pointer' }}
       title="클릭하여 그래프 페이지로 이동"

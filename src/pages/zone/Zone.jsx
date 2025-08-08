@@ -206,107 +206,151 @@ const Zone = ({ zoneId }) => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Zone 도면 영역 */}
-        <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="w-full h-[600px]">
-              {renderZoneDrawing()}
-            </div>
+    <main className="inline-flex items-start gap-[60px] relative w-full min-w-[1200px] p-6">
+      {/* Zone 도면 영역 */}
+      <section className="relative flex-1 max-w-[900px]">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
+          <div className="w-full h-[700px]">
+            {renderZoneDrawing()}
           </div>
         </div>
+      </section>
 
-        {/* 실시간 센서 데이터 영역 */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">실시간 센서 데이터</h2>
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-2 h-2 rounded-full"
-                  style={{
-                    backgroundColor: 
-                      connectionState === 'connected' ? '#10b981' :
-                      connectionState === 'connecting' ? '#3b82f6' :
-                      connectionState === 'error' ? '#ef4444' : '#9ca3af'
-                  }}
-                ></div>
-                <span className="text-sm text-gray-600">
-                  {connectionState === 'connected' && '연결됨'}
-                  {connectionState === 'connecting' && '연결중'}
-                  {connectionState === 'error' && '연결 오류'}
-                </span>
-                {lastUpdated && (
-                  <span className="text-xs text-gray-500">
-                    {lastUpdated}
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            {Object.values(sensorData).flat().length === 0 ? (
-              <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
-                <div className="text-center">
-                  <div className="text-6xl mb-4">
-                    {connectionState === 'connected' ? '📡' :
-                     connectionState === 'connecting' ? '⏳' :
-                     connectionState === 'error' ? '❌' : '📡'}
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-600">
-                    {connectionState === 'connected' ? '센서 데이터 준비 중' :
-                     connectionState === 'connecting' ? '연결 중...' :
-                     connectionState === 'error' ? '연결 오류' : '센서 데이터 준비 중'}
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {connectionState === 'connected' ? '실시간 센서 데이터가 곧 추가될 예정입니다.' :
-                     connectionState === 'connecting' ? '백엔드 서버에 연결하고 있습니다...' :
-                     connectionState === 'error' ? '백엔드 서버 연결에 실패했습니다.' : '실시간 센서 데이터가 곧 추가될 예정입니다.'}
-                  </p>
-                </div>
-              </div>
-            ) : (
-                             <div>
-                 <div className="flex flex-col gap-4">
-                   {/* 센서 타입 순서 고정 */}
-                   {[
-                     { type: 'temperature', icon: '🌡️', name: '온도' },
-                     { type: 'humidity', icon: '💧', name: '습도' },
-                     { type: 'esd', icon: '⚡', name: '정전기' },
-                     { type: 'particle', icon: '🌫️', name: '먼지' },
-                     { type: 'windDir', icon: '🌪️', name: '풍향' }
-                   ].map(({ type, icon, name }) => {
-                     const sensors = sensorData[type];
-                     if (!sensors || sensors.length === 0) return null;
-                     
-                     return (
-                       <div key={type} className="flex flex-col gap-2">
-                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2">
-                           <span>{icon}</span>
-                           {name}
-                           <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                         </h4>
-                         <div className={sensors.length > 1 ? "flex gap-2" : "flex flex-col gap-2"}>
-                                                       {sensors.map((sensor, index) => (
-                              <div key={`${sensor.sensor_id}-${index}`} className="w-[250px]">
-                                <SensorDataCard 
-                                  sensorData={sensor}
-                                  zoneId={currentZoneId}
-                                />
-                              </div>
-                            ))}
-                         </div>
-                       </div>
-                     );
-                   })}
-                 </div>
-               </div>
-            )}
-          </div>
-        </div>
+{/* 실시간 센서 데이터 영역 */}
+<aside className="lg:col-span-1 max-w-[900px]">
+  <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="flex items-center justify-between mb-4">
+      <h2 className="text-xl font-semibold text-gray-800">실시간 센서 데이터</h2>
+      <div className="flex items-center gap-2">
+        <div 
+          className="w-2 h-2 rounded-full"
+          style={{
+            backgroundColor: 
+              connectionState === 'connected' ? '#10b981' :
+              connectionState === 'connecting' ? '#3b82f6' :
+              connectionState === 'error' ? '#ef4444' : '#9ca3af'
+          }}
+        ></div>
+        <span className="text-sm text-gray-600">
+          {connectionState === 'connected' && '연결됨'}
+          {connectionState === 'connecting' && '연결중'}
+          {connectionState === 'error' && '연결 오류'}
+        </span>
+        {lastUpdated && (
+          <span className="text-xs text-gray-500">
+            {lastUpdated}
+          </span>
+        )}
       </div>
     </div>
+    
+    <div className="grid grid-cols-2 gap-[30px]">
+              {/* 첫 번째 열 */}
+              <div className="flex flex-col gap-4">
+                {[
+                  { type: 'temperature', icon: '🌡️', name: '온도' },
+                  { type: 'humidity', icon: '💧', name: '습도' },
+                  { type: 'esd', icon: '⚡', name: '정전기' }
+                ].map(({ type, icon, name }) => {
+                  const sensors = sensorData[type];
+                  
+                  return (
+                    <div key={type} className="w-full">
+                      <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                        <span>{icon}</span>
+                        {name}
+                        {sensors && sensors.length > 0 && (
+                          <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                        )}
+                      </h4>
+                      
+                      {!sensors || sensors.length === 0 ? (
+                        <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">
+                              {connectionState === 'connected' ? '📡' :
+                               connectionState === 'connecting' ? '⏳' :
+                               connectionState === 'error' ? '❌' : '📡'}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {connectionState === 'connected' ? '센서 데이터 준비 중' :
+                               connectionState === 'connecting' ? '연결 중...' :
+                               connectionState === 'error' ? '연결 오류' : '센서 데이터 준비 중'}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {sensors.map((sensor, index) => (
+                            <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                              <SensorDataCard 
+                                sensorData={sensor}
+                                zoneId={currentZoneId}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* 두 번째 열 */}
+              <div className="flex flex-col gap-4">
+                {[
+                  { type: 'particle', icon: '🌫️', name: '먼지' },
+                  { type: 'windDir', icon: '🌪️', name: '풍향' }
+                ].map(({ type, icon, name }) => {
+                  const sensors = sensorData[type];
+                  
+                  return (
+                    <div key={type} className="w-full">
+                      <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                        <span>{icon}</span>
+                        {name}
+                        {sensors && sensors.length > 0 && (
+                          <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                        )}
+                      </h4>
+                      
+                      {!sensors || sensors.length === 0 ? (
+                        <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                          <div className="text-center">
+                            <div className="text-2xl mb-2">
+                              {connectionState === 'connected' ? '📡' :
+                               connectionState === 'connecting' ? '⏳' :
+                               connectionState === 'error' ? '❌' : '📡'}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {connectionState === 'connected' ? '센서 데이터 준비 중' :
+                               connectionState === 'connecting' ? '연결 중...' :
+                               connectionState === 'error' ? '연결 오류' : '센서 데이터 준비 중'}
+                            </p>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {sensors.map((sensor, index) => (
+                            <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                              <SensorDataCard 
+                                sensorData={sensor}
+                                zoneId={currentZoneId}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+        </div>
+      </aside>
+    </main>
   );
 };
 
-export default Zone; 
+export default Zone;
