@@ -1,6 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const SensorDataCard = ({ sensorData, zoneConfig }) => {
+const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    if (zoneId) {
+      // Graph 페이지로 이동하면서 zone 파라미터 전달
+      navigate(`/home/graph?zone=${zoneId}`);
+    }
+  };
   const getSensorIcon = (sensorType) => {
     switch (sensorType) {
       case 'temperature':
@@ -78,7 +87,12 @@ const SensorDataCard = ({ sensorData, zoneConfig }) => {
   };
 
   return (
-    <div className={`sensor-card ${sensorData.sensor_type}`}>
+    <div 
+      className={`sensor-card ${sensorData.sensor_type}`}
+      onClick={handleCardClick}
+      style={{ cursor: 'pointer' }}
+      title="클릭하여 그래프 페이지로 이동"
+    >
       <div className="sensor-card-content">
         <div className="sensor-header">
           <h3 className="sensor-title">
