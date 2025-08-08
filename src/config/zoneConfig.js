@@ -6,22 +6,20 @@ export const zoneConfig = {
     modelType: 'B01',
     sensors: {
       temperature: [
-        { sensor_id: 'B01_TEMP_01' },
-        { sensor_id: 'B01_TEMP_02' },
-        { sensor_id: 'B01_TEMP_03' }
+        { sensor_id: 'TEMP-001' },
+        { sensor_id: 'TEMP-002' }
       ],
       humidity: [
-        { sensor_id: 'B01_HUMI_01' },
-        { sensor_id: 'B01_HUMI_02' }
+        { sensor_id: 'HUM-001' }
       ],
       esd: [
-        { sensor_id: 'B01_ESD_01' }
+        { sensor_id: 'ESD-002' }
       ],
       particle: [
-        { sensor_id: 'B01_PART_01' }
+        { sensor_id: 'LPM-002' }
       ],
       windDir: [
-        { sensor_id: 'B01_WIND_01' }
+        { sensor_id: 'WD-002' }
       ]
     },
     thresholds: {

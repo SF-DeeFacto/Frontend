@@ -38,74 +38,43 @@ const SensorDataCard = ({ sensorData, zoneConfig }) => {
   const getSensorValue = (sensorData) => {
     // 백엔드 데이터 형식에 맞춤
     if (sensorData.sensor_type === 'particle') {
-      return `${sensorData.val_0_5?.toFixed(2) || 0}`;
+      return (
+        <div className="particle-values">
+          <div className="particle-labels">
+            <span className="particle-label">0.1μm</span>
+            <span className="particle-label">0.3μm</span>
+            <span className="particle-label">0.5μm</span>
+          </div>
+          <div className="particle-values-column">
+            <span className="particle-value">{sensorData.val_0_1?.toFixed(2) || 0}</span>
+            <span className="particle-value">{sensorData.val_0_3?.toFixed(2) || 0}</span>
+            <span className="particle-value">{sensorData.val_0_5?.toFixed(2) || 0}</span>
+            <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
+          </div>
+        </div>
+      );
     }
     return `${sensorData.val?.toFixed(1) || 0}`;
   };
 
   const getStatusColor = (sensorData) => {
-    // 백엔드 데이터 형식에 맞춘 임계값 체크 로직
-    const value = sensorData.sensor_type === 'particle' ? sensorData.val_0_5 : sensorData.val;
+    // 백엔드에서 받은 상태 사용
+    if (sensorData.status === 'RED') return 'text-red-600';
+    if (sensorData.status === 'YELLOW') return 'text-yellow-600';
+    if (sensorData.status === 'GREEN') return 'text-green-600';
     
-    if (sensorData.sensor_type === 'temperature') {
-      if (value > 30) return 'text-red-600';
-      if (value > 25) return 'text-yellow-600';
-      return 'text-green-600';
-    }
-    
-    if (sensorData.sensor_type === 'humidity') {
-      if (value > 70) return 'text-red-600';
-      if (value > 60) return 'text-yellow-600';
-      return 'text-green-600';
-    }
-    
-    if (sensorData.sensor_type === 'esd') {
-      if (value > 50) return 'text-red-600';
-      if (value > 30) return 'text-yellow-600';
-      return 'text-green-600';
-    }
-    
-    if (sensorData.sensor_type === 'particle') {
-      if (value > 100) return 'text-red-600';
-      if (value > 50) return 'text-yellow-600';
-      return 'text-green-600';
-    }
-    
+    // 기본값
     return 'text-blue-600';
   };
 
   const getStatusBgColor = (sensorData) => {
-    // 배경색용 상태 색상
-    const value = sensorData.sensor_type === 'particle' ? sensorData.val_0_5 : sensorData.val;
+    // 백엔드에서 받은 상태 사용
+    if (sensorData.status === 'RED') return '#ef4444'; // red-500
+    if (sensorData.status === 'YELLOW') return '#eab308'; // yellow-500
+    if (sensorData.status === 'GREEN') return '#22c55e'; // green-500
     
-    // 디버깅용 콘솔 로그
-    console.log('센서 데이터:', sensorData.sensor_type, '값:', value);
-    
-    if (sensorData.sensor_type === 'temperature') {
-      if (value > 30) return '#ef4444'; // red-500
-      if (value > 25) return '#eab308'; // yellow-500
-      return '#22c55e'; // green-500
-    }
-    
-    if (sensorData.sensor_type === 'humidity') {
-      if (value > 70) return '#ef4444'; // red-500
-      if (value > 60) return '#eab308'; // yellow-500
-      return '#22c55e'; // green-500
-    }
-    
-    if (sensorData.sensor_type === 'esd') {
-      if (value > 50) return '#ef4444'; // red-500
-      if (value > 30) return '#eab308'; // yellow-500
-      return '#22c55e'; // green-500
-    }
-    
-    if (sensorData.sensor_type === 'particle') {
-      if (value > 100) return '#ef4444'; // red-500
-      if (value > 50) return '#eab308'; // yellow-500
-      return '#22c55e'; // green-500
-    }
-    
-    return '#22c55e'; // green-500 (기본값)
+    // 기본값
+    return '#22c55e'; // green-500
   };
 
   return (
@@ -137,18 +106,15 @@ const SensorDataCard = ({ sensorData, zoneConfig }) => {
               }}
               title={`상태: ${sensorData.val || sensorData.val_0_5}`}
             ></div>
-            <div className={`sensor-value ${getStatusColor(sensorData)}`}>
-              {getSensorValue(sensorData)}
-              <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
-            </div>
+                         <div className={`sensor-value ${getStatusColor(sensorData)}`}>
+               {getSensorValue(sensorData)}
+               {sensorData.sensor_type !== 'particle' && (
+                 <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
+               )}
+             </div>
           </div>
           
-          {sensorData.sensor_type === 'particle' && (
-            <div className="particle-details">
-              <div className="particle-detail-item">0.1μm: {sensorData.val_0_1?.toFixed(2) || 0}</div>
-              <div className="particle-detail-item">0.3μm: {sensorData.val_0_3?.toFixed(2) || 0}</div>
-            </div>
-          )}
+
         </div>
       </div>
     </div>
