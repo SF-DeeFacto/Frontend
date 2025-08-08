@@ -291,7 +291,8 @@ const Zone = ({ zoneId }) => {
                                                        {sensors.map((sensor, index) => (
                               <div key={`${sensor.sensor_id}-${index}`} className="w-[250px]">
                                 <SensorDataCard 
-                                  sensorData={sensor} 
+                                  sensorData={sensor}
+                                  zoneId={currentZoneId}
                                 />
                               </div>
                             ))}
