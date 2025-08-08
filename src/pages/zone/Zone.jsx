@@ -292,7 +292,6 @@ const Zone = ({ zoneId }) => {
                               <div key={`${sensor.sensor_id}-${index}`} className="w-[250px]">
                                 <SensorDataCard 
                                   sensorData={sensor} 
-                                  zoneId={currentZoneId}
                                 />
                               </div>
                             ))}
