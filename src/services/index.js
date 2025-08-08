@@ -1,4 +1,5 @@
 import axios from "axios";
+import { connectMainSSE, connectZoneSSE, SSE_URLS } from './sse';
 
 // 사용자 인증용 API 클라이언트 생성 함수 (UserService - 포트 8081)
 const createAuthApiClient = () => {
@@ -60,7 +61,7 @@ const authApiClient = createAuthApiClient();
 const dashboardApiClient = createDashboardApiClient();
 
 export default authApiClient;
-export { createAuthApiClient, createDashboardApiClient, dashboardApiClient };
+export { createAuthApiClient, createDashboardApiClient, dashboardApiClient, connectMainSSE, connectZoneSSE, SSE_URLS };
 
 // 아래 설정 자꾸 오류 남. 
 // 배포할 때는 아래 처럼 바꾸고 02처럼 서버 프록시 설정을 해줘야함. 

@@ -319,8 +319,8 @@ const Aside = () => {
             
             {/* Zone 서브메뉴 - 모든 Zone 표시 */}
             {item.label === "Zone" && (
-              <div className="space-y-1 mt-2" style={{ minHeight: zoneOpen && !isCollapsed ? '120px' : '0px', overflow: 'hidden', transition: 'min-height 0.3s ease-in-out' }}>
-                {zoneOpen && !isCollapsed && getAllZoneItems().map(zone => 
+              <div className="space-y-1 mt-2" style={{ minHeight: zoneOpen ? '120px' : '0px', overflow: 'hidden', transition: 'min-height 0.3s ease-in-out' }}>
+                {zoneOpen && getAllZoneItems().map(zone => 
                   renderSubMenuItem(zone.label, zone.path, zone.zoneId)
                 )}
               </div>
