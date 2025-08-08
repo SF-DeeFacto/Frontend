@@ -1,5 +1,5 @@
 import React from 'react';
-import B01ModelViewer from './A01ModelViewer';
+import B01ModelViewer from './B01ModelViewer';
 
 const ZoneModelViewer = ({ zoneId }) => {
   const getZoneModel = (zoneId) => {
