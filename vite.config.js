@@ -1,4 +1,5 @@
 // vite.config.js
+// 프록시 설정
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react' 
@@ -24,14 +25,18 @@ export default defineConfig({
         //   });
         // }
       },
-      //유저 포트 - API Gateway를 통해 요청
+      //User Service 직접 연결 (API Gateway 미실행시 임시)
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''), // /api 제거하여 User Service로 직접 전달
         //상세히..
         configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('프록시 에러:', err.message, 'URL:', req.url);
+          });
           proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('프록시 요청:', req.method, req.url, '→', options.target + req.url);
+            console.log('프록시 요청:', req.method, req.url, '→', options.target + req.url.replace(/^\/api/, ''));
           });
           proxy.on('proxyRes', (proxyRes, req, res) => {
             console.log('프록시 응답:', proxyRes.statusCode, req.url);

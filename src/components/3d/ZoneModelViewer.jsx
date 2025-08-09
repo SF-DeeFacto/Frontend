@@ -1,5 +1,5 @@
 import React from 'react';
-import B01ModelViewer from './A01ModelViewer';
+import B01ModelViewer from './B01ModelViewer';
 
 const ZoneModelViewer = ({ zoneId }) => {
   const getZoneModel = (zoneId) => {
@@ -17,7 +17,6 @@ const ZoneModelViewer = ({ zoneId }) => {
         return (
           <div className="w-full h-full flex items-center justify-center bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <div className="text-center">
-              <div className="text-6xl mb-4">🏗️</div>
               <h2 className="text-xl font-semibold text-gray-600">
                 Zone {zoneIdUpper} 3D 모델
               </h2>

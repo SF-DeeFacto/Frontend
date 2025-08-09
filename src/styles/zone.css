@@ -17,6 +17,22 @@
   border-color: rgba(148, 163, 184, 0.3);
 }
 
+/* 클릭 가능한 카드 스타일 */
+.sensor-card[style*="cursor: pointer"] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sensor-card[style*="cursor: pointer"]:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.sensor-card[style*="cursor: pointer"]:active {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+}
+
 /* 센서 카드 내부 패딩 */
 .sensor-card-content {
   padding: 1.25rem;
@@ -104,6 +120,45 @@
 
 .particle-detail-item:last-child {
   margin-bottom: 0;
+}
+
+/* 먼지 센서 값 가로 정렬 */
+.particle-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.particle-labels {
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+}
+
+.particle-values-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.particle-label {
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.particle-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.particle-values .sensor-unit {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  opacity: 0.8;
 }
 
 /* 센서 타입별 특별 스타일 */
