@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ZoneModelViewer from '../../components/3d/ZoneModelViewer';
+import B01ModelViewer from '../../components/3d/B01ModelViewer';
 import SensorDataCard from '../../components/common/SensorDataCard';
 import { connectZoneSSE } from '../../services/sse';
 import '../../styles/zone.css';
@@ -194,6 +195,10 @@ const Zone = ({ zoneId }) => {
   }, [currentZoneId, navigate]);
 
   const renderZoneDrawing = () => {
+    // B01 존은 B01ModelViewer를 사용, 다른 존은 기본 ZoneModelViewer 사용
+    if (currentZoneId === 'b01') {
+      return <B01ModelViewer />;
+    }
     return <ZoneModelViewer zoneId={currentZoneId} />;
   };
 
@@ -232,20 +237,16 @@ const Zone = ({ zoneId }) => {
               connectionState === 'error' ? '#ef4444' : '#9ca3af'
           }}
         ></div>
-        {/* 
-        <span className="text-sm text-gray-600">
+        {/* <span className="text-sm text-gray-600">
           {connectionState === 'connected' && '연결됨'}
           {connectionState === 'connecting' && '연결중'}
           {connectionState === 'error' && '연결 오류'}
         </span>
-        */}
-        {/* 
         {lastUpdated && (
           <span className="text-xs text-gray-500">
             {lastUpdated}
           </span>
-        )}
-        */}
+        )} */}
       </div>
     </div>
     
@@ -278,9 +279,9 @@ const Zone = ({ zoneId }) => {
                                connectionState === 'error' ? '❌' : '📡'}
                             </div>
                             <p className="text-xs text-gray-500">
-                              {connectionState === 'connected' ? '센서 데이터 준비 중' :
+                              {connectionState === 'connected' ? '데이터 준비 중' :
                                connectionState === 'connecting' ? '연결 중...' :
-                               connectionState === 'error' ? '연결 오류' : '센서 데이터 준비 중'}
+                               connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
                             </p>
                           </div>
                         </div>
@@ -328,9 +329,9 @@ const Zone = ({ zoneId }) => {
                                connectionState === 'error' ? '❌' : '📡'}
                             </div>
                             <p className="text-xs text-gray-500">
-                              {connectionState === 'connected' ? '센서 데이터 준비 중' :
+                              {connectionState === 'connected' ? '데이터 준비 중' :
                                connectionState === 'connecting' ? '연결 중...' :
-                               connectionState === 'error' ? '연결 오류' : '센서 데이터 준비 중'}
+                               connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
                             </p>
                           </div>
                         </div>
