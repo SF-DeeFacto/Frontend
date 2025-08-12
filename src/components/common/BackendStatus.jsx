@@ -1,34 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { getAvailableBackendConfig, logEnvironmentConfig } from '../../config/backendConfig';
+import api from '../../services/api/client';
 
 const BackendStatus = () => {
   const [apiGatewayStatus, setApiGatewayStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastChecked, setLastChecked] = useState(null);
 
-  // 컴포넌트 마운트 시 환경변수 정보 출력
-  useEffect(() => {
-    logEnvironmentConfig();
-  }, []);
-
   const checkApiGatewayStatus = async () => {
     setIsLoading(true);
     
     try {
-      console.log('백엔드 상태 확인 시작...');
+      console.log('백엔드 상태 확인 시작... (게이트웨이 경유)');
       
-      // API Gateway 상태만 확인
-      const config = await getAvailableBackendConfig();
-      const isConnected = !!config;
-      
-      setApiGatewayStatus(isConnected);
-      setLastChecked(new Date());
-      
-      if (isConnected) {
-        console.log('API Gateway 연결 성공:', config);
-      } else {
-        console.log('API Gateway 연결 실패');
+      // 방법 1: 간단한 연결 테스트 (OPTIONS 요청)
+      try {
+        // OPTIONS 요청으로 서버 연결 상태 확인
+        const response = await fetch('/api/', {
+          method: 'OPTIONS',
+          mode: 'cors'
+        });
+        
+        if (response.status === 200 || response.status === 204) {
+          console.log('API Gateway 연결 성공 (OPTIONS 요청)');
+          setApiGatewayStatus(true);
+        } else {
+          throw new Error(`응답 오류: ${response.status}`);
+        }
+      } catch (optionsError) {
+        console.log('OPTIONS 요청 실패, 다른 방법 시도...');
+        
+        // 방법 2: 간단한 GET 요청으로 연결 확인
+        try {
+          const response = await api.get('/'); // 루트 경로 시도
+          if (response.status === 200) {
+            console.log('API Gateway 연결 성공 (루트 경로)');
+            setApiGatewayStatus(true);
+          } else {
+            throw new Error(`응답 오류: ${response.status}`);
+          }
+        } catch (getError) {
+          console.log('GET 요청도 실패, 백엔드 연결 실패 판단');
+          setApiGatewayStatus(false);
+        }
       }
+      
+      setLastChecked(new Date());
       
     } catch (error) {
       console.error('API Gateway 상태 확인 실패:', error);
@@ -78,8 +94,6 @@ const BackendStatus = () => {
         )}
       </div>
       
-
-      
       <div className="flex space-x-2">
         <button
           onClick={checkApiGatewayStatus}
@@ -88,15 +102,6 @@ const BackendStatus = () => {
         >
           {isLoading ? '확인 중...' : '상태 확인'}
         </button>
-        
-        {apiGatewayStatus === false && (
-          <button
-            onClick={() => window.open('http://localhost:8080', '_blank')}
-            className="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700"
-          >
-            서버 확인
-          </button>
-        )}
       </div>
       
       {apiGatewayStatus === false && (
@@ -105,7 +110,7 @@ const BackendStatus = () => {
           <ul className="list-disc list-inside mt-1 space-y-1">
             <li>백엔드 서버가 실행 중인지 확인</li>
             <li>포트 8080이 사용 가능한지 확인</li>
-            <li>방화벽 설정 확인</li>
+            <li>Vite 프록시 설정 확인</li>
             <li>서버 로그에서 오류 메시지 확인</li>
           </ul>
         </div>

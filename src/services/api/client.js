@@ -1,6 +1,7 @@
 // 공통 API 클라이언트
-// 개발: Vite 프록시 사용 (/api → http://localhost:8080)
-// 운영: 리버스 프록시 사용 (/api → https://api.example.com)
+// 개발: Vite 프록시 사용 (/api → localhost:8080)
+// 운영: 리버스 프록시 사용 (/api → 실제 백엔드)
+// 모든 API 호출은 /api 경로를 통해 게이트웨이로 전달
 
 import axios from 'axios';
 

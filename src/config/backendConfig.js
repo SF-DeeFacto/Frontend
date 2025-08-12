@@ -1,4 +1,4 @@
-// 백엔드 서버 설정 - 환경변수 사용
+// 백엔드 서버 설정 - 게이트웨이 경로 통일
 
 // 환경변수에서 설정 가져오기
 const getEnvVar = (key, defaultValue) => {
@@ -17,11 +17,10 @@ const getEnvVar = (key, defaultValue) => {
 
 // 백엔드 서버 설정
 export const BACKEND_CONFIG = {
-  // API Gateway (환경변수에서 설정 가져오기)
+  // API Gateway (게이트웨이 경로만 사용)
   API_GATEWAY: {
     baseURL: getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api'),
-    target: getEnvVar('VITE_API_GATEWAY_URL', 'http://localhost:8080'),
-    healthCheck: '/api/health' // API Gateway 헬스체크 엔드포인트
+    healthCheck: '/health' // 게이트웨이를 통한 헬스체크 (/api/health)
   }
 };
 
@@ -31,18 +30,18 @@ export const BACKEND_HEALTH_CHECK = getEnvVar('VITE_ENABLE_DEBUG_LOGGING', 'true
 // API 타임아웃 설정 (환경변수에서 설정)
 export const API_TIMEOUT = parseInt(getEnvVar('VITE_API_TIMEOUT', '10000'));
 
-// 현재 사용할 백엔드 설정 (API Gateway만 사용)
+// 현재 사용할 백엔드 설정 (게이트웨이 경로만 사용)
 export const getCurrentBackendConfig = () => {
   return BACKEND_CONFIG.API_GATEWAY;
 };
 
-// 백엔드 서버 상태 확인 함수 - 실제 API 호출로 확인
-export const checkBackendHealth = async (config) => {
+// 백엔드 서버 상태 확인 함수 - 게이트웨이를 통한 헬스체크
+export const checkBackendHealth = async () => {
   try {
-    console.log(`백엔드 서버 연결 확인 시도: ${config.target}${config.healthCheck}`);
+    console.log('게이트웨이를 통한 백엔드 상태 확인 시작...');
     
-    // 실제 API 호출로 연결 확인
-    const response = await fetch(`${config.target}${config.healthCheck}`, {
+    // 게이트웨이를 통한 헬스체크 (/api/health)
+    const response = await fetch('/api/health', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -51,43 +50,28 @@ export const checkBackendHealth = async (config) => {
     });
     
     if (response.ok) {
-      console.log(`백엔드 서버 연결 성공: ${config.target}${config.healthCheck}`);
+      console.log('게이트웨이를 통한 백엔드 연결 성공');
       return true;
     } else {
-      console.log(`백엔드 서버 응답 오류: ${response.status} ${response.statusText}`);
+      console.log(`게이트웨이를 통한 백엔드 응답 오류: ${response.status} ${response.statusText}`);
       return false;
     }
     
   } catch (error) {
-    console.log(`백엔드 서버 연결 확인 실패: ${config.target}${config.healthCheck}`, error.message);
-    
-    // 간단한 ping 시도 (CORS 우회)
-    try {
-      const pingResponse = await fetch(`${config.target}/`, {
-        method: 'HEAD',
-        mode: 'no-cors',
-        signal: AbortSignal.timeout(3000) // 3초 타임아웃
-      });
-      
-      console.log(`백엔드 서버 ping 성공: ${config.target}/`);
-      return true;
-      
-    } catch (pingError) {
-      console.log(`백엔드 서버 ping 실패: ${config.target}/`, pingError.message);
-      return false;
-    }
+    console.log('게이트웨이를 통한 백엔드 연결 확인 실패:', error.message);
+    return false;
   }
 };
 
-// 사용 가능한 백엔드 설정 반환 (API Gateway만 확인)
+// 사용 가능한 백엔드 설정 반환 (게이트웨이 경로만 사용)
 export const getAvailableBackendConfig = async () => {
-  // API Gateway 연결 확인
-  if (await checkBackendHealth(BACKEND_CONFIG.API_GATEWAY)) {
-    console.log('API Gateway 사용 가능');
+  // 게이트웨이를 통한 백엔드 연결 확인
+  if (await checkBackendHealth()) {
+    console.log('게이트웨이를 통한 백엔드 연결 성공');
     return BACKEND_CONFIG.API_GATEWAY;
   }
 
-  console.log('API Gateway 연결 불가');
+  console.log('게이트웨이를 통한 백엔드 연결 실패');
   return null;
 };
 
@@ -95,7 +79,6 @@ export const getAvailableBackendConfig = async () => {
 export const logEnvironmentConfig = () => {
   if (getEnvVar('VITE_ENABLE_DEBUG_LOGGING', 'false') === 'true') {
     console.log('=== 환경변수 설정 정보 ===');
-    console.log('API Gateway URL:', getEnvVar('VITE_API_GATEWAY_URL', 'http://localhost:8080'));
     console.log('API Base Path:', getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api'));
     console.log('Node Environment:', getEnvVar('VITE_NODE_ENV', 'development'));
     console.log('Debug Logging:', getEnvVar('VITE_ENABLE_DEBUG_LOGGING', 'false'));
