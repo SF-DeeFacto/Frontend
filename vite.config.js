@@ -1,4 +1,5 @@
 // vite.config.js
+// 프록시 설정
 
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react' 
@@ -26,7 +27,7 @@ export default defineConfig({
       },
       //User Service 직접 연결 (API Gateway 미실행시 임시)
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // /api 제거하여 User Service로 직접 전달
         //상세히..
