@@ -2,17 +2,28 @@
 // 대시보드는 SSE 통신으로 한번 통신을 연결하면 연결 상태를 계속 유지하고 Back에서 데이터를 전송하는 방식으로 동작합니다.
 // 따라서 기존의 axios 방식으로 통신할 수 없어 SSE 연결 방법을 제공합니다.
 
-// SSE URL 설정
+import { getAvailableBackendConfig } from '../../config/backendConfig';
+
+// SSE API 클라이언트 생성
+const createSSEClient = async () => {
+  const config = await getAvailableBackendConfig();
+  if (!config) {
+    throw new Error('API Gateway 연결 불가');
+  }
+  
+  return {
+    baseURL: config.baseURL,
+    target: config.target
+  };
+};
+
+// SSE URL 설정 (환경변수 기반)
 export const SSE_URLS = {
-  // (개발용) 프록시를 통한 연결 url - Dashboard 백엔드 (포트 8083)
-  main: "/dashboard-api/home/status",
-  zone: (zoneId) => `/dashboard-api/home/zone?zoneId=${zoneId}`,
+  // API Gateway를 통한 SSE 연결
+  main: "/api/home/status",
+  zone: (zoneId) => `/api/home/zone?zoneId=${zoneId}`,
   
-  // (개발용) 직접 연결 url (프록시 미사용시)
-  // main: "http://localhost:8083/home/status",
-  // zone: (zoneId) => `http://localhost:8083/home/zone?zoneId=${zoneId}`,
-  
-  // (운영용) gateway 사용시 연결 url
+  // 개발용 직접 연결 (프록시 미사용시)
   // main: "http://localhost:8080/home/status",
   // zone: (zoneId) => `http://localhost:8080/home/zone?zoneId=${zoneId}`,
 };
@@ -102,7 +113,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       };
       
     } catch (error) {
-      console.error('EventSource 생성 오류:', error);
+      console.error('SSE 연결 생성 실패:', error);
       onError(error);
     }
   };
@@ -111,24 +122,34 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   createEventSource();
   
   // 연결 해제 함수 반환
-  return () => {
-    console.log('SSE 연결 해제');
-    if (eventSource) {
-      try {
+  return {
+    disconnect: () => {
+      if (eventSource) {
+        console.log('SSE 연결 해제:', url);
         eventSource.close();
-      } catch (error) {
-        console.log('SSE 연결 해제 중 오류:', error);
+        eventSource = null;
       }
-    }
+    },
+    // 연결 상태 확인
+    isConnected: () => eventSource && eventSource.readyState === EventSource.OPEN
   };
 };
 
-// 메인 대시보드용 SSE 연결
-export const connectMainSSE = ({ onMessage, onError, onOpen }) => {
-  return connectSSE(SSE_URLS.main, { onMessage, onError, onOpen });
+// SSE API 함수들
+export const sseApi = {
+  // 대시보드 상태 SSE 연결
+  connectDashboardStatus: (onMessage, onError, onOpen) => {
+    return connectSSE(SSE_URLS.main, { onMessage, onError, onOpen });
+  },
+  
+  // 구역별 상태 SSE 연결
+  connectZoneStatus: (zoneId, onMessage, onError, onOpen) => {
+    return connectSSE(SSE_URLS.zone(zoneId), { onMessage, onError, onOpen });
+  },
+  
+  // 사용자 정의 SSE 연결
+  connect: connectSSE
 };
 
-// 특정 존용 SSE 연결
-export const connectZoneSSE = (zoneId, { onMessage, onError, onOpen }) => {
-  return connectSSE(SSE_URLS.zone(zoneId), { onMessage, onError, onOpen });
-};
+// 기존 함수들과의 호환성을 위한 export
+export default sseApi;

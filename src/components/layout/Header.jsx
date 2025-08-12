@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { fetchWeatherData } from '../../dummy/services/weather';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -37,16 +36,28 @@ const Header = () => {
     }
   }, [navigate]);
 
-  // 날씨 정보 가져오기 (더미 데이터 사용)
+  // 날씨 정보 가져오기 (실제 API 사용)
   useEffect(() => {
     const getWeatherInfo = async () => {
       try {
-        const result = await fetchWeatherData();
-        if (result.success) {
-          setWeatherData(result.data);
-        }
+        // TODO: 실제 날씨 API 연동
+        // const result = await weatherApi.getCurrentWeather();
+        // if (result.success) {
+        //   setWeatherData(result.data);
+        // }
+        
+        // 임시로 기본 날씨 정보 설정
+        setWeatherData({
+          weather: '맑음',
+          temperature: 23
+        });
       } catch (error) {
         console.error('날씨 정보 가져오기 실패:', error);
+        // 기본값 설정
+        setWeatherData({
+          weather: '날씨 정보 없음',
+          temperature: '--'
+        });
       }
     };
 

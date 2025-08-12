@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { OptionFrame } from '../components/common/option';
 import Button from '../components/common/Button';
-import { dummyReports } from '../dummy/data/reports';
 
 const Report = () => {
-  // 더미 데이터 사용
-  const [reports] = useState(dummyReports);
+  // 빈 배열로 초기화 (실제 API 연동 시 사용)
+  const [reports] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isOptionOpen, setIsOptionOpen] = useState(false); // 옵션 토글 상태
   

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import ZoneModelViewer from '../../components/3d/ZoneModelViewer';
 import B01ModelViewer from '../../components/3d/B01ModelViewer';
 import SensorDataCard from '../../components/common/SensorDataCard';
-import { connectZoneSSE } from '../../services/sse';
+import { sseApi } from '../../services/api/sse';
 import '../../styles/zone.css';
 
 const Zone = ({ zoneId }) => {
@@ -45,7 +45,7 @@ const Zone = ({ zoneId }) => {
       
       // zoneId를 백엔드 형식에 맞게 변환 (b01 -> zone_B)
       const backendZoneId = currentZoneId === 'b01' ? 'zone_B' : currentZoneId;
-      disconnectSSE = connectZoneSSE(backendZoneId, {
+      disconnectSSE = sseApi.connectZoneStatus(backendZoneId, {
         onOpen: (event) => {
           console.log(`${currentZoneId} Zone SSE 연결 성공!`);
           setConnectionState('connected');

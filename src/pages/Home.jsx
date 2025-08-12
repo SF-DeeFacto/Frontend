@@ -3,23 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
 import Button from '../components/common/Button';
-import { connectMainSSE, connectZoneSSE } from '../services/sse';
+import { sseApi } from '../services/api/sse';
+import { fetchZoneStatuses, fetchZoneStatus } from '../services/api/zone';
 
 const Home = () => {
   const navigate = useNavigate();
   const [zoneStatuses, setZoneStatuses] = useState({
-    zone_A: 'CONNECTING', // A01 - 실시간
-    zone_A02: 'YELLOW',   // 더미 데이터
-    zone_B: 'CONNECTING', // B01 - 실시간
-    zone_B02: 'RED',      // 더미 데이터
-    zone_B03: 'GREEN',    // 더미 데이터
-    zone_B04: 'YELLOW',   // 더미 데이터
-    zone_C01: 'GREEN',    // 더미 데이터
-    zone_C02: 'GREEN'     // 더미 데이터
+    zone_A: 'CONNECTING',    // A01 - 실시간
+    zone_A02: 'CONNECTING',  // A02 - 백엔드 연동
+    zone_B: 'CONNECTING',    // B01 - 실시간
+    zone_B02: 'CONNECTING',  // B02 - 백엔드 연동
+    zone_B03: 'CONNECTING',  // B03 - 백엔드 연동
+    zone_B04: 'CONNECTING',  // B04 - 백엔드 연동
+    zone_C01: 'CONNECTING',  // C01 - 백엔드 연동
+    zone_C02: 'CONNECTING'   // C02 - 백엔드 연동
   });
   const [connectionStates, setConnectionStates] = useState({
     mainSSE: 'disconnected',
-    zoneSSE: {}
+    zoneSSE: {},
+    zoneAPI: {}
   });
   const [lastUpdated, setLastUpdated] = useState({});
 
@@ -45,6 +47,109 @@ const Home = () => {
     }
   }, [navigate]);
 
+  // 초기 구역 상태 로드
+  useEffect(() => {
+    const loadInitialZoneStatuses = async () => {
+      console.log('초기 구역 상태 로드 시작');
+      
+      try {
+        const result = await fetchZoneStatuses();
+        if (result.success && result.data) {
+          console.log('초기 구역 상태 로드 성공:', result.data);
+          
+          const newStatuses = { ...zoneStatuses };
+          const newConnectionStates = { ...connectionStates };
+          
+          result.data.forEach(zone => {
+            if (zone.zoneName && zone.status) {
+              newStatuses[zone.zoneName] = zone.status;
+              newConnectionStates.zoneAPI[zone.zoneName] = 'connected';
+              setLastUpdated(prev => ({
+                ...prev,
+                [zone.zoneName]: new Date().toLocaleTimeString()
+              }));
+            }
+          });
+          
+          setZoneStatuses(newStatuses);
+          setConnectionStates(newConnectionStates);
+        } else {
+          console.log('초기 구역 상태 로드 실패, 개별 구역별로 시도');
+          // 개별 구역별로 상태 조회 시도
+          await loadIndividualZoneStatuses();
+        }
+      } catch (error) {
+        console.error('초기 구역 상태 로드 오류:', error);
+        await loadIndividualZoneStatuses();
+      }
+    };
+
+    const loadIndividualZoneStatuses = async () => {
+      const zones = ['a02', 'b02', 'b03', 'b04', 'c01', 'c02'];
+      
+      for (const zoneId of zones) {
+        try {
+          const result = await fetchZoneStatus(zoneId);
+          if (result.success && result.data) {
+            const zoneName = `zone_${zoneId.toUpperCase()}`;
+            setZoneStatuses(prev => ({
+              ...prev,
+              [zoneName]: result.data.status || 'UNKNOWN'
+            }));
+            setConnectionStates(prev => ({
+              ...prev,
+              zoneAPI: {
+                ...prev.zoneAPI,
+                [zoneName]: 'connected'
+              }
+            }));
+            setLastUpdated(prev => ({
+              ...prev,
+              [zoneName]: new Date().toLocaleTimeString()
+            }));
+          } else {
+            // API 연동 실패 시 회색 표시
+            const zoneName = `zone_${zoneId.toUpperCase()}`;
+            setZoneStatuses(prev => ({
+              ...prev,
+              [zoneName]: 'DISCONNECTED'
+            }));
+            setConnectionStates(prev => ({
+              ...prev,
+              zoneAPI: {
+                ...prev.zoneAPI,
+                [zoneName]: 'error'
+              }
+            }));
+          }
+        } catch (error) {
+          console.error(`구역 ${zoneId} 상태 조회 오류:`, error);
+          const zoneName = `zone_${zoneId.toUpperCase()}`;
+          setZoneStatuses(prev => ({
+            ...prev,
+            [zoneName]: 'DISCONNECTED'
+          }));
+          setConnectionStates(prev => ({
+            ...prev,
+            zoneAPI: {
+              ...prev.zoneAPI,
+              [zoneName]: 'error'
+            }
+          }));
+        }
+      }
+    };
+
+    loadInitialZoneStatuses();
+
+    // 30초마다 구역 상태 업데이트
+    const intervalId = setInterval(loadIndividualZoneStatuses, 30000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   // A01, B01 실시간 SSE 연결
   useEffect(() => {
     console.log('A01, B01 실시간 SSE 연결 시작');
@@ -59,7 +164,7 @@ const Home = () => {
         mainSSE: 'connecting'
       }));
 
-      disconnectMainSSE = connectMainSSE({
+      disconnectMainSSE = sseApi.connectDashboardStatus({
         onOpen: (event) => {
           console.log('메인 SSE 연결 성공!');
           setConnectionStates(prev => ({
@@ -130,7 +235,7 @@ const Home = () => {
           }
         }));
         
-        const disconnect = connectZoneSSE(zoneId, {
+        const disconnect = sseApi.connectZoneStatus(zoneId, {
           onOpen: (event) => {
             console.log(`존 ${zoneId} SSE 연결 성공!`);
             setConnectionStates(prev => ({
@@ -269,7 +374,7 @@ const Home = () => {
     if (connectionState === 'connecting') {
       return '#3b82f6'; // 파란색 (연결 중)
     }
-    if (connectionState === 'error') {
+    if (connectionState === 'error' || status === 'DISCONNECTED') {
       return '#9ca3af'; // 회색 (연결 실패)
     }
     
@@ -282,6 +387,8 @@ const Home = () => {
         return '#ef4444'; // 빨간색 (위험)
       case 'CONNECTING':
         return '#3b82f6'; // 파란색 (연결 중)
+      case 'DISCONNECTED':
+        return '#9ca3af'; // 회색 (연결 실패)
       default:
         return '#9ca3af'; // 회색 (알 수 없음)
     }
@@ -306,12 +413,15 @@ const Home = () => {
       };
     }
     
+    // 백엔드 API 연동 구역
+    const zoneAPIState = connectionStates.zoneAPI[zone.zone_name] || 'connecting';
+    
     return {
-      status: status || 'UNKNOWN',
+      status: status || 'CONNECTING',
       isRealtime: false,
-      connectionState: 'static',
-      lastUpdate: null,
-      dataSource: '더미'
+      connectionState: zoneAPIState,
+      lastUpdate,
+      dataSource: zoneAPIState === 'connected' ? '백엔드' : '연결실패'
     };
   };
 
@@ -418,6 +528,7 @@ const Home = () => {
                   {connectionInfo.status === 'YELLOW' && '경고'}
                   {connectionInfo.status === 'RED' && '위험'}
                   {connectionInfo.status === 'CONNECTING' && '연결중'}
+                  {connectionInfo.status === 'DISCONNECTED' && '연결실패'}
                   {connectionInfo.status === 'UNKNOWN' && '알수없음'}
                 </div>
                 

@@ -2,75 +2,49 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
-import { login } from '../services/api/auth';
-// ===== 개발용 더미 로그인 기능 시작 =====
-import { dummyUsers } from '../dummy/data/users';
-// ===== 개발용 더미 로그인 기능 끝 =====
+import BackendStatus from '../components/common/BackendStatus';
+import { integratedLogin } from '../services/api/auth';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loginInfo, setLoginInfo] = useState('');
   const navigate = useNavigate();
 
   const handleInputChange = (field, value) => {
     setCredentials(prev => ({ ...prev, [field]: value }));
     if (error) setError('');
+    if (loginInfo) setLoginInfo('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setLoginInfo('');
     setIsLoading(true);
 
-    // ===== 개발용 더미 로그인 기능 시작 =====
-    // 먼저 더미 데이터에서 사용자 찾기
-    const dummyUser = dummyUsers.find(user => 
-      user.employee_id === credentials.username && 
-      user.password === credentials.password
-    );
-    
-    if (dummyUser) {
-      // 더미 토큰 생성
-      const dummyToken = 'dummy_token_' + Date.now();
-      const dummyRefreshToken = 'dummy_refresh_token_' + Date.now();
-      
-      // localStorage에 더미 데이터 저장
-      localStorage.setItem('access_token', dummyToken);
-      localStorage.setItem('refresh_token', dummyRefreshToken);
-      localStorage.setItem('employeeId', dummyUser.employee_id);
-      localStorage.setItem('user', JSON.stringify({
-        employeeId: dummyUser.employee_id,
-        name: dummyUser.name,
-        email: dummyUser.email,
-        department: dummyUser.department,
-        position: dummyUser.position,
-        role: dummyUser.role
-      }));
-      
-      console.log('더미 데이터로 로그인 성공:', dummyUser);
-      navigate('/home');
-      setIsLoading(false);
-      return;
-    }
-    // ===== 개발용 더미 로그인 기능 끝 =====
-
-    // 실제 백엔드 로그인 기능 시작
     try {
-      const result = await login(credentials);
+      const result = await integratedLogin(credentials);
+      
       if (result.success) {
-        navigate('/home');
+        // 로그인 성공 시 정보 표시
+        setLoginInfo('백엔드 서버로 로그인되었습니다.');
+        
+        // 잠시 후 홈으로 이동
+        setTimeout(() => {
+          navigate('/home');
+        }, 1500);
       } else {
         setError(result.error);
       }
-    } catch (e) {
-      console.log('백엔드 연동 실패');
-      setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
+    } catch (error) {
+      console.error('로그인 처리 중 오류:', error);
+      setError('로그인 처리 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
-    // ===== 실제 백엔드 로그인 기능 끝 =====
   };
 
   const styles = {
@@ -211,9 +185,25 @@ const Login = () => {
           <Text variant="body" size="xs" color="gray-600" style={styles.signIn}>
             로그인에 문제가 있는 경우 관리자에게 문의하십시오
           </Text>
+          
+          {/* 백엔드 서버 상태 표시 */}
+          <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
+            <Text variant="body" size="xs" color="gray-600" style={{ marginBottom: '8px', display: 'block' }}>
+              백엔드 서버 상태:
+            </Text>
+            <BackendStatus />
+          </div>
+          
+
+
           {error && (
             <Text variant="body" size="xs" color="red" style={styles.errorMessage}>
               {error}
+            </Text>
+          )}
+          {loginInfo && (
+            <Text variant="body" size="xs" color="green" style={styles.errorMessage}>
+              {loginInfo}
             </Text>
           )}
           <Button
