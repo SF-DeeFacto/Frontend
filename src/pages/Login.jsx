@@ -26,17 +26,28 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      console.log('로그인 시도 시작:', credentials.username);
       const result = await integratedLogin(credentials);
+      console.log('로그인 결과:', result);
       
       if (result.success) {
         // 로그인 성공 시 정보 표시
         setLoginInfo('백엔드 서버로 로그인되었습니다.');
+        console.log('로그인 성공, 홈으로 이동 예정...');
+        
+        // localStorage 상태 확인
+        const token = localStorage.getItem('access_token');
+        const user = localStorage.getItem('user');
+        console.log('저장된 토큰:', !!token);
+        console.log('저장된 사용자 정보:', user);
         
         // 잠시 후 홈으로 이동
         setTimeout(() => {
+          console.log('홈 페이지로 이동 시작');
           navigate('/home');
         }, 1500);
       } else {
+        console.error('로그인 실패:', result.error);
         setError(result.error);
       }
     } catch (error) {
@@ -188,9 +199,6 @@ const Login = () => {
           
           {/* 백엔드 서버 상태 표시 */}
           <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: '#f8f9fa', borderRadius: '6px' }}>
-            <Text variant="body" size="xs" color="gray-600" style={{ marginBottom: '8px', display: 'block' }}>
-              백엔드 서버 상태:
-            </Text>
             <BackendStatus />
           </div>
           

@@ -1,20 +1,39 @@
-import React, { useState } from 'react';
-import { getAvailableBackendConfig } from '../../config/backendConfig';
+import React, { useState, useEffect } from 'react';
+import { getAvailableBackendConfig, logEnvironmentConfig } from '../../config/backendConfig';
 
 const BackendStatus = () => {
   const [apiGatewayStatus, setApiGatewayStatus] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastChecked, setLastChecked] = useState(null);
+
+  // 컴포넌트 마운트 시 환경변수 정보 출력
+  useEffect(() => {
+    logEnvironmentConfig();
+  }, []);
 
   const checkApiGatewayStatus = async () => {
     setIsLoading(true);
     
     try {
+      console.log('백엔드 상태 확인 시작...');
+      
       // API Gateway 상태만 확인
       const config = await getAvailableBackendConfig();
-      setApiGatewayStatus(!!config);
+      const isConnected = !!config;
+      
+      setApiGatewayStatus(isConnected);
+      setLastChecked(new Date());
+      
+      if (isConnected) {
+        console.log('API Gateway 연결 성공:', config);
+      } else {
+        console.log('API Gateway 연결 실패');
+      }
+      
     } catch (error) {
       console.error('API Gateway 상태 확인 실패:', error);
       setApiGatewayStatus(false);
+      setLastChecked(new Date());
     } finally {
       setIsLoading(false);
     }
@@ -30,24 +49,67 @@ const BackendStatus = () => {
     return status ? '연결됨' : '연결 안됨';
   };
 
+  const getStatusIcon = (status) => {
+    if (status === null) return '❓';
+    return status ? '✅' : '❌';
+  };
+
+  const formatLastChecked = (date) => {
+    if (!date) return '';
+    return date.toLocaleTimeString('ko-KR');
+  };
+
   return (
-    <div className="text-xs text-gray-600 space-y-1">
-      <div className="flex items-center space-x-2">
-        <span>API Gateway:</span>
-        <span className={getStatusColor(apiGatewayStatus)}>
-          {getStatusText(apiGatewayStatus)}
-        </span>
+    <div className="text-xs text-gray-600 space-y-2 p-3 bg-gray-50 rounded-lg">
+      <div className="font-medium text-gray-700">백엔드 서버 상태</div>
+      
+      <div className="space-y-2">
+        <div className="flex items-center space-x-2">
+          <span className="font-medium">API Gateway:</span>
+          <span className={getStatusColor(apiGatewayStatus)}>
+            {getStatusIcon(apiGatewayStatus)} {getStatusText(apiGatewayStatus)}
+          </span>
+        </div>
+        
+        {lastChecked && (
+          <div className="text-xs text-gray-500">
+            마지막 확인: {formatLastChecked(lastChecked)}
+          </div>
+        )}
       </div>
-      <div className="text-xs text-gray-500 mt-2">
-        모든 백엔드 서비스는 API Gateway를 통해 연결됩니다.
+      
+
+      
+      <div className="flex space-x-2">
+        <button
+          onClick={checkApiGatewayStatus}
+          disabled={isLoading}
+          className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading ? '확인 중...' : '상태 확인'}
+        </button>
+        
+        {apiGatewayStatus === false && (
+          <button
+            onClick={() => window.open('http://localhost:8080', '_blank')}
+            className="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700"
+          >
+            서버 확인
+          </button>
+        )}
       </div>
-      <button
-        onClick={checkApiGatewayStatus}
-        disabled={isLoading}
-        className="text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
-      >
-        {isLoading ? '확인 중...' : '상태 확인'}
-      </button>
+      
+      {apiGatewayStatus === false && (
+        <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+          <strong>연결 문제 해결 방법:</strong>
+          <ul className="list-disc list-inside mt-1 space-y-1">
+            <li>백엔드 서버가 실행 중인지 확인</li>
+            <li>포트 8080이 사용 가능한지 확인</li>
+            <li>방화벽 설정 확인</li>
+            <li>서버 로그에서 오류 메시지 확인</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,31 +1,13 @@
-// 통합 인증 서비스 - API Gateway만 사용
+// 통합 인증 서비스 - 공통 API 클라이언트 사용
 
-import axios from 'axios';
-import { getAvailableBackendConfig } from '../../config/backendConfig';
+import api from './client';
 import { userApi } from './user';
 
-// API Gateway 클라이언트 생성 (직접 연결)
-const createApiGatewayClient = (apiGatewayConfig) => {
-  console.log('API Gateway 클라이언트 생성:', apiGatewayConfig);
-
-  return axios.create({
-    baseURL: apiGatewayConfig.target, // 직접 API Gateway URL 사용
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    timeout: 10000,
-  });
-};
-
 // API Gateway를 통한 로그인 처리
-const handleApiGatewayLogin = async (credentials, apiGatewayConfig) => {
+const handleApiGatewayLogin = async (credentials) => {
   try {
     console.log('API Gateway 로그인 시도 시작');
     console.log('사용자 정보:', { employeeId: credentials.username });
-    console.log('API Gateway 설정:', apiGatewayConfig);
-
-    // API Gateway 클라이언트 생성 (직접 연결)
-    const apiClient = createApiGatewayClient(apiGatewayConfig);
 
     // 로그인 요청 데이터 준비
     const loginData = {
@@ -34,10 +16,10 @@ const handleApiGatewayLogin = async (credentials, apiGatewayConfig) => {
     };
 
     console.log('로그인 요청 데이터:', loginData);
-    console.log('로그인 요청 URL:', `${apiClient.defaults.baseURL}/auth/login`);
+    console.log('로그인 요청 URL:', `/auth/login`);
 
-    // 로그인 요청 - 직접 API Gateway 호출
-    const response = await apiClient.post('/auth/login', loginData);
+    // 로그인 요청 - 공통 API 클라이언트 사용
+    const response = await api.post('/auth/login', loginData);
 
     console.log('API Gateway 로그인 응답 성공:', response.status);
     console.log('응답 데이터:', response.data);
@@ -77,23 +59,31 @@ const handleApiGatewayLogin = async (credentials, apiGatewayConfig) => {
         console.log('사용자 정보 조회 성공:', userInfo);
 
         localStorage.setItem('user', JSON.stringify({
-          employeeId: userInfo.employeeId,
-          name: userInfo.name,
-          email: userInfo.email,
-          department: userInfo.department,
-          position: userInfo.position,
-          role: userInfo.role
+          employeeId: userInfo.employeeId || employeeId,
+          name: userInfo.name || `사원${employeeId}`,
+          email: userInfo.email || '',
+          department: userInfo.department || '',
+          position: userInfo.position || '',
+          role: userInfo.role || 'USER'
         }));
 
         console.log('사용자 정보 저장 완료');
       } else {
         console.error('사용자 정보 조회 실패:', userResult.error);
-        localStorage.setItem('user', JSON.stringify({ employeeId }));
+        localStorage.setItem('user', JSON.stringify({ 
+          employeeId,
+          name: `사원${employeeId}`,
+          role: 'USER'
+        }));
         console.log('기본 사용자 정보만 저장');
       }
     } catch (userInfoError) {
       console.error('사용자 정보 조회 중 오류:', userInfoError);
-      localStorage.setItem('user', JSON.stringify({ employeeId }));
+      localStorage.setItem('user', JSON.stringify({ 
+        employeeId,
+        name: `사원${employeeId}`,
+        role: 'USER'
+      }));
       console.log('오류 발생으로 기본 사용자 정보만 저장');
     }
 
@@ -137,26 +127,13 @@ const handleApiGatewayLogin = async (credentials, apiGatewayConfig) => {
   }
 };
 
-// 통합 로그인 함수 - API Gateway만 사용
+// 통합 로그인 함수 - 공통 API 클라이언트 사용
 export const integratedLogin = async (credentials) => {
   try {
     console.log('통합 로그인 시작');
 
-    // API Gateway 서버 상태 확인
-    const apiGatewayConfig = await getAvailableBackendConfig();
-
-    if (!apiGatewayConfig) {
-      console.error('API Gateway 설정을 가져올 수 없습니다.');
-      return {
-        success: false,
-        error: 'API Gateway에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.'
-      };
-    }
-
-    console.log('API Gateway 설정 확인 완료:', apiGatewayConfig);
-
-    // API Gateway를 통한 로그인 시도
-    const loginResult = await handleApiGatewayLogin(credentials, apiGatewayConfig);
+    // 공통 API 클라이언트를 통한 로그인 시도
+    const loginResult = await handleApiGatewayLogin(credentials);
     console.log('로그인 결과:', loginResult);
 
     return loginResult;
@@ -173,16 +150,12 @@ export const integratedLogin = async (credentials) => {
 // API Gateway를 통한 로그아웃 함수
 export const integratedLogout = async () => {
   try {
-    // API Gateway를 통한 로그아웃 시도
-    const apiGatewayConfig = await getAvailableBackendConfig();
-    if (apiGatewayConfig) {
-      try {
-        const apiClient = createApiGatewayClient(apiGatewayConfig);
-        await apiClient.post('/auth/logout');
-        console.log('API Gateway 로그아웃 성공');
-      } catch (error) {
-        console.log('API Gateway 로그아웃 실패, 로컬 정리만 진행');
-      }
+    // 공통 API 클라이언트를 통한 로그아웃 시도
+    try {
+      await api.post('/auth/logout');
+      console.log('API Gateway 로그아웃 성공');
+    } catch (error) {
+      console.log('API Gateway 로그아웃 실패, 로컬 정리만 진행');
     }
   } catch (error) {
     console.log('API Gateway 연결 실패, 로컬 정리만 진행');
