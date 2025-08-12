@@ -15,13 +15,8 @@ export default defineConfig({
   server: {
     port: 5174,
     proxy: {
-      // API Gateway 프록시 설정 (환경변수 사용)
-      [getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api')]: {
-        target: getEnvVar('VITE_API_GATEWAY_URL', 'http://localhost:8080'),
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(new RegExp(`^${getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api')}`), '/api')
-      }
+      // API Gateway 직접 연결 (프록시 없이)
+      // 프론트엔드에서 직접 API Gateway 호출
     }
   }
 })

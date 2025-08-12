@@ -1,13 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { getAvailableBackendConfig } from '../../config/backendConfig';
 
 const BackendStatus = () => {
-  const [apiGatewayStatus, setApiGatewayStatus] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    checkApiGatewayStatus();
-  }, []);
+  const [apiGatewayStatus, setApiGatewayStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const checkApiGatewayStatus = async () => {
     setIsLoading(true);
@@ -25,20 +21,14 @@ const BackendStatus = () => {
   };
 
   const getStatusColor = (status) => {
+    if (status === null) return 'text-gray-500';
     return status ? 'text-green-600' : 'text-red-600';
   };
 
   const getStatusText = (status) => {
+    if (status === null) return '확인 안됨';
     return status ? '연결됨' : '연결 안됨';
   };
-
-  if (isLoading) {
-    return (
-      <div className="text-sm text-gray-500">
-        API Gateway 상태 확인 중...
-      </div>
-    );
-  }
 
   return (
     <div className="text-xs text-gray-600 space-y-1">
@@ -53,9 +43,10 @@ const BackendStatus = () => {
       </div>
       <button
         onClick={checkApiGatewayStatus}
-        className="text-blue-600 hover:text-blue-800 underline"
+        disabled={isLoading}
+        className="text-blue-600 hover:text-blue-800 underline disabled:opacity-50"
       >
-        상태 새로고침
+        {isLoading ? '확인 중...' : '상태 확인'}
       </button>
     </div>
   );

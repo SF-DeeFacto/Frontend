@@ -9,9 +9,9 @@ const getEnvVar = (key, defaultValue) => {
 export const BACKEND_CONFIG = {
   // API Gateway (환경변수에서 설정 가져오기)
   API_GATEWAY: {
-    baseURL: getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api'),
+    baseURL: getEnvVar('VITE_API_GATEWAY_BASE_PATH', ''), // 빈 문자열로 설정하여 /api 경로 제거
     target: getEnvVar('VITE_API_GATEWAY_URL', 'http://localhost:8080'),
-    healthCheck: '/'
+    healthCheck: '/auth/login' // API Gateway 실제 존재하는 엔드포인트로 변경
   }
 };
 
@@ -26,22 +26,44 @@ export const getCurrentBackendConfig = () => {
   return BACKEND_CONFIG.API_GATEWAY;
 };
 
-// 백엔드 서버 상태 확인 함수
+// 백엔드 서버 상태 확인 함수 - HEAD 요청 사용
 export const checkBackendHealth = async (config) => {
   try {
     console.log(`백엔드 서버 연결 확인 시도: ${config.target}`);
-
-    // API Gateway 연결 확인 (간단한 HEAD 요청)
-    const response = await fetch(`${config.target}`, {
-      method: 'HEAD',
-      mode: 'no-cors'
-    });
-
-    console.log(`백엔드 서버 연결 성공: ${config.target}`);
-    return true;
+    
+    // HEAD 요청으로 간단한 연결 확인만 수행
+    try {
+      const response = await fetch(`${config.target}`, {
+        method: 'HEAD',
+        mode: 'no-cors',
+        signal: AbortSignal.timeout(3000) // 3초 타임아웃
+      });
+      
+      console.log(`백엔드 서버 연결 성공: ${config.target}`);
+      return true;
+      
+    } catch (basicError) {
+      console.log(`백엔드 서버 연결 실패: ${config.target}`, basicError.message);
+      
+      // HEAD 실패 시 간단한 ping 시도
+      try {
+        const response = await fetch(`${config.target}/`, {
+          method: 'HEAD',
+          mode: 'no-cors',
+          signal: AbortSignal.timeout(2000) // 2초 타임아웃
+        });
+        
+        console.log(`백엔드 서버 ping 성공: ${config.target}/`);
+        return true;
+        
+      } catch (pingError) {
+        console.log(`백엔드 서버 ping 실패: ${config.target}/`, pingError.message);
+        return false;
+      }
+    }
 
   } catch (error) {
-    console.log(`백엔드 서버 연결 실패: ${config.target}`, error);
+    console.log(`백엔드 서버 연결 확인 실패: ${config.target}`, error);
     return false;
   }
 };
@@ -63,7 +85,7 @@ export const logEnvironmentConfig = () => {
   if (getEnvVar('VITE_ENABLE_DEBUG_LOGGING', 'false') === 'true') {
     console.log('=== 환경변수 설정 정보 ===');
     console.log('API Gateway URL:', getEnvVar('VITE_API_GATEWAY_URL', 'http://localhost:8080'));
-    console.log('API Base Path:', getEnvVar('VITE_API_GATEWAY_BASE_PATH', '/api'));
+    console.log('API Base Path:', getEnvVar('VITE_API_GATEWAY_BASE_PATH', ''));
     console.log('Node Environment:', getEnvVar('VITE_NODE_ENV', 'development'));
     console.log('Debug Logging:', getEnvVar('VITE_ENABLE_DEBUG_LOGGING', 'false'));
     console.log('========================');

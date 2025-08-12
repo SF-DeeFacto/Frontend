@@ -7,9 +7,9 @@ const createUserClient = async () => {
   if (!config) {
     throw new Error('API Gateway 연결 불가');
   }
-  
+
   return {
-    baseURL: config.baseURL,
+    baseURL: config.target, // 직접 API Gateway URL 사용
     target: config.target
   };
 };
@@ -22,12 +22,12 @@ export const userApi = {
       const client = await createUserClient();
       const accessToken = localStorage.getItem('access_token');
       const employeeId = localStorage.getItem('employeeId');
-      
+
       if (!accessToken || !employeeId) {
         return { success: false, error: '인증 정보가 없습니다.' };
       }
 
-      const response = await fetch(`${client.baseURL}/user/info/profile`, {
+      const response = await fetch(`${client.baseURL}/user/info/profile`, { // 직접 API Gateway 호출
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -51,56 +51,60 @@ export const userApi = {
     }
   },
 
-  // 사용자 정보 업데이트
-  updateUserProfile: async (userData) => {
+  // 사용자 프로필 정보 수정
+  updateUserProfile: async (profileData) => {
     try {
       const client = await createUserClient();
       const accessToken = localStorage.getItem('access_token');
       const employeeId = localStorage.getItem('employeeId');
-      
+
       if (!accessToken || !employeeId) {
         return { success: false, error: '인증 정보가 없습니다.' };
       }
 
-      const response = await fetch(`${client.baseURL}/user/info/profile`, {
+      const response = await fetch(`${client.baseURL}/user/info/profile`, { // 직접 API Gateway 호출
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${accessToken}`,
-          'X-Employee-Id': employeeId
+          'X-Employee-Id': employeeId,
+          'X-Role': 'USER'
         },
-        body: JSON.stringify(userData)
+        body: JSON.stringify(profileData)
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('사용자 정보 업데이트 성공:', data);
+        console.log('사용자 프로필 수정 성공:', data);
         return { success: true, data: data.data || data };
       } else {
-        console.error('사용자 정보 업데이트 실패:', response.status);
-        return { success: false, error: '사용자 정보 업데이트에 실패했습니다.' };
+        console.error('사용자 프로필 수정 실패:', response.status);
+        return { success: false, error: '사용자 프로필 수정에 실패했습니다.' };
       }
     } catch (error) {
-      console.error('사용자 정보 업데이트 오류:', error);
-      return { success: false, error: '사용자 정보 업데이트 중 오류가 발생했습니다.' };
+      console.error('사용자 프로필 수정 오류:', error);
+      return { success: false, error: '사용자 프로필 수정 중 오류가 발생했습니다.' };
     }
   },
 
   // 사용자 목록 조회 (관리자용)
-  getUserList: async (page = 1, size = 10) => {
+  getUserList: async () => {
     try {
       const client = await createUserClient();
       const accessToken = localStorage.getItem('access_token');
-      
-      if (!accessToken) {
+      const employeeId = localStorage.getItem('employeeId');
+
+      if (!accessToken || !employeeId) {
         return { success: false, error: '인증 정보가 없습니다.' };
       }
 
-      const response = await fetch(`${client.baseURL}/user/list?page=${page}&size=${size}`, {
+      const response = await fetch(`${client.baseURL}/user/list`, { // 직접 API Gateway 호출
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Employee-Id': employeeId,
+          'X-Role': 'ADMIN'
         },
       });
 
@@ -118,36 +122,42 @@ export const userApi = {
     }
   },
 
-  // 사용자 권한 변경 (관리자용)
-  updateUserRole: async (userId, newRole) => {
+  // 사용자 역할 수정 (관리자용)
+  updateUserRole: async (targetEmployeeId, newRole) => {
     try {
       const client = await createUserClient();
       const accessToken = localStorage.getItem('access_token');
-      
-      if (!accessToken) {
+      const employeeId = localStorage.getItem('employeeId');
+
+      if (!accessToken || !employeeId) {
         return { success: false, error: '인증 정보가 없습니다.' };
       }
 
-      const response = await fetch(`${client.baseURL}/user/${userId}/role`, {
+      const response = await fetch(`${client.baseURL}/user/role`, { // 직접 API Gateway 호출
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Employee-Id': employeeId,
+          'X-Role': 'ADMIN'
         },
-        body: JSON.stringify({ role: newRole })
+        body: JSON.stringify({
+          employeeId: targetEmployeeId,
+          role: newRole
+        })
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log('사용자 권한 변경 성공:', data);
+        console.log('사용자 역할 수정 성공:', data);
         return { success: true, data: data.data || data };
       } else {
-        console.error('사용자 권한 변경 실패:', response.status);
-        return { success: false, error: '사용자 권한 변경에 실패했습니다.' };
+        console.error('사용자 역할 수정 실패:', response.status);
+        return { success: false, error: '사용자 역할 수정에 실패했습니다.' };
       }
     } catch (error) {
-      console.error('사용자 권한 변경 오류:', error);
-      return { success: false, error: '사용자 권한 변경 중 오류가 발생했습니다.' };
+      console.error('사용자 역할 수정 오류:', error);
+      return { success: false, error: '사용자 역할 수정 중 오류가 발생했습니다.' };
     }
   }
 };
