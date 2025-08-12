@@ -3,13 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
 import Button from '../components/common/Button';
-import { connectMainSSE } from '../services/api/dashboard_api';
-import { zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4 } from '../dummy/data/zoneStatus';
+import { connectMainSSE, connectZoneSSE } from '../services/sse';
 
 const Home = () => {
   const navigate = useNavigate();
-  const [zoneStatuses, setZoneStatuses] = useState({});
-  const [dataVersion, setDataVersion] = useState(1);
+  const [zoneStatuses, setZoneStatuses] = useState({
+    zone_A: 'CONNECTING', // A01 - 실시간
+    zone_A02: 'YELLOW',   // 더미 데이터
+    zone_B: 'CONNECTING', // B01 - 실시간
+    zone_B02: 'RED',      // 더미 데이터
+    zone_B03: 'GREEN',    // 더미 데이터
+    zone_B04: 'YELLOW',   // 더미 데이터
+    zone_C01: 'GREEN',    // 더미 데이터
+    zone_C02: 'GREEN'     // 더미 데이터
+  });
+  const [connectionStates, setConnectionStates] = useState({
+    mainSSE: 'disconnected',
+    zoneSSE: {}
+  });
+  const [lastUpdated, setLastUpdated] = useState({});
 
   // 인증 체크
   useEffect(() => {
@@ -17,7 +29,6 @@ const Home = () => {
     const user = localStorage.getItem('user');
     
     if (!token || !user) {
-      console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
       navigate('/login');
       return;
     }
@@ -25,159 +36,189 @@ const Home = () => {
     try {
       const userData = JSON.parse(user);
       if (!userData.name) {
-        console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
         navigate('/login');
         return;
       }
     } catch (error) {
-      console.error('사용자 정보 파싱 오류:', error);
       navigate('/login');
       return;
     }
   }, [navigate]);
 
+  // A01, B01 실시간 SSE 연결
   useEffect(() => {
-    console.log('Home 컴포넌트 마운트 - SSE 연결 시작');
-    let disconnectSSE = null;
-    let interval = null;
-    
-    // SSE 연결을 통한 실시간 데이터 수신
+    console.log('A01, B01 실시간 SSE 연결 시작');
+    let disconnectMainSSE = null;
+    let disconnectZoneSSE = {};
+
+    // 메인 SSE 연결
     try {
-      console.log('SSE 연결 초기화 중...');
-      disconnectSSE = connectMainSSE({
+      console.log('메인 SSE 연결 시작...');
+      setConnectionStates(prev => ({
+        ...prev,
+        mainSSE: 'connecting'
+      }));
+
+      disconnectMainSSE = connectMainSSE({
+        onOpen: (event) => {
+          console.log('메인 SSE 연결 성공!');
+          setConnectionStates(prev => ({
+            ...prev,
+            mainSSE: 'connected'
+          }));
+        },
         onMessage: (data) => {
-          console.log('SSE 메인 데이터 수신:', data);
+          console.log('메인 SSE 데이터 수신:', data);
+          
           try {
-            if (data.code === 'OK') {
-              const statusMap = {};
+            if (data && data.code === 'OK' && data.data && Array.isArray(data.data)) {
+              const updateTime = new Date().toLocaleTimeString();
+              
               data.data.forEach(zone => {
-                statusMap[zone.zoneName] = zone.status;
-              });
-              setZoneStatuses(statusMap);
-              
-              // 실시간 데이터로 업데이트된 존들 목록 출력 (A01, B01만)
-              const realtimeZones = Object.keys(statusMap).filter(zoneName => 
-                zoneName === 'zone_A' || zoneName === 'zone_B'
-              );
-              console.log('SSE 데이터 처리 완료 - 존 상태 업데이트:', statusMap);
-              console.log(`실시간 데이터 사용 중인 존들:`, realtimeZones);
-              
-              // 각 존별로 실시간 데이터임을 표시 (A01, B01만)
-              realtimeZones.forEach(zoneName => {
-                console.log(`Zone ${zoneName}: 실시간 SSE 데이터 사용 (상태: ${statusMap[zoneName]})`);
-              });
-              
-              // 나머지 존들은 더미 데이터 사용 중임을 표시
-              const dummyZones = ['zone_A02', 'zone_B02', 'zone_B03', 'zone_B04', 'zone_C01', 'zone_C02'];
-              dummyZones.forEach(zoneName => {
-                if (statusMap[zoneName]) {
-                  console.log(`Zone ${zoneName}: 더미 데이터 사용 (상태: ${statusMap[zoneName]})`);
+                if (zone.zoneName && zone.status) {
+                  // A01, B01만 실시간 데이터 사용
+                  if (zone.zoneName === 'zone_A' || zone.zoneName === 'zone_B') {
+                    setZoneStatuses(prevStatuses => ({
+                      ...prevStatuses,
+                      [zone.zoneName]: zone.status
+                    }));
+                    
+                    setLastUpdated(prev => ({
+                      ...prev,
+                      [zone.zoneName]: updateTime
+                    }));
+                    
+                    console.log(`실시간 데이터 업데이트: ${zone.zoneName} = ${zone.status}`);
+                  }
                 }
               });
             } else {
-              console.log('SSE 응답이 성공이 아닙니다:', data);
-              // SSE 응답이 실패한 경우 더미 데이터 사용
-              useFallbackData();
+              console.log('메인 SSE 응답이 올바르지 않습니다:', data);
             }
           } catch (error) {
-            console.error('SSE 데이터 처리 오류:', error);
-            useFallbackData();
+            console.error('메인 SSE 데이터 처리 오류:', error);
           }
         },
         onError: (error) => {
-          console.error('SSE 연결 오류:', error);
+          console.error('메인 SSE 연결 오류:', error);
           console.log('더미 데이터로 폴백합니다.');
-          useFallbackData();
+          setConnectionStates(prev => ({
+            ...prev,
+            mainSSE: 'error'
+          }));
         }
       });
-      console.log('SSE 연결 초기화 완료');
+      console.log('메인 SSE 연결 초기화 완료');
     } catch (error) {
-      console.error('SSE 연결 초기화 오류:', error);
-      useFallbackData();
+      console.error('메인 SSE 연결 초기화 오류:', error);
+      setConnectionStates(prev => ({
+        ...prev,
+        mainSSE: 'error'
+      }));
     }
 
-    // 더미 데이터 사용 함수
-    const useFallbackData = () => {
-      console.log(`더미 데이터 사용 (버전 ${dataVersion})`);
-      let fallbackData;
-      switch (dataVersion) {
-        case 1:
-          fallbackData = zoneStatusData;
-          break;
-        case 2:
-          fallbackData = zoneStatusDataV2;
-          break;
-        case 3:
-          fallbackData = zoneStatusDataV3;
-          break;
-        case 4:
-          fallbackData = zoneStatusDataV4;
-          break;
-        default:
-          fallbackData = zoneStatusData;
-      }
-      
-      const statusMap = {};
-      fallbackData.data.forEach(zone => {
-        statusMap[zone.zoneName] = zone.status;
-      });
-      setZoneStatuses(statusMap);
-      
-      // 더미 데이터로 설정된 존들 목록 출력 (A01, B01 제외)
-      const dummyZones = Object.keys(statusMap).filter(zoneName => 
-        zoneName !== 'zone_A' && zoneName !== 'zone_B'
-      );
-      console.log(`더미 데이터 버전 ${dataVersion} 적용:`, statusMap);
-      console.log(`더미 데이터 사용 중인 존들:`, dummyZones);
-      
-      // 각 존별로 더미 데이터임을 표시 (A01, B01 제외)
-      dummyZones.forEach(zoneName => {
-        console.log(` Zone ${zoneName}: 더미 데이터 사용 (상태: ${statusMap[zoneName]})`);
-      });
-      
-      // A01, B01은 실시간 데이터 대기 중임을 표시
-      if (statusMap['zone_A']) {
-        console.log(`Zone zone_A (A01): 실시간 SSE 데이터 대기 중 (현재 상태: ${statusMap['zone_A']})`);
-      }
-      if (statusMap['zone_B']) {
-        console.log(`Zone zone_B (B01): 실시간 SSE 데이터 대기 중 (현재 상태: ${statusMap['zone_B']})`);
+    // A01, B01 개별 SSE 연결
+    const connectIndividualZoneSSE = (zoneId) => {
+      try {
+        console.log(`존 ${zoneId} SSE 연결 시작...`);
+        
+        setConnectionStates(prev => ({
+          ...prev,
+          zoneSSE: {
+            ...prev.zoneSSE,
+            [zoneId]: 'connecting'
+          }
+        }));
+        
+        const disconnect = connectZoneSSE(zoneId, {
+          onOpen: (event) => {
+            console.log(`존 ${zoneId} SSE 연결 성공!`);
+            setConnectionStates(prev => ({
+              ...prev,
+              zoneSSE: {
+                ...prev.zoneSSE,
+                [zoneId]: 'connected'
+              }
+            }));
+          },
+          onMessage: (data) => {
+            console.log(`존 ${zoneId} SSE 데이터 수신:`, data);
+            
+            try {
+              if (data && data.code === 'OK' && data.data) {
+                const zoneData = data.data;
+                const updateTime = new Date().toLocaleTimeString();
+                
+                if (zoneData.zoneName && zoneData.status) {
+                  setZoneStatuses(prevStatuses => ({
+                    ...prevStatuses,
+                    [zoneData.zoneName]: zoneData.status
+                  }));
+                  
+                  setLastUpdated(prev => ({
+                    ...prev,
+                    [zoneData.zoneName]: updateTime
+                  }));
+                  
+                  console.log(`존 ${zoneId} 상태 업데이트: ${zoneData.status} (${updateTime})`);
+                }
+              }
+            } catch (error) {
+              console.error(`존 ${zoneId} SSE 데이터 처리 오류:`, error);
+            }
+          },
+          onError: (error) => {
+            console.error(`존 ${zoneId} SSE 연결 오류:`, error);
+            setConnectionStates(prev => ({
+              ...prev,
+              zoneSSE: {
+                ...prev.zoneSSE,
+                [zoneId]: 'error'
+              }
+            }));
+          }
+        });
+        
+        disconnectZoneSSE[zoneId] = disconnect;
+        console.log(`존 ${zoneId} SSE 연결 완료`);
+      } catch (error) {
+        console.error(`존 ${zoneId} SSE 연결 초기화 오류:`, error);
+        setConnectionStates(prev => ({
+          ...prev,
+          zoneSSE: {
+            ...prev.zoneSSE,
+            [zoneId]: 'error'
+          }
+        }));
       }
     };
 
-    // 초기 더미 데이터 로드 (SSE 연결 전까지)
-    console.log('초기 더미 데이터 로드');
-    useFallbackData();
+    // A01, B01만 연결
+    connectIndividualZoneSSE('a01');
+    connectIndividualZoneSSE('b01');
 
-    // 5초마다 더미 데이터 버전 순환 (적당한 주기)
-    interval = setInterval(() => {
-      console.log('더미 데이터 버전 순환');
-      setDataVersion(prev => {
-        const newVersion = prev === 4 ? 1 : prev + 1;
-        console.log(`더미 데이터 버전 변경: ${prev} → ${newVersion}`);
-        return newVersion;
-      });
-    }, 5000); // 5초로 변경
-
-    // 컴포넌트 언마운트 시 SSE 연결 해제 및 인터벌 정리
+    // 클린업
     return () => {
       console.log('Home 컴포넌트 언마운트 - 리소스 정리 시작');
-      if (disconnectSSE) {
+      
+      if (disconnectMainSSE) {
         try {
-          console.log('SSE 연결 해제 중...');
-          disconnectSSE();
-          console.log('SSE 연결 해제 완료');
+          disconnectMainSSE();
         } catch (error) {
-          console.log(' SSE 연결 해제 중 오류:', error);
+          console.log('메인 SSE 연결 해제 중 오류:', error);
         }
       }
-      if (interval) {
-        console.log('인터벌 정리 중...');
-        clearInterval(interval);
-        console.log('인터벌 정리 완료');
-      }
+      
+      Object.entries(disconnectZoneSSE).forEach(([zoneId, disconnect]) => {
+        try {
+          disconnect();
+        } catch (error) {
+          console.log(`존 ${zoneId} SSE 연결 해제 중 오류:`, error);
+        }
+      });
       console.log('Home 컴포넌트 리소스 정리 완료');
     };
-  }, [dataVersion]);
+  }, []);
 
   const zones = [
     { 
@@ -223,17 +264,55 @@ const Home = () => {
   ];
 
   // 상태에 따른 색상 반환
-  const getStatusColor = (status) => {
+  const getStatusColor = (status, connectionState) => {
+    // 연결 상태에 따른 색상 조정
+    if (connectionState === 'connecting') {
+      return '#3b82f6'; // 파란색 (연결 중)
+    }
+    if (connectionState === 'error') {
+      return '#9ca3af'; // 회색 (연결 실패)
+    }
+    
     switch (status) {
       case 'GREEN':
-        return '!bg-green-500';
+        return '#10b981'; // 초록색 (안전)
       case 'YELLOW':
-        return '!bg-yellow-400';
+        return '#fbbf24'; // 노란색 (경고)
       case 'RED':
-        return '!bg-red-500';
+        return '#ef4444'; // 빨간색 (위험)
+      case 'CONNECTING':
+        return '#3b82f6'; // 파란색 (연결 중)
       default:
-        return '!bg-gray-400';
+        return '#9ca3af'; // 회색 (알 수 없음)
     }
+  };
+
+  // 존별 연결 정보 확인
+  const getZoneConnectionInfo = (zone) => {
+    const isRealtimeZone = zone.zone_name === 'zone_A' || zone.zone_name === 'zone_B';
+    const status = zoneStatuses[zone.zone_name];
+    const lastUpdate = lastUpdated[zone.zone_name];
+    
+    if (isRealtimeZone) {
+      const zoneSSEState = connectionStates.zoneSSE[zone.id] || 'disconnected';
+      const mainSSEState = connectionStates.mainSSE;
+      
+      return {
+        status: status || 'CONNECTING',
+        isRealtime: true,
+        connectionState: zoneSSEState === 'connected' || mainSSEState === 'connected' ? 'connected' : zoneSSEState,
+        lastUpdate,
+        dataSource: '실시간'
+      };
+    }
+    
+    return {
+      status: status || 'UNKNOWN',
+      isRealtime: false,
+      connectionState: 'static',
+      lastUpdate: null,
+      dataSource: '더미'
+    };
   };
 
   return (
@@ -293,31 +372,66 @@ const Home = () => {
       {/* Zone 버튼들 */}
       <div className="flex flex-wrap gap-[30px] justify-center">
         {zones.map((zone) => {
-          const status = zoneStatuses[zone.zone_name];
-          const statusColor = getStatusColor(status);
-          
-          // A01과 B01은 실시간 데이터, 나머지는 더미 데이터
-          const isRealtimeZone = zone.zone_name === 'zone_A' || zone.zone_name === 'zone_B';
-          const isDummyData = !status || status === 'UNKNOWN' || !isRealtimeZone;
-          const dataSource = isDummyData ? '더미 데이터' : '실시간 SSE 데이터';
-          
-          console.log(`Zone ${zone.name}: status=${status}, color=${statusColor}, 데이터소스=${dataSource} (실시간존: ${isRealtimeZone})`);
+          const connectionInfo = getZoneConnectionInfo(zone);
+          const statusColor = getStatusColor(connectionInfo.status, connectionInfo.connectionState);
           
           return (
             <div
               key={zone.id}
               onClick={() => navigate(`/home/zone/${zone.id}`)}
-              className="text-black font-bold bg-white border border-gray-300 hover:bg-gray-50 flex items-center gap-2 px-4 py-2 rounded cursor-pointer transition-colors"
+              className="text-black font-bold bg-white border border-gray-300 hover:bg-gray-50 flex flex-col items-center gap-2 px-4 py-3 rounded cursor-pointer transition-colors min-w-[120px]"
             >
-              {/* zone.name 텍스트 */}
-              <span>{zone.name}</span>
-
-              {/* 상태 아이콘 */}
-              <div 
-                className={`w-[17.54px] h-[17.54px] rounded-[8.77px] border border-gray-300 ${statusColor}`}
-                style={{ backgroundColor: status === 'GREEN' ? '#10b981' : status === 'YELLOW' ? '#fbbf24' : status === 'RED' ? '#ef4444' : '#9ca3af' }}
-                title={`Status: ${status || 'Unknown'} (${dataSource})`}
-              ></div>
+              {/* Zone 이름과 상태 아이콘 */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm">{zone.name}</span>
+                
+                {/* 상태 아이콘 */}
+                <div 
+                  className="w-[17.54px] h-[17.54px] rounded-[8.77px] border border-gray-300 transition-colors"
+                  style={{ 
+                    backgroundColor: statusColor,
+                    animation: connectionInfo.connectionState === 'connecting' ? 'pulse 2s infinite' : 'none'
+                  }}
+                  title={`상태: ${connectionInfo.status} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+                ></div>
+                
+                {/* 실시간 표시 */}
+                {connectionInfo.isRealtime && (
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{ 
+                      backgroundColor: 
+                        connectionInfo.connectionState === 'connected' ? '#10b981' :
+                        connectionInfo.connectionState === 'connecting' ? '#3b82f6' :
+                        '#ef4444'
+                    }}
+                    title={`연결 상태: ${connectionInfo.connectionState}`}
+                  ></div>
+                )}
+              </div>
+              
+              {/* 상태 텍스트와 업데이트 시간 */}
+              {/* 
+              <div className="flex flex-col items-center gap-1 text-xs text-gray-600">
+                <div className="font-medium">
+                  {connectionInfo.status === 'GREEN' && '안전'}
+                  {connectionInfo.status === 'YELLOW' && '경고'}
+                  {connectionInfo.status === 'RED' && '위험'}
+                  {connectionInfo.status === 'CONNECTING' && '연결중'}
+                  {connectionInfo.status === 'UNKNOWN' && '알수없음'}
+                </div>
+                
+                {connectionInfo.lastUpdate && (
+                  <div className="text-xs text-gray-500">
+                    {connectionInfo.lastUpdate}
+                  </div>
+                )}
+                
+                <div className={`text-xs px-2 py-1 rounded ${connectionInfo.isRealtime ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
+                  {connectionInfo.dataSource}
+                </div>
+              </div>
+              */}
             </div>
           );
         })}
