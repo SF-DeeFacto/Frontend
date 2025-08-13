@@ -2,5 +2,7 @@
 // export { dummyUsers } from './data/users.js';
 export { dummyWeatherData, getDummyWeatherResponse } from './data/weather.js';
 export { dummyReports, getDummyReportsResponse, getDummyReportById } from './data/reports.js';
+export { zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4 } from './data/zoneStatus.js';
+export { a01ZoneData, getUpdatedA01Data } from './data/a01ZoneData.js';
 // export { handleDummyLogin, handleDummyLogout, validateDummyToken } from './services/user.js';
 export { fetchWeatherData, handleDummyWeatherFallback } from './services/weather.js'; 
