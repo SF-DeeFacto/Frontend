@@ -302,9 +302,9 @@ const Zone = ({ zoneId }) => {
   }
 
   return (
-         <main className="inline-flex items-start gap-[60px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
+         <main className="flex items-start gap-[60px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
             {/* Zone 도면 영역 */}
-       <section className="relative flex-1 max-w-[900px] h-full">
+       <section className="relative w-[40%] h-full">
          <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
            <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
            <div className="w-full flex-1">
@@ -314,7 +314,7 @@ const Zone = ({ zoneId }) => {
        </section>
 
 {/* 실시간 센서 데이터 영역 */}
-        <aside className="lg:col-span-1 max-w-[900px] h-full">
+        <aside className="w-[60%] h-full">
           <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col overflow-y-auto">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-xl font-semibold text-gray-800">실시간 센서 데이터</h2>
@@ -341,107 +341,203 @@ const Zone = ({ zoneId }) => {
       </div>
     </div>
     
-    <div className="grid grid-cols-2 gap-[30px]">
-              {/* 첫 번째 열 */}
-              <div className="flex flex-col gap-4">
-                {[
-                  { type: 'temperature', icon: '🌡️', name: '온도' },
-                  { type: 'humidity', icon: '💧', name: '습도' },
-                  { type: 'esd', icon: '⚡', name: '정전기' }
-                ].map(({ type, icon, name }) => {
-                  const sensors = sensorData[type];
-                  
-                  return (
-                    <div key={type} className="w-full">
-                      <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
-                        <span>{icon}</span>
-                        {name}
-                        {sensors && sensors.length > 0 && (
-                          <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                        )}
-                      </h4>
-                      
-                      {!sensors || sensors.length === 0 ? (
-                        <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="text-center">
-                            <div className="text-2xl mb-2">
-                              {connectionState === 'connected' ? '📡' :
-                               connectionState === 'connecting' ? '⏳' :
-                               connectionState === 'error' ? '❌' : '📡'}
-                            </div>
-                            <p className="text-xs text-gray-500">
-                              {connectionState === 'connected' ? '데이터 준비 중' :
-                               connectionState === 'connecting' ? '연결 중...' :
-                               connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {sensors.map((sensor, index) => (
-                            <div key={`${sensor.sensor_id}-${index}`} className="w-full">
-                              <SensorDataCard 
-                                sensorData={sensor}
-                                zoneId={currentZoneId}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                   <div className="grid grid-cols-4 gap-[15px]">
+                                 {/* 첫 번째 열 */}
+                 <div className="flex flex-col gap-4">
+                   {[
+                     { type: 'temperature', icon: '🌡️', name: '온도' },
+                     { type: 'humidity', icon: '💧', name: '습도' }
+                   ].map(({ type, icon, name }) => {
+                     const sensors = sensorData[type];
+                     
+                     return (
+                       <div key={type} className="w-full">
+                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                           <span>{icon}</span>
+                           {name}
+                           {sensors && sensors.length > 0 && (
+                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                           )}
+                         </h4>
+                         
+                         {!sensors || sensors.length === 0 ? (
+                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                             <div className="text-center">
+                               <div className="text-2xl mb-2">
+                                 {connectionState === 'connected' ? '📡' :
+                                  connectionState === 'connecting' ? '⏳' :
+                                  connectionState === 'error' ? '❌' : '📡'}
+                               </div>
+                               <p className="text-xs text-gray-500">
+                                 {connectionState === 'connected' ? '데이터 준비 중' :
+                                  connectionState === 'connecting' ? '연결 중...' :
+                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
+                               </p>
+                             </div>
+                           </div>
+                         ) : (
+                           <div className="space-y-2">
+                             {sensors.map((sensor, index) => (
+                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                 <SensorDataCard 
+                                   sensorData={sensor}
+                                   zoneId={currentZoneId}
+                                 />
+                               </div>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   })}
+                 </div>
 
-              {/* 두 번째 열 */}
-              <div className="flex flex-col gap-4">
-                {[
-                  { type: 'particle', icon: '🌫️', name: '먼지' },
-                  { type: 'windDir', icon: '🌪️', name: '풍향' }
-                ].map(({ type, icon, name }) => {
-                  const sensors = sensorData[type];
-                  
-                  return (
-                    <div key={type} className="w-full">
-                      <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
-                        <span>{icon}</span>
-                        {name}
-                        {sensors && sensors.length > 0 && (
-                          <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                        )}
-                      </h4>
+                                                                   {/* 두 번째 열 */}
+                  <div className="flex flex-col gap-4">
+                    {[
+                      { type: 'esd', icon: '⚡', name: '정전기' }
+                    ].map(({ type, icon, name }) => {
+                      const sensors = sensorData[type];
                       
-                      {!sensors || sensors.length === 0 ? (
-                        <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                          <div className="text-center">
-                            <div className="text-2xl mb-2">
-                              {connectionState === 'connected' ? '📡' :
-                               connectionState === 'connecting' ? '⏳' :
-                               connectionState === 'error' ? '❌' : '📡'}
+                      return (
+                        <div key={type} className="w-full">
+                          <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                            <span>{icon}</span>
+                            {name}
+                            {sensors && sensors.length > 0 && (
+                              <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                            )}
+                          </h4>
+                          
+                          {!sensors || sensors.length === 0 ? (
+                            <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                              <div className="text-center">
+                                <div className="text-2xl mb-2">
+                                  {connectionState === 'connected' ? '📡' :
+                                   connectionState === 'connecting' ? '⏳' :
+                                   connectionState === 'error' ? '❌' : '📡'}
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                  {connectionState === 'connected' ? '데이터 준비 중' :
+                                   connectionState === 'connecting' ? '연결 중...' :
+                                   connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
+                                </p>
+                              </div>
                             </div>
-                            <p className="text-xs text-gray-500">
-                              {connectionState === 'connected' ? '데이터 준비 중' :
-                               connectionState === 'connecting' ? '연결 중...' :
-                               connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                            </p>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {sensors.map((sensor, index) => (
-                            <div key={`${sensor.sensor_id}-${index}`} className="w-full">
-                              <SensorDataCard 
-                                sensorData={sensor}
-                                zoneId={currentZoneId}
-                              />
+                          ) : (
+                            <div className="space-y-2">
+                              {sensors.map((sensor, index) => (
+                                <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                  <SensorDataCard 
+                                    sensorData={sensor}
+                                    zoneId={currentZoneId}
+                                  />
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+
+                                 {/* 세 번째 열 */}
+                 <div className="flex flex-col gap-4">
+                   {[
+                     { type: 'particle', icon: '🌫️', name: '먼지' }
+                   ].map(({ type, icon, name }) => {
+                     const sensors = sensorData[type];
+                     
+                     return (
+                       <div key={type} className="w-full">
+                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                           <span>{icon}</span>
+                           {name}
+                           {sensors && sensors.length > 0 && (
+                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                           )}
+                         </h4>
+                         
+                         {!sensors || sensors.length === 0 ? (
+                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                             <div className="text-center">
+                               <div className="text-2xl mb-2">
+                                 {connectionState === 'connected' ? '📡' :
+                                  connectionState === 'connecting' ? '⏳' :
+                                  connectionState === 'error' ? '❌' : '📡'}
+                               </div>
+                               <p className="text-xs text-gray-500">
+                                 {connectionState === 'connected' ? '데이터 준비 중' :
+                                  connectionState === 'connecting' ? '연결 중...' :
+                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
+                               </p>
+                             </div>
+                           </div>
+                         ) : (
+                           <div className="space-y-2">
+                             {sensors.map((sensor, index) => (
+                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                 <SensorDataCard 
+                                   sensorData={sensor}
+                                   zoneId={currentZoneId}
+                                 />
+                               </div>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   })}
+                 </div>
+
+                                 {/* 네 번째 열 */}
+                 <div className="flex flex-col gap-4">
+                   {[
+                     { type: 'windDir', icon: '🌪️', name: '풍향' }
+                   ].map(({ type, icon, name }) => {
+                     const sensors = sensorData[type];
+                     
+                     return (
+                       <div key={type} className="w-full">
+                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                           <span>{icon}</span>
+                           {name}
+                           {sensors && sensors.length > 0 && (
+                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                           )}
+                         </h4>
+                         
+                         {!sensors || sensors.length === 0 ? (
+                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
+                             <div className="text-center">
+                               <div className="text-2xl mb-2">
+                                 {connectionState === 'connected' ? '📡' :
+                                  connectionState === 'connecting' ? '⏳' :
+                                  connectionState === 'error' ? '❌' : '📡'}
+                               </div>
+                               <p className="text-xs text-gray-500">
+                                 {connectionState === 'connected' ? '데이터 준비 중' :
+                                  connectionState === 'connecting' ? '연결 중...' :
+                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
+                               </p>
+                             </div>
+                           </div>
+                         ) : (
+                           <div className="space-y-2">
+                             {sensors.map((sensor, index) => (
+                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                 <SensorDataCard 
+                                   sensorData={sensor}
+                                   zoneId={currentZoneId}
+                                 />
+                               </div>
+                             ))}
+                           </div>
+                         )}
+                       </div>
+                     );
+                   })}
+                 </div>
             </div>
         </div>
       </aside>
