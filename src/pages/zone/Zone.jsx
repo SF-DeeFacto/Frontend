@@ -4,8 +4,11 @@ import ZoneModelViewer from '../../components/3d/ZoneModelViewer';
 import B01ModelViewer from '../../components/3d/B01ModelViewer';
 import A01ModelViewer from '../../components/3d/A01ModelViewer';
 import SensorDataCard from '../../components/common/SensorDataCard';
+import ModelCard from '../../components/common/ModelCard';
 import { connectZoneSSE } from '../../services/sse';
-import { a01ZoneData, getUpdatedA01Data } from '../../dummy/data/a01ZoneData';
+// TODO: 더미 데이터 - 나중에 삭제 (시작)
+import { zoneData, getZoneData, getUpdatedZoneData } from '../../dummy/data/zoneData';
+// TODO: 더미 데이터 - 나중에 삭제 (끝)
 import '../../styles/zone.css';
 
 const Zone = ({ zoneId }) => {
@@ -39,14 +42,24 @@ const Zone = ({ zoneId }) => {
       return;
     }
 
-    // A01존인 경우 더미데이터 사용
-    if (currentZoneId.toLowerCase() === 'a01') {
-      console.log('A01존 - 더미데이터 사용');
+
+
+
+
+    // 더미데이터를 사용하는 Zone들 (A01, A02, B02, B03, B04, C01, C02)
+    // A01, A02: 온도, 습도, 먼지, 정전기, 풍향 센서
+    // B02-B04: 각 센서타입 1개씩
+    // C01: 온도2개, 습도2개, 풍향1개, 정전기1개 (먼지센서 없음)
+    // C02: 온도2개, 습도2개, 풍향1개, 먼지1개, 정전기1개
+    const dummyDataZones = ['a01', 'a02', 'b02', 'b03', 'b04', 'c01', 'c02'];
+    if (dummyDataZones.includes(currentZoneId.toLowerCase())) {
+      console.log(`${currentZoneId}존 - 더미데이터 사용`);
       setConnectionState('connected');
       setIsLoading(false);
       
+      // TODO: 더미 데이터 - 나중에 삭제 (시작)
       // 더미데이터로 센서 데이터 설정
-      const dummyData = a01ZoneData[0];
+      const dummyData = getZoneData(currentZoneId)[0];
       const groupedSensors = {};
       
       dummyData.sensors.forEach(sensor => {
@@ -79,11 +92,11 @@ const Zone = ({ zoneId }) => {
       
       setSensorData(groupedSensors);
       setLastUpdated(new Date().toLocaleTimeString());
-      console.log('A01존 더미데이터 설정 완료:', groupedSensors);
+      console.log(`${currentZoneId}존 더미데이터 설정 완료:`, groupedSensors);
       
       // 5초마다 더미데이터 업데이트
       const intervalId = setInterval(() => {
-        const updatedData = getUpdatedA01Data()[0];
+        const updatedData = getUpdatedZoneData(currentZoneId)[0];
         const updatedGroupedSensors = {};
         
         updatedData.sensors.forEach(sensor => {
@@ -115,6 +128,7 @@ const Zone = ({ zoneId }) => {
       }, 5000);
       
       return () => clearInterval(intervalId);
+      // TODO: 더미 데이터 - 나중에 삭제 (끝)
     }
 
     console.log(`${currentZoneId} Zone 센서 데이터 SSE 연결 시작`);
@@ -285,6 +299,10 @@ const Zone = ({ zoneId }) => {
     if (currentZoneId.toLowerCase() === 'a01') {
       return <A01ModelViewer />;
     }
+    // A02존은 ZoneModelViewer를 사용 (A02ModelViewer 포함)
+    if (currentZoneId.toLowerCase() === 'a02') {
+      return <ZoneModelViewer zoneId={currentZoneId} />;
+    }
     // B01 존은 B01ModelViewer를 사용
     if (currentZoneId === 'b01') {
       return <B01ModelViewer />;
@@ -302,20 +320,20 @@ const Zone = ({ zoneId }) => {
   }
 
   return (
-         <main className="flex items-start gap-[60px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
-            {/* Zone 도면 영역 */}
-       <section className="relative w-[40%] h-full">
-         <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-           <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
-           <div className="w-full flex-1">
-             {renderZoneDrawing()}
-           </div>
-         </div>
-       </section>
+         <main className="flex items-start gap-[30px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
+      {/* Zone 도면 영역 */}
+      <section className="relative flex-1 max-w-[900px]">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
+          <div className="w-full h-[700px]">
+            {renderZoneDrawing()}
+          </div>
+        </div>
+      </section>
 
 {/* 실시간 센서 데이터 영역 */}
         <aside className="w-[60%] h-full">
-          <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col overflow-y-auto">
+                     <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col overflow-y-auto overflow-x-hidden">
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-xl font-semibold text-gray-800">실시간 센서 데이터</h2>
       <div className="flex items-center gap-2">
@@ -341,61 +359,11 @@ const Zone = ({ zoneId }) => {
       </div>
     </div>
     
-                   <div className="grid grid-cols-4 gap-[15px]">
-                                 {/* 첫 번째 열 */}
-                 <div className="flex flex-col gap-4">
-                   {[
-                     { type: 'temperature', icon: '🌡️', name: '온도' },
-                     { type: 'humidity', icon: '💧', name: '습도' }
-                   ].map(({ type, icon, name }) => {
-                     const sensors = sensorData[type];
-                     
-                     return (
-                       <div key={type} className="w-full">
-                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
-                           <span>{icon}</span>
-                           {name}
-                           {sensors && sensors.length > 0 && (
-                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                           )}
-                         </h4>
-                         
-                         {!sensors || sensors.length === 0 ? (
-                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                             <div className="text-center">
-                               <div className="text-2xl mb-2">
-                                 {connectionState === 'connected' ? '📡' :
-                                  connectionState === 'connecting' ? '⏳' :
-                                  connectionState === 'error' ? '❌' : '📡'}
-                               </div>
-                               <p className="text-xs text-gray-500">
-                                 {connectionState === 'connected' ? '데이터 준비 중' :
-                                  connectionState === 'connecting' ? '연결 중...' :
-                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                               </p>
-                             </div>
-                           </div>
-                         ) : (
-                           <div className="space-y-2">
-                             {sensors.map((sensor, index) => (
-                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
-                                 <SensorDataCard 
-                                   sensorData={sensor}
-                                   zoneId={currentZoneId}
-                                 />
-                               </div>
-                             ))}
-                           </div>
-                         )}
-                       </div>
-                     );
-                   })}
-                 </div>
-
-                                                                   {/* 두 번째 열 */}
+                                       <div className="grid grid-cols-5 gap-[15px]">
+                                  {/* 첫 번째 열 - 온도 */}
                   <div className="flex flex-col gap-4">
                     {[
-                      { type: 'esd', icon: '⚡', name: '정전기' }
+                      { type: 'temperature', icon: '🌡️', name: '온도' }
                     ].map(({ type, icon, name }) => {
                       const sensors = sensorData[type];
                       
@@ -409,22 +377,7 @@ const Zone = ({ zoneId }) => {
                             )}
                           </h4>
                           
-                          {!sensors || sensors.length === 0 ? (
-                            <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                              <div className="text-center">
-                                <div className="text-2xl mb-2">
-                                  {connectionState === 'connected' ? '📡' :
-                                   connectionState === 'connecting' ? '⏳' :
-                                   connectionState === 'error' ? '❌' : '📡'}
-                                </div>
-                                <p className="text-xs text-gray-500">
-                                  {connectionState === 'connected' ? '데이터 준비 중' :
-                                   connectionState === 'connecting' ? '연결 중...' :
-                                   connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
+                          {!sensors || sensors.length === 0 ? null : (
                             <div className="space-y-2">
                               {sensors.map((sensor, index) => (
                                 <div key={`${sensor.sensor_id}-${index}`} className="w-full">
@@ -441,103 +394,141 @@ const Zone = ({ zoneId }) => {
                     })}
                   </div>
 
-                                 {/* 세 번째 열 */}
-                 <div className="flex flex-col gap-4">
-                   {[
-                     { type: 'particle', icon: '🌫️', name: '먼지' }
-                   ].map(({ type, icon, name }) => {
-                     const sensors = sensorData[type];
-                     
-                     return (
-                       <div key={type} className="w-full">
-                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
-                           <span>{icon}</span>
-                           {name}
-                           {sensors && sensors.length > 0 && (
-                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                           )}
-                         </h4>
-                         
-                         {!sensors || sensors.length === 0 ? (
-                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                             <div className="text-center">
-                               <div className="text-2xl mb-2">
-                                 {connectionState === 'connected' ? '📡' :
-                                  connectionState === 'connecting' ? '⏳' :
-                                  connectionState === 'error' ? '❌' : '📡'}
-                               </div>
-                               <p className="text-xs text-gray-500">
-                                 {connectionState === 'connected' ? '데이터 준비 중' :
-                                  connectionState === 'connecting' ? '연결 중...' :
-                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                               </p>
-                             </div>
-                           </div>
-                         ) : (
-                           <div className="space-y-2">
-                             {sensors.map((sensor, index) => (
-                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
-                                 <SensorDataCard 
-                                   sensorData={sensor}
-                                   zoneId={currentZoneId}
-                                 />
-                               </div>
-                             ))}
-                           </div>
-                         )}
-                       </div>
-                     );
-                   })}
-                 </div>
+                                  {/* 두 번째 열 - 습도 */}
+                  <div className="flex flex-col gap-4">
+                    {[
+                      { type: 'humidity', icon: '💧', name: '습도' }
+                    ].map(({ type, icon, name }) => {
+                      const sensors = sensorData[type];
+                      
+                      return (
+                        <div key={type} className="w-full">
+                          <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                            <span>{icon}</span>
+                            {name}
+                            {sensors && sensors.length > 0 && (
+                              <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                            )}
+                          </h4>
+                          
+                          {!sensors || sensors.length === 0 ? null : (
+                            <div className="space-y-2">
+                              {sensors.map((sensor, index) => (
+                                <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                  <SensorDataCard 
+                                    sensorData={sensor}
+                                    zoneId={currentZoneId}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
 
-                                 {/* 네 번째 열 */}
-                 <div className="flex flex-col gap-4">
-                   {[
-                     { type: 'windDir', icon: '🌪️', name: '풍향' }
-                   ].map(({ type, icon, name }) => {
-                     const sensors = sensorData[type];
-                     
-                     return (
-                       <div key={type} className="w-full">
-                         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
-                           <span>{icon}</span>
-                           {name}
-                           {sensors && sensors.length > 0 && (
-                             <span className="text-xs text-gray-400">({sensors.length}개)</span>
-                           )}
-                         </h4>
-                         
-                         {!sensors || sensors.length === 0 ? (
-                           <div className="w-full h-32 flex items-center justify-center bg-gray-50 rounded-lg border border-gray-200">
-                             <div className="text-center">
-                               <div className="text-2xl mb-2">
-                                 {connectionState === 'connected' ? '📡' :
-                                  connectionState === 'connecting' ? '⏳' :
-                                  connectionState === 'error' ? '❌' : '📡'}
-                               </div>
-                               <p className="text-xs text-gray-500">
-                                 {connectionState === 'connected' ? '데이터 준비 중' :
-                                  connectionState === 'connecting' ? '연결 중...' :
-                                  connectionState === 'error' ? '연결 오류' : '데이터 준비 중'}
-                               </p>
+                                                                                                                                       {/* 세 번째 열 - 정전기 */}
+                   <div className="flex flex-col gap-4">
+                     {[
+                       { type: 'esd', icon: '⚡', name: '정전기' }
+                     ].map(({ type, icon, name }) => {
+                       const sensors = sensorData[type];
+                       
+                       return (
+                         <div key={type} className="w-full">
+                           <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                             <span>{icon}</span>
+                             {name}
+                             {sensors && sensors.length > 0 && (
+                               <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                             )}
+                           </h4>
+                           
+                           {!sensors || sensors.length === 0 ? null : (
+                             <div className="space-y-2">
+                               {sensors.map((sensor, index) => (
+                                 <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                   <SensorDataCard 
+                                     sensorData={sensor}
+                                     zoneId={currentZoneId}
+                                   />
+                                 </div>
+                               ))}
                              </div>
-                           </div>
-                         ) : (
-                           <div className="space-y-2">
-                             {sensors.map((sensor, index) => (
-                               <div key={`${sensor.sensor_id}-${index}`} className="w-full">
-                                 <SensorDataCard 
-                                   sensorData={sensor}
-                                   zoneId={currentZoneId}
-                                 />
-                               </div>
-                             ))}
-                           </div>
-                         )}
-                       </div>
-                     );
-                   })}
-                 </div>
+                           )}
+                         </div>
+                       );
+                     })}
+                   </div>
+
+                                                                     {/* 네 번째 열 - 먼지 */}
+                   <div className="flex flex-col gap-4">
+                     {[
+                       { type: 'particle', icon: '🌫️', name: '먼지' }
+                     ].map(({ type, icon, name }) => {
+                       const sensors = sensorData[type];
+                       
+                       return (
+                         <div key={type} className="w-full">
+                           <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                             <span>{icon}</span>
+                             {name}
+                             {sensors && sensors.length > 0 && (
+                               <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                             )}
+                           </h4>
+                           
+                           {!sensors || sensors.length === 0 ? null : (
+                            <div className="space-y-2">
+                              {sensors.map((sensor, index) => (
+                                <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                  <SensorDataCard 
+                                    sensorData={sensor}
+                                    zoneId={currentZoneId}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                                                                     {/* 다섯 번째 열 - 풍향 */}
+                   <div className="flex flex-col gap-4">
+                     {[
+                       { type: 'windDir', icon: '🌪️', name: '풍향' }
+                     ].map(({ type, icon, name }) => {
+                       const sensors = sensorData[type];
+                       
+                       return (
+                         <div key={type} className="w-full">
+                           <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
+                             <span>{icon}</span>
+                             {name}
+                             {sensors && sensors.length > 0 && (
+                               <span className="text-xs text-gray-400">({sensors.length}개)</span>
+                             )}
+                           </h4>
+                           
+                           {!sensors || sensors.length === 0 ? null : (
+                            <div className="space-y-2">
+                              {sensors.map((sensor, index) => (
+                                <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+                                  <SensorDataCard 
+                                    sensorData={sensor}
+                                    zoneId={currentZoneId}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
             </div>
         </div>
       </aside>

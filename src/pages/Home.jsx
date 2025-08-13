@@ -4,6 +4,7 @@ import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
 import Button from '../components/common/Button';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
+import ModelCard from '../components/common/ModelCard';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -318,21 +319,22 @@ const Home = () => {
   return (
     <div>
       {/* 전체도면 섹션 */}
-      <div style={{ 
-        display: 'flex',
-        flexDirection: 'column',
-        width: 'full',
-        height: '600px',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-        backgroundColor: '#f0f8ff',
-        border: '2px solid #4a90e2',
-        borderRadius: '8px',
-        padding: '16px',
-        position: 'relative',
-        marginBottom: '32px'
-      }}>
+      <ModelCard
+        zoneId="main"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: 'full',
+          height: '600px',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+          borderRadius: '8px',
+          padding: '16px',
+          position: 'relative',
+          marginBottom: '32px'
+        }}
+      >
         {/* 3D 모델 영역 */}
         <div className="w-full h-[500px]">
           <Canvas
@@ -343,6 +345,7 @@ const Home = () => {
             <ModelViewer />
           </Canvas>
         </div>
+
 
         {/* 신호등 표시 */}
         <div className="flex w-[666.36px] h-[31.88px] items-center justify-center gap-[15.59px] relative">
@@ -367,7 +370,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+      </ModelCard>
 
       {/* Zone 버튼들 */}
       <div className="flex flex-wrap gap-[30px] justify-center">

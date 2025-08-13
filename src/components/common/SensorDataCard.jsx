@@ -10,6 +10,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
       navigate(`/home/graph?zone=${zoneId}`);
     }
   };
+
   const getSensorIcon = (sensorType) => {
     switch (sensorType) {
       case 'temperature':
@@ -45,8 +46,20 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
   };
 
   const getSensorValue = (sensorData) => {
-    // 백엔드 데이터 형식에 맞춤
+    // 모든 센서에서 값이 없거나 0인 경우 "데이터 준비 중" 표시
     if (sensorData.sensor_type === 'particle') {
+      // 먼지 센서는 3개 값이 모두 0인 경우
+      if ((!sensorData.val_0_1 || sensorData.val_0_1 === 0) && 
+          (!sensorData.val_0_3 || sensorData.val_0_3 === 0) && 
+          (!sensorData.val_0_5 || sensorData.val_0_5 === 0)) {
+        return (
+          <div className="text-center text-gray-500">
+            <div className="text-sm">데이터 준비 중</div>
+          </div>
+        );
+      }
+      
+      // 값이 있는 경우 정상 표시
       return (
         <div className="particle-values">
           <div className="particle-labels">
@@ -63,6 +76,16 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
         </div>
       );
     }
+    
+    // 다른 모든 센서들도 값이 0인 경우 "데이터 준비 중" 표시
+    if (!sensorData.val || sensorData.val === 0) {
+      return (
+        <div className="text-center text-gray-500">
+          <div className="text-sm">데이터 준비 중</div>
+        </div>
+      );
+    }
+    
     return `${sensorData.val?.toFixed(1) || 0}`;
   };
 
@@ -107,9 +130,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
           </span>
         </div>
       
-
-      
-                    <div className="sensor-value-section">
+        <div className="sensor-value-section">
           <div className="sensor-value-container">
             <div 
               className="status-indicator" 
@@ -120,19 +141,17 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
               }}
               title={`상태: ${sensorData.val || sensorData.val_0_5}`}
             ></div>
-                         <div className={`sensor-value ${getStatusColor(sensorData)}`}>
-               {getSensorValue(sensorData)}
-               {sensorData.sensor_type !== 'particle' && (
-                 <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
-               )}
-             </div>
+            <div className={`sensor-value ${getStatusColor(sensorData)}`}>
+              {getSensorValue(sensorData)}
+              {sensorData.sensor_type !== 'particle' && (
+                <span className="sensor-unit">{getSensorUnit(sensorData.sensor_type)}</span>
+              )}
+            </div>
           </div>
-          
-
         </div>
       </div>
     </div>
   );
 };
 
-export default SensorDataCard; 
+export default SensorDataCard;
