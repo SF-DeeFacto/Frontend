@@ -60,7 +60,7 @@ const handleApiGatewayLogin = async (credentials) => {
 
         localStorage.setItem('user', JSON.stringify({
           employeeId: userInfo.employeeId || employeeId,
-          name: userInfo.name || `사원${employeeId}`,
+          name: userInfo.name || employeeId,
           email: userInfo.email || '',
           department: userInfo.department || '',
           position: userInfo.position || '',
@@ -72,7 +72,7 @@ const handleApiGatewayLogin = async (credentials) => {
         console.error('사용자 정보 조회 실패:', userResult.error);
         localStorage.setItem('user', JSON.stringify({ 
           employeeId,
-          name: `사원${employeeId}`,
+          name: employeeId,
           role: 'USER'
         }));
         console.log('기본 사용자 정보만 저장');
@@ -81,7 +81,7 @@ const handleApiGatewayLogin = async (credentials) => {
       console.error('사용자 정보 조회 중 오류:', userInfoError);
       localStorage.setItem('user', JSON.stringify({ 
         employeeId,
-        name: `사원${employeeId}`,
+        name: employeeId,
         role: 'USER'
       }));
       console.log('오류 발생으로 기본 사용자 정보만 저장');

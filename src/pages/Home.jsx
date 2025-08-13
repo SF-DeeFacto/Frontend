@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Canvas } from '@react-three/fiber';
 import ModelViewer from '../components/3d/ModelViewer';
 import Button from '../components/common/Button';
+import ModelCard from '../components/common/ModelCard';
 import { sseApi } from '../services/api/sse';
 import { fetchZoneStatuses, fetchZoneStatus } from '../services/api/zone';
 
@@ -428,7 +429,7 @@ const Home = () => {
   return (
     <div>
       {/* 전체도면 섹션 */}
-      <div style={{ 
+      <ModelCard zoneId="main" style={{ 
         display: 'flex',
         flexDirection: 'column',
         width: 'full',
@@ -436,8 +437,6 @@ const Home = () => {
         justifyContent: 'center',
         alignItems: 'center',
         gap: '8px',
-        backgroundColor: '#f0f8ff',
-        border: '2px solid #4a90e2',
         borderRadius: '8px',
         padding: '16px',
         position: 'relative',
@@ -477,7 +476,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-      </div>
+      </ModelCard>
 
       {/* Zone 버튼들 */}
       <div className="flex flex-wrap gap-[30px] justify-center">
