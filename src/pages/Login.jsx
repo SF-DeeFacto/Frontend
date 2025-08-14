@@ -73,71 +73,18 @@ const Login = () => {
     // ===== 실제 백엔드 로그인 기능 끝 =====
   };
 
-  const styles = {
-    loginContainer: {
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      backgroundColor: '#fff'
-    },
-    loginForm: {
-      background: 'white',
-      padding: '48px 40px',
-      borderRadius: '12px',
-      boxShadow: '0 4px 24px rgba(0, 0, 0, 0.08)',
-      width: '350px',
-      maxWidth: '90vw',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'stretch'
-    },
-    formGroup: {
-      marginBottom: '18px'
-    },
-    letter: {
-      color: '#000000',
-      fontWeight: 'bold',
-      marginBottom: '6px',
-      display: 'block',
-      textAlign: 'left'
-    },
-    formInput: {
-      width: '100%',
-      padding: '12px',
-      border: '1px solid #ccc',
-      borderRadius: '6px',
-      fontSize: '16px',
-      boxSizing: 'border-box',
-      backgroundColor: '#fff',
-      color: '#333'
-    },
-    errorMessage: {
-      color: 'red',
-      fontSize: '13px',
-      marginBottom: '12px',
-      textAlign: 'center'
-    },
-    signIn: {
-      color: '#888',
-      textAlign: 'left',
-      marginBottom: '18px',
-      fontSize: '15px'
-    }
-  };
-
   return (
-    <div style={styles.loginContainer}>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <form onSubmit={handleSubmit} style={styles.loginForm}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px' }}>
-            <span style={{ fontSize: '32px', marginRight: '12px' }}>🧊</span>
+    <div className="min-h-screen flex flex-col justify-center bg-white">
+      <div className="flex-1 flex justify-center items-center">
+        <form onSubmit={handleSubmit} className="bg-white p-12 rounded-xl shadow-lg w-[350px] max-w-[90vw] flex flex-col">
+          <div className="flex items-center justify-center mb-6">
+            <span className="text-3xl mr-3">🧊</span>
             <Text variant="title" size="28px" weight="bold" color="black">
               DeeFacto
             </Text>
           </div>
-          <div style={styles.formGroup}>
-            <Text variant="body" size="sm" weight="bold" color="black" style={styles.letter}>
+          <div className="mb-4">
+            <Text variant="body" size="sm" weight="bold" color="black" className="text-black font-bold mb-1.5 block text-left">
               사원번호
             </Text>
             <input
@@ -146,51 +93,28 @@ const Login = () => {
               onChange={(e) => handleInputChange('username', e.target.value)}
               required
               placeholder="사원번호를 입력하세요"
-              style={styles.formInput}
+              className="w-full px-3 py-3 border border-gray-300 rounded-md text-base box-border bg-white text-gray-800 focus:border-black focus:outline-none transition-colors"
               autoComplete="username"
-              onFocus={(e) => {
-                e.target.style.borderColor = '#000000';
-                e.target.style.outline = 'none';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = '#ccc';
-              }}
             />
           </div>
-          <div style={styles.formGroup}>
-            <Text variant="body" size="sm" weight="bold" color="black" style={styles.letter}>
+          <div className="mb-4">
+            <Text variant="body" size="sm" weight="bold" color="black" className="text-black font-bold mb-1.5 block text-left">
               비밀번호
             </Text>
-            <div style={{ position: 'relative' }}>
+            <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={credentials.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
                 required
                 placeholder="비밀번호를 입력하세요"
-                style={{...styles.formInput, paddingRight: '48px'}}
+                className="w-full px-3 pr-12 py-3 border border-gray-300 rounded-md text-base box-border bg-white text-gray-800 focus:border-black focus:outline-none transition-colors"
                 autoComplete="current-password"
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#000000';
-                  e.target.style.outline = 'none';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#ccc';
-                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0
-                }}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-none border-none cursor-pointer p-0"
                 aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
               >
                 {showPassword ? (
@@ -208,31 +132,25 @@ const Login = () => {
               </button>
             </div>
           </div>
-          <Text variant="body" size="xs" color="gray-600" style={styles.signIn}>
+          <Text variant="body" size="xs" color="gray-600" className="text-gray-500 text-left mb-4 text-sm">
             로그인에 문제가 있는 경우 관리자에게 문의하십시오
           </Text>
           {error && (
-            <Text variant="body" size="xs" color="red" style={styles.errorMessage}>
+            <Text variant="body" size="xs" color="red" className="text-red-500 text-sm mb-3 text-center">
               {error}
             </Text>
           )}
           <Button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            style={{
-              marginTop: '8px',
-              fontSize: '18px'
-            }}
+            className="w-full py-3 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors mt-2 text-lg"
           >
             {isLoading ? '로그인 중...' : '로그인'}
           </Button>
-          
-                     
         </form>
       </div>
-      <div style={{ textAlign: 'center', color: '#bbb', fontSize: '13px', marginBottom: '16px' }}>
-        © 2024 DeeFacto. All rights reserved.
+      <div className="text-center text-gray-400 text-sm mb-4">
+        © 2025 DeeFacto. All rights reserved.
       </div>
     </div>
   );
