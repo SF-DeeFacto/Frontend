@@ -321,7 +321,7 @@ const Home = () => {
       {/* 전체도면 섹션 */}
       <ModelCard
         zoneId="main"
-        className="flex flex-col w-full h-[600px] justify-center items-center gap-2 rounded-lg p-4 relative mb-8"
+        className="flex flex-col w-full h-[600px] justify-center items-center gap-2 rounded-lg p-4 relative mb-[30px]"
       >
         {/* 3D 모델 영역 */}
         <div className="w-full h-[500px]">
