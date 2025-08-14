@@ -321,51 +321,38 @@ const Home = () => {
       {/* 전체도면 섹션 */}
       <ModelCard
         zoneId="main"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: 'full',
-          height: '600px',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px',
-          borderRadius: '8px',
-          padding: '16px',
-          position: 'relative',
-          marginBottom: '32px'
-        }}
+        className="flex flex-col w-full h-[600px] justify-center items-center gap-2 rounded-lg p-4 relative mb-8"
       >
         {/* 3D 모델 영역 */}
         <div className="w-full h-[500px]">
           <Canvas
             camera={{ position: [5, 7, 5], fov: 45 }}
-            style={{ background: 'transparent' }}
+            className="bg-transparent"
             shadows
           >
             <ModelViewer />
           </Canvas>
         </div>
 
-
         {/* 신호등 표시 */}
         <div className="flex w-[666.36px] h-[31.88px] items-center justify-center gap-[15.59px] relative">
-          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative -mt-[0.06px] -mb-[0.06px]">
             <div className="bg-[#10b981] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
-            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+            <div className="relative w-fit -mt-[1.95px] font-medium text-black text-[23.4px] tracking-[0] leading-normal">
               안전
             </div>
           </div>
 
-          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+          <div className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative -mt-[0.06px] -mb-[0.06px]">
             <div className="bg-[#fff27a] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
-            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+            <div className="relative w-fit -mt-[1.95px] font-medium text-black text-[23.4px] tracking-[0] leading-normal">
               경고
             </div>
           </div>
 
-          <div className="inline-flex flex-[0_0_auto] items-center justify-center gap-[15.59px] relative mt-[-0.06px] mb-[-0.06px]">
+          <div className="inline-flex flex-none items-center justify-center gap-[15.59px] relative -mt-[0.06px] -mb-[0.06px]">
             <div className="bg-[#fb5d5d] relative w-[17.54px] h-[17.54px] rounded-[8.77px]" />
-            <div className="relative w-fit mt-[-1.95px] [font-family:'Manrope-Medium',Helvetica] font-medium text-black text-[23.4px] tracking-[0] leading-[normal]">
+            <div className="relative w-fit -mt-[1.95px] font-medium text-black text-[23.4px] tracking-[0] leading-normal">
               위험
             </div>
           </div>
@@ -412,29 +399,6 @@ const Home = () => {
                   ></div>
                 )}
               </div>
-              
-              {/* 상태 텍스트와 업데이트 시간 */}
-              {/* 
-              <div className="flex flex-col items-center gap-1 text-xs text-gray-600">
-                <div className="font-medium">
-                  {connectionInfo.status === 'GREEN' && '안전'}
-                  {connectionInfo.status === 'YELLOW' && '경고'}
-                  {connectionInfo.status === 'RED' && '위험'}
-                  {connectionInfo.status === 'CONNECTING' && '연결중'}
-                  {connectionInfo.status === 'UNKNOWN' && '알수없음'}
-                </div>
-                
-                {connectionInfo.lastUpdate && (
-                  <div className="text-xs text-gray-500">
-                    {connectionInfo.lastUpdate}
-                  </div>
-                )}
-                
-                <div className={`text-xs px-2 py-1 rounded ${connectionInfo.isRealtime ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-600'}`}>
-                  {connectionInfo.dataSource}
-                </div>
-              </div>
-              */}
             </div>
           );
         })}
