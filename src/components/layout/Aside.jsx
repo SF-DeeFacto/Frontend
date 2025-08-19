@@ -9,7 +9,6 @@ import {
   FiLogOut,
   FiChevronsLeft,
   FiChevronsRight,
-  FiBell,
 } from "react-icons/fi";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
@@ -76,11 +75,6 @@ const Aside = () => {
       icon: <FiFileText />,
       label: "Report",
       onClick: () => navigate("/home/report"),
-    },
-    {
-      icon: <FiBell />,
-      label: "Alarm",
-      onClick: () => navigate("/home/alarm"),
     },
     {
       icon: <FiMessageCircle />,
