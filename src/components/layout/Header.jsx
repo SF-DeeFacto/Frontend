@@ -168,11 +168,11 @@ const Header = () => {
       className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
       style={styles.timeInfo}
     >
-      <Text variant="body" size="sm" weight="bold">
-        {dateString} {weekdayString} {timeString}
+      <Text variant="body" size="sm" weight="normal">
+        {weatherData ? `${weatherData.weather} ${weatherData.temperature}°C` : '날씨 정보 로딩중...'}
       </Text>
       <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
-        {weatherData ? `${weatherData.weather} ${weatherData.temperature}°C` : '날씨 정보 로딩중...'}
+        {dateString} {weekdayString} {timeString}
       </Text>
     </div>
   );
@@ -180,29 +180,31 @@ const Header = () => {
   // 사용자 네비게이션 컴포넌트
   const UserNavigation = () => (
     <nav className="flex items-center justify-center h-full" style={styles.userNav}>
-      <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors">
-        <FiSettings onClick={() => navigate("/home/setting")} />
-      </Icon>
+      <div className="flex items-center justify-center h-full">
+        <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors flex items-center justify-center">
+          <FiSettings onClick={() => navigate("/home/setting")} />
+        </Icon>
+      </div>
       
       <div
-        className="relative cursor-pointer"
+        className="relative cursor-pointer flex items-center justify-center h-full"
         onClick={() => navigate("/home/alarm")}
         style={styles.notificationDot}
       >
-        <Icon className="text-gray-500 hover:text-gray-700 transition-colors">
+        <Icon className="text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center">
           <FiBell />
         </Icon>
         
         {/* 알림 개수 뱃지 */}
         {alarmCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+          <span className="absolute top-2 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
             {alarmCount > 99 ? '99+' : alarmCount}
-          </span>
+        </span>
         )}
         
         {/* 기존 알림 점 (알림이 없을 때만 표시) */}
         {alarmCount === 0 && (
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+          <span className="absolute top-2 -right-1 w-2 h-2 bg-red-500 rounded-full" />
         )}
       </div>
       
@@ -211,7 +213,7 @@ const Header = () => {
         size="sm" 
         weight="medium" 
         color="gray-800"
-        className="whitespace-nowrap"
+        className="whitespace-nowrap flex items-center justify-center h-full"
         style={styles.userName}
       >
         {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
