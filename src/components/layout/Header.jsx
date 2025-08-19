@@ -135,13 +135,22 @@ const Header = () => {
   // 로고 컴포넌트
   const Logo = () => (
     <div className="flex items-center" style={styles.logo}>
+      <img 
+        src="/logo2.png" 
+        alt="DeeFacto Logo" 
+        className="w-[47px] h-[40px]"
+        onError={(e) => {
+          e.target.style.display = 'none';
+          e.target.nextSibling.style.display = 'flex';
+        }}
+      />
       <span 
-        className="flex items-center justify-center w-[24px] h-[24px] text-2xl" 
-        style={styles.logoIcon}
+        className="flex items-center justify-center w-[50px] h-[50px] text-4xl hidden"
+        style={{ ...styles.logoIcon, display: 'none' }}
       >
         🧊
       </span>
-      <Text
+      {/* <Text
         variant="title"
         size="xl"
         weight="extrabold"
@@ -149,7 +158,7 @@ const Header = () => {
         className="ml-3"
       >
         Deefacto
-      </Text>
+      </Text> */}
     </div>
   );
 
