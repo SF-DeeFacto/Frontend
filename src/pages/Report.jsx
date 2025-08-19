@@ -7,6 +7,9 @@ const Report = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('전체');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   
   const itemsPerPage = 6; // 페이지당 6개씩 표시
 
@@ -30,33 +33,39 @@ const Report = () => {
     // 리포트 형식 필터링
     const matchesReportType = reportType === '전체' || report.report_type === reportType;
     
-    // 기간 필터링 (간단한 예시 - 실제로는 더 정교한 로직이 필요)
+    // 기간 필터링
     let matchesPeriod = true;
     if (selectedPeriod !== '전체' && report.created_at) {
       const reportDate = new Date(report.created_at);
-      const now = new Date();
-      const diffTime = Math.abs(now - reportDate);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      switch (selectedPeriod) {
-        case '1주':
-          matchesPeriod = diffDays <= 7;
-          break;
-        case '2주':
-          matchesPeriod = diffDays <= 14;
-          break;
-        case '1개월':
-          matchesPeriod = diffDays <= 30;
-          break;
-        case '3개월':
-          matchesPeriod = diffDays <= 90;
-          break;
-        case '직접입력':
-          // 직접입력의 경우 모든 데이터 표시 (사용자가 직접 날짜 범위를 입력할 수 있도록)
-          matchesPeriod = true;
-          break;
-        default:
-          matchesPeriod = true;
+      if (selectedPeriod === '직접입력' && startDate && endDate) {
+        // 직접입력 날짜 범위 체크
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59); // 종료일은 해당 날짜의 마지막 시간으로 설정
+        matchesPeriod = reportDate >= start && reportDate <= end;
+      } else if (selectedPeriod !== '직접입력') {
+        // 기존 기간 필터링
+        const now = new Date();
+        const diffTime = Math.abs(now - reportDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        switch (selectedPeriod) {
+          case '1주':
+            matchesPeriod = diffDays <= 7;
+            break;
+          case '2주':
+            matchesPeriod = diffDays <= 14;
+            break;
+          case '1개월':
+            matchesPeriod = diffDays <= 30;
+            break;
+          case '3개월':
+            matchesPeriod = diffDays <= 90;
+            break;
+          default:
+            matchesPeriod = true;
+        }
       }
     }
     
@@ -77,6 +86,30 @@ const Report = () => {
   // 필터 변경 시 첫 페이지로 리셋
   const handleFilterChange = () => {
     setCurrentPage(1);
+  };
+
+  // 직접입력 날짜 선택 처리
+  const handleDirectInputClick = () => {
+    setSelectedPeriod('직접입력');
+    setShowDatePicker(true);
+    handleFilterChange();
+  };
+
+  // 날짜 적용
+  const handleDateApply = () => {
+    if (startDate && endDate) {
+      setShowDatePicker(false);
+      handleFilterChange();
+    }
+  };
+
+  // 날짜 선택 취소
+  const handleDateCancel = () => {
+    setShowDatePicker(false);
+    setStartDate('');
+    setEndDate('');
+    setSelectedPeriod('전체');
+    handleFilterChange();
   };
 
   return (
@@ -107,7 +140,7 @@ const Report = () => {
 
           {/* 기간 필터 버튼들 */}
           <div className="flex space-x-2">
-            {['전체', '1주', '2주', '1개월', '3개월', '직접입력'].map((period) => (
+            {['전체', '1주', '2주', '1개월', '3개월'].map((period) => (
               <button
                 key={period}
                 onClick={() => {
@@ -123,7 +156,24 @@ const Report = () => {
                 {period}
               </button>
             ))}
+            <button
+              onClick={handleDirectInputClick}
+              className={`px-3 py-2 text-sm rounded-md transition-colors ${
+                selectedPeriod === '직접입력'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              직접입력
+            </button>
           </div>
+          
+          {/* 선택된 날짜 범위 표시 */}
+          {selectedPeriod === '직접입력' && startDate && endDate && (
+            <div className="ml-4 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-md">
+              {startDate} ~ {endDate}
+            </div>
+          )}
         </div>
 
         {/* 검색바 */}
@@ -142,6 +192,54 @@ const Report = () => {
           </div>
         </div>
       </div>
+
+      {/* 날짜 선택 모달 */}
+      {showDatePicker && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">날짜 범위 선택</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">시작일</label>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">종료일</label>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  min={startDate}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={handleDateCancel}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDateApply}
+                disabled={!startDate || !endDate}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                적용
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 리포트 테이블 */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
