@@ -4,11 +4,13 @@ import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { fetchWeatherData } from '../../dummy/services/weather';
+import { dashboardApi } from '../../services/api/dashboard_api';
 
 const Header = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
+  const [alarmCount, setAlarmCount] = useState(3); // 기본값을 3으로 설정
 
   // 현재 로그인한 사용자 정보 가져오기
   useEffect(() => {
@@ -53,6 +55,33 @@ const Header = () => {
     getWeatherInfo();
     // 5분마다 날씨 정보 업데이트
     const interval = setInterval(getWeatherInfo, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 알림 개수 가져오기
+  useEffect(() => {
+    const fetchAlarmCount = async () => {
+      try {
+        const response = await dashboardApi.getNotifications();
+        if (response?.data && Array.isArray(response.data)) {
+          // 안읽음 알림 개수만 카운트
+          const unreadCount = response.data.filter(alarm => !alarm.isRead).length;
+          setAlarmCount(unreadCount);
+        } else {
+          // API 실패 시 더미 데이터로 카운트
+          setAlarmCount(3);
+        }
+      } catch (error) {
+        console.log('알림 개수 API 호출 실패, 더미 데이터 사용:', error);
+        // 더미 데이터로 카운트
+        setAlarmCount(3);
+      }
+    };
+
+    fetchAlarmCount();
+    
+    // 30초마다 알림 개수 업데이트
+    const interval = setInterval(fetchAlarmCount, 30 * 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -154,7 +183,18 @@ const Header = () => {
         <Icon className="text-gray-500 hover:text-gray-700 transition-colors">
           <FiBell />
         </Icon>
-        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+        
+        {/* 알림 개수 뱃지 */}
+        {alarmCount > 0 && (
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+            {alarmCount > 99 ? '99+' : alarmCount}
+          </span>
+        )}
+        
+        {/* 기존 알림 점 (알림이 없을 때만 표시) */}
+        {alarmCount === 0 && (
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+        )}
       </div>
       
       <Text 
