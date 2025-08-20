@@ -322,10 +322,10 @@ const Zone = ({ zoneId }) => {
   return (
          <main className="flex items-start gap-[30px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
       {/* Zone 도면 영역 */}
-      <section className="relative flex-1 max-w-[900px]">
-        <div className="bg-white rounded-lg shadow-md p-6">
+      <section className="relative flex-1 max-w-[900px] h-full">
+        <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
-          <div className="w-full h-[700px]">
+          <div className="w-full flex-1">
             {renderZoneDrawing()}
           </div>
         </div>
