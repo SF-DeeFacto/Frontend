@@ -12,14 +12,14 @@ const Setting = () => {
     { id: 'profile', name: '프로필', component: ProfileTab },
     { id: 'prefer', name: '환경설정', component: PreferTab },
     { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
-    { id: 'userset', name: '사용자 설정', component: Userset },
-    { id: 'equipset', name: '장비 설정', component: Equipset }
+    { id: 'userset', name: '회원정보 관리', component: Userset },
+    { id: 'equipset', name: '센서 관리', component: Equipset }
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
 
   return (
-    <div className="p-6">
+    <div className="p-1">
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
         </div>
