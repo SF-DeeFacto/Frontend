@@ -1,221 +1,271 @@
 import React, { useState } from 'react';
 
+const formatDateTime = (date) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  const MM = pad(date.getMonth() + 1);
+  const dd = pad(date.getDate());
+  const hh = pad(date.getHours());
+  const mm = pad(date.getMinutes());
+  const ss = pad(date.getSeconds());
+  return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
+};
+
 const Equipset = () => {
-  const [equipments, setEquipments] = useState([
-    { id: 1, name: '센서 A', type: 'temperature', location: '1층', status: 'active', lastMaintenance: '2024-01-15' },
-    { id: 2, name: '센서 B', type: 'humidity', location: '2층', status: 'active', lastMaintenance: '2024-01-10' },
-    { id: 3, name: '센서 C', type: 'pressure', location: '지하', status: 'inactive', lastMaintenance: '2024-01-05' }
+  // 조회용 더미 데이터 (수정인은 플레이스홀더 사용)
+  const [sensors, setSensors] = useState([
+    {
+      sensorId: 'S-001',
+      sensorType: '온도',
+      zone: '1층',
+      t1L: -5,
+      t1H: 35,
+      t2L: -10,
+      t2H: 45,
+      modifiedAt: '2024-01-15 09:10:00',
+      modifiedBy: '<사용자>',
+    },
+    {
+      sensorId: 'S-002',
+      sensorType: '습도',
+      zone: '2층',
+      t1L: 30,
+      t1H: 70,
+      t2L: 20,
+      t2H: 80,
+      modifiedAt: '2024-01-10 11:22:00',
+      modifiedBy: '<사용자>',
+    },
+    {
+      sensorId: 'S-003',
+      sensorType: '압력',
+      zone: '지하',
+      t1L: 0.8,
+      t1H: 1.2,
+      t2L: 0.6,
+      t2H: 1.4,
+      modifiedAt: '2024-01-05 08:05:00',
+      modifiedBy: '<사용자>',
+    },
   ]);
 
-  const [newEquipment, setNewEquipment] = useState({
-    name: '',
-    type: 'temperature',
-    location: '',
-    status: 'active',
-    lastMaintenance: ''
+  // 인라인 수정 상태
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({
+    t1L: '',
+    t1H: '',
+    t2L: '',
+    t2H: '',
   });
 
-  const [showAddForm, setShowAddForm] = useState(false);
-
-  const equipmentTypes = [
-    { value: 'temperature', label: '온도 센서' },
-    { value: 'humidity', label: '습도 센서' },
-    { value: 'pressure', label: '압력 센서' },
-    { value: 'flow', label: '유량 센서' },
-    { value: 'level', label: '레벨 센서' }
-  ];
-
-  const handleNewEquipmentChange = (key, value) => {
-    setNewEquipment(prev => ({
-      ...prev,
-      [key]: value
-    }));
+  const onEditClick = (sensor) => {
+    setEditingId(sensor.sensorId);
+    setEditForm({
+      t1L: String(sensor.t1L),
+      t1H: String(sensor.t1H),
+      t2L: String(sensor.t2L),
+      t2H: String(sensor.t2H),
+    });
   };
 
-  const handleAddEquipment = () => {
-    if (newEquipment.name && newEquipment.location) {
-      const equipment = {
-        id: equipments.length + 1,
-        ...newEquipment,
-        lastMaintenance: newEquipment.lastMaintenance || new Date().toISOString().split('T')[0]
-      };
-      setEquipments(prev => [...prev, equipment]);
-      setNewEquipment({ name: '', type: 'temperature', location: '', status: 'active', lastMaintenance: '' });
-      setShowAddForm(false);
+  const onCancel = () => {
+    setEditingId(null);
+    setEditForm({ t1L: '', t1H: '', t2L: '', t2H: '' });
+  };
+
+  const onChange = (key, value) => {
+    // 숫자, 소수점, 음수 부호만 허용
+    if (/^-?\d*(\.\d*)?$/.test(value) || value === '') {
+      setEditForm((prev) => ({ ...prev, [key]: value }));
     }
   };
 
-  const handleDeleteEquipment = (equipmentId) => {
-    if (window.confirm('정말로 이 장비를 삭제하시겠습니까?')) {
-      setEquipments(prev => prev.filter(equipment => equipment.id !== equipmentId));
-    }
-  };
-
-  const handleStatusChange = (equipmentId, newStatus) => {
-    setEquipments(prev => prev.map(equipment => 
-      equipment.id === equipmentId ? { ...equipment, status: newStatus } : equipment
-    ));
-  };
-
-  const getStatusColor = (status) => {
-    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-  };
-
-  const getTypeColor = (type) => {
-    const colors = {
-      temperature: 'bg-red-100 text-red-800',
-      humidity: 'bg-blue-100 text-blue-800',
-      pressure: 'bg-purple-100 text-purple-800',
-      flow: 'bg-green-100 text-green-800',
-      level: 'bg-yellow-100 text-yellow-800'
+  const onSave = () => {
+    const v = {
+      t1L: parseFloat(editForm.t1L),
+      t1H: parseFloat(editForm.t1H),
+      t2L: parseFloat(editForm.t2L),
+      t2H: parseFloat(editForm.t2H),
     };
-    return colors[type] || 'bg-gray-100 text-gray-800';
+
+    // 유효성 검사
+    if (
+      Number.isNaN(v.t1L) ||
+      Number.isNaN(v.t1H) ||
+      Number.isNaN(v.t2L) ||
+      Number.isNaN(v.t2H)
+    ) {
+      alert('임계치 값은 숫자여야 합니다.');
+      return;
+    }
+    if (v.t1L > v.t1H) {
+      alert('임계치1L은 임계치1H보다 작거나 같아야 합니다.');
+      return;
+    }
+    if (v.t2L > v.t2H) {
+      alert('임계치2L은 임계치2H보다 작거나 같아야 합니다.');
+      return;
+    }
+
+    const now = new Date();
+    const updated = sensors.map((s) =>
+      s.sensorId === editingId
+        ? {
+            ...s,
+            t1L: v.t1L,
+            t1H: v.t1H,
+            t2L: v.t2L,
+            t2H: v.t2H,
+            modifiedAt: formatDateTime(now),
+            modifiedBy: '<사용자>', // 실제 로그인 사용자로 교체 필요
+          }
+        : s
+    );
+    setSensors(updated);
+    onCancel();
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h4 className="text-lg font-medium text-gray-900">장비 설정</h4>
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          {showAddForm ? '취소' : '장비 추가'}
-        </button>
+    <div className="p-2">
+      <h4 className="text-lg font-medium text-gray-900 mb-4">센서 설정</h4>
+
+      <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서ID</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서종류</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치1L</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치1H</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치2L</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치2H</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정일자</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정인</th>
+              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {sensors.map((s) => {
+              const isEditing = editingId === s.sensorId;
+              return (
+                <tr key={s.sensorId} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.sensorId}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.sensorType}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.zone}</td>
+
+                  {/* 임계치1L */}
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.t1L}
+                        onChange={(e) => onChange('t1L', e.target.value)}
+                        className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+                        placeholder="숫자"
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className="block text-center">{s.t1L}</span>
+                    )}
+                  </td>
+
+                  {/* 임계치1H */}
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.t1H}
+                        onChange={(e) => onChange('t1H', e.target.value)}
+                        className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+                        placeholder="숫자"
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className="block text-center">{s.t1H}</span>
+                    )}
+                  </td>
+
+                  {/* 임계치2L */}
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.t2L}
+                        onChange={(e) => onChange('t2L', e.target.value)}
+                        className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+                        placeholder="숫자"
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className="block text-center">{s.t2L}</span>
+                    )}
+                  </td>
+
+                  {/* 임계치2H */}
+                  <td className="px-4 py-3 text-sm text-gray-700">
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editForm.t2H}
+                        onChange={(e) => onChange('t2H', e.target.value)}
+                        className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
+                        placeholder="숫자"
+                        inputMode="decimal"
+                      />
+                    ) : (
+                      <span className="block text-center">{s.t2H}</span>
+                    )}
+                  </td>
+
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.modifiedAt}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.modifiedBy}</td>
+
+                  <td className="px-4 py-3 text-sm text-right space-x-2">
+                    {isEditing ? (
+                      <>
+                        <button
+                          onClick={onSave}
+                          className="inline-flex items-center px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700"
+                        >
+                          저장
+                        </button>
+                        <button
+                          onClick={onCancel}
+                          className="inline-flex items-center px-3 py-1.5 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
+                        >
+                          취소
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => onEditClick(s)}
+                        className="inline-flex items-center px-3 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                        disabled={editingId !== null}
+                        title={editingId !== null ? '다른 행 수정 중' : '수정'}
+                      >
+                        수정
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+            {sensors.length === 0 && (
+              <tr>
+                <td className="px-4 py-6 text-center text-sm text-gray-500" colSpan={10}>
+                  데이터가 없습니다.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
-      {/* 장비 추가 폼 */}
-      {showAddForm && (
-        <div className="bg-gray-50 p-4 rounded-md space-y-4">
-          <h5 className="font-medium text-gray-900">새 장비 추가</h5>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                장비명
-              </label>
-              <input
-                type="text"
-                value={newEquipment.name}
-                onChange={(e) => handleNewEquipmentChange('name', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                센서 타입
-              </label>
-              <select
-                value={newEquipment.type}
-                onChange={(e) => handleNewEquipmentChange('type', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {equipmentTypes.map(type => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                설치 위치
-              </label>
-              <input
-                type="text"
-                value={newEquipment.location}
-                onChange={(e) => handleNewEquipmentChange('location', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                상태
-              </label>
-              <select
-                value={newEquipment.status}
-                onChange={(e) => handleNewEquipmentChange('status', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="active">활성</option>
-                <option value="inactive">비활성</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                마지막 점검일
-              </label>
-              <input
-                type="date"
-                value={newEquipment.lastMaintenance}
-                onChange={(e) => handleNewEquipmentChange('lastMaintenance', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-          <div className="flex space-x-2">
-            <button
-              onClick={handleAddEquipment}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              추가
-            </button>
-            <button
-              onClick={() => setShowAddForm(false)}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* 장비 목록 */}
-      <div className="bg-white shadow overflow-hidden sm:rounded-md">
-        <ul className="divide-y divide-gray-200">
-          {equipments.map((equipment) => (
-            <li key={equipment.id} className="px-6 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                      <span className="text-sm font-medium text-gray-700">
-                        {equipment.name.charAt(0)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">{equipment.name}</div>
-                    <div className="text-sm text-gray-500">{equipment.location}</div>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getTypeColor(equipment.type)}`}>
-                    {equipmentTypes.find(type => type.value === equipment.type)?.label}
-                  </span>
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(equipment.status)}`}>
-                    {equipment.status === 'active' ? '활성' : '비활성'}
-                  </span>
-                  <div className="text-sm text-gray-500">
-                    점검: {equipment.lastMaintenance}
-                  </div>
-                  <select
-                    value={equipment.status}
-                    onChange={(e) => handleStatusChange(equipment.id, e.target.value)}
-                    className="text-sm border border-gray-300 rounded-md px-2 py-1"
-                  >
-                    <option value="active">활성</option>
-                    <option value="inactive">비활성</option>
-                  </select>
-                  <button
-                    onClick={() => handleDeleteEquipment(equipment.id)}
-                    className="text-red-600 hover:text-red-900 text-sm font-medium"
-                  >
-                    삭제
-                  </button>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* 안내 문구 */}
+      <p className="mt-3 text-sm text-gray-500">
+        임계치1L/H, 임계치2L/H만 수정할 수 있습니다. 저장 시 수정일자와 수정인이 갱신됩니다.
+      </p>
     </div>
   );
 };
