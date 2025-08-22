@@ -1,4 +1,5 @@
 import authApiClient from '../index';
+import { clearAuthCache } from '../../router/index';
 
 // 로그인
 export const login = async (credentials) => {
@@ -9,34 +10,25 @@ export const login = async (credentials) => {
     localStorage.removeItem('employeeId');
     localStorage.removeItem('user');
     
-    console.log('=== 로그인 요청 디버깅 ===');
-    console.log('authApiClient:', authApiClient);
-    console.log('authApiClient.defaults:', authApiClient?.defaults);
-    console.log('baseURL:', authApiClient?.defaults?.baseURL);
-    console.log('환경변수 VITE_API_BASE_URL:', import.meta.env.VITE_API_BASE_URL);
-    console.log('모든 환경변수:', import.meta.env);
+    // Content-Type 헤더가 제대로 설정되었는지 확인 및 수정
+    if (!authApiClient.defaults.headers.common['Content-Type']) {
+      authApiClient.defaults.headers.common['Content-Type'] = 'application/json';
+    }
     
-    // 백엔드 서버 연결 확인
-    const testUrl = authApiClient.defaults.baseURL + '/health';
-    console.log('서버 연결 테스트 URL:', testUrl);
-    
-    console.log('로그인 요청 시작');
-    console.log('요청 URL:', authApiClient.defaults.baseURL + '/auth/login');
-    console.log('요청 데이터:', {
-      employeeId: credentials.username,
-      password: credentials.password
-    });
-    
-    // 요청 헤더 확인
-    console.log('=== 요청 헤더 확인 ===');
-    console.log('authApiClient.defaults.headers:', authApiClient.defaults.headers);
+    // 개발 환경에서만 로그 출력
+    const isDev = import.meta.env.DEV;
+    if (isDev) {
+      console.log('로그인 요청 시작:', credentials.username);
+    }
     
     const response = await authApiClient.post('/auth/login', {
       employeeId: credentials.username,
       password: credentials.password
     });
 
-    console.log('로그인 응답:', response.data);
+    if (isDev) {
+      console.log('로그인 성공:', response.data.message);
+    }
 
     // 백엔드 응답 구조에 맞게 수정
     const { data } = response.data;
@@ -60,25 +52,37 @@ export const login = async (credentials) => {
       });
       const userInfo = userInfoResponse.data.data; // ApiResponseDto 구조에 맞게 수정
       
-      console.log('사용자 정보 응답:', userInfoResponse.data);
-      console.log('사용자 정보:', userInfo);
+      if (isDev) {
+        console.log('사용자 정보 조회 성공:', userInfo.name);
+      }
       
-      // 사용자 정보를 localStorage에 저장
+      // 사용자 정보를 localStorage에 저장 (백엔드에서 제공하는 모든 필드 포함)
       localStorage.setItem('user', JSON.stringify({
         employeeId: userInfo.employeeId,
         name: userInfo.name,
         email: userInfo.email,
         department: userInfo.department,
         position: userInfo.position,
-        role: userInfo.role
+        role: userInfo.role,
+        gender: userInfo.gender,
+        scope: userInfo.scope,
+        shift: userInfo.shift,
+        active: userInfo.active,
+        createdAt: userInfo.createdAt,
+        updatedAt: userInfo.updatedAt
       }));
       
-      console.log('저장된 사용자 정보:', JSON.parse(localStorage.getItem('user')));
+      if (isDev) {
+        console.log('사용자 정보 저장 완료');
+      }
     } catch (userInfoError) {
       console.error('사용자 정보 가져오기 실패:', userInfoError);
       // 사용자 정보 가져오기 실패 시 기본 정보만 저장
       localStorage.setItem('user', JSON.stringify({ employeeId }));
     }
+
+    // 인증 캐시 무효화 (새로운 로그인)
+    clearAuthCache();
 
     return { success: true, employeeId };
   } catch (error) {
@@ -135,6 +139,10 @@ export const logout = async () => {
     localStorage.removeItem('employeeId');
     localStorage.removeItem('role');
     localStorage.removeItem('user');
+    
+    // 인증 캐시 무효화 (로그아웃)
+    clearAuthCache();
+    
     console.log('로컬 스토리지 정리 완료');
     return { success: true };
   }
