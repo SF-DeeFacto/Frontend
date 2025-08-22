@@ -1,17 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ProfileTab = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
-    employeeId: 'EMP001',
-    department: '개발팀',
-    email: 'hong@example.com',
-    gender: 'male',
-    name: '홍길동',
-    position: '개발자',
-    role: 'admin',
-    scope: 'A01,B01',
-    shift: '09:00-18:00'
+    employeeId: '',
+    department: '',
+    email: '',
+    gender: '',
+    name: '',
+    position: '',
+    role: '',
+    scope: '',
+    shift: ''
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 사용자 정보 로드
+  useEffect(() => {
+    const loadUserProfile = () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const userData = localStorage.getItem('user');
+        
+        if (!token || !userData) {
+          console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
+          navigate('/login');
+          return;
+        }
+        
+        const user = JSON.parse(userData);
+        console.log('프로필 탭에서 로드된 사용자 데이터:', user);
+        
+        // 사용자 정보를 프로필 상태에 설정
+        setProfile({
+          employeeId: user.employeeId || '',
+          department: user.department || '',
+          email: user.email || '',
+          gender: user.gender || '',
+          name: user.name || '',
+          position: user.position || '',
+          role: user.role || '',
+          scope: user.scope || '',
+          shift: user.shift || user.shiftTime || ''
+        });
+        
+        setLoading(false);
+        setError(null);
+      } catch (error) {
+        console.error('사용자 정보 로드 실패:', error);
+        setError('사용자 정보를 불러오는데 실패했습니다.');
+        setLoading(false);
+      }
+    };
+
+    loadUserProfile();
+  }, [navigate]);
+
+  // localStorage 변화 감지 (실시간 동기화)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' || e.key === 'access_token') {
+        const token = localStorage.getItem('access_token');
+        const userData = localStorage.getItem('user');
+        
+        if (!token || !userData) {
+          navigate('/login');
+        } else {
+          try {
+            const user = JSON.parse(userData);
+            setProfile({
+              employeeId: user.employeeId || '',
+              department: user.department || '',
+              email: user.email || '',
+              gender: user.gender || '',
+              name: user.name || '',
+              position: user.position || '',
+              role: user.role || '',
+              scope: user.scope || '',
+              shift: user.shift || user.shiftTime || ''
+            });
+          } catch (error) {
+            console.error('사용자 정보 파싱 오류:', error);
+            navigate('/login');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [navigate]);
 
   const handleProfileChange = (key, value) => {
     setProfile(prev => ({
@@ -19,6 +101,30 @@ const ProfileTab = () => {
       [key]: value
     }));
   };
+
+
+
+  // 로딩 상태
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-gray-500">사용자 정보를 불러오는 중...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="text-red-500">{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -72,7 +178,7 @@ const ProfileTab = () => {
             </label>
             <input
               type="text"
-              value={profile.gender === 'male' ? '남성' : '여성'}
+              value={profile.gender}
               className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
               readOnly
             />
@@ -111,7 +217,7 @@ const ProfileTab = () => {
             </label>
             <input
               type="text"
-              value={profile.role === 'user' ? '일반 사용자' : profile.role === 'admin' ? '관리자' : '슈퍼 관리자'}
+              value={profile.role}
               className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
               readOnly
             />

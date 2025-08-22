@@ -1,5 +1,4 @@
 import authApiClient from '../index';
-import { clearAuthCache } from '../../router/index';
 
 // 로그인
 export const login = async (credentials) => {
@@ -81,8 +80,8 @@ export const login = async (credentials) => {
       localStorage.setItem('user', JSON.stringify({ employeeId }));
     }
 
-    // 인증 캐시 무효화 (새로운 로그인)
-    clearAuthCache();
+    // 인증 캐시 무효화 (새로운 로그인) - localStorage 이벤트 트리거
+    window.dispatchEvent(new StorageEvent('storage', { key: 'user', newValue: localStorage.getItem('user') }));
 
     return { success: true, employeeId };
   } catch (error) {
@@ -140,8 +139,8 @@ export const logout = async () => {
     localStorage.removeItem('role');
     localStorage.removeItem('user');
     
-    // 인증 캐시 무효화 (로그아웃)
-    clearAuthCache();
+    // 인증 캐시 무효화 (로그아웃) - localStorage 이벤트 트리거
+    window.dispatchEvent(new StorageEvent('storage', { key: 'access_token', newValue: null }));
     
     console.log('로컬 스토리지 정리 완료');
     return { success: true };
