@@ -130,125 +130,132 @@ const ProfileTab = () => {
     <div className="space-y-6">
       <div>
         <h4 className="text-lg font-medium text-gray-900 mb-4">프로필 정보</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 사원번호 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              사원번호
-            </label>
-            <input
-              type="text"
-              value={profile.employeeId}
-              onChange={(e) => handleProfileChange('employeeId', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              readOnly
-            />
+        <div className="space-y-6">
+          {/* 첫 번째 줄: 사원번호 - 이름 - 성별 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 사원번호 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                사원번호
+              </label>
+              <input
+                type="text"
+                value={profile.employeeId}
+                onChange={(e) => handleProfileChange('employeeId', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
+
+            {/* 이름 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                이름
+              </label>
+              <input
+                type="text"
+                value={profile.name}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
+
+            {/* 성별 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                성별
+              </label>
+              <input
+                type="text"
+                value={profile.gender}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
           </div>
 
-          {/* 부서 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              부서
-            </label>
-            <input
-              type="text"
-              value={profile.department}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
+          {/* 두 번째 줄: 직책 - 부서 - 이메일 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 직책 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                직책
+              </label>
+              <input
+                type="text"
+                value={profile.position}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
+
+            {/* 부서 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                부서
+              </label>
+              <input
+                type="text"
+                value={profile.department}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
+
+            {/* 이메일 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                이메일
+              </label>
+              <input
+                type="email"
+                value={profile.email}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
           </div>
 
-          {/* 이메일 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              이메일
-            </label>
-            <input
-              type="email"
-              value={profile.email}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-          </div>
+          {/* 세 번째 줄: 권한 - 구역범위 - 근무시간 */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 권한 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                권한
+              </label>
+              <input
+                type="text"
+                value={profile.role}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
 
-          {/* 성별 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              성별
-            </label>
-            <input
-              type="text"
-              value={profile.gender}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-          </div>
+            {/* 구역범위 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                구역범위
+              </label>
+              <input
+                type="text"
+                value={profile.scope}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
 
-          {/* 이름 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              이름
-            </label>
-            <input
-              type="text"
-              value={profile.name}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-          </div>
-
-          {/* 직책 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              직책
-            </label>
-            <input
-              type="text"
-              value={profile.position}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-          </div>
-
-          {/* 권한 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              권한
-            </label>
-            <input
-              type="text"
-              value={profile.role}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-          </div>
-
-          {/* 구역범위 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              구역범위
-            </label>
-            <input
-              type="text"
-              value={profile.scope}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-
-          </div>
-
-          {/* 근무시간 */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              근무시간
-            </label>
-            <input
-              type="text"
-              value={profile.shift}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500 cursor-not-allowed"
-              readOnly
-            />
-
+            {/* 근무시간 */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                근무시간
+              </label>
+              <input
+                type="text"
+                value={profile.shift}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                readOnly
+              />
+            </div>
           </div>
         </div>
         
