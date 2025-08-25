@@ -116,40 +116,28 @@ cursor-talk-to-figma-mcp/
 # test-results/
 # playwright-report/
 # playwright/.cache/
+node_modules/
 
-# 3D Model Files (GLB, GLTF, FBX, OBJ 등)
+# 3D Model files (GLB, GLTF) - Too large for Git
 *.glb
 *.gltf
-*.fbx
 *.obj
+*.fbx
 *.dae
+*.stl
+*.ply
 *.3ds
-*.blend
 *.max
-*.c4d
-*.ma
-*.mb
+*.blend
 
-# 3D Model directories
+# Model directories
 public/models/
 models/
-assets/3d/
-assets/models/
 
-# Large binary files
-*.zip
-*.rar
-*.7z
-*.tar.gz
-*.tar.bz2
-
-# Project specific large files
-*.glb
-*.gltf
-*.fbx
-*.obj
-
-# Backup files
-*.bak
-*.backup
-*.old
+# 특정 모델 폴더는 포함 (A01, B01, mainhome)
+!public/models/A01/
+!public/models/B01/
+!public/models/mainhome/
+!models/A01/
+!models/B01/
+!models/mainhome/
