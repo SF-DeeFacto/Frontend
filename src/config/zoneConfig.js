@@ -22,13 +22,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'A01_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'A02': {
@@ -51,13 +44,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'A02_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'B01': {
@@ -81,13 +67,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'WD-002' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'B02': {
@@ -110,13 +89,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'B02_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'B03': {
@@ -139,13 +111,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'B03_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'B04': {
@@ -168,13 +133,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'B04_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'C01': {
@@ -197,13 +155,6 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'C01_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   },
   'C02': {
@@ -226,15 +177,17 @@ export const ZONE_DETAILED_CONFIG = {
       windDir: [
         { sensor_id: 'C02_WD_01', name: '풍향 센서 1', location: '상단' }
       ]
-    },
-    thresholds: {
-      temperature: { min: 18, max: 28, warning: 25 },
-      humidity: { min: 30, max: 70, warning: 60 },
-      esd: { min: 0, max: 50, warning: 30 },
-      particle: { min: 0, max: 100, warning: 50 },
-      windDir: { min: 0, max: 360, warning: null }
     }
   }
+};
+
+// 공통 임계값 설정 (모든 Zone에 동일 적용)
+export const DEFAULT_THRESHOLDS = {
+  temperature: { min: 18, max: 28, warning: 25 },
+  humidity: { min: 30, max: 70, warning: 60 },
+  esd: { min: 0, max: 50, warning: 30 },
+  particle: { min: 0, max: 100, warning: 50 },
+  windDir: { min: 0, max: 360, warning: null }
 };
 
 // 공통 설정
@@ -249,7 +202,10 @@ export const COMMON_ZONE_CONFIG = {
   DUMMY_DATA_ZONES: ['a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'],
   
   // 실시간 데이터를 사용하는 Zone 목록
-  REALTIME_DATA_ZONES: ['a01', 'b01']
+  REALTIME_DATA_ZONES: ['a01', 'b01'],
+  
+  // 기본 임계값
+  DEFAULT_THRESHOLDS
 };
 
 // Zone ID로 설정 가져오기
@@ -275,10 +231,9 @@ export const getZoneSensors = (zoneId) => {
   return config?.sensors || {};
 };
 
-// Zone의 임계값 가져오기
+// Zone의 임계값 가져오기 (모든 Zone이 동일한 임계값 사용)
 export const getZoneThresholds = (zoneId) => {
-  const config = getZoneConfig(zoneId);
-  return config?.thresholds || {};
+  return DEFAULT_THRESHOLDS;
 };
 
 // Zone이 실시간 데이터를 사용하는지 확인

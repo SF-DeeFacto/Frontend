@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import ZoneModelViewer from '../ZoneModelViewer';
+import ZoneModelViewer from './ZoneModelViewer';
 import SensorInfoPanel from '../../common/SensorInfoPanel';
 
 const ZoneDrawingSection = ({ 

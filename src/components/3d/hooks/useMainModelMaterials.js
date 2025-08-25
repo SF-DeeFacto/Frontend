@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import * as THREE from 'three';
-import { getStatusColor } from '../../utils/colors';
+import { getStatus3DColor } from '../../../config/sensorConfig';
 
 export const useMainModelMaterials = () => {
   // Zone 상태 키 매핑
@@ -41,7 +41,7 @@ export const useMainModelMaterials = () => {
           const status = zoneStatuses[zoneStatusKey];
           
           if (status) {
-            const statusColor = getStatusColor(status);
+            const statusColor = getStatus3DColor(status);
             
             // 새로운 재질 생성 (MeshStandardMaterial 사용)
             const newMaterial = new THREE.MeshStandardMaterial({
