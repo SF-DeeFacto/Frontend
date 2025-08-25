@@ -4,7 +4,7 @@
 export { generateZoneData, generateAllZoneData } from './data/zoneDataGenerator.js';
 export { generateZoneStatusData, generateZoneStatusVersions } from './data/zoneStatusGenerator.js';
 export { generateDummyUsers, generateUsersByRole, generateUsersByDepartment } from './data/userGenerator.js';
-export { generateDummyWeatherData, generateWeatherTrend, generateWeatherForDate } from './data/weatherGenerator.js';
+export { generateDummyWeatherData } from './data/weather.js';
 
 // 기존 호환성을 위한 데이터들
 export { dummyWeatherData, getDummyWeatherResponse } from './data/weather.js';

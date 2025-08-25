@@ -1,5 +1,4 @@
-import { getDummyWeatherResponse } from '../data/weather.js';
-import { generateWeatherTrend, generateWeatherForDate, generateDummyWeatherData } from '../data/weatherGenerator.js';
+import { getDummyWeatherResponse, generateDummyWeatherData } from '../data/weather.js';
 
 // 실제 날씨 API 호출 함수
 export const fetchWeatherData = async () => {
@@ -53,11 +52,21 @@ export const getWeatherTrend = async (hours = 24) => {
       return { success: true, data: data.data || data };
     } else {
       console.log('백엔드 날씨 트렌드 API 호출 실패, 더미 데이터로 처리');
-      return { success: true, data: generateWeatherTrend(hours) };
+      // 간단한 더미 트렌드 생성
+      const trendData = [];
+      for (let i = 0; i < hours; i++) {
+        trendData.push(generateDummyWeatherData());
+      }
+      return { success: true, data: trendData };
     }
   } catch (error) {
     console.log('날씨 트렌드 API 호출 중 오류 발생, 더미 데이터로 처리:', error.message);
-    return { success: true, data: generateWeatherTrend(hours) };
+    // 간단한 더미 트렌드 생성
+    const trendData = [];
+    for (let i = 0; i < hours; i++) {
+      trendData.push(generateDummyWeatherData());
+    }
+    return { success: true, data: trendData };
   }
 };
 
@@ -78,11 +87,11 @@ export const getWeatherForDate = async (date) => {
       return { success: true, data: data.data || data };
     } else {
       console.log('백엔드 날짜별 날씨 API 호출 실패, 더미 데이터로 처리');
-      return { success: true, data: generateWeatherForDate(date) };
+      return { success: true, data: generateDummyWeatherData() };
     }
   } catch (error) {
     console.log('날짜별 날씨 API 호출 중 오류 발생, 더미 데이터로 처리:', error.message);
-    return { success: true, data: generateWeatherForDate(date) };
+    return { success: true, data: generateDummyWeatherData() };
   }
 };
 

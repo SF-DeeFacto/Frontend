@@ -1,26 +1,26 @@
-// 통합 설정 기반 더미 날씨 데이터 생성기 사용
-// 기존 하드코딩된 데이터를 모두 제거하고 동적 생성으로 변경
+// 실시간 API 연동 준비용 - 고정 더미데이터
 
-import { 
-  generateDummyWeatherData,
-  generateWeatherTrend,
-  generateWeatherForDate,
-  generateDummyWeatherResponse,
-  dummyWeatherData
-} from './weatherGenerator';
-
-// 기본 더미 날씨 데이터 (기존 호환성 유지)
-export { dummyWeatherData };
-
-// 날씨 데이터 생성 함수들
-export { 
-  generateDummyWeatherData,
-  generateWeatherTrend,
-  generateWeatherForDate
+// 간단한 고정 더미 날씨 데이터 (실제 API 대체용)
+export const generateDummyWeatherData = () => {
+  return {
+    temperature: 23.5,
+    weather: '맑음'
+  };
 };
 
-// 더미 날씨 API 응답 형태
-export const getDummyWeatherResponse = () => generateDummyWeatherResponse();
+// API 응답 형태 (실제 API 연동 시 이 구조 사용)
+export const generateDummyWeatherResponse = () => {
+  const weatherData = generateDummyWeatherData();
+  
+  return {
+    success: true,
+    data: weatherData,
+    timestamp: new Date().toISOString()
+  };
+};
 
-// 파일 크기: 0.6KB → 0.2KB (67% 감소)
-// 코드 라인: 19줄 → 20줄 (기능 추가로 인한 증가) 
+// 기본 더미 날씨 데이터 (기존 호환성 유지)
+export const dummyWeatherData = generateDummyWeatherData();
+
+// 기존 함수 호환성 유지
+export const getDummyWeatherResponse = () => generateDummyWeatherResponse(); 
