@@ -141,3 +141,11 @@ models/
 !models/A01/
 !models/B01/
 !models/mainhome/
+
+# 특정 폴더 안의 모델링 파일들은 포함
+!public/models/A01/**
+!public/models/B01/**
+!public/models/mainhome/**
+!models/A01/**
+!models/B01/**
+!models/mainhome/**
