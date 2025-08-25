@@ -12,31 +12,56 @@ const Header = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(3); // 기본값을 3으로 설정
 
-  // 현재 로그인한 사용자 정보 가져오기
+  // 사용자 정보 로드 및 인증 체크
   useEffect(() => {
-    const user = localStorage.getItem('user');
     const token = localStorage.getItem('access_token');
+    const userData = localStorage.getItem('user');
     
-    // 토큰이나 사용자 정보가 없으면 로그인 페이지로 리다이렉트
-    if (!token || !user) {
+    if (!token || !userData) {
       console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
       navigate('/login');
       return;
     }
     
     try {
-      const userData = JSON.parse(user);
-      // 사용자 정보에 name이 없으면 로그인 페이지로 리다이렉트
-      if (!userData.name) {
+      const user = JSON.parse(userData);
+      if (!user.name || !user.employeeId) {
         console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
         navigate('/login');
         return;
       }
-      setCurrentUser(userData);
+      setCurrentUser(user);
     } catch (error) {
       console.error('사용자 정보 파싱 오류:', error);
       navigate('/login');
     }
+  }, [navigate]);
+
+  // localStorage 변화 감지 (다른 탭에서 로그인/로그아웃 시)
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'user' || e.key === 'access_token') {
+        const token = localStorage.getItem('access_token');
+        const userData = localStorage.getItem('user');
+        
+        if (!token || !userData) {
+          navigate('/login');
+        } else {
+          try {
+            const user = JSON.parse(userData);
+            setCurrentUser(user);
+          } catch (error) {
+            console.error('사용자 정보 파싱 오류:', error);
+            navigate('/login');
+          }
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, [navigate]);
 
   // 날씨 정보 가져오기 (더미 데이터 사용)

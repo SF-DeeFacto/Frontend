@@ -31,7 +31,7 @@ const Aside = () => {
     <div
       key={key}
       onClick={() => navigate(path)}
-      className="text-gray-600 cursor-pointer hover:bg-[#E9EDFB] px-6 py-2 rounded-md transition-colors duration-200 text-center w-[180px]"
+      className="text-gray-600 cursor-pointer hover:bg-[#E9EDFB] px-6 py-2 rounded-md ml-8 transition-colors duration-200 pr-[75px]"
     >
       <Text variant="menu" size="sm" weight="medium" color="gray-600">
         {label}
@@ -46,10 +46,10 @@ const Aside = () => {
       { label: 'A02', path: '/home/zone/a02', zoneId: 'a02' },
       { label: 'B01', path: '/home/zone/b01', zoneId: 'b01' },
       { label: 'B02', path: '/home/zone/b02', zoneId: 'b02' },
-      { label: 'B 03', path: '/home/zone/b03', zoneId: 'b03' },
-      { label: 'B 04', path: '/home/zone/b04', zoneId: 'b04' },
-      { label: 'C 01', path: '/home/zone/c01', zoneId: 'c01' },
-      { label: 'C 02', path: '/home/zone/c02', zoneId: 'c02' }
+      { label: 'B03', path: '/home/zone/b03', zoneId: 'b03' },
+      { label: 'B04', path: '/home/zone/b04', zoneId: 'b04' },
+      { label: 'C01', path: '/home/zone/c01', zoneId: 'c01' },
+      { label: 'C02', path: '/home/zone/c02', zoneId: 'c02' }
     ];
   };
 
@@ -319,7 +319,7 @@ const Aside = () => {
             
             {/* Zone 서브메뉴 - 모든 Zone 표시 */}
             {item.label === "Zone" && (
-              <div className="space-y-1 mt-2 flex flex-col items-center" style={{ minHeight: zoneOpen ? '120px' : '0px', overflow: 'hidden', transition: 'min-height 0.3s ease-in-out' }}>
+              <div className="space-y-1 mt-2" style={{ minHeight: zoneOpen ? '120px' : '0px', overflow: 'hidden', transition: 'min-height 0.3s ease-in-out' }}>
                 {zoneOpen && getAllZoneItems().map(zone => 
                   renderSubMenuItem(zone.label, zone.path, zone.zoneId)
                 )}

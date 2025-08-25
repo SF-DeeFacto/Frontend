@@ -48,7 +48,14 @@ export default defineConfig({
         target: 'http://localhost:8083',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dashboard-api/, '')
+      },
+      '/report-api': {                         // <-- 추가: 모든 /api 요청을 백엔드(8085)로 프록시
+        target: 'http://localhost:8085',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/report-api/, ''), // /api 제거
+        secure: false,
       }
+
     }
   }
 }); 

@@ -106,4 +106,3 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
 };
 
 export default SensorDataCard;
-
