@@ -9,7 +9,7 @@ function SimpleModel({ modelPath }) {
   
 
   
-  // B01ModelViewer 코드를 참고해서 모델 중심 조정
+  // 모델을 중심으로 위치 조정
   useEffect(() => {
     if (gltf.scene) {
       const box = new THREE.Box3().setFromObject(gltf.scene);
