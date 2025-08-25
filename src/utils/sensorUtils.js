@@ -1,12 +1,13 @@
 import { SENSOR_STATUS } from '../types/sensor';
 import { 
   getStatusColor,
+  getStatusHexColor,
   getStatusEmoji,
   getStatusText
 } from '../config/sensorConfig';
 
 // 통합 설정의 함수들을 재-export (기존 호환성 유지)
-export { getStatusColor, getStatusEmoji, getStatusText };
+export { getStatusColor, getStatusHexColor, getStatusEmoji, getStatusText };
 
 /**
  * 센서 데이터를 그룹화

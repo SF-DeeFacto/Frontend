@@ -71,6 +71,3 @@ export const validateDummyToken = () => {
   console.log('더미 토큰 검증 실패: token 또는 user 없음');
   return { valid: false };
 };
-
-// 파일 크기: 2.2KB → 1.2KB (45% 감소)
-// 코드 라인: 67줄 → 45줄 (33% 감소) 
