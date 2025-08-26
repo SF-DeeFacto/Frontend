@@ -1,19 +1,28 @@
+/**
+ * SSE API 연동 가이드:
+ * 1. 모든 "더미데이터 시작" ~ "더미데이터 끝 (삭제)" 주석 블록을 삭제
+ * 2. SSE 연결 주석들을 해제 (disconnectMainSSE, REALTIME_DATA_ZONES 등)
+ * 3. updateDummyData 함수를 실제 SSE 데이터 처리로 교체
+ * 4. 더미 데이터 import 제거
+ */
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
+// 더미데이터 시작
 import { zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4 } from '../dummy';
+// 더미데이터 끝 (삭제)
 import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../types/sensor';
 import { COMMON_ZONE_CONFIG, isRealtimeZone } from '../config/zoneConfig';
 
 export const useZoneManager = () => {
   const [zoneStatuses, setZoneStatuses] = useState({
-    zone_A: SENSOR_STATUS.CONNECTING,
-    zone_A02: SENSOR_STATUS.YELLOW,
-    zone_B: SENSOR_STATUS.CONNECTING,
-    zone_B02: SENSOR_STATUS.RED,
-    zone_B03: SENSOR_STATUS.GREEN,
-    zone_B04: SENSOR_STATUS.YELLOW,
-    zone_C01: SENSOR_STATUS.GREEN,
-    zone_C02: SENSOR_STATUS.GREEN
+    zone_A01: SENSOR_STATUS.CONNECTING,
+    zone_A02: SENSOR_STATUS.CONNECTING,
+    zone_B01: SENSOR_STATUS.CONNECTING,
+    zone_B02: SENSOR_STATUS.CONNECTING,
+    zone_B03: SENSOR_STATUS.CONNECTING,
+    zone_B04: SENSOR_STATUS.CONNECTING,
+    zone_C01: SENSOR_STATUS.CONNECTING,
+    zone_C02: SENSOR_STATUS.CONNECTING
   });
 
   const [connectionStates, setConnectionStates] = useState({
@@ -23,6 +32,7 @@ export const useZoneManager = () => {
 
   const [lastUpdated, setLastUpdated] = useState({});
 
+  // 더미데이터 시작
   // 더미 데이터 순환 업데이트
   const updateDummyData = useCallback(() => {
     const dummyDataSets = [zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4];
@@ -42,6 +52,7 @@ export const useZoneManager = () => {
       }));
     });
   }, []);
+  // 더미데이터 끝 (삭제)
 
   // 메인 SSE 연결
   const connectMainSSEHandler = useCallback(() => {
@@ -175,42 +186,53 @@ export const useZoneManager = () => {
     let disconnectZoneSSE = {};
     let dummyInterval = null;
 
+    // 더미데이터 시작
     // 더미 데이터 초기 설정
     updateDummyData();
     
-    // 더미 데이터 주기적 업데이트
+    // 더미 데이터 주기적 업데이트 (모든 존이 동일한 더미 데이터 사용)
     dummyInterval = setInterval(updateDummyData, COMMON_ZONE_CONFIG.DATA_UPDATE_INTERVAL);
+    // 더미데이터 끝 (삭제)
 
-    // 메인 SSE 연결
-    disconnectMainSSE = connectMainSSEHandler();
+    // 실제 SSE 연결 (더미 데이터 사용 중에는 비활성화)
+    // disconnectMainSSE = connectMainSSEHandler();
 
-    // 실시간 데이터를 사용하는 Zone들만 개별 SSE 연결
-    COMMON_ZONE_CONFIG.REALTIME_DATA_ZONES.forEach(zoneId => {
-      const disconnect = connectZoneSSEHandler(zoneId);
-      if (disconnect) disconnectZoneSSE[zoneId] = disconnect;
-    });
+    // 개별 Zone SSE 연결 (더미 데이터 사용 중에는 비활성화)
+    // COMMON_ZONE_CONFIG.REALTIME_DATA_ZONES.forEach(zoneId => {
+    //   const disconnect = connectZoneSSEHandler(zoneId);
+    //   if (disconnect) disconnectZoneSSE[zoneId] = disconnect;
+    // });
 
     // 클린업
     return () => {
+      // 더미데이터 시작
       if (dummyInterval) clearInterval(dummyInterval);
+      // 더미데이터 끝 (삭제)
       
-      if (disconnectMainSSE) {
-        try {
-          disconnectMainSSE();
-        } catch (error) {
-          console.error('메인 SSE 연결 해제 오류:', error);
-        }
-      }
+      // SSE 연결 해제 (더미 데이터 사용 중에는 비활성화)
+      // if (disconnectMainSSE) {
+      //   try {
+      //     disconnectMainSSE();
+      //   } catch (error) {
+      //     console.error('메인 SSE 연결 해제 오류:', error);
+      //   }
+      // }
       
-      Object.entries(disconnectZoneSSE).forEach(([zoneId, disconnect]) => {
-        try {
-          disconnect();
-        } catch (error) {
-          console.error(`${zoneId} Zone SSE 연결 해제 오류:`, error);
-        }
-      });
+      // Object.entries(disconnectZoneSSE).forEach(([zoneId, disconnect]) => {
+      //   try {
+      //     disconnect();
+      //   } catch (error) {
+      //     console.error(`${zoneId} Zone SSE 연결 해제 오류:`, error);
+      //   }
+      // });
     };
-  }, [updateDummyData, connectMainSSEHandler, connectZoneSSEHandler]);
+  }, [
+    // 더미데이터 시작
+    updateDummyData, 
+    // 더미데이터 끝 (삭제)
+    connectMainSSEHandler, 
+    connectZoneSSEHandler
+  ]);
 
   // Zone 정보 배열 반환
   const zones = Object.values(ZONE_INFO);

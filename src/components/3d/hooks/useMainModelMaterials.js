@@ -1,24 +1,25 @@
 import { useCallback } from 'react';
 import * as THREE from 'three';
-import { getStatusColor } from '../../utils/colors';
+import { getStatus3DColor } from '../../../config/sensorConfig';
 
 export const useMainModelMaterials = () => {
-  // Zone 상태 키 매핑
+  // Zone 상태 키 매핑 (API 응답 형식에 맞게 수정)
   const getZoneStatusKey = useCallback((meshName) => {
     const zoneMapping = {
       // 소문자 메쉬
-      'a01': 'zone_A',
+      // 'a01': 'zone_A',
+      'a01': 'zone_A01',
       'a02': 'zone_A02',
-      'b01': 'zone_B', 
+      'b01': 'zone_B01', // B01은 존재하지 않지만 혹시 모르니 유지
       'b02': 'zone_B02',
       'b03': 'zone_B03',
       'b04': 'zone_B04',
       'c01': 'zone_C01',
       'c02': 'zone_C02',
       // 대문자 메쉬
-      'A01': 'zone_A',
+      'A01': 'zone_A01',
       'A02': 'zone_A02',
-      'B01': 'zone_B', 
+      'B01': 'zone_B01', // B01은 존재하지 않지만 혹시 모르니 유지
       'B02': 'zone_B02',
       'B03': 'zone_B03',
       'B04': 'zone_B04',
@@ -41,7 +42,7 @@ export const useMainModelMaterials = () => {
           const status = zoneStatuses[zoneStatusKey];
           
           if (status) {
-            const statusColor = getStatusColor(status);
+            const statusColor = getStatus3DColor(status);
             
             // 새로운 재질 생성 (MeshStandardMaterial 사용)
             const newMaterial = new THREE.MeshStandardMaterial({

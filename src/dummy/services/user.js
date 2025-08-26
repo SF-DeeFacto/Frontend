@@ -4,9 +4,7 @@ import { dummyUsers } from '../data/users.js';
 export const handleDummyLogin = (credentials) => {
   console.log('더미 로그인 시도:', { username: credentials.username });
   
-  const user = dummyUsers.find(
-    (user) => user.employee_id === credentials.username && user.password === credentials.password
-  );
+  const user = validateUserCredentials(credentials.username, credentials.password);
 
   if (user) {
     // 더미 토큰 생성 (실제로는 JWT 토큰이어야 함)
@@ -64,4 +62,4 @@ export const validateDummyToken = () => {
   
   console.log('더미 토큰 검증 실패: token 또는 user 없음');
   return { valid: false };
-}; 
+};

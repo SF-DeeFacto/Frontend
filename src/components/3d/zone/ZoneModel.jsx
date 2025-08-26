@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
 import SensorIndicator from './SensorIndicator';
-import { getSensorTypeConfig, getStatusText } from '../../config/sensorConfig';
+import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
 
 function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
   const gltf = useLoader(GLTFLoader, modelPath);

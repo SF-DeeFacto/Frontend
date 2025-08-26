@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
-import { getStatusColor } from '../utils/colors';
+import { getStatusHexColor } from '../../config/sensorConfig';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
   if (!hoveredZone) return null;
@@ -38,7 +38,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
   const getZoneStatusColor = (hoveredZone) => {
     const zoneKey = getZoneStatusKey(hoveredZone);
     const status = zoneStatuses?.[zoneKey];
-    return getStatusColor(status || 'CONNECTING');
+    return getStatusHexColor(status || 'CONNECTING');
   };
 
   // 호버된 존의 상태 텍스트를 가져오는 함수

@@ -1,45 +1,38 @@
-# 공용 유틸리티
+# 3D 유틸리티 (레거시)
 
-이 디렉토리는 모든 컴포넌트에서 공통으로 사용할 수 있는 유틸리티 함수들을 포함합니다.
+⚠️ **주의**: 이 디렉토리는 레거시입니다. 새로운 프로젝트에서는 `src/config/`를 사용하세요.
+
+## 통합된 설정 위치
+색상 관련 설정은 모두 `src/config/sensorConfig.js`로 통합되었습니다.
 
 ## 구조
 
 ```
 src/components/utils/
-├── colors.js              # 색상 관련 유틸리티
-├── sensorHelpers.js       # 센서 관련 유틸리티
-├── index.js               # 모든 유틸리티 export
+├── sensorHelpers.js       # 3D 센서 관련 유틸리티 (유지)
+├── index.js               # 색상 함수들을 config에서 re-export
 └── README.md              # 이 파일
 ```
 
-## 사용법
+## 권장 사용법
 
-### 1. 개별 import (권장)
+### 색상 관련 함수 (통합된 설정 사용)
 ```javascript
-import { getStatusColor } from '@/components/utils/colors';
-import { calculateMeshBounds } from '@/components/utils/sensorHelpers';
+// 권장: config에서 직접 import
+import { getStatus3DColor, getStatusColor } from '../../config/sensorConfig';
+
+// 또는: utils에서 re-export된 함수 사용
+import { getStatus3DColor, getStatusColor } from '../utils';
 ```
 
-### 2. 전체 utils import
+### 3D 헬퍼 함수들
 ```javascript
-import { getStatusColor, calculateMeshBounds } from '@/components/utils';
-```
-
-### 3. 3D 컴포넌트에서 사용
-```javascript
-import { getStatusColor } from '../utils/colors';
-import { calculateMeshBounds } from '../utils/sensorHelpers';
+import { calculateMeshBounds, findAndCalculateSensorPositions } from '../utils/sensorHelpers';
 ```
 
 ## 유틸리티 설명
 
-### colors.js
-센서 상태별 색상 정의 및 변환 함수
-- `SENSOR_STATUS_COLORS`: 색상 상수
-- `getStatusColor(status)`: 상태를 색상 코드로 변환
-- `getStatusDescription(status)`: 상태를 한글 설명으로 변환
-
-### sensorHelpers.js
+### sensorHelpers.js (유지)
 3D 센서 관련 헬퍼 함수들
 - `calculateMeshBounds(mesh)`: 메쉬 AABB 계산
 - `calculateIndicatorPosition(bounds)`: 센서 인디케이터 위치 계산

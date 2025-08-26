@@ -61,7 +61,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
     return `${sensorData.val?.toFixed(1) || 0}`;
   };
 
-  // 센서 상태 색상
+  // 센서 상태 색상 (상태 표시점에만 사용)
   const statusColor = getStatusHexColor(sensorData.status);
 
   return (
@@ -92,7 +92,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
               }}
               title={`상태: ${sensorData.val || sensorData.val_0_5}`}
             ></div>
-            <div className="sensor-value" style={{ color: statusColor }}>
+            <div className="sensor-value" style={{ color: '#1e293b' }}>
               {renderSensorValue()}
               {sensorData.sensor_type !== 'particle' && (
                 <span className="sensor-unit">{sensorUnit}</span>

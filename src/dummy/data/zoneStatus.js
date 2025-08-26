@@ -25,6 +25,3 @@ export {
   getZoneStatusData,
   getAllZoneStatusVersions
 };
-
-// 파일 크기: 1.8KB → 0.3KB (83% 감소)
-// 코드 라인: 55줄 → 25줄 (55% 감소) 

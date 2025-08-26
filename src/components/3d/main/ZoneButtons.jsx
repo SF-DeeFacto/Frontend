@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getStatusColor, getStatusText } from '../../../utils/sensorUtils';
+import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
 import { CONNECTION_STATE } from '../../../types/sensor';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
@@ -22,29 +22,25 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
 
   // 존별 연결 정보 확인
   const getZoneConnectionInfo = (zone) => {
-    const isRealtimeZone = zone.zone_name === 'zone_A' || zone.zone_name === 'zone_B';
+    // 더미데이터 시작
+    // 모든 존이 동일한 더미 데이터 사용 (3D 모델링과 동일)
+    // 더미데이터 끝 (삭제)
     const status = zoneStatuses[zone.zone_name];
     const lastUpdate = lastUpdated[zone.zone_name];
     
-    if (isRealtimeZone) {
-      const zoneSSEState = connectionStates.zoneSSE[zone.id] || CONNECTION_STATE.DISCONNECTED;
-      const mainSSEState = connectionStates.mainSSE;
-      
-      return {
-        status: status || 'CONNECTING',
-        isRealtime: true,
-        connectionState: zoneSSEState === CONNECTION_STATE.CONNECTED || mainSSEState === CONNECTION_STATE.CONNECTED ? CONNECTION_STATE.CONNECTED : zoneSSEState,
-        lastUpdate,
-        dataSource: '실시간'
-      };
-    }
-    
     return {
-      status: status || 'UNKNOWN',
+      status: status || 'CONNECTING',
+      // 더미데이터 시작
       isRealtime: false,
       connectionState: 'static',
-      lastUpdate: null,
+      lastUpdate,
       dataSource: '더미'
+      // 더미데이터 끝 (삭제)
+      // 실제 SSE 연동 시 아래 주석을 해제하고 위 더미 관련 코드 삭제
+      // isRealtime: connectionStates.mainSSE === 'connected',
+      // connectionState: connectionStates.mainSSE || 'disconnected',
+      // lastUpdate,
+      // dataSource: connectionStates.mainSSE === 'connected' ? '실시간' : '연결끊김'
     };
   };
 
@@ -52,7 +48,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
     <div className="flex flex-wrap gap-[30px] justify-center">
       {zones.map((zone) => {
         const connectionInfo = getZoneConnectionInfo(zone);
-        const statusColor = getStatusColor(connectionInfo.status);
+        const statusColor = getStatusHexColor(connectionInfo.status);
         const connectionColor = getConnectionColor(connectionInfo.connectionState);
         
         return (

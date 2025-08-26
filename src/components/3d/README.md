@@ -9,8 +9,11 @@ src/components/3d/
 ├── ZoneModelViewer.jsx     # 전체 뷰어 (Canvas, OrbitControls 등)
 ├── ZoneModel.jsx           # GLB 모델 로드 + 센서 배치
 ├── SensorIndicator.jsx     # 센서 표시 컴포넌트
-├── ModelViewer.jsx         # 기존 모델 뷰어
-├── SimpleModel.jsx         # 간단한 모델 뷰어
+├── main/
+│   ├── MainModelViewer.jsx # 메인화면용 3D 뷰어
+│   └── SimpleModel.jsx     # 호버 오버레이용 간단한 모델 뷰어
+├── zone/                   # Zone 관련 컴포넌트들
+├── hooks/                  # 3D 관련 훅들
 ├── index.js                # 컴포넌트 export
 └── README.md               # 사용법 및 구조 설명
 

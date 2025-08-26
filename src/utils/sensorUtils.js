@@ -1,60 +1,13 @@
 import { SENSOR_STATUS } from '../types/sensor';
 import { 
-  getStatusColor as getStatusColorFromConfig,
-  getStatusEmoji as getStatusEmojiFromConfig,
-  getStatusText as getStatusTextFromConfig
+  getStatusColor,
+  getStatusHexColor,
+  getStatusEmoji,
+  getStatusText
 } from '../config/sensorConfig';
 
-// 센서 상태별 색상 매핑 (기존 호환성 유지)
-export const SENSOR_STATUS_COLORS = {
-  [SENSOR_STATUS.GREEN]: 'bg-green-500',
-  [SENSOR_STATUS.YELLOW]: 'bg-yellow-500',
-  [SENSOR_STATUS.RED]: 'bg-red-500',
-  [SENSOR_STATUS.CONNECTING]: 'bg-blue-500',
-  [SENSOR_STATUS.DISCONNECTED]: 'bg-gray-500',
-  default: 'bg-gray-500'
-};
-
-// 센서 상태별 이모지 매핑 (기존 호환성 유지)
-export const SENSOR_STATUS_EMOJIS = {
-  [SENSOR_STATUS.GREEN]: '🟢',
-  [SENSOR_STATUS.YELLOW]: '🟡',
-  [SENSOR_STATUS.RED]: '🔴',
-  [SENSOR_STATUS.CONNECTING]: '🔵',
-  [SENSOR_STATUS.DISCONNECTED]: '⚪',
-  default: '⚪'
-};
-
-// 센서 상태별 텍스트 매핑 (기존 호환성 유지)
-export const SENSOR_STATUS_TEXT = {
-  [SENSOR_STATUS.GREEN]: '정상',
-  [SENSOR_STATUS.YELLOW]: '주의',
-  [SENSOR_STATUS.RED]: '경고',
-  [SENSOR_STATUS.CONNECTING]: '연결중',
-  [SENSOR_STATUS.DISCONNECTED]: '연결끊김',
-  default: '알 수 없음'
-};
-
-/**
- * 센서 상태에 따른 색상 반환 (새로운 통합 설정 사용)
- */
-export const getStatusColor = (status) => {
-  return getStatusColorFromConfig(status);
-};
-
-/**
- * 센서 상태에 따른 이모지 반환 (새로운 통합 설정 사용)
- */
-export const getStatusEmoji = (status) => {
-  return getStatusEmojiFromConfig(status);
-};
-
-/**
- * 센서 상태에 따른 텍스트 반환 (새로운 통합 설정 사용)
- */
-export const getStatusText = (status) => {
-  return getStatusTextFromConfig(status);
-};
+// 통합 설정의 함수들을 재-export (기존 호환성 유지)
+export { getStatusColor, getStatusHexColor, getStatusEmoji, getStatusText };
 
 /**
  * 센서 데이터를 그룹화

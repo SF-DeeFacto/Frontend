@@ -27,6 +27,3 @@ export {
   getUserById,
   getUserByEmployeeId
 };
-
-// 파일 크기: 3.5KB → 0.3KB (91% 감소)
-// 코드 라인: 144줄 → 25줄 (83% 감소)
