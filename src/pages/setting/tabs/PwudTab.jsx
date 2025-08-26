@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { userService } from '../../../services/userService';
 
 const PwudTab = () => {
   const [passwords, setPasswords] = useState({
@@ -8,6 +9,7 @@ const PwudTab = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePasswordChange = (key, value) => {
     setPasswords(prev => ({
@@ -47,20 +49,66 @@ const PwudTab = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validatePasswords()) {
-      // 비밀번호 변경 로직 구현
-      console.log('비밀번호 변경:', passwords);
-      alert('비밀번호가 성공적으로 변경되었습니다.');
+      setIsLoading(true);
       
-      // 폼 초기화
-      setPasswords({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      try {
+        // 현재 로그인된 사용자 정보 가져오기
+        const employeeId = localStorage.getItem('employeeId');
+        // const token = localStorage.getItem('access_token');
+        
+        // console.log('비밀번호 변경 시도:', {
+        //   employeeId,
+        //   hasToken: !!token,
+        //   currentPassword: passwords.currentPassword ? '***' : '비어있음',
+        //   newPassword: passwords.newPassword ? '***' : '비어있음'
+        // });
+        
+        // 비밀번호 변경 API 호출
+        const passwordData = {
+          employeeId: employeeId, // 사용자 ID 추가
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword
+        };
+        
+        await userService.changePassword(passwordData);
+        
+        // 성공 시 처리
+        alert('비밀번호가 성공적으로 변경되었습니다.');
+        
+        // 폼 초기화
+        setPasswords({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        
+        // 에러 메시지 초기화
+        setErrors({});
+        
+      } catch (error) {
+        console.error('비밀번호 변경 실패:', error);
+        // console.error('에러 상세 정보:', {
+        //   status: error.response?.status,
+        //   statusText: error.response?.statusText,
+        //   data: error.response?.data,
+        //   message: error.message
+        // });
+        
+        // 에러 메시지 설정
+        if (error.response?.status === 400) {
+          setErrors({ currentPassword: '현재 비밀번호가 올바르지 않습니다.' });
+        } else if (error.response?.status === 422) {
+          setErrors({ newPassword: '새 비밀번호 형식이 올바르지 않습니다.' });
+        } else {
+          alert('비밀번호 변경에 실패했습니다. 다시 시도해주세요.');
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -126,9 +174,14 @@ const PwudTab = () => {
           <div className="mt-6">
             <button 
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isLoading 
+                  ? 'bg-gray-400 text-white cursor-not-allowed' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
-              비밀번호 변경
+              {isLoading ? '변경 중...' : '비밀번호 변경'}
             </button>
           </div>
         </form>

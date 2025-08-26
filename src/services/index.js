@@ -61,6 +61,23 @@ const authApiClient = createAuthApiClient();
 // 대시보드용 API 클라이언트 인스턴스 (Dashboard 백엔드)
 const dashboardApiClient = createDashboardApiClient();
 
+// 편의 함수들
+export const apiGet = async (url, config = {}) => {
+  return authApiClient.get(url, config);
+};
+
+export const apiPost = async (url, data = {}, config = {}) => {
+  return authApiClient.post(url, data, config);
+};
+
+export const apiPut = async (url, data = {}, config = {}) => {
+  return authApiClient.put(url, data, config);
+};
+
+export const apiDelete = async (url, config = {}) => {
+  return authApiClient.delete(url, config);
+};
+
 export default authApiClient;
 export { authApiClient, createAuthApiClient, createDashboardApiClient, dashboardApiClient, connectMainSSE, connectZoneSSE, SSE_URLS };
 

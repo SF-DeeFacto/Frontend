@@ -1,4 +1,4 @@
-import { apiGet, apiPost } from './api.js';
+import { apiGet, apiPost } from './index.js';
 
 // 사용자 서비스 API
 export const userService = {
