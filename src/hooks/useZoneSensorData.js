@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { zoneData } from '../dummy/data/zoneData';
+import { getZoneSensorData } from '../dummy/data/zoneSensorData';
 import { groupSensorData, formatTime } from '../utils/sensorUtils';
 import { CONNECTION_STATE } from '../types/sensor';
 import { COMMON_ZONE_CONFIG } from '../config/zoneConfig';
@@ -12,23 +12,21 @@ export const useZoneSensorData = (zoneId) => {
 
   /**
    * Zone의 센서 데이터를 가져오는 함수
-   * 현재 시간을 기준으로 순환하는 더미 데이터를 반환
+   * 새로 만든 zoneSensorData에서 데이터를 가져옴
    */
-  const getZoneSensorData = useCallback(() => {
-    const zoneDataObj = zoneData[zoneId.toLowerCase()];
+  const getZoneSensorDataCallback = useCallback(() => {
+    const zoneDataObj = getZoneSensorData(zoneId);
     if (!zoneDataObj || zoneDataObj.length === 0) return {};
     
-    // 현재 시간을 기준으로 순환하는 데이터 선택
-    const now = Date.now();
-    const dataIndex = Math.floor((now / COMMON_ZONE_CONFIG.DATA_UPDATE_INTERVAL) % zoneDataObj.length);
-    const currentData = zoneDataObj[dataIndex];
+    // zoneSensorData는 배열의 첫 번째 요소에 모든 센서가 들어있음
+    const currentData = zoneDataObj[0];
     
     const sensors = {};
     currentData.sensors.forEach(sensor => {
       sensors[sensor.sensorId] = sensor;
     });
     
-    console.log(`🔄 ${zoneId} 데이터 인덱스 ${dataIndex} 사용 (${currentData.timestamp})`);
+    console.log(`🔄 ${zoneId} 존 센서 데이터 가져옴 (센서 개수: ${currentData.sensors.length}개)`);
     return sensors;
   }, [zoneId]);
 
@@ -36,13 +34,13 @@ export const useZoneSensorData = (zoneId) => {
    * 센서 데이터 업데이트 함수
    */
   const updateSensorData = useCallback(() => {
-    const rawSensorData = getZoneSensorData();
+    const rawSensorData = getZoneSensorDataCallback();
     const groupedSensors = groupSensorData(rawSensorData);
     
     setSensorData(groupedSensors);
     setLastUpdated(new Date().toLocaleTimeString());
-    console.log(`${zoneId}존 더미데이터 설정 완료:`, groupedSensors);
-  }, [getZoneSensorData, zoneId]);
+    console.log(`${zoneId}존 센서 데이터 설정 완료:`, groupedSensors);
+  }, [getZoneSensorDataCallback, zoneId]);
 
   // 초기화 및 데이터 설정
   useEffect(() => {
@@ -52,15 +50,15 @@ export const useZoneSensorData = (zoneId) => {
     setIsLoading(true);
     setConnectionState(CONNECTION_STATE.CONNECTING);
     
-    // 모든 Zone이 더미 데이터를 사용
-    console.log(`${zoneId}존 - 더미데이터 사용`);
+    // zoneSensorData 사용
+    console.log(`${zoneId}존 - zoneSensorData 사용`);
     setConnectionState(CONNECTION_STATE.CONNECTED);
     setIsLoading(false);
     
     // 초기 데이터 설정
     updateSensorData();
     
-    // 주기적으로 더미데이터 업데이트
+    // 주기적으로 데이터 업데이트 (타임스탬프 갱신)
     const intervalId = setInterval(updateSensorData, COMMON_ZONE_CONFIG.DATA_UPDATE_INTERVAL);
     
     return () => clearInterval(intervalId);
