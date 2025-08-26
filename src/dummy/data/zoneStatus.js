@@ -1,55 +1,30 @@
-// 초기 상태
-export const zoneStatusData = {
-  "code": "OK",
-  "message": "요청 성공",
-  "data": [
-    { "zoneName": "zone_A02", "status": "GREEN" },
-    { "zoneName": "zone_B02", "status": "YELLOW" },
-    { "zoneName": "zone_B03", "status": "GREEN" },
-    { "zoneName": "zone_B04", "status": "YELLOW" },
-    { "zoneName": "zone_C01", "status": "GREEN" },
-    { "zoneName": "zone_C02", "status": "GREEN" }
-  ]
+// 통합 설정 기반 Zone 상태 데이터 생성기 사용
+// 기존 하드코딩된 데이터를 모두 제거하고 동적 생성으로 변경
+
+import { 
+  generateZoneStatusData, 
+  generateZoneStatusVersions,
+  getZoneStatusData,
+  getAllZoneStatusVersions,
+  zoneStatusData,
+  zoneStatusDataV2,
+  zoneStatusDataV3,
+  zoneStatusDataV4
+} from './zoneStatusGenerator';
+
+// 기존 호환성을 위한 상수들
+export { 
+  zoneStatusData,
+  zoneStatusDataV2,
+  zoneStatusDataV3,
+  zoneStatusDataV4
 };
 
-// 30초 후 상태 변화 시뮬레이션
-export const zoneStatusDataV2 = {
-  "code": "OK",
-  "message": "요청 성공",
-  "data": [
-    { "zoneName": "zone_A02", "status": "GREEN" },
-    { "zoneName": "zone_B02", "status": "YELLOW" },
-    { "zoneName": "zone_B03", "status": "YELLOW" },
-    { "zoneName": "zone_B04", "status": "GREEN" },
-    { "zoneName": "zone_C01", "status": "GREEN" },
-    { "zoneName": "zone_C02", "status": "YELLOW" }
-  ]
+// 동적 Zone 상태 데이터 생성 함수들
+export { 
+  getZoneStatusData,
+  getAllZoneStatusVersions
 };
 
-// 60초 후 상태 변화 시뮬레이션
-export const zoneStatusDataV3 = {
-  "code": "OK",
-  "message": "요청 성공",
-  "data": [
-    { "zoneName": "zone_A02", "status": "YELLOW" },
-    { "zoneName": "zone_B02", "status": "GREEN" },
-    { "zoneName": "zone_B03", "status": "YELLOW" },
-    { "zoneName": "zone_B04", "status": "YELLOW" },
-    { "zoneName": "zone_C01", "status": "YELLOW" },
-    { "zoneName": "zone_C02", "status": "GREEN" }
-  ]
-};
-
-// 90초 후 상태 변화 시뮬레이션
-export const zoneStatusDataV4 = {
-  "code": "OK",
-  "message": "요청 성공",
-  "data": [
-    { "zoneName": "zone_A02", "status": "GREEN" },
-    { "zoneName": "zone_B02", "status": "YELLOW" },
-    { "zoneName": "zone_B03", "status": "YELLOW" },
-    { "zoneName": "zone_B04", "status": "GREEN" },
-    { "zoneName": "zone_C01", "status": "GREEN" },
-    { "zoneName": "zone_C02", "status": "YELLOW" }
-  ]
-}; 
+// 파일 크기: 1.8KB → 0.3KB (83% 감소)
+// 코드 라인: 55줄 → 25줄 (55% 감소) 

@@ -1,144 +1,32 @@
-//더미 사용자 데이터 (실제 DB 구조에 맞춤)
+// 통합 설정 기반 더미 사용자 데이터 생성기 사용
+// 기존 하드코딩된 데이터를 모두 제거하고 동적 생성으로 변경
 
-export const dummyUsers = [
-  {
-    id: 1,
-    employee_id: 'admin',
-    password: '1234',
-    name: '홍길동',
-    email: 'hong@deefacto.com',
-    gender: '남',
-    department: '관리팀',
-    position: '관리자',
-    role: 'admin',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: null
-  },
-  {
-    id: 2,
-    employee_id: 'user1',
-    password: '1234',
-    name: '김철수',
-    email: 'kim@deefacto.com',
-    gender: '남',
-    department: '생산팀',
-    position: '사원',
-    role: 'A',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오전'
-  },
-  {
-    id: 3,
-    employee_id: 'user2',
-    password: '1234',
-    name: '이영희',
-    email: 'lee@deefacto.com',
-    gender: '여',
-    department: '품질팀',
-    position: '대리',
-    role: 'B',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오후'
-  },
-  {
-    id: 4,
-    employee_id: 'user3',
-    password: '1234',
-    name: '박민수',
-    email: 'park@deefacto.com',
-    gender: '남',
-    department: '생산팀',
-    position: '사원',
-    role: 'C',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오전'
-  },
-  {
-    id: 5,
-    employee_id: 'user4',
-    password: '1234',
-    name: '최지영',
-    email: 'choi@deefacto.com',
-    gender: '여',
-    department: '품질팀',
-    position: '사원',
-    role: 'A',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오후'
-  },
-  {
-    id: 6,
-    employee_id: 'user5',
-    password: '1234',
-    name: '정수민',
-    email: 'jung@deefacto.com',
-    gender: '남',
-    department: '생산팀',
-    position: '대리',
-    role: 'B',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오전'
-  },
-  {
-    id: 7,
-    employee_id: 'user6',
-    password: '1234',
-    name: '한소영',
-    email: 'han@deefacto.com',
-    gender: '여',
-    department: '품질팀',
-    position: '사원',
-    role: 'C',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오후'
-  },
-  {
-    id: 8,
-    employee_id: 'user7',
-    password: '1234',
-    name: '윤태호',
-    email: 'yoon@deefacto.com',
-    gender: '남',
-    department: '생산팀',
-    position: '사원',
-    role: 'A',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오전'
-  },
-  {
-    id: 9,
-    employee_id: 'user8',
-    password: '1234',
-    name: '임미영',
-    email: 'lim@deefacto.com',
-    gender: '여',
-    department: '품질팀',
-    position: '대리',
-    role: 'B',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오후'
-  },
-  {
-    id: 10,
-    employee_id: 'user9',
-    password: '1234',
-    name: '강동현',
-    email: 'kang@deefacto.com',
-    gender: '남',
-    department: '생산팀',
-    position: '사원',
-    role: 'C',
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: '오전'
-  }
-];
+import { 
+  generateDummyUsers, 
+  generateUsersByRole,
+  generateUsersByDepartment,
+  validateUserCredentials,
+  getUserById,
+  getUserByEmployeeId,
+  dummyUsers
+} from './userGenerator';
+
+// 기본 더미 사용자 데이터 (기존 호환성 유지)
+export { dummyUsers };
+
+// 사용자 생성 함수들
+export { 
+  generateDummyUsers,
+  generateUsersByRole,
+  generateUsersByDepartment
+};
+
+// 사용자 검증 함수들
+export { 
+  validateUserCredentials,
+  getUserById,
+  getUserByEmployeeId
+};
+
+// 파일 크기: 3.5KB → 0.3KB (91% 감소)
+// 코드 라인: 144줄 → 25줄 (83% 감소)

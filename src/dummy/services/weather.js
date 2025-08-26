@@ -1,4 +1,12 @@
-import { getDummyWeatherResponse } from '../data/weather.js';
+// 통합 설정 기반 더미 날씨 서비스
+// 기존 하드코딩된 로직을 모두 제거하고 동적 생성으로 변경
+
+import { 
+  generateDummyWeatherData, 
+  generateWeatherTrend,
+  generateWeatherForDate,
+  generateDummyWeatherResponse 
+} from '../data/weatherGenerator';
 
 // 실제 날씨 API 호출 함수
 export const fetchWeatherData = async () => {
@@ -30,7 +38,20 @@ export const fetchWeatherData = async () => {
 
 // 더미 날씨 데이터 폴백 처리
 export const handleDummyWeatherFallback = () => {
-  const dummyResponse = getDummyWeatherResponse();
+  const dummyResponse = generateDummyWeatherResponse();
   console.log('더미 날씨 데이터 사용:', dummyResponse.data);
   return { success: true, data: dummyResponse.data };
-}; 
+};
+
+// 추가 날씨 서비스 함수들
+export const getWeatherTrend = (hours = 24) => {
+  return generateWeatherTrend(hours);
+};
+
+export const getWeatherForDate = (date) => {
+  return generateWeatherForDate(date);
+};
+
+export const getCurrentWeather = () => {
+  return generateDummyWeatherData();
+};
