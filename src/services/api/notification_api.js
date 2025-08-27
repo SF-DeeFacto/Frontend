@@ -9,9 +9,7 @@ export const notificationApi = {
   // 알림 목록 조회 (페이지네이션 및 필터링 지원)
   getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null) => {
     try {
-      if (isDev) {
-        console.log('알림 목록 조회 시작:', { page, size, isRead, isFlagged });
-      }
+
 
       const params = new URLSearchParams();
       if (page !== null) params.append('page', page);
@@ -21,9 +19,7 @@ export const notificationApi = {
       
       const response = await authApiClient.get(`/noti/list?${params.toString()}`);
       
-      if (isDev) {
-        console.log('알림 목록 조회 성공:', response.data);
-      }
+
       
       // 전체 응답 구조를 반환하여 페이지네이션 정보도 함께 사용할 수 있도록 함
       return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
@@ -56,15 +52,11 @@ export const notificationApi = {
   // 안읽은 알림 개수 조회
   getUnreadNotificationCount: async () => {
     try {
-      if (isDev) {
-        // console.log('안읽은 알림 개수 조회 시작');
-      }
+
 
       const response = await authApiClient.get('/noti/count');
       
-      if (isDev) {
-        console.log('안읽은 알림 개수 조회 성공:', response.data);
-      }
+
       
       return response.data;
     } catch (error) {
@@ -96,15 +88,11 @@ export const notificationApi = {
   // 알림 읽음 처리
   markNotificationAsRead: async (notificationId) => {
     try {
-      if (isDev) {
-        console.log(`알림 읽음 처리 시작: ${notificationId}`);
-      }
+
 
       const response = await authApiClient.post(`/noti/read/${notificationId}`);
       
-      if (isDev) {
-        console.log(`알림 읽음 처리 성공 (${notificationId}):`, response.data);
-      }
+
       
       return response.data;
     } catch (error) {
@@ -136,15 +124,11 @@ export const notificationApi = {
   // 알림 일괄 읽음 처리
   markAllNotificationsAsRead: async () => {
     try {
-      if (isDev) {
-        console.log('알림 일괄 읽음 처리 시작');
-      }
+
 
       const response = await authApiClient.post('/noti/read/all');
       
-      if (isDev) {
-        console.log('알림 일괄 읽음 처리 성공:', response.data);
-      }
+
       
       return response.data;
     } catch (error) {
@@ -176,15 +160,11 @@ export const notificationApi = {
   // 알림 즐겨찾기 설정/해제
   toggleNotificationFavorite: async (notificationId) => {
     try {
-      if (isDev) {
-        console.log(`알림 즐겨찾기 토글 시작: ${notificationId}`);
-      }
+
 
       const response = await authApiClient.post(`/noti/favorite/${notificationId}`);
       
-      if (isDev) {
-        console.log(`알림 즐겨찾기 토글 성공 (${notificationId}):`, response.data);
-      }
+
       
       return response.data;
     } catch (error) {

@@ -334,14 +334,7 @@ const Alarm = () => {
         setLoading(true);
         const response = await notificationApi.getNotifications(currentPage, pageSize);
         
-        console.log('API 응답:', response);
-        console.log('응답 타입:', typeof response);
-        console.log('response.content:', response?.content);
-        console.log('response.content 타입:', typeof response?.content);
-        console.log('Array.isArray(response.content):', Array.isArray(response?.content));
-        
         if (response && response.content && Array.isArray(response.content)) {
-          console.log('알림 개수:', response.content.length);
           // API 응답을 프론트엔드 형식에 맞게 매핑
           const mappedAlarms = response.content.map(notification => ({
             id: notification.notiId,
@@ -353,24 +346,21 @@ const Alarm = () => {
             time: notificationUtils.formatNotificationTime(notification.timestamp),
             zone: notification.zoneId.toUpperCase()
           }));
-          console.log('매핑된 알림:', mappedAlarms);
           setAlarms(mappedAlarms);
           
           // 페이지네이션 정보 설정
           setTotalPages(response.totalPages || 0);
           setTotalElements(response.totalElements || 0);
         } else {
-          console.log('응답 구조가 올바르지 않음:', response);
-          console.log('response가 존재하는가:', !!response);
-          console.log('response.content가 존재하는가:', !!response?.content);
+          console.log('알림 API 응답 구조 오류:', response);
           setAlarms([]);
           setTotalPages(0);
           setTotalElements(0);
         }
-      } catch (error) {
-        console.log('알림 API 호출 실패:', error);
-        setAlarms([]);
-      } finally {
+             } catch (error) {
+         console.error('알림 API 호출 실패:', error);
+         setAlarms([]);
+       } finally {
         setLoading(false);
       }
     };
@@ -393,11 +383,7 @@ const Alarm = () => {
     return true;
   });
 
-  // 디버깅을 위한 로그
-  console.log('alarms 상태:', alarms);
-  console.log('filteredAlarms:', filteredAlarms);
-  console.log('alarmType:', alarmType);
-  console.log('statusFilter:', statusFilter);
+
 
   // 알림 읽음 처리
   const handleMarkAsRead = (alarmId) => {
