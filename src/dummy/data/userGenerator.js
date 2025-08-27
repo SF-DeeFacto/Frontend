@@ -42,8 +42,8 @@ export const validateUserCredentials = (username, password) => {
   );
 };
 
-// ===== 더미 로그인/로그아웃 서비스 =====
-// ⚠️  실제 API 연동: src/services/api/auth.js의 login/logout 함수 사용 권장
+// ===== 더미 로그인 서비스 =====
+// ⚠️  실제 API 연동: src/services/api/auth.js의 login 함수 사용 권장
 // 이 더미 함수들은 개발/테스트용으로만 사용됨
 
 // 더미 로그인 처리 함수
@@ -74,40 +74,6 @@ export const handleDummyLogin = (credentials) => {
     console.log('더미 로그인 실패: 잘못된 사원번호 또는 비밀번호');
     return { success: false, error: '사원번호 또는 비밀번호가 잘못되었습니다.' };
   }
-};
-
-// 더미 로그아웃 처리 함수
-export const handleDummyLogout = () => {
-  console.log('더미 로그아웃 실행');
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('refresh_token');
-  localStorage.removeItem('employeeId');
-  console.log('더미 로그아웃 완료');
-  return { success: true };
-};
-
-// 더미 토큰 검증 함수
-export const validateDummyToken = () => {
-  const token = localStorage.getItem('token');
-  const user = localStorage.getItem('user');
-  
-  console.log('더미 토큰 검증:', { token: !!token, user: !!user });
-  
-  if (token && user) {
-    try {
-      const userData = JSON.parse(user);
-      console.log('더미 토큰 유효:', userData.name);
-      return { valid: true, user: userData };
-    } catch (error) {
-      console.log('더미 토큰 검증 실패: user 데이터 파싱 오류');
-      return { valid: false };
-    }
-  }
-  
-  console.log('더미 토큰 검증 실패: token 또는 user 없음');
-  return { valid: false };
 };
 
 // ===== API 폴백용 유저 서비스 =====

@@ -28,5 +28,5 @@ export {
 // 더미데이터 끝 (삭제)
 
 // 서비스들
-export { handleDummyLogin, handleDummyLogout, validateDummyToken, userService } from './data/userGenerator.js';
+export { handleDummyLogin, userService } from './data/userGenerator.js';
 export { fetchWeatherData } from './data/weather.js';
