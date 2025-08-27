@@ -228,23 +228,122 @@ const EmptyState = () => (
   </div>
 );
 
+// 페이지네이션 컴포넌트
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  if (totalPages <= 1) return null;
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 0; i < totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 2) {
+        for (let i = 0; i < 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages - 1);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(0);
+        pages.push('...');
+        for (let i = totalPages - 4; i < totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(0);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages - 1);
+      }
+    }
+    
+    return pages;
+  };
+
+  return (
+    <div className="flex items-center justify-center space-x-2 mt-6">
+      {/* 이전 페이지 버튼 */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 0}
+        className={`px-3 py-2 rounded-lg transition-colors ${
+          currentPage === 0
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        }`}
+      >
+        이전
+      </button>
+
+      {/* 페이지 번호들 */}
+      {getPageNumbers().map((page, index) => (
+        <button
+          key={index}
+          onClick={() => typeof page === 'number' && onPageChange(page)}
+          disabled={page === '...'}
+          className={`px-3 py-2 rounded-lg transition-colors ${
+            page === '...'
+              ? 'bg-transparent text-gray-400 cursor-default'
+              : page === currentPage
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          {page === '...' ? '...' : page + 1}
+        </button>
+      ))}
+
+      {/* 다음 페이지 버튼 */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages - 1}
+        className={`px-3 py-2 rounded-lg transition-colors ${
+          currentPage === totalPages - 1
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+        }`}
+      >
+        다음
+      </button>
+    </div>
+  );
+};
+
 // 메인 알림 컴포넌트
 const Alarm = () => {
   const [alarmType, setAlarmType] = useState('전체');
   const [statusFilter, setStatusFilter] = useState('전체');
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const pageSize = 7; // 페이지당 7개 알림
 
   // 알림 데이터 가져오기
   useEffect(() => {
     const fetchAlarms = async () => {
       try {
         setLoading(true);
-        const response = await notificationApi.getNotifications();
+        const response = await notificationApi.getNotifications(currentPage, pageSize);
         
-        if (response && Array.isArray(response)) {
+        console.log('API 응답:', response);
+        console.log('응답 타입:', typeof response);
+        console.log('response.content:', response?.content);
+        console.log('response.content 타입:', typeof response?.content);
+        console.log('Array.isArray(response.content):', Array.isArray(response?.content));
+        
+        if (response && response.content && Array.isArray(response.content)) {
+          console.log('알림 개수:', response.content.length);
           // API 응답을 프론트엔드 형식에 맞게 매핑
-          const mappedAlarms = response.map(notification => ({
+          const mappedAlarms = response.content.map(notification => ({
             id: notification.notiId,
             type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
             status: notification.readStatus ? '읽음' : '안읽음',
@@ -254,9 +353,19 @@ const Alarm = () => {
             time: notificationUtils.formatNotificationTime(notification.timestamp),
             zone: notification.zoneId.toUpperCase()
           }));
+          console.log('매핑된 알림:', mappedAlarms);
           setAlarms(mappedAlarms);
+          
+          // 페이지네이션 정보 설정
+          setTotalPages(response.totalPages || 0);
+          setTotalElements(response.totalElements || 0);
         } else {
+          console.log('응답 구조가 올바르지 않음:', response);
+          console.log('response가 존재하는가:', !!response);
+          console.log('response.content가 존재하는가:', !!response?.content);
           setAlarms([]);
+          setTotalPages(0);
+          setTotalElements(0);
         }
       } catch (error) {
         console.log('알림 API 호출 실패:', error);
@@ -267,7 +376,7 @@ const Alarm = () => {
     };
 
     fetchAlarms();
-  }, []);
+  }, [currentPage]);
 
   // 필터링된 알림 목록
   const filteredAlarms = alarms.filter(alarm => {
@@ -283,6 +392,12 @@ const Alarm = () => {
     
     return true;
   });
+
+  // 디버깅을 위한 로그
+  console.log('alarms 상태:', alarms);
+  console.log('filteredAlarms:', filteredAlarms);
+  console.log('alarmType:', alarmType);
+  console.log('statusFilter:', statusFilter);
 
   // 알림 읽음 처리
   const handleMarkAsRead = (alarmId) => {
@@ -317,6 +432,22 @@ const Alarm = () => {
     );
   };
 
+  // 페이지 변경 핸들러
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    // 페이지 변경 시 스크롤을 맨 위로 이동
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // 필터 변경 시 페이지를 0으로 리셋
+  const handleFilterChange = (newType, newStatus) => {
+    if (newType !== alarmType || newStatus !== statusFilter) {
+      setCurrentPage(0);
+      setAlarmType(newType);
+      setStatusFilter(newStatus);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -324,34 +455,48 @@ const Alarm = () => {
       {/* 상단 필터 섹션 */}
       <div className="bg-white rounded-lg p-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <AlarmTypeToggle 
-            alarmType={alarmType} 
-            setAlarmType={setAlarmType} 
-          />
-          <StatusFilterTabs 
-            statusFilter={statusFilter} 
-            setStatusFilter={setStatusFilter} 
-          />
+                     <AlarmTypeToggle 
+             alarmType={alarmType} 
+             setAlarmType={(type) => handleFilterChange(type, statusFilter)} 
+           />
+           <StatusFilterTabs 
+             statusFilter={statusFilter} 
+             setStatusFilter={(status) => handleFilterChange(alarmType, status)} 
+           />
         </div>
       </div>
 
 
 
-      {/* 알림 리스트 */}
-      <div className="space-y-3">
-        {filteredAlarms.map((alarm) => (
-          <AlarmCard
-            key={alarm.id}
-            alarm={alarm}
-            onMarkAsRead={handleMarkAsRead}
-            onMarkAsUnread={handleMarkAsUnread}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        ))}
-      </div>
+             {/* 알림 리스트 */}
+       <div className="space-y-3">
+         {filteredAlarms.map((alarm) => (
+           <AlarmCard
+             key={alarm.id}
+             alarm={alarm}
+             onMarkAsRead={handleMarkAsRead}
+             onMarkAsUnread={handleMarkAsUnread}
+             onToggleFavorite={handleToggleFavorite}
+           />
+         ))}
+       </div>
 
-      {/* 빈 상태 */}
-      {filteredAlarms.length === 0 && <EmptyState />}
+       {/* 빈 상태 */}
+       {filteredAlarms.length === 0 && <EmptyState />}
+
+       {/* 페이지 정보 및 페이지네이션 */}
+       {filteredAlarms.length > 0 && (
+         <>
+           <div className="text-center text-sm text-gray-500 mt-4">
+             총 {totalElements}개의 알림 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
+           </div>
+           <Pagination
+             currentPage={currentPage}
+             totalPages={totalPages}
+             onPageChange={handlePageChange}
+           />
+         </>
+       )}
     </div>
   );
 };

@@ -25,8 +25,8 @@ export const notificationApi = {
         console.log('알림 목록 조회 성공:', response.data);
       }
       
-      // response.data.data.content에 실제 알림 목록이 있음
-      return response.data.data.content || [];
+      // 전체 응답 구조를 반환하여 페이지네이션 정보도 함께 사용할 수 있도록 함
+      return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
     } catch (error) {
       console.error('=== 알림 목록 조회 에러 상세 정보 ===');
       console.error('Get notifications error:', error);
