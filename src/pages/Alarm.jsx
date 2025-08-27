@@ -389,36 +389,94 @@ const Alarm = () => {
 
 
   // 알림 읽음 처리
-  const handleMarkAsRead = (alarmId) => {
-    setAlarms(prev => 
-      prev.map(alarm => 
-        alarm.id === alarmId 
-          ? { ...alarm, isRead: true, status: '읽음' }
-          : alarm
-      )
-    );
+  const handleMarkAsRead = async (alarmId) => {
+    try {
+      // API 호출하여 읽음 처리
+      await notificationApi.markNotificationAsRead(alarmId);
+      
+      // 로컬 상태 업데이트
+      setAlarms(prev => 
+        prev.map(alarm => 
+          alarm.id === alarmId 
+            ? { ...alarm, isRead: true, status: '읽음' }
+            : alarm
+        )
+      );
+      
+      // 헤더의 알림 카운터 업데이트
+      updateHeaderAlarmCount();
+      
+      console.log(`알림 ${alarmId} 읽음 처리 완료`);
+    } catch (error) {
+      console.error('알림 읽음 처리 실패:', error);
+      // 에러 발생 시 사용자에게 알림 (선택사항)
+      alert('알림 읽음 처리에 실패했습니다. 다시 시도해주세요.');
+    }
   };
 
   // 알림 읽음 해제 처리 (읽음 → 안읽음)
-  const handleMarkAsUnread = (alarmId) => {
-    setAlarms(prev => 
-      prev.map(alarm => 
-        alarm.id === alarmId 
-          ? { ...alarm, isRead: false, status: '안읽음' }
-          : alarm
-      )
-    );
+  const handleMarkAsUnread = async (alarmId) => {
+    try {
+      // 읽음 해제는 API가 지원하지 않을 수 있으므로, 
+      // 현재는 로컬 상태만 변경하고 API 호출은 하지 않음
+      setAlarms(prev => 
+        prev.map(alarm => 
+          alarm.id === alarmId 
+            ? { ...alarm, isRead: false, status: '안읽음' }
+            : alarm
+        )
+      );
+      
+      // 헤더의 알림 카운터 업데이트
+      updateHeaderAlarmCount();
+      
+      console.log(`알림 ${alarmId} 읽음 해제 완료`);
+    } catch (error) {
+      console.error('알림 읽음 해제 실패:', error);
+    }
   };
 
   // 즐겨찾기 토글
-  const handleToggleFavorite = (alarmId) => {
-    setAlarms(prev => 
-      prev.map(alarm => 
-        alarm.id === alarmId 
-          ? { ...alarm, isFavorite: !alarm.isFavorite }
-          : alarm
-      )
-    );
+  const handleToggleFavorite = async (alarmId) => {
+    try {
+      // API 호출하여 즐겨찾기 토글
+      await notificationApi.toggleNotificationFavorite(alarmId);
+      
+      // 로컬 상태 업데이트
+      setAlarms(prev => 
+        prev.map(alarm => 
+          alarm.id === alarmId 
+            ? { ...alarm, isFavorite: !alarm.isFavorite }
+            : alarm
+        )
+      );
+      
+      console.log(`알림 ${alarmId} 즐겨찾기 토글 완료`);
+    } catch (error) {
+      console.error('즐겨찾기 토글 실패:', error);
+      // 에러 발생 시 사용자에게 알림 (선택사항)
+      alert('즐겨찾기 설정에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  // 헤더의 알림 카운터 업데이트
+  const updateHeaderAlarmCount = async () => {
+    try {
+      const response = await notificationApi.getUnreadNotificationCount();
+      if (response && response.data !== undefined) {
+        // localStorage에 새로운 카운트 저장하여 Header 컴포넌트가 감지할 수 있도록 함
+        localStorage.setItem('unread_alarm_count', response.data.toString());
+        
+        // storage 이벤트를 수동으로 발생시켜 Header 컴포넌트가 즉시 업데이트되도록 함
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'unread_alarm_count',
+          newValue: response.data.toString(),
+          oldValue: localStorage.getItem('unread_alarm_count')
+        }));
+      }
+    } catch (error) {
+      console.error('알림 카운터 업데이트 실패:', error);
+    }
   };
 
   // 페이지 변경 핸들러
@@ -444,48 +502,46 @@ const Alarm = () => {
       {/* 상단 필터 섹션 */}
       <div className="bg-white rounded-lg p-4 shadow-sm">
         <div className="flex items-center justify-between">
-                     <AlarmTypeToggle 
-             alarmType={alarmType} 
-             setAlarmType={(type) => handleFilterChange(type, statusFilter)} 
-           />
-           <StatusFilterTabs 
-             statusFilter={statusFilter} 
-             setStatusFilter={(status) => handleFilterChange(alarmType, status)} 
-           />
+          <AlarmTypeToggle 
+            alarmType={alarmType} 
+            setAlarmType={(type) => handleFilterChange(type, statusFilter)} 
+          />
+          <StatusFilterTabs 
+            statusFilter={statusFilter} 
+            setStatusFilter={(status) => handleFilterChange(alarmType, status)} 
+          />
         </div>
       </div>
 
+      {/* 알림 리스트 */}
+      <div className="space-y-3">
+        {filteredAlarms.map((alarm) => (
+          <AlarmCard
+            key={alarm.id}
+            alarm={alarm}
+            onMarkAsRead={handleMarkAsRead}
+            onMarkAsUnread={handleMarkAsUnread}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        ))}
+      </div>
 
+      {/* 빈 상태 */}
+      {filteredAlarms.length === 0 && <EmptyState />}
 
-             {/* 알림 리스트 */}
-       <div className="space-y-3">
-         {filteredAlarms.map((alarm) => (
-           <AlarmCard
-             key={alarm.id}
-             alarm={alarm}
-             onMarkAsRead={handleMarkAsRead}
-             onMarkAsUnread={handleMarkAsUnread}
-             onToggleFavorite={handleToggleFavorite}
-           />
-         ))}
-       </div>
-
-       {/* 빈 상태 */}
-       {filteredAlarms.length === 0 && <EmptyState />}
-
-       {/* 페이지 정보 및 페이지네이션 */}
-       {filteredAlarms.length > 0 && (
-         <>
-           <div className="text-center text-sm text-gray-500 mt-4">
-             총 {totalElements}개의 알림 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
-           </div>
-           <Pagination
-             currentPage={currentPage}
-             totalPages={totalPages}
-             onPageChange={handlePageChange}
-           />
-         </>
-       )}
+      {/* 페이지 정보 및 페이지네이션 */}
+      {filteredAlarms.length > 0 && (
+        <>
+          <div className="text-center text-sm text-gray-500 mt-4">
+            총 {totalElements}개의 알림 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
+          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
     </div>
   );
 };
