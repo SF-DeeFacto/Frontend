@@ -39,6 +39,7 @@ const Login = () => {
     );
     
     if (dummyUser) {
+      // 이거 진짜 삭제 해야함.
       // 더미 토큰 생성
       const dummyToken = 'dummy_token_' + Date.now();
       const dummyRefreshToken = 'dummy_refresh_token_' + Date.now();

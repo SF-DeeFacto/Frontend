@@ -53,6 +53,7 @@ export const handleDummyLogin = (credentials) => {
   const user = validateUserCredentials(credentials.username, credentials.password);
 
   if (user) {
+    // 이거 진짜 삭제해야함. 
     // 더미 토큰 생성 (실제로는 JWT 토큰이어야 함)
     const dummyToken = `dummy_token_${Date.now()}`;
     
