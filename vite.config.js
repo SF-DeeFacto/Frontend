@@ -26,6 +26,7 @@ export default defineConfig({
         // }
       },
       //User Service 직접 연결 (API Gateway 미실행시 임시)
+      // 알림 API도 이 프록시를 통해 UserService로 전달됩니다
       '/api': {
         target: 'http://localhost:8080',
         changeOrigin: true,

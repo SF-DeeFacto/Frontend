@@ -4,13 +4,18 @@ import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { fetchWeatherData } from '../../dummy/services/weather';
-import { dashboardApi } from '../../services/api/dashboard_api';
+import { notificationApi } from '../../services/api/notification_api';
 
 const Header = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
+  
+  // alarmCount 상태 변화 감지 (배포 시 주석 처리)
+  // useEffect(() => {
+  //   console.log('alarmCount 상태 변경됨:', alarmCount);
+  // }, [alarmCount]);
 
   // 사용자 정보 로드 및 인증 체크
   useEffect(() => {
@@ -87,13 +92,18 @@ const Header = () => {
   useEffect(() => {
     const fetchAlarmCount = async () => {
       try {
-        const response = await dashboardApi.getNotifications();
-        if (response?.data && Array.isArray(response.data)) {
-          // 안읽음 알림 개수만 카운트
-          const unreadCount = response.data.filter(alarm => !alarm.isRead).length;
-          setAlarmCount(unreadCount);
+        const response = await notificationApi.getUnreadNotificationCount();
+        // console.log('전체 응답:', response);
+        // console.log('response.data:', response.data);
+        // console.log('response.data.data:', response.data.data);
+        
+        if (response?.data !== undefined) {
+          // API에서 직접 안읽음 개수 반환 (response.data에 숫자 값)
+          // console.log('설정할 알림 개수:', response.data);
+          setAlarmCount(response.data);
         } else {
           // API 응답이 없을 경우 0으로 설정
+          // console.log('응답 데이터가 없어서 0으로 설정');
           setAlarmCount(0);
         }
       } catch (error) {
