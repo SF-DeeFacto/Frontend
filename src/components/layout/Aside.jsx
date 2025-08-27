@@ -238,34 +238,13 @@ const Aside = () => {
       label: "Logout",
       onClick: async () => {
         try {
-          const token = localStorage.getItem('access_token');
-          
-          // 실제 백엔드 API 호출 시도
-          const response = await fetch('/api/auth/logout', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          });
-
-          if (response.ok) {
-            // 실제 백엔드 응답 처리
-            console.log('백엔드 로그아웃 성공');
-            await logout(); // 로컬 스토리지 정리
-            alert("로그아웃되었습니다.");
-          } else {
-            // 백엔드 API가 실패하면 로컬 로그아웃으로 처리
-            console.log('백엔드 API 호출 실패, 로컬 로그아웃으로 처리');
-            await logout();
-            alert("로그아웃되었습니다.");
-          }
-          
+          // auth.js의 logout 함수 사용 (일관성 확보)
+          await logout();
+          alert("로그아웃되었습니다.");
           navigate("/login");
         } catch (error) {
-          // 네트워크 오류 등으로 API 호출이 실패하면 로컬 로그아웃으로 처리
-          console.log('API 호출 중 오류 발생, 로컬 로그아웃으로 처리:', error);
-          await logout();
+          console.error('로그아웃 중 오류 발생:', error);
+          // 에러가 발생해도 로컬 스토리지는 이미 정리됨 (logout 함수에서 처리)
           alert("로그아웃되었습니다.");
           navigate("/login");
         }
