@@ -8,7 +8,7 @@ import { connectMainSSE, connectZoneSSE, SSE_URLS } from '../../services/sse';
 import { dashboardApiClient } from '../../services/index';
 
 // 더미 데이터 생성 함수들 import
-import { generateDummyDashboardData, generateDummyZoneData, generateDummyNotifications } from '../data/zoneDataGenerator';
+import { generateDummyDashboardData, generateDummyZoneData } from '../data/zoneDataGenerator';
 
 // 일반 HTTP API 함수들 (API 실패 시 더미 데이터 폴백)
 export const dashboardApi = {
@@ -79,14 +79,8 @@ export const dashboardApi = {
       console.log('알림 조회 성공:', response.data);
       return response.data;
     } catch (error) {
-      console.log('알림 조회 API 실패, 더미 데이터로 폴백:', error.message);
-      // 더미 알림 데이터로 폴백
-      const dummyNotifications = generateDummyNotifications();
-      return {
-        success: true,
-        message: '더미 환경에서 알림 데이터를 제공합니다.',
-        data: dummyNotifications
-      };
+      console.log('알림 조회 API 실패:', error.message);
+      throw new Error('알림 조회에 실패했습니다.');
     }
   }
 };

@@ -44,20 +44,20 @@ export const generateDummyUsers = (count = 10) => {
   const users = [];
   
   // 기본 관리자 계정
-  users.push({
-    id: 1,
-    employee_id: 'admin',
-    password: '1234',
-    name: '홍길동',
-    email: 'hong@deefacto.com',
-    gender: '남',
-    department: '관리팀',
-    position: '관리자',
-    role: USER_ROLES.ADMIN,
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: null
-  });
+  // users.push({
+  //   id: 1,
+  //   employee_id: 'admin',
+  //   password: '1234',
+  //   name: '홍길동',
+  //   email: 'hong@deefacto.com',
+  //   gender: '남',
+  //   department: '관리팀',
+  //   position: '관리자',
+  //   role: USER_ROLES.ADMIN,
+  //   created_at: '2024-01-01 09:00:00',
+  //   updated_at: '2024-01-01 09:00:00',
+  //   shift: null
+  // });
 
   // 일반 사용자 계정들 생성
   for (let i = 2; i <= count; i++) {

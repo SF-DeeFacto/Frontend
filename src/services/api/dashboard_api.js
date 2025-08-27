@@ -46,21 +46,5 @@ export const dashboardApi = {
       console.error(' 대시보드 설정 업데이트 실패:', error);
       throw error;
     }
-  },
-
-  // 알림 조회
-  getNotifications: async () => {
-    console.log(' 알림 조회 시작');
-    try {
-      const response = await dashboardApiClient.get('/home/notifications');
-      console.log(' 알림 조회 성공:', response.data);
-      return response.data;
-    } catch (error) {
-      console.error(' 알림 조회 실패:', error);
-      throw error;
-    }
   }
 };
-
-// SSE 연결 함수들을 다시 export (index.js에서 가져온 것들)
-export { connectMainSSE, connectZoneSSE, SSE_URLS };

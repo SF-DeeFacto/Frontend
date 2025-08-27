@@ -8,69 +8,69 @@ import Icon from '../components/common/Icon';
 const ALARM_TYPES = ['전체', '알림', '리포트'];
 const STATUS_FILTERS = ['전체', '즐겨찾기', '안읽음', '읽음'];
 
-// 더미 알림 데이터
-const DUMMY_ALARMS = [
-  {
-    id: 1,
-    type: '알림',
-    status: '안읽음',
-    isFavorite: false,
-    isRead: false,
-    message: 'Zone A 미세먼지 임계치 초과',
-    time: '7분전',
-    zone: 'A01'
-  },
-  {
-    id: 2,
-    type: '리포트',
-    status: '읽음',
-    isFavorite: true,
-    isRead: true,
-    message: '정기 리포트 생성',
-    time: '15분전',
-    zone: 'B01'
-  },
-  {
-    id: 3,
-    type: '알림',
-    status: '안읽음',
-    isFavorite: false,
-    isRead: false,
-    message: 'Zone B 온도 센서 이상 감지',
-    time: '23분전',
-    zone: 'B02'
-  },
-  {
-    id: 4,
-    type: '알림',
-    status: '읽음',
-    isFavorite: false,
-    isRead: true,
-    message: 'Zone C 습도 정상화',
-    time: '1시간전',
-    zone: 'C01'
-  },
-  {
-    id: 5,
-    type: '리포트',
-    status: '읽음',
-    isFavorite: true,
-    isRead: true,
-    message: '일일 센서 데이터 요약',
-    time: '2시간전',
-    zone: '전체'
-  },
-  {
-    id: 6,
-    type: '알림',
-    status: '안읽음',
-    isFavorite: false,
-    isRead: false,
-    message: 'Zone A 압력 센서 교체 필요',
-    time: '3시간전',
-    zone: 'A02'
-  }
-];
+// 더미 알림 데이터 (실제 API 연동 시 제거)
+// const DUMMY_ALARMS = [
+//   {
+//     id: 1,
+//     type: '알림',
+//     status: '안읽음',
+//     isFavorite: false,
+//     isRead: false,
+//     message: 'Zone A 미세먼지 임계치 초과',
+//     time: '7분전',
+//     zone: 'A01'
+//   },
+//   {
+//     id: 2,
+//     type: '리포트',
+//     status: '읽음',
+//     isFavorite: true,
+//     isRead: true,
+//     message: '정기 리포트 생성',
+//     time: '15분전',
+//     zone: 'B01'
+//   },
+//   {
+//     id: 3,
+//     type: '알림',
+//     status: '안읽음',
+//     isFavorite: false,
+//     isRead: false,
+//     message: 'Zone B 온도 센서 이상 감지',
+//     time: '23분전',
+//     zone: 'B02'
+//   },
+//   {
+//     id: 4,
+//     type: '알림',
+//     status: '읽음',
+//     isFavorite: false,
+//     isRead: true,
+//     message: 'Zone C 습도 정상화',
+//     time: '1시간전',
+//     zone: 'C01'
+//   },
+//   {
+//     id: 5,
+//     type: '리포트',
+//     status: '읽음',
+//     isFavorite: true,
+//     isRead: true,
+//     message: '일일 센서 데이터 요약',
+//     time: '2시간전',
+//     zone: '전체'
+//   },
+//   {
+//     id: 6,
+//     type: '알림',
+//     status: '안읽음',
+//     isFavorite: false,
+//     isRead: false,
+//     message: 'Zone A 압력 센서 교체 필요',
+//     time: '3시간전',
+//     zone: 'A02'
+//   }
+// ];
 
 // 유틸리티 함수들
 const getStatusColor = (status) => {
@@ -245,11 +245,11 @@ const Alarm = () => {
         if (response?.data) {
           setAlarms(response.data);
         } else {
-          setAlarms(DUMMY_ALARMS);
+          setAlarms([]);
         }
       } catch (error) {
-        console.log('알림 API 호출 실패, 더미 데이터 사용:', error);
-        setAlarms(DUMMY_ALARMS);
+        console.log('알림 API 호출 실패:', error);
+        setAlarms([]);
       } finally {
         setLoading(false);
       }

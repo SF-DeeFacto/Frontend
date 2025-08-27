@@ -10,7 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
-  const [alarmCount, setAlarmCount] = useState(3); // 기본값을 3으로 설정
+  const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
 
   // 사용자 정보 로드 및 인증 체크
   useEffect(() => {
@@ -93,13 +93,13 @@ const Header = () => {
           const unreadCount = response.data.filter(alarm => !alarm.isRead).length;
           setAlarmCount(unreadCount);
         } else {
-          // API 실패 시 더미 데이터로 카운트
-          setAlarmCount(3);
+          // API 응답이 없을 경우 0으로 설정
+          setAlarmCount(0);
         }
       } catch (error) {
-        console.log('알림 개수 API 호출 실패, 더미 데이터 사용:', error);
-        // 더미 데이터로 카운트
-        setAlarmCount(3);
+        console.log('알림 개수 API 호출 실패:', error);
+        // API 실패 시 0으로 설정
+        setAlarmCount(0);
       }
     };
 
