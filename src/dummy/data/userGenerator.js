@@ -1,49 +1,19 @@
-// 통합 설정 기반 더미 사용자 데이터 생성기
+// 통합 유저 더미데이터 및 서비스
+// ⚠️  더미데이터 삭제 시 참고사항:
+// 1. src/services/api/auth.js - 실제 로그인/로그아웃 API 연동 완료 ✅
+// 2. src/services/userService.js - 실제 사용자 관리 API 연동 완료 ✅
+// 3. 이 파일의 더미데이터는 개발/테스트용으로만 사용됨
 
 // 사용자 역할 정의
 const USER_ROLES = {
-  ADMIN: 'admin',
-  USER_A: 'A',
-  USER_B: 'B',
-  USER_C: 'C'
-};
-
-// 부서 정의
-const DEPARTMENTS = ['관리팀', '생산팀', '품질팀', '기술팀', '영업팀'];
-
-// 직급 정의
-const POSITIONS = ['사원', '대리', '과장', '차장', '부장', '이사'];
-
-// 성별 정의
-const GENDERS = ['남', '여'];
-
-// 근무 교대 정의
-const SHIFTS = ['오전', '오후', '야간', null];
-
-// 랜덤 항목 선택 함수
-const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
-
-// 랜덤 이메일 생성
-const generateEmail = (name, company = 'deefacto.com') => {
-  const domains = ['gmail.com', 'naver.com', 'daum.net', company];
-  const domain = getRandomItem(domains);
-  const randomSuffix = Math.floor(Math.random() * 1000);
-  return `${name}${randomSuffix}@${domain}`;
-};
-
-// 랜덤 날짜 생성 (최근 1년 내)
-const generateRandomDate = () => {
-  const now = new Date();
-  const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-  const randomTime = oneYearAgo.getTime() + Math.random() * (now.getTime() - oneYearAgo.getTime());
-  return new Date(randomTime).toISOString().slice(0, 19).replace('T', ' ');
+  ADMIN: 'admin'
 };
 
 // 더미 사용자 데이터 생성
-export const generateDummyUsers = (count = 10) => {
+export const generateDummyUsers = (count = 1) => {
   const users = [];
   
-  // 기본 관리자 계정
+  // 기본 관리자 계정만 유지
   users.push({
     id: 1,
     employee_id: 'admin',
@@ -59,60 +29,222 @@ export const generateDummyUsers = (count = 10) => {
     shift: null
   });
 
-  // 일반 사용자 계정들 생성
-  for (let i = 2; i <= count; i++) {
-    const name = `사용자${i}`;
-    const role = getRandomItem(Object.values(USER_ROLES));
-    const department = getRandomItem(DEPARTMENTS);
-    const position = getRandomItem(POSITIONS);
-    const gender = getRandomItem(GENDERS);
-    const shift = getRandomItem(SHIFTS);
-    
-    users.push({
-      id: i,
-      employee_id: `user${i}`,
-      password: '1234',
-      name,
-      email: generateEmail(name),
-      gender,
-      department,
-      position,
-      role,
-      created_at: generateRandomDate(),
-      updated_at: generateRandomDate(),
-      shift
-    });
-  }
-
   return users;
 };
 
-// 특정 역할의 사용자만 생성
-export const generateUsersByRole = (role, count = 5) => {
-  const allUsers = generateDummyUsers(count * 2);
-  return allUsers.filter(user => user.role === role);
-};
+// 기본 더미 사용자 데이터
+export const dummyUsers = generateDummyUsers(1);
 
-// 특정 부서의 사용자만 생성
-export const generateUsersByDepartment = (department, count = 5) => {
-  const allUsers = generateDummyUsers(count * 2);
-  return allUsers.filter(user => user.department === department);
-};
-
-// 기본 더미 사용자 데이터 (기존 호환성 유지)
-export const dummyUsers = generateDummyUsers(10);
-
-// 사용자 검증 함수들
+// 사용자 검증 함수
 export const validateUserCredentials = (username, password) => {
   return dummyUsers.find(user => 
     user.employee_id === username && user.password === password
   );
 };
 
-export const getUserById = (id) => {
-  return dummyUsers.find(user => user.id === id);
+// ===== 더미 로그인/로그아웃 서비스 =====
+// ⚠️  실제 API 연동: src/services/api/auth.js의 login/logout 함수 사용 권장
+// 이 더미 함수들은 개발/테스트용으로만 사용됨
+
+// 더미 로그인 처리 함수
+export const handleDummyLogin = (credentials) => {
+  console.log('더미 로그인 시도:', { username: credentials.username });
+  
+  const user = validateUserCredentials(credentials.username, credentials.password);
+
+  if (user) {
+    // 더미 토큰 생성 (실제로는 JWT 토큰이어야 함)
+    const dummyToken = `dummy_token_${Date.now()}`;
+    
+    // 로컬 스토리지에 저장
+    localStorage.setItem('token', dummyToken);
+    localStorage.setItem('user', JSON.stringify({
+      id: user.id,
+      employee_id: user.employee_id,
+      name: user.name,
+      email: user.email,
+      department: user.department,
+      position: user.position,
+      role: user.role
+    }));
+
+    console.log('더미 로그인 성공:', user.name);
+    return { success: true, user };
+  } else {
+    console.log('더미 로그인 실패: 잘못된 사원번호 또는 비밀번호');
+    return { success: false, error: '사원번호 또는 비밀번호가 잘못되었습니다.' };
+  }
 };
 
-export const getUserByEmployeeId = (employeeId) => {
-  return dummyUsers.find(user => user.employee_id === employeeId);
+// 더미 로그아웃 처리 함수
+export const handleDummyLogout = () => {
+  console.log('더미 로그아웃 실행');
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('employeeId');
+  console.log('더미 로그아웃 완료');
+  return { success: true };
+};
+
+// 더미 토큰 검증 함수
+export const validateDummyToken = () => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  
+  console.log('더미 토큰 검증:', { token: !!token, user: !!user });
+  
+  if (token && user) {
+    try {
+      const userData = JSON.parse(user);
+      console.log('더미 토큰 유효:', userData.name);
+      return { valid: true, user: userData };
+    } catch (error) {
+      console.log('더미 토큰 검증 실패: user 데이터 파싱 오류');
+      return { valid: false };
+    }
+  }
+  
+  console.log('더미 토큰 검증 실패: token 또는 user 없음');
+  return { valid: false };
+};
+
+// ===== API 폴백용 유저 서비스 =====
+// ⚠️  실제 API 연동: src/services/userService.js의 함수들 사용 권장
+// 이 더미 함수들은 API 실패 시 폴백용으로만 사용됨
+
+// 사용자 서비스 API (API 실패 시 더미 데이터 폴백)
+export const userService = {
+  // 현재 로그인한 사용자의 프로필 정보 조회
+  getProfile: async () => {
+    try {
+      const response = await fetch('/user/info/profile');
+      return response.data;
+    } catch (error) {
+      console.log('프로필 조회 API 실패, 더미 데이터로 폴백:', error.message);
+      // 더미 사용자 데이터로 폴백
+      const dummyUser = dummyUsers[0]; // 첫 번째 더미 사용자를 현재 사용자로 가정
+      return {
+        id: dummyUser.id,
+        employee_id: dummyUser.employee_id,
+        name: dummyUser.name,
+        email: dummyUser.email,
+        department: dummyUser.department,
+        position: dummyUser.position,
+        role: dummyUser.role
+      };
+    }
+  },
+
+  // 사용자 목록 조회 (관리자용)
+  getUsers: async (page = 0, size = 10, name = '', email = '') => {
+    try {
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        ...(name && { name }),
+        ...(email && { email })
+      });
+      
+      const response = await fetch(`/user/info/search?${params}`);
+      return response.data;
+    } catch (error) {
+      console.log('사용자 목록 조회 API 실패, 더미 데이터로 폴백:', error.message);
+      // 더미 사용자 데이터로 폴백
+      let filteredUsers = [...dummyUsers];
+      
+      if (name) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.name.toLowerCase().includes(name.toLowerCase())
+        );
+      }
+      
+      if (email) {
+        filteredUsers = filteredUsers.filter(user => 
+          user.email.toLowerCase().includes(email.toLowerCase())
+        );
+      }
+      
+      // 페이지네이션 적용
+      const startIndex = page * size;
+      const endIndex = startIndex + size;
+      const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+      
+      return {
+        content: paginatedUsers,
+        totalElements: filteredUsers.length,
+        totalPages: Math.ceil(filteredUsers.length / size),
+        currentPage: page,
+        size: size
+      };
+    }
+  },
+
+  // 사용자 등록 (관리자용)
+  registerUser: async (userData) => {
+    try {
+      const response = await fetch('/auth/register', { method: 'POST', body: JSON.stringify(userData) });
+      return response.data;
+    } catch (error) {
+      console.log('사용자 등록 API 실패, 더미 응답으로 폴백:', error.message);
+      // 더미 성공 응답으로 폴백
+      return {
+        success: true,
+        message: '더미 환경에서 사용자가 등록되었습니다.',
+        data: {
+          id: Date.now(),
+          ...userData
+        }
+      };
+    }
+  },
+
+  // 사용자 정보 수정 (관리자용)
+  updateUser: async (userData) => {
+    try {
+      const response = await fetch('/user/info/change', { method: 'POST', body: JSON.stringify(userData) });
+      return response.data;
+    } catch (error) {
+      console.log('사용자 정보 수정 API 실패, 더미 응답으로 폴백:', error.message);
+      // 더미 성공 응답으로 폴백
+      return {
+        success: true,
+        message: '더미 환경에서 사용자 정보가 수정되었습니다.',
+        data: userData
+      };
+    }
+  },
+
+  // 사용자 삭제 (관리자용)
+  deleteUser: async (employeeId) => {
+    try {
+      const response = await fetch('/user/delete', { method: 'POST', body: JSON.stringify({ employeeId }) });
+      return response.data;
+    } catch (error) {
+      console.log('사용자 삭제 API 실패, 더미 응답으로 폴백:', error.message);
+      // 더미 성공 응답으로 폴백
+      return {
+        success: true,
+        message: '더미 환경에서 사용자가 삭제되었습니다.',
+        data: { employeeId }
+      };
+    }
+  },
+
+  // 비밀번호 변경
+  changePassword: async (passwordData) => {
+    try {
+      const response = await fetch('/user/info/password', { method: 'POST', body: JSON.stringify(passwordData) });
+      return response.data;
+    } catch (error) {
+      console.log('비밀번호 변경 API 실패, 더미 응답으로 폴백:', error.message);
+      // 더미 성공 응답으로 폴백
+      return {
+        success: true,
+        message: '더미 환경에서 비밀번호가 변경되었습니다.',
+        data: { success: true }
+      };
+    }
+  }
 };

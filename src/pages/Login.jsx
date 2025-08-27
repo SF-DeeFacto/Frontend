@@ -4,7 +4,7 @@ import Button from '../components/common/Button';
 import Text from '../components/common/Text';
 import { login } from '../services/api/auth';
 // ===== 개발용 더미 로그인 기능 시작 =====
-import { dummyUsers } from '../dummy/data/users';
+import { dummyUsers } from '../dummy';
 // ===== 개발용 더미 로그인 기능 끝 =====
 
 const Login = () => {
@@ -30,6 +30,8 @@ const Login = () => {
     setIsLoading(true);
 
     // ===== 개발용 더미 로그인 기능 시작 =====
+    // ⚠️  더미데이터 삭제 시 이 부분을 제거하고 실제 API만 사용하도록 수정
+    // 실제 API 연동: src/services/api/auth.js의 login 함수 사용 권장
     // 먼저 더미 데이터에서 사용자 찾기
     const dummyUser = dummyUsers.find(user => 
       user.employee_id === credentials.username && 
