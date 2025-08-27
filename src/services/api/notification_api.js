@@ -63,7 +63,7 @@ export const notificationApi = {
       const response = await authApiClient.get('/noti/count');
       
       if (isDev) {
-        // console.log('안읽은 알림 개수 조회 성공:', response.data);
+        console.log('안읽은 알림 개수 조회 성공:', response.data);
       }
       
       return response.data;

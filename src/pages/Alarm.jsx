@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiChevronDown, FiClock, FiBookmark, FiCheck, FiCheckCircle } from 'react-icons/fi';
-import { dashboardApi } from '../services/api/dashboard_api';
+import { notificationApi, notificationUtils } from '../services/api/notification_api';
 import Text from '../components/common/Text';
 import Icon from '../components/common/Icon';
 
@@ -240,10 +240,21 @@ const Alarm = () => {
     const fetchAlarms = async () => {
       try {
         setLoading(true);
-        const response = await dashboardApi.getNotifications();
+        const response = await notificationApi.getNotifications();
         
-        if (response?.data) {
-          setAlarms(response.data);
+        if (response && Array.isArray(response)) {
+          // API 응답을 프론트엔드 형식에 맞게 매핑
+          const mappedAlarms = response.map(notification => ({
+            id: notification.notiId,
+            type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
+            status: notification.readStatus ? '읽음' : '안읽음',
+            isFavorite: notification.flagStatus,
+            isRead: notification.readStatus,
+            message: notification.title,
+            time: notificationUtils.formatNotificationTime(notification.timestamp),
+            zone: notification.zoneId.toUpperCase()
+          }));
+          setAlarms(mappedAlarms);
         } else {
           setAlarms([]);
         }
