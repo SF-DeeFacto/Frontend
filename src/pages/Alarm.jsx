@@ -132,19 +132,22 @@ const StatusFilterTabs = ({ statusFilter, setStatusFilter, onMarkAllAsRead, hasU
     </div>
     
     {/* 전체 읽음 버튼 */}
-    {hasUnreadAlarms && (
-      <button
-        onClick={onMarkAllAsRead}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg transition-colors hover:bg-blue-700 flex items-center gap-2"
-      >
-        <Icon size="16px">
-          <FiCheckCircle />
-        </Icon>
-        <Text variant="body" size="sm" weight="medium">
-          전체 읽음
-        </Text>
-      </button>
-    )}
+    <button
+      onClick={onMarkAllAsRead}
+      className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+        hasUnreadAlarms 
+          ? 'bg-blue-600 text-white hover:bg-blue-700' 
+          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+      }`}
+      disabled={!hasUnreadAlarms}
+    >
+      <Icon size="16px">
+        <FiCheckCircle />
+      </Icon>
+      <Text variant="body" size="sm" weight="medium">
+        전체 읽음
+      </Text>
+    </button>
   </div>
 );
 
@@ -342,8 +345,8 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 // 메인 알림 컴포넌트
 const Alarm = () => {
-  const [alarmType, setAlarmType] = useState('전체');
-  const [statusFilter, setStatusFilter] = useState('전체');
+  const [alarmType, setAlarmType] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [alarms, setAlarms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -450,15 +453,17 @@ const Alarm = () => {
 
   // 필터링된 알림 목록
   const filteredAlarms = alarms.filter(alarm => {
-    // 알림 유형 필터 (전체 선택 시 모든 타입 표시)
-    if (alarmType !== '전체' && alarm.type !== alarmType) {
+    // 알림 유형 필터 (빈 값이거나 전체 선택 시 모든 타입 표시)
+    if (alarmType && alarmType !== '전체' && alarm.type !== alarmType) {
       return false;
     }
     
-    // 상태 필터
-    if (statusFilter === '즐겨찾기' && !alarm.isFavorite) return false;
-    if (statusFilter === '안읽음' && alarm.isRead) return false;
-    if (statusFilter === '읽음' && !alarm.isRead) return false;
+    // 상태 필터 (빈 값이거나 전체 선택 시 모든 상태 표시)
+    if (statusFilter && statusFilter !== '전체') {
+      if (statusFilter === '즐겨찾기' && !alarm.isFavorite) return false;
+      if (statusFilter === '안읽음' && alarm.isRead) return false;
+      if (statusFilter === '읽음' && !alarm.isRead) return false;
+    }
     
     return true;
   });
