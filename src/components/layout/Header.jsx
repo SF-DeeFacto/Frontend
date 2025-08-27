@@ -42,7 +42,7 @@ const Header = () => {
     }
   }, [navigate]);
 
-  // localStorage 변화 감지 (다른 탭에서 로그인/로그아웃 시)
+  // localStorage 변화 감지 (다른 탭에서 로그인/로그아웃 시, 알림 카운터 업데이트)
   useEffect(() => {
     const handleStorageChange = (e) => {
       if (e.key === 'user' || e.key === 'access_token') {
@@ -60,6 +60,12 @@ const Header = () => {
             navigate('/login');
           }
         }
+      }
+      
+      // 알림 카운터 업데이트 감지
+      if (e.key === 'unread_alarm_count') {
+        const newCount = parseInt(e.newValue || '0', 10);
+        setAlarmCount(newCount);
       }
     };
 
@@ -101,18 +107,30 @@ const Header = () => {
           // API에서 직접 안읽음 개수 반환 (response.data에 숫자 값)
           // console.log('설정할 알림 개수:', response.data);
           setAlarmCount(response.data);
+          // localStorage에도 저장
+          localStorage.setItem('unread_alarm_count', response.data.toString());
         } else {
           // API 응답이 없을 경우 0으로 설정
           // console.log('응답 데이터가 없어서 0으로 설정');
           setAlarmCount(0);
+          localStorage.setItem('unread_alarm_count', '0');
         }
       } catch (error) {
         console.log('알림 개수 API 호출 실패:', error);
         // API 실패 시 0으로 설정
         setAlarmCount(0);
+        localStorage.setItem('unread_alarm_count', '0');
       }
     };
 
+    // 초기 로드 시 localStorage에서 알림 카운터 확인
+    const storedCount = localStorage.getItem('unread_alarm_count');
+    if (storedCount) {
+      const count = parseInt(storedCount, 10);
+      setAlarmCount(count);
+    }
+    
+    // 항상 최신 데이터를 위해 API 호출 (localStorage 값이 있어도)
     fetchAlarmCount();
     
     // 30초마다 알림 개수 업데이트
