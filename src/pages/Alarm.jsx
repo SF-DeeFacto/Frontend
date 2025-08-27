@@ -351,6 +351,9 @@ const Alarm = () => {
           // 페이지네이션 정보 설정
           setTotalPages(response.totalPages || 0);
           setTotalElements(response.totalElements || 0);
+          
+          // 최소한의 콘솔 로그
+          console.log(`알림 ${mappedAlarms.length}개 로드됨 (총 ${response.totalElements}개)`);
         } else {
           console.log('알림 API 응답 구조 오류:', response);
           setAlarms([]);

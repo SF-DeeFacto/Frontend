@@ -54,9 +54,12 @@ export const notificationApi = {
     try {
 
 
-      const response = await authApiClient.get('/noti/count');
+            const response = await authApiClient.get('/noti/count');
       
-
+      // 최소한의 콘솔 로그
+      if (isDev) {
+        console.log(`안읽은 알림: ${response.data.data}개`);
+      }
       
       return response.data;
     } catch (error) {
