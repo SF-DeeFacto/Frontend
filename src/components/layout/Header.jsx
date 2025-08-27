@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { fetchWeatherData } from '../../dummy/services/weather';
+import { fetchWeatherData } from '../../dummy';
 import { notificationApi } from '../../services/api/notification_api';
 
 const Header = () => {

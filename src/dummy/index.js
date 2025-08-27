@@ -9,10 +9,9 @@
 // 데이터 생성기들
 export { generateZoneStatusData, generateZoneStatusVersions } from './data/zoneStatusGenerator.js';
 export { generateDummyUsers, dummyUsers } from './data/userGenerator.js';
-export { generateDummyWeatherData } from './data/weather.js';
+export { generateDummyWeatherData, dummyWeatherData } from './data/weather.js';
 
 // 기존 호환성을 위한 데이터들
-export { dummyWeatherData, getDummyWeatherResponse } from './data/weather.js';
 export { dummyReports, getDummyReportsResponse, getDummyReportById } from './data/reports.js';
 export { zoneStatusData, zoneStatusDataV2, zoneStatusDataV3, zoneStatusDataV4 } from './data/zoneStatus.js';
 
@@ -30,4 +29,4 @@ export {
 
 // 서비스들
 export { handleDummyLogin, handleDummyLogout, validateDummyToken, userService } from './data/userGenerator.js';
-export { fetchWeatherData, handleDummyWeatherFallback, getWeatherTrend, getWeatherForDate, getCurrentWeather } from './services/weather.js';
+export { fetchWeatherData } from './data/weather.js';
