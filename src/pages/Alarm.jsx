@@ -210,20 +210,27 @@ const AlarmCard = ({ alarm, onMarkAsRead, onMarkAsUnread, onToggleFavorite }) =>
           </Icon>
         </button>
 
-        {/* 읽음 상태 버튼 */}
-        <button
-          onClick={() => alarm.isRead ? onMarkAsUnread(alarm.id) : onMarkAsRead(alarm.id)}
-          className={`p-2 rounded-lg transition-colors ${
-            alarm.isRead
-              ? 'text-green-500 hover:bg-green-50'
-              : 'text-gray-400 hover:bg-gray-50 hover:text-green-500'
-          }`}
-          title={alarm.isRead ? '읽음 해제' : '읽음 처리'}
-        >
-          <Icon size="16px">
-            {alarm.isRead ? <FiCheckCircle /> : <FiCheck />}
-          </Icon>
-        </button>
+        {/* 읽음 상태 버튼 - 읽음 처리만 가능 */}
+        {!alarm.isRead && (
+          <button
+            onClick={() => onMarkAsRead(alarm.id)}
+            className="p-2 rounded-lg transition-colors text-gray-400 hover:bg-gray-50 hover:text-green-500"
+            title="읽음 처리"
+          >
+            <Icon size="16px">
+              <FiCheck />
+            </Icon>
+          </button>
+        )}
+        
+        {/* 이미 읽은 알림은 체크 표시만 */}
+        {alarm.isRead && (
+          <div className="p-2 text-green-500">
+            <Icon size="16px">
+              <FiCheckCircle />
+            </Icon>
+          </div>
+        )}
       </div>
     </div>
   </div>
@@ -485,32 +492,12 @@ const Alarm = () => {
     }
   };
 
-  // 알림 읽음 해제 처리 (읽음 → 안읽음)
-  const handleMarkAsUnread = async (alarmId) => {
-    try {
-      // 읽음 해제는 API가 지원하지 않을 수 있으므로, 
-      // 현재는 로컬 상태만 변경하고 API 호출은 하지 않음
-      setAlarms(prev => 
-        prev.map(alarm => 
-          alarm.id === alarmId 
-            ? { ...alarm, isRead: false, status: '안읽음' }
-            : alarm
-        )
-      );
-      
-      // 헤더의 알림 카운터 업데이트
-      updateHeaderAlarmCount();
-      
-      console.log(`알림 ${alarmId} 읽음 해제 완료`);
-    } catch (error) {
-      console.error('알림 읽음 해제 실패:', error);
-    }
-  };
+
 
   // 즐겨찾기 토글
   const handleToggleFavorite = async (alarmId) => {
     try {
-      // API 호출하여 즐겨찾기 토글
+      // API 호출하여 즐겨찾기 상태 변경
       await notificationApi.toggleNotificationFavorite(alarmId);
       
       // 로컬 상태 업데이트
@@ -525,8 +512,7 @@ const Alarm = () => {
       console.log(`알림 ${alarmId} 즐겨찾기 토글 완료`);
     } catch (error) {
       console.error('즐겨찾기 토글 실패:', error);
-      // 에러 발생 시 사용자에게 알림 (선택사항)
-      alert('즐겨찾기 설정에 실패했습니다. 다시 시도해주세요.');
+      alert('즐겨찾기 처리에 실패했습니다. 다시 시도해주세요.');
     }
   };
 
@@ -624,7 +610,6 @@ const Alarm = () => {
             key={alarm.id}
             alarm={alarm}
             onMarkAsRead={handleMarkAsRead}
-            onMarkAsUnread={handleMarkAsUnread}
             onToggleFavorite={handleToggleFavorite}
           />
         ))}

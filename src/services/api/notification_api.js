@@ -101,11 +101,13 @@ export const notificationApi = {
   // 알림 읽음 처리
   markNotificationAsRead: async (notificationId) => {
     try {
-
-
+      console.log('=== 알림 읽음 처리 시작 ===');
+      console.log('알림 ID:', notificationId);
+      
       const response = await authApiClient.post(`/noti/read/${notificationId}`);
       
-
+      console.log('=== 알림 읽음 처리 성공 ===');
+      console.log('응답 데이터:', response.data);
       
       return response.data;
     } catch (error) {
