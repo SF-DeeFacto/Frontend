@@ -111,23 +111,40 @@ const AlarmTypeToggle = ({ alarmType, setAlarmType }) => (
 );
 
 // 상태 필터 탭 컴포넌트
-const StatusFilterTabs = ({ statusFilter, setStatusFilter }) => (
-  <div className="flex gap-2">
-    {STATUS_FILTERS.map((status) => (
+const StatusFilterTabs = ({ statusFilter, setStatusFilter, onMarkAllAsRead, hasUnreadAlarms }) => (
+  <div className="flex items-center gap-4">
+    <div className="flex gap-2">
+      {STATUS_FILTERS.map((status) => (
+        <button
+          key={status}
+          onClick={() => setStatusFilter(status)}
+          className={`px-4 py-2 rounded-lg transition-colors ${
+            statusFilter === status
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          <Text variant="body" size="sm" weight="medium">
+            {status}
+          </Text>
+        </button>
+      ))}
+    </div>
+    
+    {/* 전체 읽음 버튼 */}
+    {hasUnreadAlarms && (
       <button
-        key={status}
-        onClick={() => setStatusFilter(status)}
-        className={`px-4 py-2 rounded-lg transition-colors ${
-          statusFilter === status
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-        }`}
+        onClick={onMarkAllAsRead}
+        className="px-4 py-2 bg-blue-600 text-white rounded-lg transition-colors hover:bg-blue-700 flex items-center gap-2"
       >
-                 <Text variant="body" size="sm" weight="medium">
-           {status}
-         </Text>
-       </button>
-    ))}
+        <Icon size="16px">
+          <FiCheckCircle />
+        </Icon>
+        <Text variant="body" size="sm" weight="medium">
+          전체 읽음
+        </Text>
+      </button>
+    )}
   </div>
 );
 
@@ -386,7 +403,8 @@ const Alarm = () => {
     return true;
   });
 
-
+  // 읽지 않은 알림이 있는지 확인
+  const hasUnreadAlarms = alarms.some(alarm => !alarm.isRead);
 
   // 알림 읽음 처리
   const handleMarkAsRead = async (alarmId) => {
@@ -459,6 +477,37 @@ const Alarm = () => {
     }
   };
 
+  // 전체 읽음 처리
+  const handleMarkAllAsRead = async () => {
+    try {
+      // 읽지 않은 알림이 있는지 확인
+      if (!hasUnreadAlarms) {
+        console.log('읽지 않은 알림이 없습니다.');
+        return;
+      }
+
+      // API 호출하여 전체 읽음 처리 (noti/read/all 엔드포인트 사용)
+      await notificationApi.markAllNotificationsAsRead();
+      
+      // 로컬 상태 업데이트
+      setAlarms(prev => 
+        prev.map(alarm => 
+          alarm.isRead 
+            ? alarm 
+            : { ...alarm, isRead: true, status: '읽음' }
+        )
+      );
+      
+      // 헤더의 알림 카운터 업데이트
+      updateHeaderAlarmCount();
+      
+      console.log('모든 알림을 전체 읽음 처리 완료');
+    } catch (error) {
+      console.error('전체 읽음 처리 실패:', error);
+      alert('전체 읽음 처리에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
   // 헤더의 알림 카운터 업데이트
   const updateHeaderAlarmCount = async () => {
     try {
@@ -508,7 +557,9 @@ const Alarm = () => {
           />
           <StatusFilterTabs 
             statusFilter={statusFilter} 
-            setStatusFilter={(status) => handleFilterChange(alarmType, status)} 
+            setStatusFilter={(status) => handleFilterChange(alarmType, status)}
+            onMarkAllAsRead={handleMarkAllAsRead}
+            hasUnreadAlarms={hasUnreadAlarms}
           />
         </div>
       </div>
