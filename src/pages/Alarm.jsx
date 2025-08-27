@@ -343,6 +343,7 @@ const Alarm = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const pageSize = 7; // 페이지당 7개 알림
+  const [pollingStatus, setPollingStatus] = useState('폴링 대기 중...');
 
   // 알림 데이터 가져오기
   useEffect(() => {
@@ -377,16 +378,68 @@ const Alarm = () => {
           setTotalPages(0);
           setTotalElements(0);
         }
-             } catch (error) {
-         console.error('알림 API 호출 실패:', error);
-         setAlarms([]);
-       } finally {
+      } catch (error) {
+        console.error('알림 API 호출 실패:', error);
+        setAlarms([]);
+      } finally {
         setLoading(false);
       }
     };
 
     fetchAlarms();
   }, [currentPage]);
+
+  // 30초 폴링으로 알림 자동 업데이트
+  useEffect(() => {
+    // 30초마다 자동 업데이트
+    const pollingInterval = setInterval(() => {
+      console.log('폴링: 알림 목록 및 카운터 자동 업데이트');
+      setPollingStatus('폴링 중...');
+      
+      // 현재 페이지의 알림 목록 업데이트
+      const fetchAlarmsForPolling = async () => {
+        try {
+          const response = await notificationApi.getNotifications(currentPage, pageSize);
+          
+          if (response && response.content && Array.isArray(response.content)) {
+            const mappedAlarms = response.content.map(notification => ({
+              id: notification.notiId,
+              type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
+              status: notification.readStatus ? '읽음' : '안읽음',
+              isFavorite: notification.flagStatus,
+              isRead: notification.readStatus,
+              message: notification.title,
+              time: notificationUtils.formatNotificationTime(notification.timestamp),
+              zone: notification.zoneId.toUpperCase()
+            }));
+            setAlarms(mappedAlarms);
+            setTotalPages(response.totalPages || 0);
+            setTotalElements(response.totalElements || 0);
+          }
+        } catch (error) {
+          console.error('폴링 중 알림 업데이트 실패:', error);
+        }
+      };
+      
+      fetchAlarmsForPolling();
+      
+      // 헤더 알림 카운터 업데이트
+      updateHeaderAlarmCount();
+      
+      setPollingStatus('폴링 완료');
+      
+      // 3초 후 상태 메시지 초기화
+      setTimeout(() => {
+        setPollingStatus('폴링 대기 중...');
+      }, 3000);
+    }, 30000); // 30초마다
+
+    // 컴포넌트 언마운트 시 정리
+    return () => {
+      clearInterval(pollingInterval);
+      console.log('폴링 중지');
+    };
+  }, [currentPage]); // currentPage가 변경될 때마다 폴링 재설정
 
   // 필터링된 알림 목록
   const filteredAlarms = alarms.filter(alarm => {
