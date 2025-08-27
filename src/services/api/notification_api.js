@@ -9,7 +9,13 @@ export const notificationApi = {
   // 알림 목록 조회 (페이지네이션 및 필터링 지원)
   getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null) => {
     try {
-
+      console.log('=== 알림 목록 조회 시작 ===');
+      console.log('요청 파라미터:', { page, size, isRead, isFlagged });
+      console.log('API 클라이언트 설정:', {
+        baseURL: authApiClient.defaults.baseURL,
+        timeout: authApiClient.defaults.timeout,
+        headers: authApiClient.defaults.headers
+      });
 
       const params = new URLSearchParams();
       if (page !== null) params.append('page', page);
@@ -17,9 +23,13 @@ export const notificationApi = {
       if (isRead !== null) params.append('isRead', isRead);
       if (isFlagged !== null) params.append('isFlagged', isFlagged);
       
-      const response = await authApiClient.get(`/noti/list?${params.toString()}`);
+      const requestUrl = `/noti/list?${params.toString()}`;
+      console.log('요청 URL:', requestUrl);
       
-
+      const response = await authApiClient.get(requestUrl);
+      
+      console.log('=== 알림 목록 조회 성공 ===');
+      console.log('응답 데이터:', response.data);
       
       // 전체 응답 구조를 반환하여 페이지네이션 정보도 함께 사용할 수 있도록 함
       return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
