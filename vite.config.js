@@ -8,11 +8,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     // HMR 웹소켓 비활성화 옵션들
-    hmr: false, // HMR 완전 비활성화
+    // hmr: false, // HMR 완전 비활성화
     // 또는 웹소켓만 비활성화하고 polling 사용
-    // hmr: {
-    //   port: false, // 웹소켓 포트 비활성화
-    // },
+    hmr: {
+      port: false, // 웹소켓 포트 비활성화
+    },
     proxy: {
       '/grafana-api': {
         target: 'http://192.168.55.180:3000',
