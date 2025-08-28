@@ -58,12 +58,12 @@ const Userset = () => {
     name: '',
     password: '',
     email: '',
-    gender: 'male',
+    gender: 'M',
     department: '',
     position: '',
     role: 'USER',
-    scope: '',
-    shift: ''
+    scope: 'default',
+    shift: 'DAY'
   });
 
   const [editingUser, setEditingUser] = useState(null);
@@ -219,13 +219,15 @@ const Userset = () => {
           name: newUser.name,
           password: newUser.password,
           email: newUser.email,
-          gender: newUser.gender || 'male',
+          gender: newUser.gender || 'M', // 백엔드에서 M/F 형식 사용
           department: newUser.department,
           position: newUser.position,
           role: newUser.role || 'USER',
-          scope: newUser.scope || '',
-          shift: newUser.shift || ''
+          scope: newUser.scope || 'default', // @NotBlank이므로 빈 문자열 대신 기본값
+          shift: newUser.shift || 'DAY' // 기본값 설정
         };
+        
+        console.log('등록 요청 데이터:', userData); // 디버깅용
         
         await userService.registerUser(userData);
         
@@ -238,12 +240,12 @@ const Userset = () => {
           name: '', 
           password: '', 
           email: '', 
-          gender: 'male', 
+          gender: 'M', 
           department: '', 
           position: '', 
           role: 'USER',
-          scope: '',
-          shift: ''
+          scope: 'default',
+          shift: 'DAY'
         });
         
         setShowAddModal(false);
@@ -589,8 +591,8 @@ const Userset = () => {
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="male">남성</option>
-                      <option value="female">여성</option>
+                      <option value="M">남성</option>
+                      <option value="F">여성</option>
                     </select>
                   </div>
                 </div>
