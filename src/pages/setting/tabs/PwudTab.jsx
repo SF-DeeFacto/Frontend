@@ -35,8 +35,8 @@ const PwudTab = () => {
 
     if (!passwords.newPassword) {
       newErrors.newPassword = '새 비밀번호를 입력해주세요.';
-    } else if (passwords.newPassword.length < 8) {
-      newErrors.newPassword = '비밀번호는 8자 이상이어야 합니다.';
+    } else if (passwords.newPassword.length < 4) {
+      newErrors.newPassword = '비밀번호는 4자 이상이어야 합니다.';
     }
 
     if (!passwords.confirmPassword) {
@@ -150,7 +150,7 @@ const PwudTab = () => {
               <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
             )}
             <p className="mt-1 text-sm text-gray-500">
-              비밀번호는 8자 이상이어야 하며, 영문, 숫자, 특수문자를 포함해야 합니다.
+              비밀번호는 4자 이상 설정해주세요.
             </p>
           </div>
           
