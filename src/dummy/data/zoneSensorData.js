@@ -174,3 +174,42 @@ export const getUpdatedZoneSensorData = (zoneId) => {
 
 // 기본 내보내기
 export default zoneSensorData;
+
+// generateZoneSensorData 함수 추가 (dummy 서비스에서 사용)
+export const generateZoneSensorData = (zoneId) => {
+  const zoneData = getZoneSensorData(zoneId);
+  if (!zoneData || !zoneData[0]) return null;
+  
+  // 기존 데이터를 복사하고 타임스탬프만 갱신
+  const generatedData = JSON.parse(JSON.stringify(zoneData[0]));
+  generatedData.timestamp = new Date().toISOString();
+  
+  // 각 센서의 값에 약간의 랜덤 변화 추가
+  generatedData.sensors.forEach(sensor => {
+    sensor.timestamp = new Date().toISOString();
+    
+    // 센서 타입별로 값에 약간의 랜덤 변화 추가
+    switch (sensor.sensorType) {
+      case 'temperature':
+        sensor.values.value = Math.max(15, Math.min(35, sensor.values.value + (Math.random() - 0.5) * 2));
+        break;
+      case 'humidity':
+        sensor.values.value = Math.max(30, Math.min(70, sensor.values.value + (Math.random() - 0.5) * 10));
+        break;
+      case 'esd':
+        sensor.values.value = Math.max(5, Math.min(25, sensor.values.value + (Math.random() - 0.5) * 4));
+        break;
+      case 'particle':
+        Object.keys(sensor.values).forEach(key => {
+          sensor.values[key] = Math.max(0, sensor.values[key] + (Math.random() - 0.5) * 2);
+        });
+        break;
+      case 'windDir':
+        sensor.values.value = (sensor.values.value + Math.random() * 20 - 10) % 360;
+        if (sensor.values.value < 0) sensor.values.value += 360;
+        break;
+    }
+  });
+  
+  return [generatedData];
+};

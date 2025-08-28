@@ -22,25 +22,17 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
 
   // 존별 연결 정보 확인
   const getZoneConnectionInfo = (zone) => {
-    // 더미데이터 시작
-    // 모든 존이 동일한 더미 데이터 사용 (3D 모델링과 동일)
-    // 더미데이터 끝 (삭제)
-    const status = zoneStatuses[zone.zone_name];
-    const lastUpdate = lastUpdated[zone.zone_name];
+    // Zone 이름을 API 응답 형식에 맞게 변환
+    const zoneName = zone.name.replace('Zone ', ''); // "Zone A01" → "A01"
+    const status = zoneStatuses[zoneName];
+    const lastUpdate = lastUpdated[zoneName];
     
     return {
       status: status || 'CONNECTING',
-      // 더미데이터 시작
-      isRealtime: false,
-      connectionState: 'static',
+      isRealtime: connectionStates.mainSSE === CONNECTION_STATE.CONNECTED,
+      connectionState: connectionStates.mainSSE || CONNECTION_STATE.DISCONNECTED,
       lastUpdate,
-      dataSource: '더미'
-      // 더미데이터 끝 (삭제)
-      // 실제 SSE 연동 시 아래 주석을 해제하고 위 더미 관련 코드 삭제
-      // isRealtime: connectionStates.mainSSE === 'connected',
-      // connectionState: connectionStates.mainSSE || 'disconnected',
-      // lastUpdate,
-      // dataSource: connectionStates.mainSSE === 'connected' ? '실시간' : '연결끊김'
+      dataSource: connectionStates.mainSSE === CONNECTION_STATE.CONNECTED ? '실시간' : '연결끊김'
     };
   };
 

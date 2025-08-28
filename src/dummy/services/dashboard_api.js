@@ -7,8 +7,8 @@ import { connectMainSSE, connectZoneSSE, SSE_URLS } from '../../services/sse';
 // Dashboard 백엔드 API 클라이언트 import
 import { dashboardApiClient } from '../../services/index';
 
-// 더미 데이터 생성 함수들 import
-import { generateDummyDashboardData, generateDummyZoneData } from '../data/zoneDataGenerator';
+// 더미 데이터 생성 함수들 import (실제 존재하는 파일들)
+import { getZoneSensorData } from '../data/zoneSensorData.js';
 
 // 일반 HTTP API 함수들 (API 실패 시 더미 데이터 폴백)
 export const dashboardApi = {
@@ -22,7 +22,10 @@ export const dashboardApi = {
     } catch (error) {
       console.log('대시보드 데이터 조회 API 실패, 더미 데이터로 폴백:', error.message);
       // 더미 대시보드 데이터로 폴백
-      const dummyData = generateDummyDashboardData();
+      const dummyData = {
+        zones: [], // zoneStatusData 제거
+        sensors: getZoneSensorData('a01') // 기본 Zone 데이터
+      };
       return {
         success: true,
         message: '더미 환경에서 대시보드 데이터를 제공합니다.',
@@ -41,7 +44,7 @@ export const dashboardApi = {
     } catch (error) {
       console.log(`존 데이터 조회 API 실패 (${zoneId}), 더미 데이터로 폴백:`, error.message);
       // 더미 Zone 데이터로 폴백
-      const dummyZoneData = generateDummyZoneData(zoneId);
+      const dummyZoneData = getZoneSensorData(zoneId);
       return {
         success: true,
         message: `더미 환경에서 ${zoneId} Zone 데이터를 제공합니다.`,

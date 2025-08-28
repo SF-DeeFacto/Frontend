@@ -14,20 +14,20 @@ export const generateDummyUsers = (count = 1) => {
   const users = [];
   
   // 기본 관리자 계정만 유지
-  users.push({
-    id: 1,
-    employee_id: 'admin',
-    password: '1234',
-    name: '홍길동',
-    email: 'hong@deefacto.com',
-    gender: '남',
-    department: '관리팀',
-    position: '관리자',
-    role: USER_ROLES.ADMIN,
-    created_at: '2024-01-01 09:00:00',
-    updated_at: '2024-01-01 09:00:00',
-    shift: null
-  });
+  // users.push({
+  //   id: 1,
+  //   employee_id: 'admin',
+  //   password: '1234',
+  //   name: '홍길동',
+  //   email: 'hong@deefacto.com',
+  //   gender: '남',
+  //   department: '관리팀',
+  //   position: '관리자',
+  //   role: USER_ROLES.ADMIN,
+  //   created_at: '2024-01-01 09:00:00',
+  //   updated_at: '2024-01-01 09:00:00',
+  //   shift: null
+  // });
 
   return users;
 };
@@ -55,10 +55,10 @@ export const handleDummyLogin = (credentials) => {
   if (user) {
     // 이거 진짜 삭제해야함. 
     // 더미 토큰 생성 (실제로는 JWT 토큰이어야 함)
-    const dummyToken = `dummy_token_${Date.now()}`;
+    // const dummyToken = `dummy_token_${Date.now()}`;
     
     // 로컬 스토리지에 저장
-    localStorage.setItem('token', dummyToken);
+    // localStorage.setItem('token', dummyToken);
     localStorage.setItem('user', JSON.stringify({
       id: user.id,
       employee_id: user.employee_id,

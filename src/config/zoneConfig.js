@@ -201,8 +201,8 @@ export const COMMON_ZONE_CONFIG = {
   // 더미 데이터를 사용하는 Zone 목록
   DUMMY_DATA_ZONES: ['a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'],
   
-  // 실시간 데이터를 사용하는 Zone 목록
-  REALTIME_DATA_ZONES: ['a01', 'b01'],
+  // 실시간 데이터를 사용하는 Zone 목록 - 모든 존 포함
+  REALTIME_DATA_ZONES: ['a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'],
   
   // 기본 임계값
   DEFAULT_THRESHOLDS

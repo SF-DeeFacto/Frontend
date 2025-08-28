@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { fetchWeatherData } from '../../dummy';
 import { notificationApi } from '../../services/api/notification_api';
 
 const Header = () => {
@@ -75,16 +74,29 @@ const Header = () => {
     };
   }, [navigate]);
 
-  // 날씨 정보 가져오기 (더미 데이터 사용)
+  // 날씨 정보 가져오기
   useEffect(() => {
     const getWeatherInfo = async () => {
       try {
-        const result = await fetchWeatherData();
-        if (result.success) {
-          setWeatherData(result.data);
-        }
+        // 실제 날씨 API 호출 (구현 필요)
+        // const result = await weatherApi.getCurrentWeather();
+        // if (result.success) {
+        //   setWeatherData(result.data);
+        // }
+        
+        // 임시로 기본값 설정
+        setWeatherData({
+          weather: '날씨 정보 없음',
+          temperature: '--',
+          icon: '🌤️'
+        });
       } catch (error) {
         console.error('날씨 정보 가져오기 실패:', error);
+        setWeatherData({
+          weather: '날씨 정보 없음',
+          temperature: '--',
+          icon: '🌤️'
+        });
       }
     };
 
@@ -98,25 +110,24 @@ const Header = () => {
   useEffect(() => {
     const fetchAlarmCount = async () => {
       try {
+        console.log('알림 개수 API 호출 시작...');
         const response = await notificationApi.getUnreadNotificationCount();
-        // console.log('전체 응답:', response);
-        // console.log('response.data:', response.data);
-        // console.log('response.data.data:', response.data.data);
+        console.log('알림 개수 API 응답:', response);
         
         if (response?.data !== undefined) {
           // API에서 직접 안읽음 개수 반환 (response.data에 숫자 값)
-          // console.log('설정할 알림 개수:', response.data);
+          console.log('설정할 알림 개수:', response.data);
           setAlarmCount(response.data);
           // localStorage에도 저장
           localStorage.setItem('unread_alarm_count', response.data.toString());
         } else {
           // API 응답이 없을 경우 0으로 설정
-          // console.log('응답 데이터가 없어서 0으로 설정');
+          console.log('응답 데이터가 없어서 0으로 설정');
           setAlarmCount(0);
           localStorage.setItem('unread_alarm_count', '0');
         }
       } catch (error) {
-        console.log('알림 개수 API 호출 실패:', error);
+        console.error('알림 개수 API 호출 실패:', error);
         // API 실패 시 0으로 설정
         setAlarmCount(0);
         localStorage.setItem('unread_alarm_count', '0');

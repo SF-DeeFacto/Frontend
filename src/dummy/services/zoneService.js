@@ -1,5 +1,5 @@
 import { getZoneConfig } from '../../config/zoneConfig';
-import { generateZoneSensorData, generateZoneStatus } from '../data/zoneDataGenerator';
+import { generateZoneSensorData } from '../data/zoneSensorData.js';
 
 // Zone별 센서 데이터 관리 서비스 (API 실패 시 더미 데이터 폴백)
 class ZoneService {
@@ -203,7 +203,11 @@ class ZoneService {
     } catch (error) {
       console.log('Zone 상태 조회 API 실패, 더미 데이터로 폴백:', error.message);
       // 더미 Zone 상태 데이터로 폴백
-      return generateZoneStatus(zoneId);
+      return {
+        zoneName: zoneId,
+        status: 'UNKNOWN',
+        timestamp: new Date().toISOString()
+      };
     }
   }
 }

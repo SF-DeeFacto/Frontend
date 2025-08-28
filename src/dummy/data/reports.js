@@ -157,4 +157,27 @@ export const getDummyReportById = (id) => {
     data: report,
     message: '리포트를 성공적으로 가져왔습니다.'
   };
+};
+
+// generateDummyReports 함수 추가 (dummy 서비스에서 사용)
+export const generateDummyReports = (count = 20) => {
+  const reports = [];
+  const currentDate = new Date();
+  
+  for (let i = 0; i < count; i++) {
+    const reportDate = new Date(currentDate);
+    reportDate.setDate(currentDate.getDate() - (i * 7)); // 7일씩 이전으로
+    
+    const report = {
+      id: i + 1,
+      report_name: `${reportDate.getFullYear().toString().slice(-2)}. ${String(reportDate.getMonth() + 1).padStart(2, '0')}. ${String(reportDate.getDate()).padStart(2, '0')} ${i % 3 === 0 ? '비정기' : '정기'} 리포트`,
+      report_type: i % 3 === 0 ? '비정기' : '정기',
+      created_at: reportDate.toISOString().slice(0, 19).replace('T', ' '),
+      updated_at: reportDate.toISOString().slice(0, 19).replace('T', ' ')
+    };
+    
+    reports.push(report);
+  }
+  
+  return reports;
 }; 

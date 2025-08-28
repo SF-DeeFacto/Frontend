@@ -7,24 +7,23 @@ export const useMainModelMaterials = () => {
   const getZoneStatusKey = useCallback((meshName) => {
     const zoneMapping = {
       // 소문자 메쉬
-      // 'a01': 'zone_A',
-      'a01': 'zone_A01',
-      'a02': 'zone_A02',
-      'b01': 'zone_B01', // B01은 존재하지 않지만 혹시 모르니 유지
-      'b02': 'zone_B02',
-      'b03': 'zone_B03',
-      'b04': 'zone_B04',
-      'c01': 'zone_C01',
-      'c02': 'zone_C02',
+      'a01': 'A01',
+      'a02': 'A02',
+      'b01': 'B01',
+      'b02': 'B02',
+      'b03': 'B03',
+      'b04': 'B04',
+      'c01': 'C01',
+      'c02': 'C02',
       // 대문자 메쉬
-      'A01': 'zone_A01',
-      'A02': 'zone_A02',
-      'B01': 'zone_B01', // B01은 존재하지 않지만 혹시 모르니 유지
-      'B02': 'zone_B02',
-      'B03': 'zone_B03',
-      'B04': 'zone_B04',
-      'C01': 'zone_C01',
-      'C02': 'zone_C02'
+      'A01': 'A01',
+      'A02': 'A02',
+      'B01': 'B01',
+      'B02': 'B02',
+      'B03': 'B03',
+      'B04': 'B04',
+      'C01': 'C01',
+      'C02': 'C02'
     };
     return zoneMapping[meshName];
   }, []);
