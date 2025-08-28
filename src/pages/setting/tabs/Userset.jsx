@@ -1,44 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { userService } from '../../../services/userService';
 
 const Userset = () => {
-  const [users, setUsers] = useState([
-    { 
-      id: 1, 
-      employeeId: 'EMP001',
-      name: '홍길동', 
-      password: '********',
-      email: 'hong@example.com', 
-      gender: 'male',
-      department: '개발팀',
-      position: '개발자',
-      role: 'admin', 
-      status: 'active' 
-    },
-    { 
-      id: 2, 
-      employeeId: 'EMP002',
-      name: '김철수', 
-      password: '********',
-      email: 'kim@example.com', 
-      gender: 'male',
-      department: '디자인팀',
-      position: '디자이너',
-      role: 'user', 
-      status: 'active' 
-    },
-    { 
-      id: 3, 
-      employeeId: 'EMP003',
-      name: '이영희', 
-      password: '********',
-      email: 'lee@example.com', 
-      gender: 'female',
-      department: '마케팅팀',
-      position: '매니저',
-      role: 'user', 
-      status: 'inactive' 
-    }
-  ]);
+  // 더미 데이터 주석처리 - 실제 API에서 데이터 로드
+  // const [users, setUsers] = useState([
+  //   { 
+  //     id: 1, 
+  //     employeeId: 'EMP001',
+  //     name: '홍길동', 
+  //     password: '********',
+  //     email: 'hong@example.com', 
+  //     gender: 'male',
+  //     department: '개발팀',
+  //     position: '개발자',
+  //     role: 'admin', 
+  //     status: 'active' 
+  //   },
+  //   { 
+  //     id: 2, 
+  //     employeeId: 'EMP002',
+  //     name: '김철수', 
+  //     password: '********',
+  //     email: 'kim@example.com', 
+  //     gender: 'male',
+  //     department: '디자인팀',
+  //     position: '디자이너',
+  //     role: 'user', 
+  //     status: 'active' 
+  //   },
+  //   { 
+  //     id: 3, 
+  //     employeeId: 'EMP003',
+  //     name: '이영희', 
+  //     password: '********',
+  //     email: 'lee@example.com', 
+  //     gender: 'female',
+  //     department: '마케팅팀',
+  //     position: '매니저',
+  //     role: 'user', 
+  //     status: 'inactive' 
+  //   }
+  // ]);
+
+  // 실제 API 연결용 상태
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [newUser, setNewUser] = useState({
     employeeId: '',
@@ -48,8 +61,9 @@ const Userset = () => {
     gender: 'male',
     department: '',
     position: '',
-    role: 'user',
-    status: 'active'
+    role: 'USER',
+    scope: '',
+    shift: ''
   });
 
   const [editingUser, setEditingUser] = useState(null);
@@ -60,10 +74,125 @@ const Userset = () => {
   const departments = ['개발팀', '디자인팀', '마케팅팀', '영업팀', '인사팀', '기획팀'];
   const positions = ['사원', '대리', '과장', '차장', '부장', '이사', '대표'];
   const roles = [
-    { value: 'user', label: '일반 사용자' },
-    { value: 'admin', label: '관리자' },
-    { value: 'super_admin', label: '슈퍼 관리자' }
+    { value: 'USER', label: '일반 사용자' },
+    { value: 'ADMIN', label: '관리자' },
+    // { value: 'ROOT', label: '슈퍼 관리자' }
   ];
+
+  // 사용자 목록 로드
+  const loadUsers = async (page = 0, searchTerm = '', size = 10) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const searchParams = {
+        page,
+        size: size || pagination.size || 10,
+        ...(searchTerm && (searchTerm.includes('@') 
+          ? { email: searchTerm } 
+          : { name: searchTerm, employeeId: searchTerm }))
+      };
+      
+      console.log('API 호출 파라미터:', searchParams); // 디버깅용
+      
+      const response = await userService.searchUsers(searchParams);
+      
+      console.log('API 응답:', response); // 디버깅용
+      console.log('response.data:', response.data); // 응답 데이터 구조 확인
+      
+      if (response && response.data) {
+        console.log('response.data 타입:', typeof response.data);
+        console.log('response.data 내용:', response.data);
+        
+        // 백엔드 응답 구조 확인
+        if (response.data.data) {
+          // ApiResponseDto 구조: { success: true, data: {...}, message: "..." }
+          const apiData = response.data.data;
+          console.log('ApiResponseDto.data:', apiData);
+          
+          if (apiData.content) {
+            // Spring Data Page 구조
+            console.log('Page 내용:', apiData.content);
+            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+            const mappedUsers = apiData.content.map(user => ({
+              ...user,
+              isActive: user.active !== undefined ? user.active : true
+            }));
+            setUsers(mappedUsers);
+            setPagination({
+              page: apiData.number || 0,
+              size: apiData.size || 10,
+              totalElements: apiData.totalElements || 0,
+              totalPages: apiData.totalPages || 0
+            });
+          } else if (Array.isArray(apiData)) {
+            // 배열 형태
+            console.log('배열 형태 데이터:', apiData);
+            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+            const mappedUsers = apiData.map(user => ({
+              ...user,
+              isActive: user.active !== undefined ? user.active : true
+            }));
+            setUsers(mappedUsers);
+          } else {
+            console.log('알 수 없는 데이터 구조:', apiData);
+            setUsers([]);
+          }
+        } else if (response.data.content) {
+          // 직접 Page 구조
+          console.log('직접 Page 구조:', response.data);
+          const pageData = response.data;
+          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+          const mappedUsers = (pageData.content || []).map(user => ({
+            ...user,
+            isActive: user.active !== undefined ? user.active : true
+          }));
+          setUsers(mappedUsers);
+          setPagination({
+            page: pageData.number || 0,
+            size: pageData.size || 10,
+            totalElements: pageData.totalElements || 0,
+            totalPages: pageData.totalPages || 0
+          });
+        } else if (Array.isArray(response.data)) {
+          // 직접 배열 형태
+          console.log('직접 배열 형태:', response.data);
+          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+          const mappedUsers = response.data.map(user => ({
+            ...user,
+            isActive: user.active !== undefined ? user.active : true
+          }));
+          setUsers(mappedUsers);
+        } else {
+          console.log('예상치 못한 응답 구조:', response.data);
+          setUsers([]);
+        }
+      } else {
+        console.log('response 또는 response.data가 없음');
+        setUsers(response || []);
+      }
+    } catch (error) {
+      console.error('사용자 목록 로드 실패:', error);
+      setError(`사용자 목록을 불러오는데 실패했습니다: ${error.message}`);
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 사용자 목록 로드
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // 검색어 변경 시 사용자 목록 재로드
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      loadUsers(0, searchTerm);
+    }, 300); // 300ms 지연으로 debounce 효과
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm, pagination.size]); // pagination.size 의존성 추가
 
   const handleNewUserChange = (key, value) => {
     setNewUser(prev => ({
@@ -79,35 +208,118 @@ const Userset = () => {
     }));
   };
 
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (newUser.employeeId && newUser.name && newUser.password && newUser.email && newUser.department && newUser.position) {
-      const user = {
-        id: users.length + 1,
-        ...newUser
-      };
-      setUsers(prev => [...prev, user]);
-      setNewUser({ employeeId: '', name: '', password: '', email: '', gender: 'male', department: '', position: '', role: 'user', status: 'active' });
-      setShowAddModal(false);
+      setLoading(true);
+      
+      try {
+        // 백엔드 API 형식에 맞게 데이터 변환
+        const userData = {
+          employeeId: newUser.employeeId,
+          name: newUser.name,
+          password: newUser.password,
+          email: newUser.email,
+          gender: newUser.gender || 'male',
+          department: newUser.department,
+          position: newUser.position,
+          role: newUser.role || 'USER',
+          scope: newUser.scope || '',
+          shift: newUser.shift || ''
+        };
+        
+        await userService.registerUser(userData);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        // 폼 초기화
+        setNewUser({ 
+          employeeId: '', 
+          name: '', 
+          password: '', 
+          email: '', 
+          gender: 'male', 
+          department: '', 
+          position: '', 
+          role: 'USER',
+          scope: '',
+          shift: ''
+        });
+        
+        setShowAddModal(false);
+        alert('사용자가 성공적으로 등록되었습니다.');
+        
+      } catch (error) {
+        console.error('사용자 등록 실패:', error);
+        const errorMessage = error.response?.data?.message || '사용자 등록에 실패했습니다.';
+        alert(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert('모든 필수 항목을 입력해주세요.');
     }
   };
 
-  const handleEditUser = () => {
+  const handleEditUser = async () => {
     if (editingUser.email && editingUser.department && editingUser.position) {
-      setUsers(prev => prev.map(user => 
-        user.id === editingUser.id ? editingUser : user
-      ));
-      setEditingUser(null);
-      setShowEditForm(false);
+      setLoading(true);
+      
+      try {
+        // 백엔드 API 형식에 맞게 데이터 변환
+        const userData = {
+          employeeId: editingUser.employeeId,
+          name: editingUser.name,
+          email: editingUser.email,
+          gender: editingUser.gender,
+          department: editingUser.department,
+          position: editingUser.position,
+          role: editingUser.role,
+          scope: editingUser.scope || '',
+          shift: editingUser.shift || '',
+          active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
+        };
+        
+        await userService.updateUser(userData);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        setEditingUser(null);
+        setShowEditForm(false);
+        alert('사용자 정보가 성공적으로 수정되었습니다.');
+        
+      } catch (error) {
+        console.error('사용자 정보 수정 실패:', error);
+        const errorMessage = error.response?.data?.message || '사용자 정보 수정에 실패했습니다.';
+        alert(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert('모든 필수 항목을 입력해주세요.');
     }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('정말로 이 사용자를 삭제하시겠습니까?')) {
-      setUsers(prev => prev.filter(user => user.id !== userId));
+  const handleDeleteUser = async (employeeId, userName) => {
+    if (window.confirm(`정말로 ${userName} 사용자를 삭제하시겠습니까?`)) {
+      setLoading(true);
+      
+      try {
+        await userService.deleteUser(employeeId);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        alert('사용자가 성공적으로 삭제되었습니다.');
+        
+      } catch (error) {
+        console.error('사용자 삭제 실패:', error);
+        const errorMessage = error.response?.data?.message || '사용자 삭제에 실패했습니다.';
+        alert(errorMessage);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -117,11 +329,12 @@ const Userset = () => {
     setShowAddModal(false); // 등록 모달 닫기
   };
 
-  const handleStatusChange = (userId, newStatus) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, status: newStatus } : user
-    ));
-  };
+  // 상태 변경 함수 - 더 이상 사용하지 않음 (백엔드에서 isActive로 관리)
+  // const handleStatusChange = (userId, newStatus) => {
+  //   setUsers(prev => prev.map(user => 
+  //     user.id === userId ? { ...user, status: newStatus } : user
+  //   ));
+  // };
 
   const getGenderLabel = (gender) => {
     return gender === 'male' ? '남성' : '여성';
@@ -131,11 +344,19 @@ const Userset = () => {
     return roles.find(r => r.value === role)?.label || role;
   };
 
-  // 검색된 사용자 필터링
-  const filteredUsers = users.filter(user =>
-    user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 검색은 API에서 처리하므로 필터링 로직 제거
+  // const filteredUsers = users.filter(user =>
+  //   user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //   user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
+  
+  // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
+  const filteredUsers = users;
+  
+  // 디버깅: users 상태 확인
+  console.log('현재 users 상태:', users);
+  console.log('filteredUsers:', filteredUsers);
+  console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">
@@ -186,54 +407,91 @@ const Userset = () => {
         </div>
       </div>
 
+      {/* 에러 메시지 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 사용자 목록 */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h5 className="font-medium text-gray-900">사용자 목록</h5>
+          <div className="flex justify-between items-center">
+            <h5 className="font-medium text-gray-900">
+              사용자 목록 
+              {pagination.totalElements > 0 && (
+                <span className="text-sm text-gray-500 ml-2">
+                  ({pagination.totalElements}명)
+                </span>
+              )}
+            </h5>
+            {loading && (
+              <div className="text-sm text-gray-500">로딩 중...</div>
+            )}
+          </div>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          <ul className="divide-y divide-gray-200">
-            {filteredUsers.map((user) => (
-              <li key={user.id} className="px-6 py-4 hover:bg-gray-50">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">사용자 목록을 불러오는 중...</div>
+            </div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">
+                {searchTerm ? '검색 결과가 없습니다.' : '등록된 사용자가 없습니다.'}
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {filteredUsers.map((user) => (
+              <li key={user.employeeId} className="px-6 py-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                         <span className="text-sm font-medium text-gray-700">
-                          {user.name.charAt(0)}
+                          {user.name?.charAt(0) || 'U'}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{user.name || '이름 없음'}</div>
                       <div className="text-sm text-gray-500">{user.employeeId} • {user.email}</div>
                       <div className="text-sm text-gray-400">{user.department} • {user.position}</div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.role === 'admin' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : user.role === 'super_admin'
-                        ? 'bg-red-100 text-red-800'
+                      user.role === 'ROOT' 
+                        ? 'bg-red-100 text-red-800' 
+                        : user.role === 'ADMIN'
+                        ? 'bg-purple-100 text-purple-800'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
                       {getRoleLabel(user.role)}
                     </span>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {user.status === 'active' ? '활성' : '비활성'}
+                      {user.isActive ? '활성' : '비활성'}
                     </span>
                     <button
                       onClick={() => handleEditClick(user)}
                       className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                      disabled={loading}
                     >
                       수정
                     </button>
                     <button
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => handleDeleteUser(user.employeeId, user.name)}
                       className="text-red-600 hover:text-red-900 text-sm font-medium"
+                      disabled={loading}
                     >
                       삭제
                     </button>
@@ -241,8 +499,39 @@ const Userset = () => {
                 </div>
               </li>
             ))}
-          </ul>
+            </ul>
+          )}
         </div>
+        
+        {/* 페이지네이션 */}
+        {pagination.totalPages > 1 && (
+          <div className="px-6 py-3 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                총 {pagination.totalElements}명 중 {pagination.page * pagination.size + 1}-{Math.min((pagination.page + 1) * pagination.size, pagination.totalElements)}명 표시
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => loadUsers(pagination.page - 1, searchTerm)}
+                  disabled={pagination.page === 0 || loading}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  이전
+                </button>
+                <span className="text-sm text-gray-600">
+                  {pagination.page + 1} / {pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => loadUsers(pagination.page + 1, searchTerm)}
+                  disabled={pagination.page >= pagination.totalPages - 1 || loading}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  다음
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
                      {/* 사용자 등록 모달 */}
@@ -382,20 +671,7 @@ const Userset = () => {
                    />
                  </div>
 
-                 {/* 활성상태 */}
-                 <div>
-                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                     활성상태
-                   </label>
-                   <select
-                     value={newUser.status}
-                     onChange={(e) => handleNewUserChange('status', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   >
-                     <option value="active">활성</option>
-                     <option value="inactive">비활성</option>
-                   </select>
-                 </div>
+                                   {/* 신규 사용자는 기본적으로 활성으로 생성되므로 활성상태 필드 제거 */}
 
                  <div className="flex space-x-2 mt-4">
                    <button
@@ -592,8 +868,8 @@ const Userset = () => {
                     활성상태
                   </label>
                   <select
-                    value={editingUser.status}
-                    onChange={(e) => handleEditUserChange('status', e.target.value)}
+                    value={editingUser.isActive ? 'active' : 'inactive'}
+                    onChange={(e) => handleEditUserChange('isActive', e.target.value === 'active')}
                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="active">활성</option>

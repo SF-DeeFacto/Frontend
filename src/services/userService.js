@@ -13,7 +13,7 @@ export const userService = {
     }
   },
 
-  // 사용자 목록 조회 (관리자용)
+  // 사용자 목록 조회 (관리자용) - 기본 메서드
   getUsers: async (page = 0, size = 10, name = '', email = '') => {
     try {
       const params = new URLSearchParams({
@@ -27,6 +27,28 @@ export const userService = {
       return response.data;
     } catch (error) {
       console.error('사용자 목록 조회 오류:', error);
+      throw error;
+    }
+  },
+
+  // 사용자 검색 (페이징 포함) - 향상된 검색 메서드
+  searchUsers: async (searchParams = {}) => {
+    try {
+      const { page = 0, size = 10, name = '', email = '', employeeId = '' } = searchParams;
+      const params = new URLSearchParams({
+        page: page.toString(),
+        size: size.toString(),
+        ...(name && { name }),
+        ...(email && { email }),
+        ...(employeeId && { employeeId })
+      });
+      
+      console.log('searchUsers 호출:', `/user/info/search?${params}`); // 디버깅용
+      
+      const response = await apiGet(`/user/info/search?${params}`);
+      return response;
+    } catch (error) {
+      console.error('사용자 검색 오류:', error);
       throw error;
     }
   },
