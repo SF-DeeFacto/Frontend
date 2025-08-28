@@ -58,11 +58,11 @@ const Userset = () => {
     name: '',
     password: '',
     email: '',
-    gender: 'M',
+    gender: 'male',
     department: '',
     position: '',
     role: 'USER',
-    scope: 'default',
+    scope: 'ALL',
     shift: 'DAY'
   });
 
@@ -76,7 +76,19 @@ const Userset = () => {
   const roles = [
     { value: 'USER', label: '일반 사용자' },
     { value: 'ADMIN', label: '관리자' },
-    // { value: 'ROOT', label: '슈퍼 관리자' }
+    { value: 'ROOT', label: '슈퍼 관리자' }
+  ];
+  
+  const scopes = [
+    { value: 'ALL', label: '전체' },
+    { value: 'A', label: 'A구역' },
+    { value: 'B', label: 'B구역' },
+    { value: 'C', label: 'C구역' }
+  ];
+  
+  const shifts = [
+    { value: 'DAY', label: '주간' },
+    { value: 'NIGHT', label: '야간' }
   ];
 
   // 사용자 목록 로드
@@ -113,10 +125,11 @@ const Userset = () => {
           if (apiData.content) {
             // Spring Data Page 구조
             console.log('Page 내용:', apiData.content);
-            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
             const mappedUsers = apiData.content.map(user => ({
               ...user,
-              isActive: user.active !== undefined ? user.active : true
+              isActive: user.active !== undefined ? user.active : true,
+              gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
             }));
             setUsers(mappedUsers);
             setPagination({
@@ -128,10 +141,11 @@ const Userset = () => {
           } else if (Array.isArray(apiData)) {
             // 배열 형태
             console.log('배열 형태 데이터:', apiData);
-            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
             const mappedUsers = apiData.map(user => ({
               ...user,
-              isActive: user.active !== undefined ? user.active : true
+              isActive: user.active !== undefined ? user.active : true,
+              gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
             }));
             setUsers(mappedUsers);
           } else {
@@ -142,10 +156,11 @@ const Userset = () => {
           // 직접 Page 구조
           console.log('직접 Page 구조:', response.data);
           const pageData = response.data;
-          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
           const mappedUsers = (pageData.content || []).map(user => ({
             ...user,
-            isActive: user.active !== undefined ? user.active : true
+            isActive: user.active !== undefined ? user.active : true,
+            gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
           }));
           setUsers(mappedUsers);
           setPagination({
@@ -157,10 +172,11 @@ const Userset = () => {
         } else if (Array.isArray(response.data)) {
           // 직접 배열 형태
           console.log('직접 배열 형태:', response.data);
-          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive)
+          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
           const mappedUsers = response.data.map(user => ({
             ...user,
-            isActive: user.active !== undefined ? user.active : true
+            isActive: user.active !== undefined ? user.active : true,
+            gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
           }));
           setUsers(mappedUsers);
         } else {
@@ -219,11 +235,11 @@ const Userset = () => {
           name: newUser.name,
           password: newUser.password,
           email: newUser.email,
-          gender: newUser.gender || 'M', // 백엔드에서 M/F 형식 사용
+          gender: newUser.gender === 'male' ? 'M' : 'F', // 백엔드에서 M/F 형식 사용
           department: newUser.department,
           position: newUser.position,
           role: newUser.role || 'USER',
-          scope: newUser.scope || 'default', // @NotBlank이므로 빈 문자열 대신 기본값
+          scope: newUser.scope || 'ALL', // @NotBlank이므로 빈 문자열 대신 기본값
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
@@ -240,11 +256,11 @@ const Userset = () => {
           name: '', 
           password: '', 
           email: '', 
-          gender: 'M', 
+          gender: 'male', 
           department: '', 
           position: '', 
           role: 'USER',
-          scope: 'default',
+          scope: 'ALL',
           shift: 'DAY'
         });
         
@@ -273,12 +289,12 @@ const Userset = () => {
           employeeId: editingUser.employeeId,
           name: editingUser.name,
           email: editingUser.email,
-          gender: editingUser.gender,
+          gender: editingUser.gender === 'male' ? 'M' : (editingUser.gender === 'female' ? 'F' : editingUser.gender), // 백엔드 형식 변환
           department: editingUser.department,
           position: editingUser.position,
           role: editingUser.role,
-          scope: editingUser.scope || '',
-          shift: editingUser.shift || '',
+          scope: editingUser.scope || 'ALL',
+          shift: editingUser.shift || 'DAY',
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
         
@@ -591,8 +607,8 @@ const Userset = () => {
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="M">남성</option>
-                      <option value="F">여성</option>
+                      <option value="male">남성</option>
+                      <option value="female">여성</option>
                     </select>
                   </div>
                 </div>
@@ -671,9 +687,41 @@ const Userset = () => {
                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                      placeholder="이메일을 입력하세요"
                    />
+                                  </div>
+
+                 {/* 구역범위 - 근무시간 */}
+                 <div className="grid grid-cols-2 gap-2">
+                   <div>
+                     <label className="block text-xs font-medium text-gray-700 mb-1">
+                       구역범위
+                     </label>
+                     <select
+                       value={newUser.scope}
+                       onChange={(e) => handleNewUserChange('scope', e.target.value)}
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     >
+                       {scopes.map(scope => (
+                         <option key={scope.value} value={scope.value}>{scope.label}</option>
+                       ))}
+                     </select>
+                   </div>
+                   <div>
+                     <label className="block text-xs font-medium text-gray-700 mb-1">
+                       근무시간
+                     </label>
+                     <select
+                       value={newUser.shift}
+                       onChange={(e) => handleNewUserChange('shift', e.target.value)}
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     >
+                       {shifts.map(shift => (
+                         <option key={shift.value} value={shift.value}>{shift.label}</option>
+                       ))}
+                     </select>
+                   </div>
                  </div>
 
-                                   {/* 신규 사용자는 기본적으로 활성으로 생성되므로 활성상태 필드 제거 */}
+                                  {/* 신규 사용자는 기본적으로 활성으로 생성되므로 활성상태 필드 제거 */}
 
                  <div className="flex space-x-2 mt-4">
                    <button
@@ -805,51 +853,39 @@ const Userset = () => {
                   </div>
                 </div>
 
-                {/* 직책 - 권한 */}
+                {/* 구역범위 - 근무시간 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      직책 <span className="text-red-500">*</span>
+                      구역범위
                     </label>
                     <select
-                      value={editingUser.position}
-                      onChange={(e) => handleEditUserChange('position', e.target.value)}
+                      value={editingUser.scope || 'ALL'}
+                      onChange={(e) => handleEditUserChange('scope', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      <option value="">선택</option>
-                      {positions.map(pos => (
-                        <option key={pos} value={pos}>{pos}</option>
+                      {scopes.map(scope => (
+                        <option key={scope.value} value={scope.value}>{scope.label}</option>
                       ))}
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      권한
+                      근무시간
                     </label>
                     <select
-                      value={editingUser.role}
-                      onChange={(e) => handleEditUserChange('role', e.target.value)}
+                      value={editingUser.shift || 'DAY'}
+                      onChange={(e) => handleEditUserChange('shift', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
-                      {roles.map(role => (
-                        <option key={role.value} value={role.value}>{role.label}</option>
+                      {shifts.map(shift => (
+                        <option key={shift.value} value={shift.value}>{shift.label}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
-                {/* 비밀번호 */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    비밀번호
-                  </label>
-                  <input
-                    type="password"
-                    value="********"
-                    disabled
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-gray-100 text-gray-500"
-                  />
-                </div>
+                {/* 비밀번호 필드 숨김 - 보안상 수정 모달에서는 표시하지 않음 */}
 
                 {/* 이메일 */}
                 <div>
