@@ -58,12 +58,12 @@ const Userset = () => {
     name: '',
     password: '',
     email: '',
-    gender: 'male',
+    gender: '',
     department: '',
     position: '',
-    role: 'USER',
-    scope: 'ALL',
-    shift: 'DAY'
+    role: '',
+    scope: '',
+    shift: ''
   });
 
   const [editingUser, setEditingUser] = useState(null);
@@ -76,19 +76,19 @@ const Userset = () => {
   const roles = [
     { value: 'USER', label: '일반 사용자' },
     { value: 'ADMIN', label: '관리자' },
-    { value: 'ROOT', label: '슈퍼 관리자' }
+    // { value: 'ROOT', label: '슈퍼 관리자' }
   ];
   
   const scopes = [
-    { value: 'ALL', label: '전체' },
-    { value: 'A', label: 'A구역' },
-    { value: 'B', label: 'B구역' },
-    { value: 'C', label: 'C구역' }
+    { value: 'a,b,c', label: '전체구역' },
+    { value: 'a', label: 'A구역' },
+    { value: 'b', label: 'B구역' },
+    { value: 'c', label: 'C구역' }
   ];
   
   const shifts = [
-    { value: 'DAY', label: '주간' },
-    { value: 'NIGHT', label: '야간' }
+    { value: 'DAY', label: '주간(D)' },
+    { value: 'NIGHT', label: '야간(N)' }
   ];
 
   // 사용자 목록 로드
@@ -97,100 +97,95 @@ const Userset = () => {
     setError(null);
     
     try {
-      const searchParams = {
-        page,
-        size: size || pagination.size || 10,
-        ...(searchTerm && (searchTerm.includes('@') 
-          ? { email: searchTerm } 
-          : { name: searchTerm, employeeId: searchTerm }))
-      };
-      
-      console.log('API 호출 파라미터:', searchParams); // 디버깅용
-      
-      const response = await userService.searchUsers(searchParams);
-      
-      console.log('API 응답:', response); // 디버깅용
-      console.log('response.data:', response.data); // 응답 데이터 구조 확인
-      
-      if (response && response.data) {
-        console.log('response.data 타입:', typeof response.data);
-        console.log('response.data 내용:', response.data);
+      let searchResults = [];
+      let totalElements = 0;
+      let totalPages = 0;
+
+      if (searchTerm && searchTerm.trim()) {
+        const trimmedTerm = searchTerm.trim();
         
-        // 백엔드 응답 구조 확인
-        if (response.data.data) {
-          // ApiResponseDto 구조: { success: true, data: {...}, message: "..." }
-          const apiData = response.data.data;
-          console.log('ApiResponseDto.data:', apiData);
-          
-          if (apiData.content) {
-            // Spring Data Page 구조
-            console.log('Page 내용:', apiData.content);
-            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
-            const mappedUsers = apiData.content.map(user => ({
-              ...user,
-              isActive: user.active !== undefined ? user.active : true,
-              gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
-            }));
-            setUsers(mappedUsers);
-            setPagination({
-              page: apiData.number || 0,
-              size: apiData.size || 10,
-              totalElements: apiData.totalElements || 0,
-              totalPages: apiData.totalPages || 0
-            });
-          } else if (Array.isArray(apiData)) {
-            // 배열 형태
-            console.log('배열 형태 데이터:', apiData);
-            // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
-            const mappedUsers = apiData.map(user => ({
-              ...user,
-              isActive: user.active !== undefined ? user.active : true,
-              gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
-            }));
-            setUsers(mappedUsers);
-          } else {
-            console.log('알 수 없는 데이터 구조:', apiData);
-            setUsers([]);
-          }
-        } else if (response.data.content) {
-          // 직접 Page 구조
-          console.log('직접 Page 구조:', response.data);
-          const pageData = response.data;
-          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
-          const mappedUsers = (pageData.content || []).map(user => ({
-            ...user,
-            isActive: user.active !== undefined ? user.active : true,
-            gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
-          }));
-          setUsers(mappedUsers);
-          setPagination({
-            page: pageData.number || 0,
-            size: pageData.size || 10,
-            totalElements: pageData.totalElements || 0,
-            totalPages: pageData.totalPages || 0
-          });
-        } else if (Array.isArray(response.data)) {
-          // 직접 배열 형태
-          console.log('직접 배열 형태:', response.data);
-          // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
-          const mappedUsers = response.data.map(user => ({
-            ...user,
-            isActive: user.active !== undefined ? user.active : true,
-            gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
-          }));
-          setUsers(mappedUsers);
-        } else {
-          console.log('예상치 못한 응답 구조:', response.data);
-          setUsers([]);
-        }
+        // 이름 또는 사번 검색 - 두 번의 API 호출로 OR 조건 구현
+        const nameSearchParams = {
+          page,
+          size: size || pagination.size || 10,
+          name: trimmedTerm
+        };
+        
+        const employeeIdSearchParams = {
+          page,
+          size: size || pagination.size || 10,
+          employeeId: trimmedTerm
+        };
+        
+        console.log('이름 검색 파라미터:', nameSearchParams);
+        console.log('사번 검색 파라미터:', employeeIdSearchParams);
+        
+        // 두 검색을 병렬로 실행
+        const [nameResponse, employeeIdResponse] = await Promise.all([
+          userService.searchUsers(nameSearchParams).catch(() => ({ data: { content: [] } })),
+          userService.searchUsers(employeeIdSearchParams).catch(() => ({ data: { content: [] } }))
+        ]);
+        
+        // 결과 합치기 (중복 제거)
+        const nameResults = nameResponse?.data?.data?.content || nameResponse?.data?.content || [];
+        const employeeIdResults = employeeIdResponse?.data?.data?.content || employeeIdResponse?.data?.content || [];
+        
+        // employeeId로 중복 제거
+        const uniqueResults = new Map();
+        [...nameResults, ...employeeIdResults].forEach(user => {
+          uniqueResults.set(user.employeeId, user);
+        });
+        
+        searchResults = Array.from(uniqueResults.values());
+        
+        // 페이징 정보는 검색 결과 기준
+        totalElements = searchResults.length;
+        totalPages = Math.ceil(totalElements / (size || pagination.size || 10));
       } else {
-        console.log('response 또는 response.data가 없음');
-        setUsers(response || []);
+        // 검색어가 없으면 전체 조회
+        const searchParams = {
+          page,
+          size: size || pagination.size || 10
+        };
+        
+        console.log('전체 조회 파라미터:', searchParams);
+        const response = await userService.searchUsers(searchParams);
+        
+        if (response && response.data) {
+          const apiData = response.data.data || response.data;
+          searchResults = apiData.content || [];
+          totalElements = apiData.totalElements || 0;
+          totalPages = apiData.totalPages || 0;
+        }
       }
+      
+      // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
+      const mappedUsers = searchResults.map(user => ({
+        ...user,
+        isActive: user.active !== undefined ? user.active : true,
+        gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
+      }));
+      
+      setUsers(mappedUsers);
+      setPagination({
+        page: page,
+        size: size || pagination.size || 10,
+        totalElements: totalElements,
+        totalPages: totalPages
+      });
+      
+      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
+      
     } catch (error) {
       console.error('사용자 목록 로드 실패:', error);
       setError(`사용자 목록을 불러오는데 실패했습니다: ${error.message}`);
       setUsers([]);
+      setPagination({
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0
+      });
     } finally {
       setLoading(false);
     }
@@ -218,10 +213,15 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    setEditingUser(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
+    setEditingUser(prev => {
+      const updated = {
+        ...prev,
+        [key]: value
+      };
+      console.log('수정된 사용자 정보:', updated); // 디버깅용
+      return updated;
+    });
   };
 
   const handleAddUser = async () => {
@@ -239,7 +239,7 @@ const Userset = () => {
           department: newUser.department,
           position: newUser.position,
           role: newUser.role || 'USER',
-          scope: newUser.scope || 'ALL', // @NotBlank이므로 빈 문자열 대신 기본값
+          scope: newUser.scope || 'a,b,c', // @NotBlank이므로 빈 문자열 대신 기본값
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
@@ -256,12 +256,12 @@ const Userset = () => {
           name: '', 
           password: '', 
           email: '', 
-          gender: 'male', 
+          gender: '', 
           department: '', 
           position: '', 
-          role: 'USER',
-          scope: 'ALL',
-          shift: 'DAY'
+          role: '',
+          scope: '',
+          shift: ''
         });
         
         setShowAddModal(false);
@@ -293,10 +293,13 @@ const Userset = () => {
           department: editingUser.department,
           position: editingUser.position,
           role: editingUser.role,
-          scope: editingUser.scope || 'ALL',
+          scope: editingUser.scope || 'a,b,c',
           shift: editingUser.shift || 'DAY',
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
+        
+        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
+        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
         
         await userService.updateUser(userData);
         
@@ -354,12 +357,39 @@ const Userset = () => {
   //   ));
   // };
 
-  const getGenderLabel = (gender) => {
-    return gender === 'male' ? '남성' : '여성';
-  };
-
   const getRoleLabel = (role) => {
     return roles.find(r => r.value === role)?.label || role;
+  };
+
+  // 성별 라벨 변환 함수
+  const getGenderLabel = (gender) => {
+    switch(gender) {
+      case 'M': return '남성';
+      case 'F': return '여성';
+      case 'male': return '남성';
+      case 'female': return '여성';
+      default: return gender;
+    }
+  };
+
+  // 구역 라벨 변환 함수
+  const getScopeLabel = (scope) => {
+    switch(scope) {
+      case 'a,b,c': return '전체구역';
+      case 'a': return 'A구역';
+      case 'b': return 'B구역';
+      case 'c': return 'C구역';
+      default: return scope;
+    }
+  };
+
+  // 근무시간 라벨 변환 함수
+  const getShiftLabel = (shift) => {
+    switch(shift) {
+      case 'DAY': return '주간(D)';
+      case 'NIGHT': return '야간(N)';
+      default: return shift;
+    }
   };
 
   // 검색은 API에서 처리하므로 필터링 로직 제거
@@ -481,7 +511,13 @@ const Userset = () => {
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">{user.name || '이름 없음'}</div>
                       <div className="text-sm text-gray-500">{user.employeeId} • {user.email}</div>
-                      <div className="text-sm text-gray-400">{user.department} • {user.position}</div>
+                      <div className="text-sm text-gray-400">
+                        {getGenderLabel(user.gender)} • 
+                        {user.position} • 
+                        {user.department} •
+                        {getScopeLabel(user.scope)} • 
+                        {getShiftLabel(user.shift)}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -607,6 +643,7 @@ const Userset = () => {
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
+                      <option value="">선택</option>
                       <option value="male">남성</option>
                       <option value="female">여성</option>
                     </select>
@@ -654,6 +691,7 @@ const Userset = () => {
                       onChange={(e) => handleNewUserChange('role', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
+                      <option value="">선택</option>
                       {roles.map(role => (
                         <option key={role.value} value={role.value}>{role.label}</option>
                       ))}
@@ -700,6 +738,7 @@ const Userset = () => {
                        onChange={(e) => handleNewUserChange('scope', e.target.value)}
                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                      >
+                       <option value="">선택</option>
                        {scopes.map(scope => (
                          <option key={scope.value} value={scope.value}>{scope.label}</option>
                        ))}
@@ -714,6 +753,7 @@ const Userset = () => {
                        onChange={(e) => handleNewUserChange('shift', e.target.value)}
                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                      >
+                       <option value="">선택</option>
                        {shifts.map(shift => (
                          <option key={shift.value} value={shift.value}>{shift.label}</option>
                        ))}
@@ -860,8 +900,11 @@ const Userset = () => {
                       구역범위
                     </label>
                     <select
-                      value={editingUser.scope || 'ALL'}
-                      onChange={(e) => handleEditUserChange('scope', e.target.value)}
+                      value={editingUser.scope || 'a,b,c'}
+                      onChange={(e) => {
+                        console.log('구역범위 변경:', e.target.value); // 디버깅용
+                        handleEditUserChange('scope', e.target.value);
+                      }}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       {scopes.map(scope => (
