@@ -4,12 +4,17 @@ import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
+import { weatherApi } from '../../services/api/weather_api';
 
 const Header = () => {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
+  
+
+  
+
   
   // alarmCount 상태 변화 감지 (배포 시 주석 처리)
   // useEffect(() => {
@@ -76,29 +81,13 @@ const Header = () => {
 
   // 날씨 정보 가져오기
   useEffect(() => {
-    const getWeatherInfo = async () => {
-      try {
-        // 실제 날씨 API 호출 (구현 필요)
-        // const result = await weatherApi.getCurrentWeather();
-        // if (result.success) {
-        //   setWeatherData(result.data);
-        // }
-        
-        // 임시로 기본값 설정
-        setWeatherData({
-          weather: '날씨 정보 없음',
-          temperature: '--',
-          icon: '🌤️'
-        });
-      } catch (error) {
-        console.error('날씨 정보 가져오기 실패:', error);
-        setWeatherData({
-          weather: '날씨 정보 없음',
-          temperature: '--',
-          icon: '🌤️'
-        });
-      }
-    };
+              const getWeatherInfo = async () => {
+       const result = await weatherApi.getCurrentWeather();
+       
+       if (result.success) {
+         setWeatherData(result.data.data);
+       }
+     };
 
     getWeatherInfo();
     // 5분마다 날씨 정보 업데이트
@@ -226,20 +215,83 @@ const Header = () => {
     </div>
   );
 
+  // 날씨 설명을 한국어로 번역하는 함수
+  const translateWeatherDescription = (description) => {
+    const weatherMap = {
+      'clear sky': '맑음',
+      'few clouds': '구름 조금',
+      'scattered clouds': '구름 많음',
+      'broken clouds': '구름 많음',
+      'shower rain': '소나기',
+      'rain': '비',
+      'thunderstorm': '천둥번개',
+      'snow': '눈',
+      'mist': '안개',
+      'overcast clouds': '흐림'
+    };
+    
+    return weatherMap[description] || description;
+  };
+
+  // 날씨 정보 새로고침 함수
+  const refreshWeatherInfo = async () => {
+    const result = await weatherApi.refreshWeather();
+    if (result.success) {
+      setWeatherData(result.data.data);
+    }
+  };
+
   // 시간 정보 컴포넌트
-  const TimeInfo = () => (
-    <div
-      className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
-      style={styles.timeInfo}
-    >
-      <Text variant="body" size="sm" weight="normal">
-        {weatherData ? `${weatherData.weather} ${weatherData.temperature}°C` : '날씨 정보 로딩중...'}
-      </Text>
+  const TimeInfo = () => {
+    return (
+      <div
+        className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
+        style={styles.timeInfo}
+      >
+        <div 
+          className="cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={refreshWeatherInfo}
+          title="날씨 정보 새로고침"
+        >
+          <Text variant="body" size="sm" weight="normal">
+           {weatherData ? (
+             <>
+               {weatherData.icon && (
+                 <span className="mr-1">
+                   {weatherData.icon === '01d' ? '☀️' : 
+                    weatherData.icon === '01n' ? '🌙' :
+                    weatherData.icon === '02d' ? '⛅' : 
+                    weatherData.icon === '02n' ? '☁️' :
+                    weatherData.icon === '03d' ? '☁️' : 
+                    weatherData.icon === '03n' ? '☁️' :
+                    weatherData.icon === '04d' ? '☁️' : 
+                    weatherData.icon === '04n' ? '☁️' :
+                    weatherData.icon === '09d' ? '🌧️' : 
+                    weatherData.icon === '09n' ? '🌧️' :
+                    weatherData.icon === '10d' ? '🌦️' : 
+                    weatherData.icon === '10n' ? '🌧️' :
+                    weatherData.icon === '11d' ? '⛈️' : 
+                    weatherData.icon === '11n' ? '⛈️' :
+                    weatherData.icon === '13d' ? '❄️' : 
+                    weatherData.icon === '13n' ? '❄️' :
+                    weatherData.icon === '50d' ? '🌫️' : 
+                    weatherData.icon === '50n' ? '🌫️' : '🌤️'}
+                 </span>
+               )}
+               {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
+               {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
+             </>
+           ) : (
+             <span className="text-gray-500">날씨 정보 로딩중...</span>
+           )}
+         </Text>
+      </div>
       <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
         {dateString} {weekdayString} {timeString}
       </Text>
-    </div>
-  );
+      </div>
+    );
+  };
 
   // 사용자 네비게이션 컴포넌트
   const UserNavigation = () => (

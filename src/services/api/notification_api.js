@@ -8,10 +8,14 @@ const isDev = import.meta.env.DEV;
 export const notificationApi = {
   // 알림 목록 조회 (페이지네이션 및 필터링 지원)
   getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null) => {
+    const startTime = Date.now();
+    const requestId = Math.random().toString(36).substr(2, 9);
+    
     try {
-      console.log('=== 알림 목록 조회 시작 ===');
-      console.log('요청 파라미터:', { page, size, isRead, isFlagged });
-      console.log('API 클라이언트 설정:', {
+      console.log(`🚀 [${requestId}] 알림 목록 조회 시작`);
+      console.log(`⏰ [${requestId}] 요청 시작 시간:`, new Date().toLocaleTimeString());
+      console.log(`📋 [${requestId}] 요청 파라미터:`, { page, size, isRead, isFlagged });
+      console.log(`🔧 [${requestId}] API 클라이언트 설정:`, {
         baseURL: authApiClient.defaults.baseURL,
         timeout: authApiClient.defaults.timeout,
         headers: authApiClient.defaults.headers
@@ -24,29 +28,39 @@ export const notificationApi = {
       if (isFlagged !== null) params.append('isFlagged', isFlagged);
       
       const requestUrl = `/noti/list?${params.toString()}`;
-      console.log('요청 URL:', requestUrl);
+      console.log(`🔗 [${requestId}] 요청 URL:`, requestUrl);
       
       const response = await authApiClient.get(requestUrl);
       
-      console.log('=== 알림 목록 조회 성공 ===');
-      console.log('응답 데이터:', response.data);
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      console.log(`✅ [${requestId}] 알림 목록 조회 성공`);
+      console.log(`⏱️ [${requestId}] 총 소요 시간: ${duration}ms`);
+      console.log(`📊 [${requestId}] 응답 데이터:`, response.data);
       
       // 전체 응답 구조를 반환하여 페이지네이션 정보도 함께 사용할 수 있도록 함
       return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
     } catch (error) {
-      console.error('=== 알림 목록 조회 에러 상세 정보 ===');
-      console.error('Get notifications error:', error);
-      console.error('Error details:', {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      console.error(`❌ [${requestId}] 알림 목록 조회 실패`);
+      console.error(`⏱️ [${requestId}] 실패까지 소요 시간: ${duration}ms`);
+      console.error(`🔍 [${requestId}] 에러 상세 정보:`, {
         message: error.message,
         code: error.code,
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
+        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상',
         config: {
           url: error.config?.url,
           method: error.config?.method,
           baseURL: error.config?.baseURL,
-          headers: error.config?.headers
+          headers: error.config?.headers,
+          timeout: error.config?.timeout
         }
       });
       
@@ -61,10 +75,21 @@ export const notificationApi = {
 
   // 안읽은 알림 개수 조회
   getUnreadNotificationCount: async () => {
+    const startTime = Date.now();
+    const requestId = Math.random().toString(36).substr(2, 9);
+    
     try {
-
-
-            const response = await authApiClient.get('/noti/count');
+      console.log(`🚀 [${requestId}] 안읽은 알림 개수 조회 시작`);
+      console.log(`⏰ [${requestId}] 요청 시작 시간:`, new Date().toLocaleTimeString());
+      
+      const response = await authApiClient.get('/noti/count');
+      
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      console.log(`✅ [${requestId}] 안읽은 알림 개수 조회 성공`);
+      console.log(`⏱️ [${requestId}] 총 소요 시간: ${duration}ms`);
+      console.log(`📊 [${requestId}] 응답 데이터:`, response.data);
       
       // 최소한의 콘솔 로그
       if (isDev) {
@@ -73,19 +98,25 @@ export const notificationApi = {
       
       return response.data;
     } catch (error) {
-      console.error('=== 안읽은 알림 개수 조회 에러 상세 정보 ===');
-      console.error('Get unread count error:', error);
-      console.error('Error details:', {
+      const endTime = Date.now();
+      const duration = endTime - startTime;
+      
+      console.error(`❌ [${requestId}] 안읽은 알림 개수 조회 실패`);
+      console.error(`⏱️ [${requestId}] 실패까지 소요 시간: ${duration}ms`);
+      console.error(`🔍 [${requestId}] 에러 상세 정보:`, {
         message: error.message,
         code: error.code,
         status: error.response?.status,
         statusText: error.response?.statusText,
         data: error.response?.data,
+        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상',
         config: {
           url: error.config?.url,
           method: error.config?.method,
           baseURL: error.config?.baseURL,
-          headers: error.config?.headers
+          headers: error.config?.headers,
+          timeout: error.config?.timeout
         }
       });
       

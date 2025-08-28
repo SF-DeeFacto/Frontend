@@ -9,7 +9,7 @@ const createAuthApiClient = () => {
     headers: {
       "Content-Type": "application/json",
     },
-    timeout: 10000, // 10초 타임아웃 추가
+    timeout: 30000, // 30초 타임아웃으로 증가 (백엔드 응답 지연 대응)
   });
 
   // 요청 인터셉터 - 토큰 자동 추가
@@ -19,49 +19,94 @@ const createAuthApiClient = () => {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      // 요청 시작 시간 기록
+      config.metadata = { startTime: new Date() };
+      console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`📊 요청 설정:`, {
+        baseURL: config.baseURL,
+        timeout: config.timeout,
+        headers: config.headers
+      });
+      
       return config;
     },
     (error) => {
+      console.error('❌ API 요청 인터셉터 오류:', error);
       return Promise.reject(error);
     }
   );
 
-  // 응답 인터셉터 - 토큰 만료 시 자동 갱신
+  // 응답 인터셉터 - 401 에러 처리
   apiClient.interceptors.response.use(
     (response) => {
+      // 응답 시간 계산
+      const endTime = new Date();
+      const startTime = response.config.metadata?.startTime;
+      const duration = startTime ? endTime - startTime : '알 수 없음';
+      
+      console.log(`✅ API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      console.log(`⏱️ 응답 시간: ${duration}ms`);
+      console.log(`📊 응답 상태: ${response.status} ${response.statusText}`);
+      
       return response;
     },
     async (error) => {
+      // 응답 시간 계산 (에러인 경우에도)
+      const endTime = new Date();
+      const startTime = error.config?.metadata?.startTime;
+      const duration = startTime ? endTime - startTime : '알 수 없음';
+      
+      console.error(`❌ API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.error(`⏱️ 요청 지속 시간: ${duration}ms`);
+      console.error(`🔍 에러 상세 정보:`, {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
+      });
+      
       const originalRequest = error.config;
       
       // 401 에러이고 재시도하지 않은 요청인 경우
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         
-        try {
-          // 리프레시 토큰으로 새로운 액세스 토큰 요청
-          const refreshToken = localStorage.getItem('refresh_token');
-          if (refreshToken) {
-            console.log('토큰 만료, 자동 갱신 시도...');
-            
-            const response = await axios.post('/api/auth/refresh', {
-              refreshToken: refreshToken
-            });
-            
-            const newAccessToken = response.data.data.access.token;
-            localStorage.setItem('access_token', newAccessToken);
-            
-            // 원래 요청 재시도
-            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-            return apiClient(originalRequest);
-          }
-        } catch (refreshError) {
-          console.error('토큰 갱신 실패:', refreshError);
-          // 토큰 갱신 실패 시 로그인 페이지로 이동
-          localStorage.clear();
-          window.location.href = '/login';
-          return Promise.reject(refreshError);
-        }
+        console.log('🔐 토큰 만료, 로그인 페이지로 이동...');
+        
+        // refresh 엔드포인트가 없으므로 바로 로그인 페이지로 이동
+        localStorage.clear();
+        window.location.href = '/login';
+        return Promise.reject(error);
+        
+        // TODO: 백엔드에 refresh 엔드포인트가 구현되면 아래 주석을 해제하세요
+        
+        // try {
+        //   // 리프레시 토큰으로 새로운 액세스 토큰 요청
+        //   const refreshToken = localStorage.getItem('refresh_token');
+        //   if (refreshToken) {
+        //     console.log('토큰 만료, 자동 갱신 시도...');
+        //     
+        //     const response = await axios.post('/api/auth/refresh', {
+        //       refreshToken: refreshToken
+        //     });
+        //     
+        //     const newAccessToken = response.data.data.access.token;
+        //     localStorage.setItem('access_token', newAccessToken);
+        //     
+        //     // 원래 요청 재시도
+        //     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        //     return apiClient(originalRequest);
+        //   }
+        // } catch (refreshError) {
+        //   console.error('토큰 갱신 실패:', refreshError);
+        //   // 토큰 갱신 실패 시 로그인 페이지로 이동
+        //   localStorage.clear();
+        //   window.location.href = '/login';
+        //   return Promise.reject(refreshError);
+        // }
       }
       
       return Promise.reject(error);
@@ -78,6 +123,7 @@ const createDashboardApiClient = () => {
     headers: {
       "Content-Type": "application/json",
     },
+    timeout: 30000, // 30초 타임아웃 추가 (일관성 유지)
   });
 
   // 요청 인터셉터 - 토큰 자동 추가
@@ -87,9 +133,55 @@ const createDashboardApiClient = () => {
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      // 요청 시작 시간 기록
+      config.metadata = { startTime: new Date() };
+      console.log(`🚀 Dashboard API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`📊 Dashboard 요청 설정:`, {
+        baseURL: config.baseURL,
+        timeout: config.timeout,
+        headers: config.headers
+      });
+      
       return config;
     },
     (error) => {
+      console.error('❌ Dashboard API 요청 인터셉터 오류:', error);
+      return Promise.reject(error);
+    }
+  );
+
+  // 응답 인터셉터 추가
+  apiClient.interceptors.response.use(
+    (response) => {
+      // 응답 시간 계산
+      const endTime = new Date();
+      const startTime = response.config.metadata?.startTime;
+      const duration = startTime ? endTime - startTime : '알 수 없음';
+      
+      console.log(`✅ Dashboard API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      console.log(`⏱️ Dashboard 응답 시간: ${duration}ms`);
+      console.log(`📊 Dashboard 응답 상태: ${response.status} ${response.statusText}`);
+      
+      return response;
+    },
+    (error) => {
+      // 응답 시간 계산 (에러인 경우에도)
+      const endTime = new Date();
+      const startTime = error.config?.metadata?.startTime;
+      const duration = startTime ? endTime - startTime : '알 수 없음';
+      
+      console.error(`❌ Dashboard API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.error(`⏱️ Dashboard 요청 지속 시간: ${duration}ms`);
+      console.error(`🔍 Dashboard 에러 상세 정보:`, {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
+      });
+      
       return Promise.reject(error);
     }
   );
