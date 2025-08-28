@@ -44,7 +44,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   let eventSource = null;
   let retryCount = 0;
   const maxRetries = 3;
-  const retryDelay = 2000; // 2초
+  const retryDelay = 500; // 0.5초
   
   let lastMessageTime = Date.now(); // 마지막 메시지 수신 시간
   let heartbeatTimer = null; // 하트비트 타이머
