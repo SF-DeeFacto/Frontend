@@ -198,9 +198,6 @@ export const COMMON_ZONE_CONFIG = {
   // Zone 변경 디바운스 시간
   ZONE_CHANGE_DEBOUNCE: 1000, // 1초
   
-  // 더미 데이터를 사용하는 Zone 목록
-  DUMMY_DATA_ZONES: ['a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'],
-  
   // 실시간 데이터를 사용하는 Zone 목록 - 모든 존 포함
   REALTIME_DATA_ZONES: ['a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'],
   
@@ -240,10 +237,4 @@ export const getZoneThresholds = (zoneId) => {
 export const isRealtimeZone = (zoneId) => {
   const upperZoneId = zoneId?.toLowerCase();
   return COMMON_ZONE_CONFIG.REALTIME_DATA_ZONES.includes(upperZoneId);
-};
-
-// Zone이 더미 데이터를 사용하는지 확인
-export const isDummyZone = (zoneId) => {
-  const upperZoneId = zoneId?.toLowerCase();
-  return COMMON_ZONE_CONFIG.DUMMY_DATA_ZONES.includes(upperZoneId);
 }; 

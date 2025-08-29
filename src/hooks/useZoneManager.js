@@ -1,9 +1,8 @@
 /**
- * SSE API 연동 가이드:
- * 1. 모든 "더미데이터 시작" ~ "더미데이터 끝 (삭제)" 주석 블록을 삭제
- * 2. SSE 연결 주석들을 해제 (disconnectMainSSE, REALTIME_DATA_ZONES 등)
- * 3. updateDummyData 함수를 실제 SSE 데이터 처리로 교체
- * 4. 더미 데이터 import 제거
+ * SSE API 연동 완료:
+ * - 모든 Zone에서 실시간 SSE 데이터 사용
+ * - 더미 데이터 완전 제거
+ * - 백엔드 연결 상태에 따른 정확한 데이터 표시
  */
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
