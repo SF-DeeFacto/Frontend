@@ -1,32 +1,28 @@
 // 백엔드 API 응답을 프론트엔드 형식으로 변환하는 유틸리티
 
-// 센서 타입 매핑 (백엔드 -> 프론트엔드)
+// 센서 타입 매핑 (백엔드 → 프론트엔드)
 const SENSOR_TYPE_MAPPING = {
   'temperature': 'temperature',
-  'humidity': 'humidity',
-  'electrostatic': 'esd',
+  'humidity': 'humidity', 
+  'electrostatic': 'esd',        // 백엔드: electrostatic → 프론트: esd
   'particle': 'particle',
-  'winddirection': 'windDir'
-};
-
-// 센서 상태 매핑 (백엔드 -> 프론트엔드)
-const SENSOR_STATUS_MAPPING = {
-  'GREEN': 'normal',
-  'YELLOW': 'warning',
-  'RED': 'error'
+  'winddirection': 'windDir'     // 백엔드: winddirection → 프론트: windDir
 };
 
 // 백엔드 센서 데이터를 프론트엔드 형식으로 변환
 export const mapBackendSensorData = (backendSensor) => {
+  // 백엔드 센서 타입을 프론트엔드 타입으로 매핑
+  const mappedSensorType = SENSOR_TYPE_MAPPING[backendSensor.sensorType] || backendSensor.sensorType;
+  
   const mappedSensor = {
-    sensorId: backendSensor.sensorId,
-    sensorType: SENSOR_TYPE_MAPPING[backendSensor.sensorType] || backendSensor.sensorType,
-    sensorStatus: SENSOR_STATUS_MAPPING[backendSensor.sensorStatus] || backendSensor.sensorStatus,
+    sensorId: backendSensor.sensorId || backendSensor.sensor_id,
+    sensorType: mappedSensorType,  // 매핑된 타입 사용
+    sensorStatus: backendSensor.sensorStatus || backendSensor.status || 'normal',
     timestamp: backendSensor.timestamp,
-    values: { ...backendSensor.values }
+    values: backendSensor.values || {}
   };
 
-  console.log(`센서 매핑: ${backendSensor.sensorType} → ${mappedSensor.sensorType}, ${backendSensor.sensorStatus} → ${mappedSensor.sensorStatus}`);
+  console.log(`센서 매핑: ${mappedSensor.sensorId} (${backendSensor.sensorType} → ${mappedSensor.sensorType}) - 원본 값:`, backendSensor.values);
   return mappedSensor;
 };
 
@@ -36,47 +32,28 @@ export const mapBackendZoneData = (backendZoneData, zoneId) => {
     return null;
   }
 
-  // 모든 센서 데이터를 하나의 배열로 통합
-  const allSensors = [];
+  // 모든 센서 데이터를 하나의 배열로 통합하고 매핑
+  const mappedSensors = [];
   backendZoneData.data.forEach(dataPoint => {
     if (dataPoint.sensors && Array.isArray(dataPoint.sensors)) {
       dataPoint.sensors.forEach(sensor => {
-        allSensors.push({
-          ...sensor,
+        const mappedSensor = mapBackendSensorData(sensor);
+        mappedSensors.push({
+          ...mappedSensor,
           timestamp: dataPoint.timestamp // 존 타임스탬프 사용
         });
       });
     }
   });
 
-  // 센서 타입별로 그룹화
-  const groupedSensors = {
-    temperature: [],
-    humidity: [],
-    esd: [],
-    particle: [],
-    windDir: []
-  };
-
-  allSensors.forEach(sensor => {
-    const mappedSensor = mapBackendSensorData(sensor);
-    const sensorType = mappedSensor.sensorType;
-    
-    console.log(`센서 그룹화: ${sensor.sensorId} (${sensor.sensorType} → ${sensorType})`);
-    
-    if (groupedSensors[sensorType]) {
-      groupedSensors[sensorType].push(mappedSensor);
-      console.log(`✅ ${sensorType} 그룹에 추가됨`);
-    } else {
-      console.warn(`❌ ${sensorType} 그룹이 존재하지 않음`);
-    }
-  });
+  console.log(`📊 ${zoneId} 존 - 매핑된 센서 ${mappedSensors.length}개:`, 
+    mappedSensors.map(s => `${s.sensorId}(${s.sensorType})`).join(', '));
 
   return {
     zoneId: zoneId,
     zoneName: `Zone ${zoneId}`,
     timestamp: new Date().toISOString(),
-    sensors: allSensors.map(sensor => mapBackendSensorData(sensor)) // 매핑된 센서 데이터 반환
+    sensors: mappedSensors // 매핑된 센서 배열 반환
   };
 };
 

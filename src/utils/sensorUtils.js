@@ -16,24 +16,31 @@ export const groupSensorData = (sensors) => {
   const grouped = {};
   
   Object.values(sensors).forEach(sensor => {
-    const sensorType = sensor.sensorType;
+    // 백엔드에서 오는 원본 센서 타입 사용
+    const sensorType = sensor.sensorType || sensor.sensor_type;
     if (!grouped[sensorType]) {
       grouped[sensorType] = [];
     }
     
+    // 백엔드 데이터를 그대로 사용
     const convertedSensor = {
-      sensor_id: sensor.sensorId,
-      sensor_type: sensor.sensorType,
+      sensor_id: sensor.sensorId || sensor.sensor_id,
+      sensor_type: sensorType,
       timestamp: sensor.timestamp,
-      status: sensor.sensorStatus
+      status: sensor.sensorStatus || sensor.status || 'normal'
     };
 
-    if (sensor.sensorType === 'particle') {
-      convertedSensor.val_0_1 = parseFloat(sensor.values?.['0.1']) || 0;
-      convertedSensor.val_0_3 = parseFloat(sensor.values?.['0.3']) || 0;
-      convertedSensor.val_0_5 = parseFloat(sensor.values?.['0.5']) || 0;
-    } else {
-      convertedSensor.val = parseFloat(sensor.values?.value) || 0;
+    // 백엔드 values 객체를 그대로 사용
+    if (sensor.values) {
+      if (sensorType === 'particle') {
+        // 먼지 센서: 백엔드에서 오는 값 그대로 사용
+        convertedSensor.val_0_1 = parseFloat(sensor.values['0.1']) || 0;
+        convertedSensor.val_0_3 = parseFloat(sensor.values['0.3']) || 0;
+        convertedSensor.val_0_5 = parseFloat(sensor.values['0.5']) || 0;
+      } else {
+        // 다른 센서: 백엔드에서 오는 값 그대로 사용
+        convertedSensor.val = parseFloat(sensor.values.value || sensor.values) || 0;
+      }
     }
     
     grouped[sensorType].push(convertedSensor);
@@ -59,11 +66,14 @@ export const formatTime = (date) => {
  */
 export const isSensorValueValid = (sensorData) => {
   if (sensorData.sensor_type === 'particle') {
-    return (sensorData.val_0_1 && sensorData.val_0_1 > 0) ||
-           (sensorData.val_0_3 && sensorData.val_0_3 > 0) ||
-           (sensorData.val_0_5 && sensorData.val_0_5 > 0);
+    // 먼지 센서는 3개 값 중 하나라도 존재하면 유효
+    return sensorData.val_0_1 !== undefined && sensorData.val_0_1 !== null ||
+           sensorData.val_0_3 !== undefined && sensorData.val_0_3 !== null ||
+           sensorData.val_0_5 !== undefined && sensorData.val_0_5 !== null;
   }
-  return sensorData.val && sensorData.val > 0;
+  
+  // 다른 센서들은 값이 존재하면 유효 (0도 유효한 값)
+  return sensorData.val !== undefined && sensorData.val !== null;
 };
 
 /**

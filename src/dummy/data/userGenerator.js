@@ -14,7 +14,7 @@ export const generateDummyUsers = (count = 1) => {
   const users = [];
   
   // 기본 관리자 계정만 유지
-  // users.push({
+  // users.pusnph({
   //   id: 1,
   //   employee_id: 'admin',
   //   password: '1234',
