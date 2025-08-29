@@ -4,10 +4,10 @@ import { dashboardApiClient } from '../index';
 export const weatherApi = {
   // 현재 날씨 정보 조회
   getCurrentWeather: async () => {
-    console.log('날씨 정보 조회 시작');
+    // console.log('날씨 정보 조회 시작');
     try {
       const response = await dashboardApiClient.get('/home/weather');
-      console.log('날씨 정보 조회 성공:', response.data);
+      // console.log('날씨 정보 조회 성공:', response.data);
       return {
         success: true,
         data: response.data
@@ -23,7 +23,7 @@ export const weatherApi = {
 
   // 날씨 정보 새로고침
   refreshWeather: async () => {
-    console.log('날씨 정보 새로고침 시작');
+    // console.log('날씨 정보 새로고침 시작');
     try {
       const response = await dashboardApiClient.get('/home/weather', {
         headers: {
@@ -31,7 +31,7 @@ export const weatherApi = {
           'Pragma': 'no-cache'
         }
       });
-      console.log('날씨 정보 새로고침 성공:', response.data);
+      // console.log('날씨 정보 새로고침 성공:', response.data);
       return {
         success: true,
         data: response.data

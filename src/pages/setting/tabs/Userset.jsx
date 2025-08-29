@@ -117,8 +117,8 @@ const Userset = () => {
           employeeId: trimmedTerm
         };
         
-        console.log('이름 검색 파라미터:', nameSearchParams);
-        console.log('사번 검색 파라미터:', employeeIdSearchParams);
+        // console.log('이름 검색 파라미터:', nameSearchParams);
+        // console.log('사번 검색 파라미터:', employeeIdSearchParams);
         
         // 두 검색을 병렬로 실행
         const [nameResponse, employeeIdResponse] = await Promise.all([
@@ -148,7 +148,7 @@ const Userset = () => {
           size: size || pagination.size || 10
         };
         
-        console.log('전체 조회 파라미터:', searchParams);
+        // console.log('전체 조회 파라미터:', searchParams);
         const response = await userService.searchUsers(searchParams);
         
         if (response && response.data) {
@@ -174,7 +174,7 @@ const Userset = () => {
         totalPages: totalPages
       });
       
-      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
+      // console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
       console.error('사용자 목록 로드 실패:', error);
@@ -213,13 +213,13 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
+    // console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
     setEditingUser(prev => {
       const updated = {
         ...prev,
         [key]: value
       };
-      console.log('수정된 사용자 정보:', updated); // 디버깅용
+      // console.log('수정된 사용자 정보:', updated); // 디버깅용
       return updated;
     });
   };
@@ -243,7 +243,7 @@ const Userset = () => {
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
-        console.log('등록 요청 데이터:', userData); // 디버깅용
+        // console.log('등록 요청 데이터:', userData); // 디버깅용
         
         await userService.registerUser(userData);
         
@@ -298,8 +298,8 @@ const Userset = () => {
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
         
-        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
-        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
+        // console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
+        // console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
         
         await userService.updateUser(userData);
         
@@ -402,9 +402,9 @@ const Userset = () => {
   const filteredUsers = users;
   
   // 디버깅: users 상태 확인
-  console.log('현재 users 상태:', users);
-  console.log('filteredUsers:', filteredUsers);
-  console.log('users 길이:', users.length);
+  // console.log('현재 users 상태:', users);
+  // console.log('filteredUsers:', filteredUsers);
+  // console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">

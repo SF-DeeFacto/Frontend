@@ -31,7 +31,7 @@ let currentAPI = grafanaProxyAPI;
 [grafanaAPI, grafanaProxyAPI].forEach(api => {
   api.interceptors.request.use(
     (config) => {
-      console.log('Grafana API 요청:', config.method?.toUpperCase(), config.url);
+      // console.log('Grafana API 요청:', config.method?.toUpperCase(), config.url);
       return config;
     },
     (error) => {
@@ -42,7 +42,7 @@ let currentAPI = grafanaProxyAPI;
 
   api.interceptors.response.use(
     (response) => {
-      console.log('Grafana API 응답 성공:', response.status, response.config.url);
+      // console.log('Grafana API 응답 성공:', response.status, response.config.url);
       return response;
     },
     (error) => {
@@ -72,23 +72,23 @@ let currentAPI = grafanaProxyAPI;
 
 // 연결 테스트 함수 (프록시와 직접 연결 모두 시도)
 export async function testConnection() {
-  console.log('Grafana 연결 테스트 시작...');
+  // console.log('Grafana 연결 테스트 시작...');
   
   // 1. 프록시를 통한 연결 시도
   try {
-    console.log('프록시를 통한 연결 시도...');
+    // console.log('프록시를 통한 연결 시도...');
     const response = await grafanaProxyAPI.get('/api/health');
-    console.log('프록시 연결 테스트 성공:', response.data);
+    // console.log('프록시 연결 테스트 성공:', response.data);
     currentAPI = grafanaProxyAPI;
     return { success: true, method: 'proxy', data: response.data };
   } catch (proxyError) {
-    console.warn('프록시 연결 실패:', proxyError.message);
+    // console.warn('프록시 연결 실패:', proxyError.message);
     
     // 2. 직접 연결 시도
     try {
-      console.log('직접 연결 시도...');
+      // console.log('직접 연결 시도...');
       const response = await grafanaAPI.get('/api/health');
-      console.log('직접 연결 테스트 성공:', response.data);
+      // console.log('직접 연결 테스트 성공:', response.data);
       currentAPI = grafanaAPI;
       return { success: true, method: 'direct', data: response.data };
     } catch (directError) {

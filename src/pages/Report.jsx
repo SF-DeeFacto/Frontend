@@ -1,6 +1,6 @@
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-// import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
+
 
 
 // const Report = () => {
@@ -8,8 +8,7 @@
 //   // local redis에 저장된 사원 번호 {123}  `{}` 까지 값으로 되어서 포함시킴
 //   const EMPLOYEE_ID = '{123}';
 
-//   // 더미 테이터 사용하는 state
-//   //const [reports] = useState(dummyReports);
+
 //   const [reports, setReports] = useState([]);
 //   const [reportType, setReportType] = useState('전체');
 //   const [selectedPeriod, setSelectedPeriod] = useState('전체');
@@ -423,7 +422,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
+
 // const API_BASE = 'http://localhost:8085';
 const API_BASE = '/report-api';
 const EMPLOYEE_ID = '1';
@@ -460,7 +459,7 @@ const Report = () => {
         page: Math.max(0, page - 1), // Spring Pageable: 0-based
         size: itemsPerPage,
       };
-      console.log('[REPORTS] GET', `${API_BASE}/reports/list`, params, { 'X-Employee-Id': EMPLOYEE_ID });
+      // console.log('[REPORTS] GET', `${API_BASE}/reports/list`, params, { 'X-Employee-Id': EMPLOYEE_ID });
 
       const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
@@ -468,7 +467,7 @@ const Report = () => {
           'X-Employee-Id': EMPLOYEE_ID
         },
       });
-      console.log('[REPORTS] response', res.status, res.data);
+      // console.log('[REPORTS] response', res.status, res.data);
 
       // ApiResponseDto 형태: { code, message, data }
       const payload = res.data?.data ?? res.data;
@@ -540,7 +539,7 @@ const Report = () => {
   setError(null);
   const url = `${API_BASE}/reports/download/${fileName}`;
   try {
-    console.log('[REPORTS] download', url);
+    // console.log('[REPORTS] download', url);
     const res = await axios.get(url, {
       headers: { 'X-Employee-Id': EMPLOYEE_ID },
       responseType: 'blob',

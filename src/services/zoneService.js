@@ -51,7 +51,7 @@ class ZoneService {
     };
 
     this.eventSource.onopen = () => {
-      console.log(`${zoneId} Zone 센서 데이터 스트림 연결됨`);
+      // console.log(`${zoneId} Zone 센서 데이터 스트림 연결됨`);
       this.isConnected = true;
     };
   }

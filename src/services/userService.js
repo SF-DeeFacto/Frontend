@@ -43,7 +43,7 @@ export const userService = {
         ...(employeeId && { employeeId })
       });
       
-      console.log('searchUsers 호출:', `/user/info/search?${params}`); // 디버깅용
+      // console.log('searchUsers 호출:', `/user/info/search?${params}`); // 디버깅용
       
       const response = await apiGet(`/user/info/search?${params}`);
       return response;
@@ -56,21 +56,21 @@ export const userService = {
   // 사용자 등록 (관리자용)
   registerUser: async (userData) => {
     try {
-      console.log('registerUser 호출:', userData); // 디버깅용
-      console.log('등록 API 호출:', '/auth/register'); // 디버깅용
+      // console.log('registerUser 호출:', userData); // 디버깅용
+      // console.log('등록 API 호출:', '/auth/register'); // 디버깅용
       
       const response = await apiPost('/auth/register', userData);
       
-      console.log('등록 응답:', response); // 디버깅용
+      // console.log('등록 응답:', response); // 디버깅용
       return response.data;
     } catch (error) {
       console.error('사용자 등록 오류:', error);
-      console.error('에러 상세:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        message: error.message
-      });
+      // console.error('에러 상세:', {
+      //   status: error.response?.status,
+      //   statusText: error.response?.statusText,
+      //   data: error.response?.data,
+      //   message: error.message
+      // });
       throw error;
     }
   },

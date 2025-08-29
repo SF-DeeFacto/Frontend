@@ -1,5 +1,5 @@
 import { notificationApi } from './api/notification_api';
-// import { DUMMY_ALARMS } from '../dummy/data/alarmData';
+
 
 class AlarmService {
   constructor() {

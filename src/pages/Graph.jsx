@@ -92,7 +92,7 @@ const Graph = () => {
       break;
   }
   
-  console.log('Generated dashboardUrl:', dashboardUrl);
+  // console.log('Generated dashboardUrl:', dashboardUrl);
   
   return (
     <>

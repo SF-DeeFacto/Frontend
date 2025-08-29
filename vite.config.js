@@ -38,34 +38,34 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''), // /api 제거하여 User Service로 직접 전달
         //상세히..
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
-            console.log('프록시 에러:', err.message, 'URL:', req.url);
-          });
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('프록시 요청:', req.method, req.url, '→', options.target + req.url.replace(/^\/api/, ''));
-          });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('프록시 응답:', proxyRes.statusCode, req.url);
-          });
-        }
+        // configure: (proxy, options) => {
+        //   proxy.on('error', (err, req, res) => {
+        //     console.log('프록시 에러:', err.message, 'URL:', req.url);
+        //   });
+        //   proxy.on('proxyReq', (proxyReq, req, res) => {
+        //     console.log('프록시 요청:', req.method, req.url, '→', options.target + req.url.replace(/^\/api/, ''));
+        //   });
+        //   proxy.on('proxyRes', (proxyRes, req, res) => {
+        //     console.log('프록시 응답:', proxyRes.statusCode, req.url);
+        //   });
+        // }
       },
       // Dashboard 백엔드 (포트 8083) - 게이트웨이(8080)로 변경
       '/dashboard-api': {
         target: 'http://localhost:8080',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/dashboard-api/, ''),
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
-            console.log('Dashboard 프록시 에러:', err.message, 'URL:', req.url);
-          });
-          proxy.on('proxyReq', (proxyReq, req, res) => {
-            console.log('Dashboard 프록시 요청:', req.method, req.url, '→', options.target + req.url.replace(/^\/dashboard-api/, ''));
-          });
-          proxy.on('proxyRes', (proxyRes, req, res) => {
-            console.log('Dashboard 프록시 응답:', proxyRes.statusCode, req.url);
-          });
-        }
+        // configure: (proxy, options) => {
+        //   proxy.on('error', (err, req, res) => {
+        //     console.log('Dashboard 프록시 에러:', err.message, 'URL:', req.url);
+        //   });
+        //   proxy.on('proxyReq', (proxyReq, req, res) => {
+        //     console.log('Dashboard 프록시 요청:', req.method, req.url, '→', options.target + req.url.replace(/^\/dashboard-api/, ''));
+        //   });
+        //   proxy.on('proxyRes', (proxyRes, req, res) => {
+        //     console.log('Dashboard 프록시 응답:', proxyRes.statusCode, req.url);
+        //   });
+        // }
       },
       '/report-api': {                         // <-- 추가: 모든 /api 요청을 백엔드(8085)로 프록시
         target: 'http://localhost:8085',

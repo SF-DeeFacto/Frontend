@@ -22,7 +22,7 @@ export const mapBackendSensorData = (backendSensor) => {
     values: backendSensor.values || {}
   };
 
-  console.log(`센서 매핑: ${mappedSensor.sensorId} (${backendSensor.sensorType} → ${mappedSensor.sensorType}) - 원본 값:`, backendSensor.values);
+  // console.log(`센서 매핑: ${mappedSensor.sensorId} (${backendSensor.sensorType} → ${mappedSensor.sensorType}) - 원본 값:`, backendSensor.values);
   return mappedSensor;
 };
 
@@ -46,8 +46,8 @@ export const mapBackendZoneData = (backendZoneData, zoneId) => {
     }
   });
 
-  console.log(`📊 ${zoneId} 존 - 매핑된 센서 ${mappedSensors.length}개:`, 
-    mappedSensors.map(s => `${s.sensorId}(${s.sensorType})`).join(', '));
+  // console.log(`📊 ${zoneId} 존 - 매핑된 센서 ${mappedSensors.length}개:`, 
+  //   mappedSensors.map(s => `${s.sensorId}(${s.sensorType})`).join(', '));
 
   return {
     zoneId: zoneId,

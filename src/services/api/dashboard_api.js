@@ -13,10 +13,10 @@ import { dashboardApiClient } from '../index';
 export const dashboardApi = {
   // 대시보드 초기 데이터 조회
   getDashboardData: async () => {
-    console.log(' 대시보드 데이터 조회 시작');
+    // console.log(' 대시보드 데이터 조회 시작');
     try {
       const response = await dashboardApiClient.get('/home/dashboard');
-      console.log('대시보드 데이터 조회 성공:', response.data);
+      // console.log('대시보드 데이터 조회 성공:', response.data);
       return response.data;
     } catch (error) {
       console.error(' 대시보드 데이터 조회 실패:', error);
@@ -26,7 +26,7 @@ export const dashboardApi = {
 
   // 특정 존 데이터 조회
   getZoneData: async (zoneId) => {
-    console.log(`존 데이터 조회 시작: ${zoneId}`);
+    // console.log(`존 데이터 조회 시작: ${zoneId}`);
     try {
       const response = await dashboardApiClient.get(`/home/zone?zoneId=${zoneId}`);
       console.log(`존 데이터 조회 성공 (${zoneId}):`, response.data);

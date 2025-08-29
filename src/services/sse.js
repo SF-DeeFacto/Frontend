@@ -22,14 +22,14 @@ export const SSE_URLS = {
 
 // SSE 연결 함수
 export const connectSSE = (url, { onMessage, onError, onOpen }) => {
-  console.log('SSE 연결 시작:', url);
+  // console.log('SSE 연결 시작:', url);
   
   // 인증 토큰 가져오기
   const token = localStorage.getItem('access_token');
   
   // 토큰이 없으면 연결하지 않음
   if (!token) {
-    console.log('토큰이 없어 SSE 연결을 건너뜁니다.');
+    // console.log('토큰이 없어 SSE 연결을 건너뜁니다.');
     onError(new Error('인증 토큰이 없습니다.'));
     return () => {}; // 빈 함수 반환
   }
@@ -52,10 +52,10 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
 
   const createEventSource = () => {
     try {
-      console.log(`🔄 SSE 연결 시도 ${retryCount + 1}/${maxRetries + 1}:`, url);
-      console.log('🔗 SSE 연결 URL:', url);
-      console.log('🔑 토큰:', token ? '있음' : '없음');
-      console.log('⏰ 연결 시도 시간:', new Date().toLocaleTimeString());
+      // console.log(`🔄 SSE 연결 시도 ${retryCount + 1}/${maxRetries + 1}:`, url);
+      // console.log('🔗 SSE 연결 URL:', url);
+      // console.log('🔑 토큰:', token ? '있음' : '없음');
+      // console.log('⏰ 연결 시도 시간:', new Date().toLocaleTimeString());
       
       eventSource = new EventSourcePolyfill(url, {
         headers: {
@@ -65,16 +65,16 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       });
       
       eventSource.onopen = (event) => {
-        console.log('✅ SSE 연결 성공!', url);
-        console.log('🔗 연결 상태:', eventSource.readyState);
-        console.log('⏰ 연결 성공 시간:', new Date().toLocaleTimeString());
+        // console.log('✅ SSE 연결 성공!', url);
+        // console.log('🔗 연결 상태:', eventSource.readyState);
+        // console.log('⏰ 연결 성공 시간:', new Date().toLocaleTimeString());
         lastMessageTime = Date.now();
         
         // 하트비트 타이머 시작
         heartbeatTimer = setInterval(() => {
           const now = Date.now();
           const timeSinceLastMessage = now - lastMessageTime;
-          console.log(`💓 SSE 하트비트 체크: 마지막 메시지로부터 ${timeSinceLastMessage}ms 경과`);
+          // console.log(`💓 SSE 하트비트 체크: 마지막 메시지로부터 ${timeSinceLastMessage}ms 경과`);
           
           if (timeSinceLastMessage > 60000) { // 1분 이상 메시지 없음
             console.warn('⚠️ SSE 연결이 응답하지 않습니다. 재연결을 시도합니다.');
@@ -87,24 +87,24 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       
       eventSource.onmessage = (event) => {
         lastMessageTime = Date.now();
-        console.log(`📨 SSE 데이터 수신:`, {
-          url,
-          timestamp: new Date().toLocaleTimeString(),
-          data: event.data,
-          dataLength: event.data?.length || 0,
-          eventType: event.type
-        });
+        // console.log(`📨 SSE 데이터 수신:`, {
+        //   url,
+        //   timestamp: new Date().toLocaleTimeString(),
+        //   data: event.data,
+        //   dataLength: event.data?.length || 0,
+        //   eventType: event.type
+        // });
         
         try {
           const parsedData = JSON.parse(event.data);
-          console.log('✅ SSE 데이터 파싱 성공:', {
-            url,
-            parsedData,
-            dataType: typeof parsedData,
-            hasCode: 'code' in parsedData,
-            hasData: 'data' in parsedData,
-            dataLength: Array.isArray(parsedData.data) ? parsedData.data.length : 'N/A'
-          });
+          // console.log('✅ SSE 데이터 파싱 성공:', {
+          //   url,
+          //   parsedData,
+          //   dataType: typeof parsedData,
+          //   hasCode: 'code' in parsedData,
+          //   data: 'data' in parsedData,
+          //   dataLength: Array.isArray(parsedData.data) ? parsedData.data.length : 'N/A'
+          // });
           
           onMessage(parsedData);
         } catch (parseError) {
@@ -137,7 +137,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         
         // 자동 재연결 시도
         if (retryCount < maxRetries) {
-          console.log(`🔄 SSE 연결 재시도 ${retryCount + 1}/${maxRetries}... (2000ms 후)`);
+          // console.log(`🔄 SSE 연결 재시도 ${retryCount + 1}/${maxRetries}... (2000ms 후)`);
           retryCount++;
           
           reconnectTimer = setTimeout(() => {
@@ -165,7 +165,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
 
   // 재연결 함수
   const reconnect = () => {
-    console.log(`🔄 SSE 재연결 시도: ${url}`);
+            // console.log(`🔄 SSE 재연결 시도: ${url}`);
     
     if (eventSource) {
       console.log('🔌 기존 SSE 연결 해제');

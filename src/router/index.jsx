@@ -33,16 +33,16 @@ const isAuthenticated = () => {
   const user = localStorage.getItem('user');
   
   // 개발 환경에서만 로그 출력
-  const isDev = import.meta.env.DEV;
-  if (isDev) {
-    console.log('인증 체크:', { token: !!token, user: !!user, cached: false });
-  }
+  // const isDev = import.meta.env.DEV;
+  // if (isDev) {
+  //   console.log('인증 체크:', { token: !!token, user: !!user, cached: false });
+  // }
   
   // token과 user가 모두 존재하고 유효한지 확인
   if (!token || !user) {
-    if (isDev) {
-      console.log('인증 실패: token 또는 user가 없음');
-    }
+    // if (isDev) {
+    //   console.log('인증 실패: token 또는 user가 없음');
+    // }
     authCache = false;
     lastCheck = now;
     return false;
@@ -52,9 +52,9 @@ const isAuthenticated = () => {
     // user가 유효한 JSON인지 확인
     const userData = JSON.parse(user);
     if (!userData || typeof userData !== 'object') {
-      if (isDev) {
-        console.log('인증 실패: user 데이터가 유효하지 않음');
-      }
+      // if (isDev) {
+      //   console.log('인증 실패: user 데이터가 유효하지 않음');
+      // }
       authCache = false;
       lastCheck = now;
       return false;
@@ -62,9 +62,9 @@ const isAuthenticated = () => {
     
     // 실제 저장된 데이터 구조에 맞게 검증
     if (!userData.employeeId || !userData.name) {
-      if (isDev) {
-        console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
-      }
+      // if (isDev) {
+      //   console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
+      // }
       authCache = false;
       lastCheck = now;
       return false;
@@ -72,24 +72,24 @@ const isAuthenticated = () => {
     
     // token이 유효한 형식인지 확인 (간단한 검증)
     if (token.length < 10) {
-      if (isDev) {
-        console.log('인증 실패: token이 너무 짧음');
-      }
+      // if (isDev) {
+      //   console.log('인증 실패: token이 너무 짧음');
+      // }
       authCache = false;
       lastCheck = now;
       return false;
     }
     
-    if (isDev) {
-      console.log('인증 성공:', userData.name);
-    }
+    // if (isDev) {
+    //   console.log('인증 성공:', userData.name);
+    // }
     authCache = true;
     lastCheck = now;
     return true;
   } catch (error) {
-    if (isDev) {
-      console.log('인증 실패: user 데이터 파싱 오류', error);
-    }
+    // if (isDev) {
+    //   console.log('인증 실패: user 데이터 파싱 오류', error);
+    // }
     authCache = false;
     lastCheck = now;
     return false;

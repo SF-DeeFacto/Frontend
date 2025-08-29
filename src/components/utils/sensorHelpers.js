@@ -64,7 +64,7 @@ export const findAndCalculateSensorPositions = (scene, zoneId) => {
     const target = scene.getObjectByName(meshName);
     
     if (target) {
-      console.log(`✅ ${zoneId} ${meshName} 메쉬 발견:`, target);
+      // console.log(`✅ ${zoneId} ${meshName} 메쉬 발견:`, target);
       
       // 메쉬의 AABB 구하기
       const bounds = calculateMeshBounds(target);
@@ -81,13 +81,13 @@ export const findAndCalculateSensorPositions = (scene, zoneId) => {
         boxMax: bounds.boxMax
       };
       
-      console.log(`📍 ${zoneId} ${meshName} 센서 위치:`, {
-        center: bounds.center.map(p => p.toFixed(3)),
-        size: bounds.size.map(p => p.toFixed(3)),
-        indicatorPosition: indicatorPosition.map(p => p.toFixed(3))
-      });
+      // console.log(`📍 ${zoneId} ${meshName} 센서 위치:`, {
+      //   center: bounds.center.map(p => p.toFixed(3)),
+      //   size: bounds.size.map(p => p.toFixed(3)),
+      //   indicatorPosition: indicatorPosition.map(p => p.toFixed(3))
+      // });
     } else {
-      console.log(`❌ ${zoneId} ${meshName} 메쉬를 찾을 수 없습니다.`);
+      // console.log(`❌ ${zoneId} ${meshName} 메쉬를 찾을 수 없습니다.`);
     }
   });
   

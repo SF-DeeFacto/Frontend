@@ -30,7 +30,7 @@ export const useAlarmData = (pageSize = 7) => {
       setTotalElements(newTotalElements);
       setCurrentPage(page);
       
-      console.log(`알림 ${newAlarms.length}개 로드됨 (총 ${newTotalElements}개)`);
+      // console.log(`알림 ${newAlarms.length}개 로드됨 (총 ${newTotalElements}개)`);
       
       return { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements };
     } catch (error) {
@@ -93,7 +93,7 @@ export const useAlarmData = (pageSize = 7) => {
         )
       );
       
-      console.log(`알림 ${alarmId} 읽음 처리 완료`);
+      // console.log(`알림 ${alarmId} 읽음 처리 완료`);
       return true;
     } catch (error) {
       const errorInfo = handleAlarmApiError(error, '알림 읽음 처리');
@@ -118,7 +118,7 @@ export const useAlarmData = (pageSize = 7) => {
         )
       );
       
-      console.log(`알림 ${alarmId} 즐겨찾기 토글 완료`);
+      // console.log(`알림 ${alarmId} 즐겨찾기 토글 완료`);
       return true;
     } catch (error) {
       const errorInfo = handleAlarmApiError(error, '즐겨찾기 처리');
@@ -143,7 +143,7 @@ export const useAlarmData = (pageSize = 7) => {
         )
       );
       
-      console.log('모든 알림을 전체 읽음 처리 완료');
+      // console.log('모든 알림을 전체 읽음 처리 완료');
       return true;
     } catch (error) {
       const errorInfo = handleAlarmApiError(error, '전체 읽음 처리');

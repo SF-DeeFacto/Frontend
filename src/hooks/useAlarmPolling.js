@@ -18,7 +18,7 @@ export const useAlarmPolling = (
    */
   const executePolling = useCallback(async () => {
     try {
-      console.log('폴링: 알림 목록 및 카운터 자동 업데이트');
+      // console.log('폴링: 알림 목록 및 카운터 자동 업데이트');
       setPollingStatus('폴링 중...');
       
       // 현재 페이지의 알림 목록 업데이트
@@ -58,7 +58,7 @@ export const useAlarmPolling = (
     }
     
     intervalRef.current = setInterval(executePolling, interval);
-    console.log(`폴링 시작 (${interval / 1000}초 간격)`);
+    // console.log(`폴링 시작 (${interval / 1000}초 간격)`);
   }, [executePolling, interval]);
 
   /**
@@ -68,7 +68,7 @@ export const useAlarmPolling = (
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-      console.log('폴링 중지');
+      // console.log('폴링 중지');
     }
   }, []);
 

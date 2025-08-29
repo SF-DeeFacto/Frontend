@@ -24,7 +24,7 @@ const GrafanaTest = () => {
           const dsResult = await fetchDataSources();
           setDataSources(dsResult);
         } catch (dsError) {
-          console.warn('데이터소스 목록 가져오기 실패:', dsError);
+          // console.warn('데이터소스 목록 가져오기 실패:', dsError);
         }
       }
     } catch (error) {
