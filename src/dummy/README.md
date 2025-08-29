@@ -9,16 +9,10 @@ src/dummy/
 ├── index.js                  # 통합 export (API 연동 시 제거 예정)
 ├── data/                     # 더미 데이터들
 │   ├── userGenerator.js      # 사용자 데이터 생성기
-│   ├── users.js              # 사용자 데이터 (로그인용)
-│   ├── weatherGenerator.js   # 날씨 데이터 생성기
-│   ├── weather.js            # 날씨 데이터
-│   ├── zoneDataGenerator.js  # Zone 센서 데이터 생성기
-│   ├── zoneData.js           # Zone 데이터
-│   ├── zoneStatusGenerator.js # Zone 상태 데이터 생성기
-│   └── zoneStatus.js         # Zone 상태 데이터
+│   ├── reports.js            # 리포트 데이터
+│   └── weatherGenerator.js   # 날씨 데이터 생성기
 ├── services/                 # 더미 서비스들
-│   ├── user.js               # 더미 로그인/로그아웃 서비스
-│   └── weather.js            # 날씨 API 폴백 서비스
+│   └── index.js              # 서비스 통합 export
 └── README.md                 # 이 파일
 ```
 
@@ -34,15 +28,13 @@ src/dummy/
 - **용도**: 헤더의 날씨 정보 표시
 - **API 연동 시**: `src/dummy/services/weather.js`가 실제 API 호출로 전환
 
-### 3. Zone 데이터 (zoneData.js/zoneDataGenerator.js)
-- **사용 위치**: `src/hooks/useZoneSensorData.js`
-- **용도**: Zone별 센서 데이터 시뮬레이션
-- **API 연동 시**: 실제 센서 데이터 API로 교체
+### 3. Zone 데이터 ✅ 제거됨
+- **상태**: 더미 데이터 제거 완료, 실제 API 연동 완료
+- **구현**: 모든 존(A01, A02, B01, B02, B03, B04, C01, C02)에 대해 실제 API 사용
 
-### 4. Zone 상태 (zoneStatus.js/zoneStatusGenerator.js)
-- **사용 위치**: `src/hooks/useZoneManager.js`
-- **용도**: Zone 상태 관리 및 업데이트
-- **API 연동 시**: 실제 Zone 상태 API로 교체
+### 4. Zone 상태 ✅ 제거됨
+- **상태**: 더미 데이터 제거 완료, 실제 API 연동 완료
+- **구현**: 모든 존에 대해 실제 Zone 상태 API 사용
 
 ## API 연동 시 제거 대상
 
@@ -87,14 +79,16 @@ getWeatherForDate(date)
 - [ ] `src/dummy/services/weather.js`의 API 엔드포인트 확정
 - [ ] 실제 날씨 데이터 스키마 확인 후 적용
 
-### 3. Zone 데이터 API 연동
-- [ ] 실제 센서 데이터 API 엔드포인트 확정
-- [ ] `src/hooks/useZoneSensorData.js` 실제 API 호출로 변경
-- [ ] 실시간 데이터 업데이트 (WebSocket/SSE) 구현
+### 3. Zone 데이터 API 연동 ✅ 완료
+- [x] 더미 데이터 제거
+- [x] 실제 센서 데이터 API 엔드포인트 확정 (`/home/zone?zoneId={zoneId}`)
+- [x] `src/hooks/useZoneSensorData.js` 실제 API 호출로 변경
+- [x] 실시간 데이터 업데이트 (SSE) 구현
 
-### 4. Zone 상태 API 연동
-- [ ] Zone 상태 관리 API 엔드포인트 확정
-- [ ] `src/hooks/useZoneManager.js` 실제 API 호출로 변경
+### 4. Zone 상태 API 연동 ✅ 완료
+- [x] 더미 데이터 제거
+- [x] Zone 상태 관리 API 엔드포인트 확정
+- [x] `src/hooks/useZoneManager.js` 실제 API 호출로 변경
 
 ### 5. 더미데이터 정리
 - [ ] API 연동 완료 후 `src/dummy/` 디렉토리 전체 제거
