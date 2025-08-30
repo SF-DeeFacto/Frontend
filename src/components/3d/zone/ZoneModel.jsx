@@ -12,7 +12,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
   const { camera, raycaster, gl } = useThree();
   const [sensorPositions, setSensorPositions] = useState({});
   const [isModelReady, setIsModelReady] = useState(false);
-  const clickableObjectsRef = useRef([]);
+  const [sensorData, setSensorData] = useState({}); // 센서 데이터 상태 추가
   const frameCountRef = useRef(0);
 
   // 모델 초기 설정 (중심 이동, 그룹 위치/회전)
@@ -56,89 +56,70 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
     gltf.scene.updateWorldMatrix(true, true);
 
     const foundSensors = {};
-    const clickableObjects = [];
     const sensorNames = Array.from({ length: 55 }, (_, i) => `S${String(i + 1).padStart(2, '0')}`);
 
     sensorNames.forEach(meshName => {
       const target = gltf.scene.getObjectByName(meshName);
       if (target) {
-        target.userData.clickable = true;
+        // 센서 객체는 클릭 불가능하게 설정
+        target.userData.clickable = false;
         target.userData.sensorName = meshName;
-        clickableObjects.push(target);
 
         const box = new THREE.Box3().setFromObject(target);
         const center = new THREE.Vector3();
         box.getCenter(center);
 
-        foundSensors[meshName] = {
+        // 센서 데이터 생성 (실제로는 API에서 가져와야 함)
+        const sensorInfo = {
           position: [center.x, box.max.y, center.z],
-          mesh: target
+          mesh: target,
+          status: Math.random() > 0.8 ? 'warning' : Math.random() > 0.9 ? 'error' : 'normal',
+          temperature: Math.floor(Math.random() * 30) + 15, // 15-45°C
+          humidity: Math.floor(Math.random() * 40) + 30,   // 30-70%
+          pressure: Math.floor(Math.random() * 100) + 900, // 900-1000 hPa
+          lastUpdate: new Date().toLocaleTimeString()
         };
+
+        foundSensors[meshName] = sensorInfo;
       }
     });
 
-    clickableObjectsRef.current = clickableObjects;
     setSensorPositions(foundSensors);
+    setSensorData(foundSensors);
   };
 
-  // 클릭 이벤트
-  const handleClick = event => {
-    event.stopPropagation();
-    const rect = gl.domElement.getBoundingClientRect();
-    const mouse = new THREE.Vector2(
-      ((event.clientX - rect.left) / rect.width) * 2 - 1,
-      -((event.clientY - rect.top) / rect.height) * 2 + 1
-    );
-
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(clickableObjectsRef.current, false);
-
-    if (intersects.length > 0) {
-      const clickedObject = intersects[0].object;
-      if (clickedObject.userData.clickable) {
-        const worldPosition = new THREE.Vector3();
-        clickedObject.getWorldPosition(worldPosition);
-
-        if (onObjectClick) {
-          onObjectClick({
-            name: clickedObject.name,
-            position: worldPosition,
-            object: clickedObject,
-            isSensor: true,
-            status: 'normal', // 기본 상태
-            id: clickedObject.name,
-            type: 'unknown' // 기본 타입
-          });
-        }
-      }
-    }
-  };
-
-  const handleSensorClick = sensor => {
-    if (onObjectClick) {
+  // 센서 인디케이터 클릭 이벤트
+  const handleSensorIndicatorClick = (sensorName) => {
+    const sensor = sensorData[sensorName];
+    if (sensor && onObjectClick) {
       onObjectClick({
-        name: sensor.name,
+        name: sensorName,
         position: sensor.position,
         isSensor: true,
         status: sensor.status,
-        id: sensor.id,
-        type: sensor.type
+        id: sensorName,
+        type: 'sensor',
+        temperature: sensor.temperature,
+        humidity: sensor.humidity,
+        pressure: sensor.pressure,
+        lastUpdate: sensor.lastUpdate
       });
     }
   };
 
   return (
-    <group ref={groupRef} onClick={handleClick}>
+    <group ref={groupRef}>
       <primitive object={gltf.scene} scale={[0.002, 0.002, 0.002]} />
 
+      {/* 센서 인디케이터들 - 클릭 가능 */}
       {Object.entries(sensorPositions).map(([meshName, sensorData]) => {
         return (
           <SensorIndicator
             key={meshName}
             position={sensorData.position}
-            status="normal" // 기본 상태
+            status={sensorData.status}
             sensorName={meshName}
-            onClick={() => handleSensorClick({ name: meshName, position: sensorData.position, status: 'normal', id: meshName, type: 'unknown' })}
+            onClick={() => handleSensorIndicatorClick(meshName)}
           />
         );
       })}
@@ -159,7 +140,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
             padding: '12px',
             borderRadius: '8px',
             border: '1px solid #374151',
-            minWidth: '200px',
+            minWidth: '250px',
             fontSize: '14px',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
@@ -167,7 +148,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
         >
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">{selectedObject.name}</h3>
+              <h3 className="font-semibold text-white">{selectedObject.name} 센서</h3>
               <button onClick={() => onObjectClick(null)} className="text-gray-400 hover:text-white text-sm">✕</button>
             </div>
             {selectedObject.isSensor && (
@@ -185,8 +166,24 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
                   }`}>{getStatusText(selectedObject.status)}</span>
                 </div>
                 <div className="flex justify-between">
+                  <span className="text-gray-300">온도:</span>
+                  <span className="text-green-400">{selectedObject.temperature}°C</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">습도:</span>
+                  <span className="text-blue-400">{selectedObject.humidity}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">압력:</span>
+                  <span className="text-purple-400">{selectedObject.pressure} hPa</span>
+                </div>
+                <div className="flex justify-between">
                   <span className="text-gray-300">센서 ID:</span>
                   <span className="text-white">{selectedObject.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">최근 업데이트:</span>
+                  <span className="text-gray-400 text-xs">{selectedObject.lastUpdate}</span>
                 </div>
               </div>
             )}
