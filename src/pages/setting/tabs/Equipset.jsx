@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ThresholdRecommendationModal from '../../../components/setting/ThresholdRecommendationModal';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -12,65 +13,68 @@ const formatDateTime = (date) => {
 };
 
 const Equipset = () => {
-  // 조회용 더미 데이터 (수정인은 플레이스홀더 사용)
+  // 실제 API 구조에 맞춘 더미 데이터
   const [sensors, setSensors] = useState([
     {
-      sensorId: 'S-001',
-      sensorType: '온도',
-      zone: '1층',
-      t1L: -5,
-      t1H: 35,
-      t2L: -10,
-      t2H: 45,
-      modifiedAt: '2024-01-15 09:10:00',
-      modifiedBy: '<사용자>',
+      sensorId: 'esd-001',
+      zoneId: 'a01',
+      sensorType: 'electrostatic',
+      updatedAt: '2025-08-22T16:38:40',
+      updatedUserId: 'admin',
+      warningLow: null,
+      warningHigh: 80.0,
+      alertLow: null,
+      alertHigh: 100.0
     },
     {
-      sensorId: 'S-002',
-      sensorType: '습도',
-      zone: '2층',
-      t1L: 30,
-      t1H: 70,
-      t2L: 20,
-      t2H: 80,
-      modifiedAt: '2024-01-10 11:22:00',
-      modifiedBy: '<사용자>',
+      sensorId: 'temp-001',
+      zoneId: 'a01',
+      sensorType: 'temperature',
+      updatedAt: '2025-08-22T15:20:15',
+      updatedUserId: 'admin',
+      warningLow: 18.0,
+      warningHigh: 25.0,
+      alertLow: 15.0,
+      alertHigh: 30.0
     },
     {
-      sensorId: 'S-003',
-      sensorType: '압력',
-      zone: '지하',
-      t1L: 0.8,
-      t1H: 1.2,
-      t2L: 0.6,
-      t2H: 1.4,
-      modifiedAt: '2024-01-05 08:05:00',
-      modifiedBy: '<사용자>',
-    },
+      sensorId: 'humid-001',
+      zoneId: 'a02',
+      sensorType: 'humidity',
+      updatedAt: '2025-08-22T14:45:30',
+      updatedUserId: 'user01',
+      warningLow: 40.0,
+      warningHigh: 60.0,
+      alertLow: 30.0,
+      alertHigh: 70.0
+    }
   ]);
 
   // 인라인 수정 상태
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({
-    t1L: '',
-    t1H: '',
-    t2L: '',
-    t2H: '',
+    warningLow: '',
+    warningHigh: '',
+    alertLow: '',
+    alertHigh: '',
   });
+
+  // AI 추천 모달 상태
+  const [showRecommendations, setShowRecommendations] = useState(false);
 
   const onEditClick = (sensor) => {
     setEditingId(sensor.sensorId);
     setEditForm({
-      t1L: String(sensor.t1L),
-      t1H: String(sensor.t1H),
-      t2L: String(sensor.t2L),
-      t2H: String(sensor.t2H),
+      warningLow: sensor.warningLow !== null ? String(sensor.warningLow) : '',
+      warningHigh: sensor.warningHigh !== null ? String(sensor.warningHigh) : '',
+      alertLow: sensor.alertLow !== null ? String(sensor.alertLow) : '',
+      alertHigh: sensor.alertHigh !== null ? String(sensor.alertHigh) : '',
     });
   };
 
   const onCancel = () => {
     setEditingId(null);
-    setEditForm({ t1L: '', t1H: '', t2L: '', t2H: '' });
+    setEditForm({ warningLow: '', warningHigh: '', alertLow: '', alertHigh: '' });
   };
 
   const onChange = (key, value) => {
@@ -82,28 +86,32 @@ const Equipset = () => {
 
   const onSave = () => {
     const v = {
-      t1L: parseFloat(editForm.t1L),
-      t1H: parseFloat(editForm.t1H),
-      t2L: parseFloat(editForm.t2L),
-      t2H: parseFloat(editForm.t2H),
+      warningLow: editForm.warningLow !== '' ? parseFloat(editForm.warningLow) : null,
+      warningHigh: editForm.warningHigh !== '' ? parseFloat(editForm.warningHigh) : null,
+      alertLow: editForm.alertLow !== '' ? parseFloat(editForm.alertLow) : null,
+      alertHigh: editForm.alertHigh !== '' ? parseFloat(editForm.alertHigh) : null,
     };
 
-    // 유효성 검사
+    // 유효성 검사 - 빈 값이 아닌 경우만 체크
     if (
-      Number.isNaN(v.t1L) ||
-      Number.isNaN(v.t1H) ||
-      Number.isNaN(v.t2L) ||
-      Number.isNaN(v.t2H)
+      (editForm.warningLow !== '' && Number.isNaN(v.warningLow)) ||
+      (editForm.warningHigh !== '' && Number.isNaN(v.warningHigh)) ||
+      (editForm.alertLow !== '' && Number.isNaN(v.alertLow)) ||
+      (editForm.alertHigh !== '' && Number.isNaN(v.alertHigh))
     ) {
       alert('임계치 값은 숫자여야 합니다.');
       return;
     }
-    if (v.t1L > v.t1H) {
-      alert('임계치1L은 임계치1H보다 작거나 같아야 합니다.');
+    
+    // 경고 임계치 범위 검사
+    if (v.warningLow !== null && v.warningHigh !== null && v.warningLow > v.warningHigh) {
+      alert('경고 하한값은 경고 상한값보다 작거나 같아야 합니다.');
       return;
     }
-    if (v.t2L > v.t2H) {
-      alert('임계치2L은 임계치2H보다 작거나 같아야 합니다.');
+    
+    // 초과 임계치 범위 검사
+    if (v.alertLow !== null && v.alertHigh !== null && v.alertLow > v.alertHigh) {
+      alert('초과 하한값은 초과 상한값보다 작거나 같아야 합니다.');
       return;
     }
 
@@ -112,12 +120,12 @@ const Equipset = () => {
       s.sensorId === editingId
         ? {
             ...s,
-            t1L: v.t1L,
-            t1H: v.t1H,
-            t2L: v.t2L,
-            t2H: v.t2H,
-            modifiedAt: formatDateTime(now),
-            modifiedBy: '<사용자>', // 실제 로그인 사용자로 교체 필요
+            warningLow: v.warningLow,
+            warningHigh: v.warningHigh,
+            alertLow: v.alertLow,
+            alertHigh: v.alertHigh,
+            updatedAt: now.toISOString(),
+            updatedUserId: 'current_user', // 실제 로그인 사용자로 교체 필요
           }
         : s
     );
@@ -125,23 +133,81 @@ const Equipset = () => {
     onCancel();
   };
 
+  // AI 추천 승인 처리
+  const handleApproveRecommendations = (approvedRecommendations) => {
+    const now = new Date();
+    const updatedSensors = sensors.map(sensor => {
+      const recommendation = approvedRecommendations.find(rec => rec.sensorId === sensor.sensorId);
+      if (recommendation) {
+        return {
+          ...sensor,
+          warningLow: recommendation.recommended.warningLow,
+          warningHigh: recommendation.recommended.warningHigh,
+          alertLow: recommendation.recommended.alertLow,
+          alertHigh: recommendation.recommended.alertHigh,
+          updatedAt: now.toISOString(),
+          updatedUserId: 'AI_SYSTEM',
+        };
+      }
+      return sensor;
+    });
+    
+    setSensors(updatedSensors);
+    alert(`${approvedRecommendations.length}개의 AI 추천이 적용되었습니다.`);
+  };
+
+  // 센서 타입별 한글 매핑
+  const sensorTypeMapping = {
+    'electrostatic': 'ESD',
+    'temperature': '온도',
+    'humidity': '습도',
+    'particle': '미세먼지',
+    'windDirection': '풍향'
+  };
+
+  // 날짜 포맷팅 함수
+  const formatDateTimeFromISO = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  // 임계치 값 표시 함수
+  const formatThresholdValue = (value) => {
+    return value !== null ? value.toString() : '-';
+  };
+
   return (
     <div className="p-2">
-      <h4 className="text-lg font-medium text-gray-900 mb-4">센서 설정</h4>
+      <div className="flex justify-between items-center mb-4">
+        <h4 className="text-lg font-medium text-gray-900">센서 임계치 설정</h4>
+        <button
+          onClick={() => setShowRecommendations(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+        >
+          AI 추천 임계치 보기
+        </button>
+      </div>
 
       <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서ID</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서종류</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치1L</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치1H</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치2L</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">임계치2H</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정일자</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정인</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역ID</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서유형</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">경고L</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">경고H</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">초과L</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">초과H</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정시간</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정자</th>
               <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
             </tr>
           </thead>
@@ -151,75 +217,75 @@ const Equipset = () => {
               return (
                 <tr key={s.sensorId} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">{s.sensorId}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.sensorType}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.zone}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.zoneId.toUpperCase()}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{sensorTypeMapping[s.sensorType] || s.sensorType}</td>
 
-                  {/* 임계치1L */}
+                  {/* 경고L */}
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {isEditing ? (
                       <input
                         type="text"
-                        value={editForm.t1L}
-                        onChange={(e) => onChange('t1L', e.target.value)}
+                        value={editForm.warningLow}
+                        onChange={(e) => onChange('warningLow', e.target.value)}
                         className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
-                        placeholder="숫자"
+                        placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{s.t1L}</span>
+                      <span className="block text-center">{formatThresholdValue(s.warningLow)}</span>
                     )}
                   </td>
 
-                  {/* 임계치1H */}
+                  {/* 경고H */}
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {isEditing ? (
                       <input
                         type="text"
-                        value={editForm.t1H}
-                        onChange={(e) => onChange('t1H', e.target.value)}
+                        value={editForm.warningHigh}
+                        onChange={(e) => onChange('warningHigh', e.target.value)}
                         className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
-                        placeholder="숫자"
+                        placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{s.t1H}</span>
+                      <span className="block text-center">{formatThresholdValue(s.warningHigh)}</span>
                     )}
                   </td>
 
-                  {/* 임계치2L */}
+                  {/* 초과L */}
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {isEditing ? (
                       <input
                         type="text"
-                        value={editForm.t2L}
-                        onChange={(e) => onChange('t2L', e.target.value)}
+                        value={editForm.alertLow}
+                        onChange={(e) => onChange('alertLow', e.target.value)}
                         className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
-                        placeholder="숫자"
+                        placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{s.t2L}</span>
+                      <span className="block text-center">{formatThresholdValue(s.alertLow)}</span>
                     )}
                   </td>
 
-                  {/* 임계치2H */}
+                  {/* 초과H */}
                   <td className="px-4 py-3 text-sm text-gray-700">
                     {isEditing ? (
                       <input
                         type="text"
-                        value={editForm.t2H}
-                        onChange={(e) => onChange('t2H', e.target.value)}
+                        value={editForm.alertHigh}
+                        onChange={(e) => onChange('alertHigh', e.target.value)}
                         className="w-24 border border-gray-300 rounded px-2 py-1 text-right"
-                        placeholder="숫자"
+                        placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{s.t2H}</span>
+                      <span className="block text-center">{formatThresholdValue(s.alertHigh)}</span>
                     )}
                   </td>
 
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.modifiedAt}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.modifiedBy}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{formatDateTimeFromISO(s.updatedAt)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{s.updatedUserId}</td>
 
                   <td className="px-4 py-3 text-sm text-right space-x-2">
                     {isEditing ? (
@@ -266,6 +332,13 @@ const Equipset = () => {
       <p className="mt-3 text-sm text-gray-500">
         임계치1L/H, 임계치2L/H만 수정할 수 있습니다. 저장 시 수정일자와 수정인이 갱신됩니다.
       </p>
+
+      {/* AI 추천 모달 */}
+      <ThresholdRecommendationModal
+        isOpen={showRecommendations}
+        onClose={() => setShowRecommendations(false)}
+        onApprove={handleApproveRecommendations}
+      />
     </div>
   );
 };

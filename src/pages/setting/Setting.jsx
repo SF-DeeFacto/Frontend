@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Equipset from './tabs/Equipset';
 import Userset from './tabs/Userset';
 import PwudTab from './tabs/PwudTab';
@@ -6,7 +7,15 @@ import PreferTab from './tabs/PreferTab';
 import ProfileTab from './tabs/ProfileTab';
 
 const Setting = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
+
+  // 센서 목록에서 온 경우 센서 관리 탭으로 이동
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state]);
 
   const tabs = [
     { id: 'profile', name: '프로필', component: ProfileTab },

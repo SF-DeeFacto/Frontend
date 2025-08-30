@@ -9,6 +9,7 @@ import {
   FiLogOut,
   FiChevronsLeft,
   FiChevronsRight,
+  FiActivity,
 } from "react-icons/fi";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
@@ -65,6 +66,11 @@ const Aside = () => {
       label: "Zone",
       onClick: () => setZoneOpen(!zoneOpen),
       hasSubMenu: true,
+    },
+    {
+      icon: <FiActivity />,
+      label: "센서 목록",
+      onClick: () => navigate("/home/sensors"),
     },
     {
       icon: <FiBarChart2 />,
