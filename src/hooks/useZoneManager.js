@@ -1,10 +1,3 @@
-/**
- * SSE API 연동 가이드:
- * 1. 모든 "더미데이터 시작" ~ "더미데이터 끝 (삭제)" 주석 블록을 삭제
- * 2. SSE 연결 주석들을 해제 (disconnectMainSSE, REALTIME_DATA_ZONES 등)
- * 3. updateDummyData 함수를 실제 SSE 데이터 처리로 교체
- * 4. 더미 데이터 import 제거
- */
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
 import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../types/sensor';
@@ -32,7 +25,7 @@ export const useZoneManager = () => {
   // 메인 SSE 연결
   const connectMainSSEHandler = useCallback(() => {
     try {
-      console.log('메인 SSE 연결 시작...'); // 디버깅 로그 추가
+      console.log('메인 SSE 연결 시작...');
       setConnectionStates(prev => ({
         ...prev,
         mainSSE: CONNECTION_STATE.CONNECTING
@@ -41,18 +34,17 @@ export const useZoneManager = () => {
       return connectMainSSE({
         onMessage: (data) => {
           try {
-            console.log('메인 SSE 데이터 수신:', data); // 디버깅 로그 추가
+            console.log('메인 SSE 데이터 수신:', data);
             
             if (data?.code === 'OK' && Array.isArray(data.data)) {
               const updateTime = new Date().toLocaleTimeString();
-              console.log('Zone 데이터 배열:', data.data); // 디버깅 로그 추가
+              console.log('Zone 데이터 배열:', data.data);
               
               data.data.forEach(zone => {
                 if (zone.zoneName && zone.status) {
                   // 실시간 데이터를 사용하는 Zone만 처리
-                  // zoneName이 "A01", "B01" 형태로 오므로 그대로 사용
                   if (isRealtimeZone(zone.zoneName.toLowerCase())) {
-                    console.log(`Zone 상태 업데이트: ${zone.zoneName} = ${zone.status}`); // 디버깅 로그 추가
+                    console.log(`Zone 상태 업데이트: ${zone.zoneName} = ${zone.status}`);
                     
                     setZoneStatuses(prevStatuses => ({
                       ...prevStatuses,
@@ -67,14 +59,14 @@ export const useZoneManager = () => {
                 }
               });
             } else {
-              console.log('올바르지 않은 데이터 형식:', data); // 디버깅 로그 추가
+              console.log('올바르지 않은 데이터 형식:', data);
             }
           } catch (error) {
             console.error('메인 SSE 데이터 처리 오류:', error);
           }
         },
         onOpen: () => {
-          console.log('메인 SSE 연결 성공!'); // 디버깅 로그 추가
+          console.log('메인 SSE 연결 성공!');
           setConnectionStates(prev => ({
             ...prev,
             mainSSE: CONNECTION_STATE.CONNECTED
@@ -98,86 +90,9 @@ export const useZoneManager = () => {
     }
   }, []);
 
-  // 개별 Zone SSE 연결 (현재 사용하지 않음)
-  // const connectZoneSSEHandler = useCallback((zoneId) => {
-  //   try {
-  //     setConnectionStates(prev => ({
-  //       ...prev,
-  //       zoneSSE: {
-  //         ...prev.zoneSSE,
-  //         [zoneId]: CONNECTION_STATE.CONNECTING
-  //       }
-  //     }));
-      
-  //     return connectZoneSSE(zoneId, {
-  //       onOpen: () => {
-  //         setConnectionStates(prev => ({
-  //           ...prev,
-  //           zoneSSE: {
-  //             ...prev.zoneSSE,
-  //             [zoneId]: CONNECTION_STATE.CONNECTED
-  //           }
-  //         }));
-  //       },
-  //       onMessage: (data) => {
-  //         try {
-  //           console.log(`${zoneId} Zone SSE 데이터 수신:`, data); // 디버깅 로그 추가
-          
-  //           if (data?.code === 'OK' && data.data) {
-  //             const zoneData = data.data;
-  //             const updateTime = new Date().toLocaleTimeString();
-            
-  //             if (zoneData.zoneName && zoneData.status) {
-  //               console.log(`개별 Zone 상태 업데이트: ${zoneData.zoneName} = ${zoneData.status}`); // 디버깅 로그 추가
-              
-  //               // zoneName이 "A01", "B01" 형태로 오므로 그대로 사용
-  //               setZoneStatuses(prevStatuses => ({
-  //                 ...prevStatuses,
-  //                 [zoneData.zoneName]: zoneData.status
-  //               }));
-              
-  //               setLastUpdated(prev => ({
-  //                 ...prev,
-  //                 [zoneData.zoneName]: updateTime
-  //               }));
-  //             } else {
-  //               console.log('Zone 데이터에 zoneName 또는 status가 없음:', zoneData); // 디버깅 로그 추가
-  //             }
-  //           } else {
-  //             console.log(`${zoneId} Zone 올바르지 않은 데이터 형식:`, data); // 디버깅 로그 추가
-  //           }
-  //         } catch (error) {
-  //           console.error(`${zoneId} Zone SSE 데이터 처리 오류:`, error);
-  //         }
-  //       },
-  //       onError: (error) => {
-  //         console.error(`${zoneId} Zone SSE 연결 오류:`, error);
-  //         setConnectionStates(prev => ({
-  //           ...prev,
-  //           zoneSSE: {
-  //             ...prev.zoneSSE,
-  //             [zoneId]: CONNECTION_STATE.ERROR
-  //           }
-  //         }));
-  //       }
-  //     });
-  //   } catch (error) {
-  //     console.error(`${zoneId} Zone SSE 연결 실패:`, error);
-  //     setConnectionStates(prev => ({
-  //       ...prev,
-  //       zoneSSE: {
-  //         ...prev.zoneSSE,
-  //         [zoneId]: CONNECTION_STATE.ERROR
-  //       }
-  //     }));
-  //     return null;
-  //   }
-  // }, []);
-
   // 초기화
   useEffect(() => {
     let disconnectMainSSE = null;
-    // let disconnectZoneSSE = {}; // 개별 Zone SSE 연결 제거
 
     // 로그인 상태 확인
     const token = localStorage.getItem('access_token');
@@ -186,14 +101,8 @@ export const useZoneManager = () => {
       return;
     }
 
-    // 메인 SSE 연결만 사용
+    // 메인 SSE 연결
     disconnectMainSSE = connectMainSSEHandler();
-
-    // 개별 Zone SSE 연결 제거
-    // COMMON_ZONE_CONFIG.REALTIME_DATA_ZONES.forEach(zoneId => {
-    //   const disconnect = connectZoneSSEHandler(zoneId);
-    //   if (disconnect) disconnectZoneSSE[zoneId] = disconnect;
-    // });
 
     // 클린업
     return () => {
@@ -205,17 +114,8 @@ export const useZoneManager = () => {
           console.error('메인 SSE 연결 해제 오류:', error);
         }
       }
-      
-      // 개별 Zone SSE 연결 해제 제거
-      // Object.entries(disconnectZoneSSE).forEach(([zoneId, disconnect]) => {
-      //   try {
-      //     disconnect();
-      //   } catch (error) {
-      //     console.error(`${zoneId} Zone SSE 연결 해제 오류:`, error);
-      //   }
-      // });
     };
-  }, [connectMainSSEHandler]); // connectZoneSSEHandler 제거
+  }, [connectMainSSEHandler]);
 
   // Zone 상태 변경 감지 (디버깅용)
   useEffect(() => {

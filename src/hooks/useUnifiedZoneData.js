@@ -114,6 +114,12 @@ export const useUnifiedZoneData = (zoneId) => {
 
     try {
       if (data && data.data && data.data.length > 0) {
+        console.log(`📊 ${upperZoneId} 존 - 전체 SSE 데이터:`, {
+          전체데이터개수: data.data.length,
+          전체데이터: data.data,
+          timestamp: new Date().toLocaleTimeString()
+        });
+
         // 해당 존의 데이터만 필터링
         const zoneData = data.data.find(zone => 
           zone.zoneName?.toUpperCase() === upperZoneId
@@ -122,6 +128,9 @@ export const useUnifiedZoneData = (zoneId) => {
         if (zoneData) {
           console.log(`✅ ${upperZoneId} 존 데이터 발견:`, {
             zoneData,
+            zoneDataKeys: Object.keys(zoneData),
+            hasSensors: 'sensors' in zoneData,
+            sensorsLength: zoneData.sensors?.length || 0,
             timestamp: new Date().toLocaleTimeString()
           });
 

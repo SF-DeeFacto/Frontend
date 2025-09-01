@@ -1,49 +1,89 @@
 import { SENSOR_STATUS } from '../types/sensor';
-import { 
-  getStatusColor,
-  getStatusHexColor,
-  getStatusEmoji,
-  getStatusText
-} from '../config/sensorConfig';
+import { getStatusHexColor, getStatusText } from '../config/sensorConfig';
 
-// 통합 설정의 함수들을 재-export (기존 호환성 유지)
-export { getStatusColor, getStatusHexColor, getStatusEmoji, getStatusText };
+// getStatusText와 getStatusHexColor를 재-export
+export { getStatusText, getStatusHexColor };
 
 /**
- * 센서 데이터를 그룹화
+ * 센서 상태에 따른 Tailwind CSS 색상 클래스 반환
  */
-export const groupSensorData = (sensors) => {
+export const getStatusColor = (status) => {
+  switch (status) {
+    case SENSOR_STATUS.GREEN:
+      return 'bg-green-500';
+    case SENSOR_STATUS.YELLOW:
+      return 'bg-yellow-500';
+    case SENSOR_STATUS.RED:
+      return 'bg-red-500';
+    case SENSOR_STATUS.CONNECTING:
+      return 'bg-blue-500';
+    case SENSOR_STATUS.DISCONNECTED:
+      return 'bg-gray-500';
+    default:
+      return 'bg-gray-500';
+  }
+};
+
+/**
+ * 센서 상태에 따른 이모지 반환
+ */
+export const getStatusEmoji = (status) => {
+  switch (status) {
+    case SENSOR_STATUS.GREEN:
+      return '🟢';
+    case SENSOR_STATUS.YELLOW:
+      return '🟡';
+    case SENSOR_STATUS.RED:
+      return '🔴';
+    case SENSOR_STATUS.CONNECTING:
+      return '🔵';
+    case SENSOR_STATUS.DISCONNECTED:
+      return '⚫';
+    default:
+      return '⚪';
+  }
+};
+
+/**
+ * 백엔드 센서 데이터를 센서 타입별로 그룹화
+ * 백엔드 데이터 구조: { timestamp, sensors: [{ sensorId, sensorType, sensorStatus, timestamp, values }] }
+ */
+export const groupSensorData = (backendData) => {
+  if (!backendData?.data || !Array.isArray(backendData.data)) {
+    return {};
+  }
+
   const grouped = {};
   
-  Object.values(sensors).forEach(sensor => {
-    // 백엔드에서 오는 원본 센서 타입 사용
-    const sensorType = sensor.sensorType || sensor.sensor_type;
-    if (!grouped[sensorType]) {
-      grouped[sensorType] = [];
+  // 모든 데이터 포인트의 센서들을 처리
+  backendData.data.forEach(dataPoint => {
+    if (dataPoint.sensors && Array.isArray(dataPoint.sensors)) {
+      dataPoint.sensors.forEach(sensor => {
+        // 백엔드 데이터 구조 그대로 사용
+        const sensorType = sensor.sensorType;
+        if (!grouped[sensorType]) {
+          grouped[sensorType] = [];
+        }
+        
+        // 센서 데이터를 그대로 추가 (변환 없음)
+        grouped[sensorType].push({
+          sensorId: sensor.sensorId,
+          sensorType: sensor.sensorType,
+          sensorStatus: sensor.sensorStatus,
+          timestamp: sensor.timestamp,
+          values: sensor.values
+        });
+      });
     }
-    
-    // 백엔드 데이터를 그대로 사용
-    const convertedSensor = {
-      sensor_id: sensor.sensorId || sensor.sensor_id,
-      sensor_type: sensorType,
-      timestamp: sensor.timestamp,
-      status: sensor.sensorStatus || sensor.status || 'normal'
-    };
-
-    // 백엔드 values 객체를 그대로 사용
-    if (sensor.values) {
-      if (sensorType === 'particle') {
-        // 먼지 센서: 백엔드에서 오는 값 그대로 사용
-        convertedSensor.val_0_1 = parseFloat(sensor.values['0.1']) || 0;
-        convertedSensor.val_0_3 = parseFloat(sensor.values['0.3']) || 0;
-        convertedSensor.val_0_5 = parseFloat(sensor.values['0.5']) || 0;
-      } else {
-        // 다른 센서: 백엔드에서 오는 값 그대로 사용
-        convertedSensor.val = parseFloat(sensor.values.value || sensor.values) || 0;
-      }
-    }
-    
-    grouped[sensorType].push(convertedSensor);
+  });
+  
+  console.log('센서 데이터 그룹화 결과:', {
+    데이터포인트개수: backendData.data.length,
+    그룹화결과: Object.keys(grouped).map(type => ({
+      타입: type,
+      개수: grouped[type].length
+    })),
+    timestamp: new Date().toLocaleTimeString()
   });
   
   return grouped;
@@ -65,15 +105,15 @@ export const formatTime = (date) => {
  * 센서 값이 유효한지 확인
  */
 export const isSensorValueValid = (sensorData) => {
-  if (sensorData.sensor_type === 'particle') {
+  if (sensorData.sensorType === 'particle') {
     // 먼지 센서는 3개 값 중 하나라도 존재하면 유효
-    return sensorData.val_0_1 !== undefined && sensorData.val_0_1 !== null ||
-           sensorData.val_0_3 !== undefined && sensorData.val_0_3 !== null ||
-           sensorData.val_0_5 !== undefined && sensorData.val_0_5 !== null;
+    return sensorData.values?.['0.1'] !== undefined && sensorData.values?.['0.1'] !== null ||
+           sensorData.values?.['0.3'] !== undefined && sensorData.values?.['0.3'] !== null ||
+           sensorData.values?.['0.5'] !== undefined && sensorData.values?.['0.5'] !== null;
   }
   
   // 다른 센서들은 값이 존재하면 유효 (0도 유효한 값)
-  return sensorData.val !== undefined && sensorData.val !== null;
+  return sensorData.values?.value !== undefined && sensorData.values?.value !== null;
 };
 
 /**

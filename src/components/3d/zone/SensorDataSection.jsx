@@ -4,11 +4,38 @@ import ConnectionIndicator from '../../common/ConnectionIndicator';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
 
 const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
+  // 디버깅용 로그 추가
+  console.log('🔍 SensorDataSection 렌더링:', {
+    zoneId,
+    connectionState,
+    sensorData,
+    sensorDataKeys: Object.keys(sensorData || {}),
+    sensorDataLength: Object.keys(sensorData || {}).length,
+    SENSOR_TYPES: SENSOR_TYPES.map(type => type.type),
+    timestamp: new Date().toLocaleTimeString()
+  });
+
+  // 실제 센서 데이터 사용
+  const displayData = sensorData || {};
+  
+  console.log('📊 센서 데이터:', {
+    displayData,
+    displayDataKeys: Object.keys(displayData),
+    timestamp: new Date().toLocaleTimeString()
+  });
+
   /**
    * 센서 타입별 센서 목록을 렌더링하는 함수
    */
   const renderSensorColumn = useCallback(({ type, icon, name }) => {
-    const sensors = sensorData[type];
+    const sensors = displayData[type];
+    
+    console.log(`🔍 ${type} 센서 렌더링:`, {
+      type,
+      sensors,
+      sensorsLength: sensors?.length || 0,
+      timestamp: new Date().toLocaleTimeString()
+    });
     
     return (
       <div key={type} className="flex flex-col gap-4">
@@ -23,7 +50,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
         {sensors && sensors.length > 0 && (
           <div className="space-y-2">
             {sensors.map((sensor, index) => (
-              <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+              <div key={`${sensor.sensorId}-${index}`} className="w-full">
                 <SensorDataCard 
                   sensorData={sensor}
                   zoneId={zoneId}
@@ -34,7 +61,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
         )}
       </div>
     );
-  }, [sensorData, zoneId]);
+  }, [displayData, zoneId]);
 
   return (
     <aside className="w-[60%] h-full">

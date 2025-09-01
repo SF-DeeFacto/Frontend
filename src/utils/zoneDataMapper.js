@@ -1,63 +1,65 @@
 // 백엔드 API 응답을 프론트엔드 형식으로 변환하는 유틸리티
+// 백엔드 데이터 구조를 그대로 사용
 
-// 센서 타입 매핑 (백엔드 → 프론트엔드)
-const SENSOR_TYPE_MAPPING = {
-  'temperature': 'temperature',
-  'humidity': 'humidity', 
-  'electrostatic': 'esd',        // 백엔드: electrostatic → 프론트: esd
-  'particle': 'particle',
-  'winddirection': 'windDir'     // 백엔드: winddirection → 프론트: windDir
-};
-
-// 백엔드 센서 데이터를 프론트엔드 형식으로 변환
+/**
+ * 백엔드 센서 데이터를 그대로 사용 (변환 없음)
+ */
 export const mapBackendSensorData = (backendSensor) => {
-  // 백엔드 센서 타입을 프론트엔드 타입으로 매핑
-  const mappedSensorType = SENSOR_TYPE_MAPPING[backendSensor.sensorType] || backendSensor.sensorType;
-  
-  const mappedSensor = {
-    sensorId: backendSensor.sensorId || backendSensor.sensor_id,
-    sensorType: mappedSensorType,  // 매핑된 타입 사용
-    sensorStatus: backendSensor.sensorStatus || backendSensor.status || 'normal',
+  // 백엔드 데이터를 그대로 사용
+  return {
+    sensorId: backendSensor.sensorId,
+    sensorType: backendSensor.sensorType,
+    sensorStatus: backendSensor.sensorStatus,
     timestamp: backendSensor.timestamp,
-    values: backendSensor.values || {}
+    values: backendSensor.values
   };
-
-  console.log(`센서 매핑: ${mappedSensor.sensorId} (${backendSensor.sensorType} → ${mappedSensor.sensorType}) - 원본 값:`, backendSensor.values);
-  return mappedSensor;
 };
 
-// 백엔드 존 데이터를 프론트엔드 형식으로 변환
+/**
+ * 백엔드 존 데이터를 프론트엔드 형식으로 변환
+ */
 export const mapBackendZoneData = (backendZoneData, zoneId) => {
-  if (!backendZoneData || !backendZoneData.data || !Array.isArray(backendZoneData.data)) {
+  if (!backendZoneData?.data || !Array.isArray(backendZoneData.data)) {
+    console.log('❌ 백엔드 데이터가 없거나 잘못된 형식');
     return null;
   }
 
-  // 모든 센서 데이터를 하나의 배열로 통합하고 매핑
-  const mappedSensors = [];
-  backendZoneData.data.forEach(dataPoint => {
-    if (dataPoint.sensors && Array.isArray(dataPoint.sensors)) {
+  console.log(`📊 ${zoneId} 존 - 데이터 포인트 ${backendZoneData.data.length}개 처리 시작`);
+
+  // 모든 데이터 포인트의 센서들을 하나로 통합
+  const allSensors = [];
+  const sensorIds = new Set(); // 중복 방지
+
+  backendZoneData.data.forEach((dataPoint, index) => {
+    if (dataPoint.sensors?.length > 0) {
+      console.log(`${index + 1}번째 포인트: ${dataPoint.sensors.length}개 센서`);
+      
       dataPoint.sensors.forEach(sensor => {
-        const mappedSensor = mapBackendSensorData(sensor);
-        mappedSensors.push({
-          ...mappedSensor,
-          timestamp: dataPoint.timestamp // 존 타임스탬프 사용
-        });
+        if (!sensorIds.has(sensor.sensorId)) {
+          sensorIds.add(sensor.sensorId);
+          const convertedSensor = mapBackendSensorData(sensor);
+          allSensors.push(convertedSensor);
+          console.log(`✅ 센서 추가: ${sensor.sensorId}`);
+        } else {
+          console.log(`⚠️ 중복 센서 건너뜀: ${sensor.sensorId}`);
+        }
       });
     }
   });
 
-  console.log(`📊 ${zoneId} 존 - 매핑된 센서 ${mappedSensors.length}개:`, 
-    mappedSensors.map(s => `${s.sensorId}(${s.sensorType})`).join(', '));
+  console.log(`📊 ${zoneId} 존 - 총 ${allSensors.length}개 센서 처리 완료`);
 
   return {
     zoneId: zoneId,
     zoneName: `Zone ${zoneId}`,
     timestamp: new Date().toISOString(),
-    sensors: mappedSensors // 매핑된 센서 배열 반환
+    sensors: allSensors
   };
 };
 
-// 센서 데이터를 기존 컴포넌트 형식과 호환되도록 변환
+/**
+ * 센서 데이터를 기존 컴포넌트 형식과 호환되도록 변환
+ */
 export const mapToComponentFormat = (backendZoneData, zoneId) => {
   const mappedData = mapBackendZoneData(backendZoneData, zoneId);
   if (!mappedData) return null;

@@ -423,7 +423,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
+
 // const API_BASE = 'http://localhost:8085';
 const API_BASE = '/report-api';
 const EMPLOYEE_ID = '1';

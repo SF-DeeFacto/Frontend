@@ -376,20 +376,30 @@ class UnifiedSSEManager {
    * 구독자들에게 데이터 전달
    */
   notifySubscribers(data) {
-    if (!data?.data || !Array.isArray(data.data)) {
-      return;
-    }
-
-    console.log('📢 구독자들에게 데이터 전달:', {
-      데이터개수: data.data.length,
+    console.log('📢 구독자들에게 데이터 전달 시작:', {
+      데이터개수: data.data?.length || 0,
       구독자수: Array.from(this.subscribers.values()).reduce((total, set) => total + set.size, 0),
+      전체구독자목록: Array.from(this.subscribers.keys()),
       timestamp: new Date().toLocaleTimeString()
     });
+
+    if (!data?.data || !Array.isArray(data.data)) {
+      console.log('❌ 전달할 데이터가 없거나 잘못된 형식:', data);
+      return;
+    }
 
     data.data.forEach(zone => {
       if (zone.zoneName) {
         const upperZoneId = zone.zoneName.toUpperCase();
         const zoneSubscribers = this.subscribers.get(upperZoneId);
+        
+        console.log(`🔍 ${upperZoneId} 존 구독자 확인:`, {
+          zoneId: upperZoneId,
+          구독자수: zoneSubscribers?.size || 0,
+          존데이터: zone,
+          존데이터키: Object.keys(zone),
+          timestamp: new Date().toLocaleTimeString()
+        });
         
         if (zoneSubscribers) {
           console.log(`📢 ${upperZoneId} 존 구독자들에게 데이터 전달:`, {
@@ -409,6 +419,8 @@ class UnifiedSSEManager {
               });
             }
           });
+        } else {
+          console.log(`📝 ${upperZoneId} 존 구독자가 없음`);
         }
       }
     });

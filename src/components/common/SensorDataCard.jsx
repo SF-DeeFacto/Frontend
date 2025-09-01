@@ -14,7 +14,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
   };
 
   // 센서 타입 설정 가져오기
-  const sensorConfig = getSensorTypeConfig(sensorData.sensor_type);
+  const sensorConfig = getSensorTypeConfig(sensorData.sensorType);
   
   // 센서 아이콘
   const sensorIcon = sensorConfig?.icon || '📊';
@@ -23,7 +23,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
   const sensorUnit = sensorConfig?.unit || '';
   
   // 센서 이름
-  const sensorName = sensorConfig?.name || sensorData.sensor_type;
+  const sensorName = sensorConfig?.name || sensorData.sensorType;
 
   /**
    * 센서 값 렌더링
@@ -38,7 +38,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
       );
     }
 
-    if (sensorData.sensor_type === 'particle') {
+    if (sensorData.sensorType === 'particle') {
       // 먼지 센서는 3개 값 (0.1, 0.3, 0.5)
       return (
         <div className="particle-values">
@@ -48,9 +48,9 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
             <span className="particle-label">0.5μm</span>
           </div>
           <div className="particle-values-column">
-            <span className="particle-value">{sensorData.val_0_1?.toFixed(2) || 0}</span>
-            <span className="particle-value">{sensorData.val_0_3?.toFixed(2) || 0}</span>
-            <span className="particle-value">{sensorData.val_0_5?.toFixed(2) || 0}</span>
+            <span className="particle-value">{sensorData.values?.['0.1']?.toFixed(2) || 0}</span>
+            <span className="particle-value">{sensorData.values?.['0.3']?.toFixed(2) || 0}</span>
+            <span className="particle-value">{sensorData.values?.['0.5']?.toFixed(2) || 0}</span>
             <span className="sensor-unit">{sensorUnit}</span>
           </div>
         </div>
@@ -58,15 +58,15 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
     }
     
     // 다른 센서들은 단일 값
-    return `${sensorData.val?.toFixed(1) || 0}`;
+    return `${sensorData.values?.value?.toFixed(1) || 0}`;
   };
 
   // 센서 상태 색상 (상태 표시점에만 사용)
-  const statusColor = getStatusHexColor(sensorData.status);
+  const statusColor = getStatusHexColor(sensorData.sensorStatus);
 
   return (
     <div 
-      className={`sensor-card ${sensorData.sensor_type} w-full max-w-[280px]`}
+      className={`sensor-card ${sensorData.sensorType} w-full max-w-[280px]`}
       onClick={handleCardClick}
       style={{ cursor: 'pointer' }}
       title="클릭하여 그래프 페이지로 이동"
@@ -77,7 +77,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
             {sensorName}
           </h3>
           <span className="sensor-id-badge">
-            {sensorData.sensor_id}
+            {sensorData.sensorId}
           </span>
         </div>
       
@@ -90,11 +90,11 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
                 minWidth: '16px',
                 minHeight: '16px'
               }}
-              title={`상태: ${sensorData.val || sensorData.val_0_5}`}
+              title={`상태: ${sensorData.sensorStatus}`}
             ></div>
             <div className="sensor-value" style={{ color: '#1e293b' }}>
               {renderSensorValue()}
-              {sensorData.sensor_type !== 'particle' && (
+              {sensorData.sensorType !== 'particle' && (
                 <span className="sensor-unit">{sensorUnit}</span>
               )}
             </div>
