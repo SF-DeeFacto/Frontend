@@ -52,7 +52,7 @@ export const SENSOR_STATUS_3D_COLORS = {
 // 센서 상태별 텍스트
 export const SENSOR_STATUS_TEXT = {
   [SENSOR_STATUS.GREEN]: '정상',
-  [SENSOR_STATUS.YELLOW]: '주의',
+  [SENSOR_STATUS.YELLOW]: '경고',
   [SENSOR_STATUS.RED]: '경고',
   [SENSOR_STATUS.CONNECTING]: '연결중',
   [SENSOR_STATUS.DISCONNECTED]: '연결끊김',

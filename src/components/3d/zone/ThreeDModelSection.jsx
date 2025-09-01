@@ -5,7 +5,7 @@ import ModelCard from '../../common/ModelCard';
 import ZoneHoverOverlay from '../../common/ZoneHoverOverlay';
 import StatusIndicator from './StatusIndicator';
 
-const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) => {
+const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange, lastUpdated }) => {
   return (
     <ModelCard
       zoneId="main"
@@ -26,6 +26,7 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
         <ZoneHoverOverlay 
           hoveredZone={hoveredZone} 
           zoneStatuses={zoneStatuses}
+          lastUpdated={lastUpdated}
         />
       </div>
 

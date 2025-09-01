@@ -42,6 +42,7 @@ const Home = () => {
         zoneStatuses={zoneStatuses}
         hoveredZone={hoveredZone}
         onHoverZoneChange={setHoveredZone}
+        lastUpdated={lastUpdated}
       />
 
       {/* Zone 버튼들 */}
