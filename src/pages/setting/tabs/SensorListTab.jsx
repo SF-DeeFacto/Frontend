@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { sensorApi } from '../../../services/api/sensor_api';
 
 const SensorListTab = () => {
   const navigate = useNavigate();
@@ -9,89 +10,25 @@ const SensorListTab = () => {
   const [filterZone, setFilterZone] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 센서 데이터 로드 (실제 API 구조에 맞춘 더미 데이터)
+  // 센서 목록 API 로드
   useEffect(() => {
-    const dummySensors = [
-      { 
-        sensorId: 'esd-001',
-        zoneId: 'a01',
-        sensorType: 'electrostatic',
-        updatedAt: '2025-08-22T16:38:40',
-        updatedUserId: 'admin',
-        warningLow: null,
-        warningHigh: 80.0,
-        alertLow: null,
-        alertHigh: 100.0
-      },
-      { 
-        sensorId: 'temp-001',
-        zoneId: 'a01',
-        sensorType: 'temperature',
-        updatedAt: '2025-08-22T15:20:15',
-        updatedUserId: 'admin',
-        warningLow: 18.0,
-        warningHigh: 25.0,
-        alertLow: 15.0,
-        alertHigh: 30.0
-      },
-      { 
-        sensorId: 'humid-001',
-        zoneId: 'a02',
-        sensorType: 'humidity',
-        updatedAt: '2025-08-22T14:45:30',
-        updatedUserId: 'user01',
-        warningLow: 40.0,
-        warningHigh: 60.0,
-        alertLow: 30.0,
-        alertHigh: 70.0
-      },
-      { 
-        sensorId: 'particle-001',
-        zoneId: 'b01',
-        sensorType: 'particle',
-        updatedAt: '2025-08-22T13:12:45',
-        updatedUserId: 'admin',
-        warningLow: null,
-        warningHigh: 50.0,
-        alertLow: null,
-        alertHigh: 100.0
-      },
-      { 
-        sensorId: 'wind-001',
-        zoneId: 'c01',
-        sensorType: 'windDirection',
-        updatedAt: '2025-08-22T12:08:20',
-        updatedUserId: 'user02',
-        warningLow: null,
-        warningHigh: null,
-        alertLow: null,
-        alertHigh: null
-      },
-      { 
-        sensorId: 'temp-002',
-        zoneId: 'b02',
-        sensorType: 'temperature',
-        updatedAt: '2025-08-22T11:35:10',
-        updatedUserId: 'admin',
-        warningLow: 20.0,
-        warningHigh: 28.0,
-        alertLow: 15.0,
-        alertHigh: 35.0
-      },
-      { 
-        sensorId: 'esd-002',
-        zoneId: 'c02',
-        sensorType: 'electrostatic',
-        updatedAt: '2025-08-22T10:22:55',
-        updatedUserId: 'user01',
-        warningLow: null,
-        warningHigh: 75.0,
-        alertLow: null,
-        alertHigh: 95.0
+    let isMounted = true;
+    const loadSensors = async () => {
+      const result = await sensorApi.getSensors();
+      if (!isMounted) return;
+      if (result.success) {
+        const payload = result.data;
+        const list = payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []);
+        setSensors(list);
+        setFilteredSensors(list);
+      } else {
+        console.error(result.error);
+        setSensors([]);
+        setFilteredSensors([]);
       }
-    ];
-    setSensors(dummySensors);
-    setFilteredSensors(dummySensors);
+    };
+    loadSensors();
+    return () => { isMounted = false; };
   }, []);
 
   // 필터링 로직
