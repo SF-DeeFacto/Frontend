@@ -6,6 +6,7 @@ import PwudTab from './tabs/PwudTab';
 import PreferTab from './tabs/PreferTab';
 import ProfileTab from './tabs/ProfileTab';
 import SensorListTab from './tabs/SensorListTab';
+import AIRecommend from './tabs/AIRecommend';
 
 const Setting = () => {
   const location = useLocation();
@@ -24,7 +25,8 @@ const Setting = () => {
     { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
     { id: 'userset', name: '회원정보 관리', component: Userset },
     { id: 'sensorlist', name: '센서 목록', component: SensorListTab },
-    { id: 'equipset', name: '센서 관리', component: Equipset }
+    { id: 'equipset', name: '센서 관리', component: Equipset },
+    { id: 'airecommendation', name: 'AI 추천 관리', component: AIRecommend }
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
@@ -56,7 +58,7 @@ const Setting = () => {
 
         {/* 탭 컨텐츠 */}
         <div className="p-6">
-          {ActiveComponent && <ActiveComponent />}
+          {ActiveComponent && <ActiveComponent onTabChange={setActiveTab} />}
         </div>
       </div>
     </div>

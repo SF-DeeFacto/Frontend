@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ThresholdRecommendationModal from '../../../components/setting/ThresholdRecommendationModal';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -12,7 +11,7 @@ const formatDateTime = (date) => {
   return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
 };
 
-const Equipset = () => {
+const Equipset = ({ onTabChange }) => {
   // 선택된 구역
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -250,8 +249,7 @@ const Equipset = () => {
     alertHigh: '',
   });
 
-  // AI 추천 모달 상태
-  const [showRecommendations, setShowRecommendations] = useState(false);
+
 
   const onEditClick = (sensor) => {
     setEditingType(sensor.sensorType);
@@ -358,35 +356,7 @@ const Equipset = () => {
     }
   };
 
-  // AI 추천 승인 처리
-  const handleApproveRecommendations = (approvedRecommendations) => {
-    const now = new Date();
-    
-    // 현재 구역의 센서 데이터 업데이트
-    const updatedZoneSensors = currentSensors.map(sensor => {
-      const recommendation = approvedRecommendations.find(rec => rec.sensorType === sensor.sensorType);
-      if (recommendation) {
-        return {
-          ...sensor,
-          warningLow: recommendation.recommended.warningLow,
-          warningHigh: recommendation.recommended.warningHigh,
-          alertLow: recommendation.recommended.alertLow,
-          alertHigh: recommendation.recommended.alertHigh,
-          updatedAt: now.toISOString(),
-          updatedUserId: 'AI_SYSTEM',
-        };
-      }
-      return sensor;
-    });
-    
-    // 전체 센서 임계치 데이터 업데이트
-    setSensorThresholds(prev => ({
-      ...prev,
-      [selectedZone]: updatedZoneSensors
-    }));
-    
-    alert(`${approvedRecommendations.length}개의 AI 추천이 적용되었습니다.`);
-  };
+
 
   // 센서 타입별 한글 매핑
   const sensorTypeMapping = {
@@ -446,10 +416,10 @@ const Equipset = () => {
           </div>
         </div>
         <button
-          onClick={() => setShowRecommendations(true)}
+          onClick={() => onTabChange && onTabChange('airecommendation')}
           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
         >
-          AI 추천 임계치
+          AI 추천 관리
         </button>
       </div>
 
@@ -594,13 +564,6 @@ const Equipset = () => {
       <p className="mt-3 text-sm text-gray-500">
         각 Zone(존)별로 Warning(경고)Low/High, alert(알림)Low/High만 수정할 수 있습니다. 저장 시 수정일자와 수정인이 갱신됩니다.
       </p>
-
-      {/* AI 추천 모달 */}
-      <ThresholdRecommendationModal
-        isOpen={showRecommendations}
-        onClose={() => setShowRecommendations(false)}
-        onApprove={handleApproveRecommendations}
-      />
     </div>
   );
 };
