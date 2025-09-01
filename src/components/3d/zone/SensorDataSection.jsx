@@ -25,14 +25,39 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
   });
 
   /**
+   * 센서 ID에서 숫자 부분을 추출하는 함수
+   */
+  const extractSensorNumber = (sensorId) => {
+    const match = sensorId.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
+
+  /**
+   * 센서들을 센서 ID 순서대로 정렬하는 함수
+   */
+  const sortSensorsById = (sensors) => {
+    if (!Array.isArray(sensors)) return [];
+    
+    return [...sensors].sort((a, b) => {
+      const aNumber = extractSensorNumber(a.sensorId);
+      const bNumber = extractSensorNumber(b.sensorId);
+      return aNumber - bNumber;
+    });
+  };
+
+  /**
    * 센서 타입별 센서 목록을 렌더링하는 함수
    */
   const renderSensorColumn = useCallback(({ type, icon, name }) => {
     const sensors = displayData[type];
     
+    // 센서들을 ID 순서대로 정렬
+    const sortedSensors = sortSensorsById(sensors);
+    
     console.log(`🔍 ${type} 센서 렌더링:`, {
       type,
       sensors,
+      sortedSensors,
       sensorsLength: sensors?.length || 0,
       timestamp: new Date().toLocaleTimeString()
     });
@@ -42,14 +67,14 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
         <h4 className="text-sm font-medium text-gray-600 flex items-center gap-2 mb-2">
           <span>{icon}</span>
           {name}
-          {sensors && sensors.length > 0 && (
-            <span className="text-xs text-gray-400">({sensors.length}개)</span>
+          {sortedSensors && sortedSensors.length > 0 && (
+            <span className="text-xs text-gray-400">({sortedSensors.length}개)</span>
           )}
         </h4>
         
-        {sensors && sensors.length > 0 && (
+        {sortedSensors && sortedSensors.length > 0 && (
           <div className="space-y-2">
-            {sensors.map((sensor, index) => (
+            {sortedSensors.map((sensor, index) => (
               <div key={`${sensor.sensorId}-${index}`} className="w-full">
                 <SensorDataCard 
                   sensorData={sensor}
