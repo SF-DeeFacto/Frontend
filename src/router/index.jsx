@@ -8,7 +8,6 @@ import Report from '../pages/Report';
 import ChatBot from '../pages/ChatBot';
 import Alarm from '../pages/Alarm';
 import Setting from '../pages/setting/Setting';
-import SensorList from '../pages/SensorList';
 import Zone from '../pages/zone/Zone';
 // import GrafanaDashboard from '../pages/GrafanaDashboard';
 // import GrafanaTest from '../pages/GrafanaTest';
@@ -140,7 +139,7 @@ const AppRoutes = () => {
         <Route path="/home/report" element={<Report />} />
         <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
-        <Route path="/home/sensors" element={<SensorList />} />
+
         <Route path="/home/setting" element={<Setting />} />
         <Route path="/home/zone/:zoneId" element={<DynamicZone />} />
         <Route path="*" element={<NotFound />} />

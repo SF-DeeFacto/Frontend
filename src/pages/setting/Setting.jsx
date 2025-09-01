@@ -5,6 +5,7 @@ import Userset from './tabs/Userset';
 import PwudTab from './tabs/PwudTab';
 import PreferTab from './tabs/PreferTab';
 import ProfileTab from './tabs/ProfileTab';
+import SensorListTab from './tabs/SensorListTab';
 
 const Setting = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ const Setting = () => {
     { id: 'prefer', name: '환경설정', component: PreferTab },
     { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
     { id: 'userset', name: '회원정보 관리', component: Userset },
+    { id: 'sensorlist', name: '센서 목록', component: SensorListTab },
     { id: 'equipset', name: '센서 관리', component: Equipset }
   ];
 
