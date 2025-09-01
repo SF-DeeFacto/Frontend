@@ -55,15 +55,39 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
     
     console.log('=== 3D 모델의 모든 매쉬 이름 ===');
     const allMeshes = [];
+    const sensorLikeMeshes = [];
+    const esdMeshes = [];
+    const lpmMeshes = [];
+    const humMeshes = [];
+    const wdMeshes = [];
+    const tempMeshes = [];
     
     gltf.scene.traverse((child) => {
       if (child.isMesh) {
-        allMeshes.push({
+        const meshInfo = {
           name: child.name,
           type: child.type,
           position: child.position.toArray(),
-          visible: child.visible
-        });
+          visible: child.visible,
+          parent: child.parent ? child.parent.name : 'No Parent'
+        };
+        
+        allMeshes.push(meshInfo);
+        
+        // 센서 패턴 분류 (모든 센서 타입)
+        if (child.name.match(/^S\d{2}$/)) {
+          sensorLikeMeshes.push(child.name);
+        } else if (child.name.includes('ESD')) {
+          esdMeshes.push(child.name);
+        } else if (child.name.includes('LPM')) {
+          lpmMeshes.push(child.name);
+        } else if (child.name.includes('HUM')) {
+          humMeshes.push(child.name);
+        } else if (child.name.includes('WD')) {
+          wdMeshes.push(child.name);
+        } else if (child.name.includes('TEMP')) {
+          tempMeshes.push(child.name);
+        }
       }
     });
     
@@ -71,10 +95,16 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
     allMeshes.sort((a, b) => a.name.localeCompare(b.name));
     
     allMeshes.forEach(mesh => {
-      console.log(`📦 ${mesh.name} (${mesh.type}) - 위치: [${mesh.position.map(p => p.toFixed(3)).join(', ')}]`);
+      console.log(`📦 "${mesh.name}" (${mesh.type}) - 부모: ${mesh.parent} - 위치: [${mesh.position.map(p => p.toFixed(3)).join(', ')}] - 보임: ${mesh.visible}`);
     });
     
-    console.log(`총 ${allMeshes.length}개의 매쉬 발견`);
+    console.log(`\n총 ${allMeshes.length}개의 매쉬 발견`);
+    console.log(`S** 패턴 센서: ${sensorLikeMeshes.length}개 -`, sensorLikeMeshes.sort());
+    console.log(`ESD 관련: ${esdMeshes.length}개 -`, esdMeshes.sort());
+    console.log(`LPM 관련: ${lpmMeshes.length}개 -`, lpmMeshes.sort());
+    console.log(`HUM 관련: ${humMeshes.length}개 -`, humMeshes.sort());
+    console.log(`WD 관련: ${wdMeshes.length}개 -`, wdMeshes.sort());
+    console.log(`TEMP 관련: ${tempMeshes.length}개 -`, tempMeshes.sort());
     console.log('================================');
   };
 
@@ -89,11 +119,33 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
 
     const foundSensors = {};
     const clickableObjects = [];
-    const sensorNames = Array.from({ length: 55 }, (_, i) => `S${String(i + 1).padStart(2, '0')}`);
+    
+    // 실제 모델에서 발견된 센서 이름들 사용
+    const actualSensorNames = [
+      // ESD 센서들 (001~012)
+      'ESD-001', 'ESD-002', 'ESD-003', 'ESD-004', 'ESD-005', 'ESD-006', 
+      'ESD-007', 'ESD-008', 'ESD-009', 'ESD-010', 'ESD-011', 'ESD-012',
+      // LPM 센서들 (001~012)
+      'LPM-001', 'LPM-002', 'LPM-003', 'LPM-004', 'LPM-005', 'LPM-006',
+      'LPM-007', 'LPM-008', 'LPM-009', 'LPM-010', 'LPM-011', 'LPM-012',
+      // HUM 센서들 (001~012)
+      'HUM-001', 'HUM-002', 'HUM-003', 'HUM-004', 'HUM-005', 'HUM-006',
+      'HUM-007', 'HUM-008', 'HUM-009', 'HUM-010', 'HUM-011', 'HUM-012',
+      // WD 센서들 (001~012)
+      'WD-001', 'WD-002', 'WD-003', 'WD-004', 'WD-005', 'WD-006',
+      'WD-007', 'WD-008', 'WD-009', 'WD-010', 'WD-011', 'WD-012',
+      // TEMP 온도 센서들 (TEM이 아니라 TEMP)
+      'TEMP-001', 'TEMP-002', 'TEMP-003', 'TEMP-004', 'TEMP-005', 'TEMP-006', 'TEMP-007', 'TEMP-008', 'TEMP-009', 'TEMP-010', 'TEMP-011', 'TEMP-012'
+    ];
+    
+    console.log(`=== 실제 센서 이름 ${actualSensorNames.length}개로 검색 시작 ===`);
+    console.log('센서 목록:', actualSensorNames.sort());
 
-    sensorNames.forEach(meshName => {
+    // 실제 센서 이름들로 검색
+    actualSensorNames.forEach(meshName => {
       const target = gltf.scene.getObjectByName(meshName);
       if (target) {
+        console.log(`✅ 센서 "${meshName}" 찾음!`, target);
         target.userData.clickable = true;
         target.userData.sensorName = meshName;
         clickableObjects.push(target);
@@ -106,8 +158,53 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
           position: [center.x, box.max.y, center.z],
           mesh: target
         };
+      } else {
+        console.log(`❌ 센서 "${meshName}" 못 찾음`);
       }
     });
+
+    // traverse로 추가 센서 확인 및 보완
+    console.log('=== traverse로 추가 센서 확인 ===');
+    const traverseFoundSensors = [];
+    const missingByTraverse = [];
+    
+    gltf.scene.traverse((child) => {
+      if (child.isMesh && child.name) {
+        // 실제 센서 패턴 확인 (LPM, TEMP 사용)
+        if (child.name.includes('ESD') || 
+            child.name.includes('LPM') || 
+            child.name.includes('HUM') || 
+            child.name.includes('WD') ||
+            child.name.includes('TEMP')) {
+          traverseFoundSensors.push(child.name);
+          console.log(`🔍 traverse로 찾은 센서: "${child.name}"`);
+          
+          // getObjectByName으로 못 찾았던 것들 추가
+          if (!foundSensors[child.name]) {
+            missingByTraverse.push(child.name);
+            console.log(`⚠️ traverse로만 찾을 수 있는 센서: "${child.name}"`);
+            
+            // traverse로 찾은 센서도 추가
+            child.userData.clickable = true;
+            child.userData.sensorName = child.name;
+            clickableObjects.push(child);
+
+            const box = new THREE.Box3().setFromObject(child);
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+
+            foundSensors[child.name] = {
+              position: [center.x, box.max.y, center.z],
+              mesh: child
+            };
+          }
+        }
+      }
+    });
+    
+    console.log(`traverse로 찾은 센서 총 ${traverseFoundSensors.length}개:`, traverseFoundSensors.sort());
+    console.log(`최종 발견된 센서: ${Object.keys(foundSensors).length}개`);
+    console.log(`traverse로만 찾을 수 있었던 센서 ${missingByTraverse.length}개:`, missingByTraverse.sort());
 
     clickableObjectsRef.current = clickableObjects;
     setSensorPositions(foundSensors);
@@ -177,13 +274,29 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
       />
 
       {Object.entries(sensorPositions).map(([meshName, sensorData]) => {
+        // 센서 타입 분류
+        const getSensorType = (name) => {
+          if (name.includes('ESD')) return 'ESD';
+          if (name.includes('Handle')) return 'Handle';
+          if (name.includes('HUM')) return 'Humidity';
+          if (name.includes('WD')) return 'WaterDetector';
+          if (name.includes('TEM')) return 'Temperature';
+          return 'Unknown';
+        };
+
         return (
           <SensorIndicator
             key={meshName}
             position={sensorData.position}
             status="normal" // 기본 상태
-            sensorName={meshName}
-            onClick={() => handleSensorClick({ name: meshName, position: sensorData.position, status: 'normal', id: meshName, type: 'unknown' })}
+            sensorName={meshName} // 실제 센서 이름 사용 (ESD-001, HUM-003 등)
+            onClick={() => handleSensorClick({ 
+              name: meshName, 
+              position: sensorData.position, 
+              status: 'normal', 
+              id: meshName, 
+              type: getSensorType(meshName)
+            })}
           />
         );
       })}
@@ -204,7 +317,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
             padding: '12px',
             borderRadius: '8px',
             border: '1px solid #374151',
-            minWidth: '200px',
+            minWidth: '220px',
             fontSize: '14px',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
@@ -231,7 +344,11 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-300">센서 ID:</span>
-                  <span className="text-white">{selectedObject.id}</span>
+                  <span className="text-white font-mono">{selectedObject.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">센서 타입:</span>
+                  <span className="text-blue-400">{selectedObject.type}</span>
                 </div>
               </div>
             )}
