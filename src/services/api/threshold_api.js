@@ -25,7 +25,7 @@ export const thresholdApi = {
   updateThreshold: async (payload) => {
     console.log('임계치 업데이트 시작:', payload);
     try {
-      const response = await dashboardApiClient.put('/home/setting/thresholds', payload);
+      const response = await dashboardApiClient.post('/home/setting/sensor/threshold/update', payload);
       console.log('임계치 업데이트 성공:', response.data);
       return {
         success: true,
