@@ -20,7 +20,7 @@ const PreferTab = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-4">환경설정</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900 mb-4">환경설정</h4> */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>

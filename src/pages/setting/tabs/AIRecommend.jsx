@@ -205,7 +205,7 @@ const AIRecommend = () => {
     <div className="p-2">
       {/* 헤더 */}
       <div className="flex justify-between items-center mb-6">
-        <h4 className="text-lg font-medium text-gray-900">AI 추천 임계치 관리</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900">AI 추천 임계치 관리</h4> */}
         <button
           onClick={handleBulkApprove}
           className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"

@@ -2,46 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 
 const Userset = () => {
-  // 더미 데이터 주석처리 - 실제 API에서 데이터 로드
-  // const [users, setUsers] = useState([
-  //   { 
-  //     id: 1, 
-  //     employeeId: 'EMP001',
-  //     name: '홍길동', 
-  //     password: '********',
-  //     email: 'hong@example.com', 
-  //     gender: 'male',
-  //     department: '개발팀',
-  //     position: '개발자',
-  //     role: 'admin', 
-  //     status: 'active' 
-  //   },
-  //   { 
-  //     id: 2, 
-  //     employeeId: 'EMP002',
-  //     name: '김철수', 
-  //     password: '********',
-  //     email: 'kim@example.com', 
-  //     gender: 'male',
-  //     department: '디자인팀',
-  //     position: '디자이너',
-  //     role: 'user', 
-  //     status: 'active' 
-  //   },
-  //   { 
-  //     id: 3, 
-  //     employeeId: 'EMP003',
-  //     name: '이영희', 
-  //     password: '********',
-  //     email: 'lee@example.com', 
-  //     gender: 'female',
-  //     department: '마케팅팀',
-  //     position: '매니저',
-  //     role: 'user', 
-  //     status: 'inactive' 
-  //   }
-  // ]);
-
   // 실제 API 연결용 상태
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({
@@ -350,13 +310,6 @@ const Userset = () => {
     setShowAddModal(false); // 등록 모달 닫기
   };
 
-  // 상태 변경 함수 - 더 이상 사용하지 않음 (백엔드에서 isActive로 관리)
-  // const handleStatusChange = (userId, newStatus) => {
-  //   setUsers(prev => prev.map(user => 
-  //     user.id === userId ? { ...user, status: newStatus } : user
-  //   ));
-  // };
-
   const getRoleLabel = (role) => {
     return roles.find(r => r.value === role)?.label || role;
   };
@@ -391,12 +344,6 @@ const Userset = () => {
       default: return shift;
     }
   };
-
-  // 검색은 API에서 처리하므로 필터링 로직 제거
-  // const filteredUsers = users.filter(user =>
-  //   user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
   
   // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
   const filteredUsers = users;
@@ -409,7 +356,7 @@ const Userset = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4> */}
         <button
           onClick={() => {
             setShowAddModal(true);

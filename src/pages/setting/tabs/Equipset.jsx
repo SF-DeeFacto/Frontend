@@ -397,7 +397,7 @@ const Equipset = ({ onTabChange }) => {
     <div className="p-2">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center space-x-4">
-          <h4 className="text-lg font-medium text-gray-900">센서 임계치 설정</h4>
+          {/* <h4 className="text-lg font-medium text-gray-900">센서 임계치 설정</h4> */}
           <div className="flex items-center space-x-2">
             <label className="text-sm font-medium text-gray-700">구역 선택:</label>
             <select
@@ -415,12 +415,7 @@ const Equipset = ({ onTabChange }) => {
             </select>
           </div>
         </div>
-        <button
-          onClick={() => onTabChange && onTabChange('airecommendation')}
-          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-        >
-          AI 추천 관리
-        </button>
+
       </div>
 
       <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">

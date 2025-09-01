@@ -129,7 +129,7 @@ const ProfileTab = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-6">프로필 정보</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900 mb-6">프로필 정보</h4> */}
         
         {/* 프로필 레이아웃 */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
@@ -145,7 +145,7 @@ const ProfileTab = () => {
                 <div className="text-base font-semibold text-gray-900">
                   {profile.name || '이름 없음'}
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-xs text-gray-600">
                   {profile.gender === 'M' ? '남성' : profile.gender === 'F' ? '여성' : profile.gender || '성별 정보 없음'}
                 </div>
               </div>

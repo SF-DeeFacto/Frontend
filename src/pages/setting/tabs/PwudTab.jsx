@@ -115,7 +115,7 @@ const PwudTab = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
