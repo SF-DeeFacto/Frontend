@@ -14,60 +14,66 @@ const SensorListTab = () => {
   useEffect(() => {
     let isMounted = true;
     const loadSensors = async () => {
-      const result = await sensorApi.getSensors();
+      const params = {
+        sensorType: filterType !== 'all' ? filterType : undefined,
+        zoneId: filterZone !== 'all' ? zoneId : undefined,
+        page: 0,
+        size: 100 // 충분히 큰 크기로 설정
+      };
+      
+      console.log('API 호출 파라미터:', params);
+      console.log('현재 필터 상태:', { filterType, filterZone });
+      
+      const result = await sensorApi.getSensors(params);
       if (!isMounted) return;
+      
+      console.log('API 응답:', result);
+      
       if (result.success) {
         const payload = result.data;
         const list = payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []);
+        console.log('파싱된 센서 목록:', list);
         setSensors(list);
         setFilteredSensors(list);
       } else {
-        console.error(result.error);
+        console.error('API 호출 실패:', result.error);
         setSensors([]);
         setFilteredSensors([]);
       }
     };
     loadSensors();
     return () => { isMounted = false; };
-  }, []);
+  }, [filterType, filterZone]);
 
-  // 필터링 로직
+  // 검색어 필터링 (클라이언트 사이드)
   useEffect(() => {
-    let filtered = sensors;
-
-    // 센서 타입 필터
-    if (filterType !== 'all') {
-      filtered = filtered.filter(sensor => sensor.sensorType === filterType);
+    if (!searchTerm) {
+      setFilteredSensors(sensors);
+      return;
     }
-
-    // 구역 필터
-    if (filterZone !== 'all') {
-      filtered = filtered.filter(sensor => sensor.zoneId === filterZone);
-    }
-
-    // 검색어 필터
-    if (searchTerm) {
-      filtered = filtered.filter(sensor => 
-        sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
+    
+    const filtered = sensors.filter(sensor => 
+      sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
     setFilteredSensors(filtered);
-  }, [sensors, filterType, filterZone, searchTerm]);
+  }, [sensors, searchTerm]);
 
   // 센서 타입별 한글 매핑
   const sensorTypeMapping = {
-    'electrostatic': 'ESD',
+    'electrostatic': '정전기',
     'temperature': '온도',
     'humidity': '습도',
-    'particle': '미세먼지',
+    'particle_0_1um': '미세먼지 0.1μm',
+    'particle_0_3um': '미세먼지 0.3μm',
+    'particle_0_51um': '미세먼지 0.51μm',
     'windDirection': '풍향'
   };
 
   // 센서 타입 목록
-  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle', 'windDirection'];
+  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_51um', 'windDirection'];
   const zones = ['all', 'a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'];
 
   // 날짜 포맷팅 함수

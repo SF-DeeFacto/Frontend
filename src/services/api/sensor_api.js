@@ -3,10 +3,34 @@ import { dashboardApiClient } from '../index';
 
 export const sensorApi = {
   // 센서 목록 조회
-  getSensors: async () => {
-    console.log('센서 목록 조회 시작');
+  getSensors: async (params = {}) => {
+    const { sensorType, zoneId, page = 0, size = 10 } = params;
+    console.log('센서 목록 조회 시작', { sensorType, zoneId, page, size });
+    
     try {
-      const response = await dashboardApiClient.get('/home/setting/sensor');
+      const queryParams = new URLSearchParams();
+      if (sensorType && sensorType !== 'all') {
+        queryParams.append('sensorType', sensorType);
+        console.log('센서 타입 파라미터 추가:', sensorType);
+      }
+      if (zoneId && zoneId !== 'all') {
+        queryParams.append('zoneId', zoneId);
+        console.log('구역 파라미터 추가:', zoneId);
+      }
+      queryParams.append('page', page);
+      queryParams.append('size', size);
+      
+      const url = `/home/setting/sensor?${queryParams.toString()}`;
+      console.log('최종 API URL:', url);
+      
+      // 미세먼지 센서 타입인 경우 8080 포트로 요청
+      let finalUrl = url;
+      if (sensorType && sensorType.startsWith('particle_')) {
+        finalUrl = `http://localhost:8080${url}`;
+        console.log('미세먼지 센서 타입 감지, 8080 포트로 요청:', finalUrl);
+      }
+      
+      const response = await dashboardApiClient.get(finalUrl);
       console.log('센서 목록 조회 성공:', response.data);
       return {
         success: true,
