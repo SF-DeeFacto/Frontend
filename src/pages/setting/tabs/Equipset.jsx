@@ -216,9 +216,9 @@ const Equipset = ({ onTabChange }) => {
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">전체</option>
-              <option value="a">Zone A</option>
-              <option value="b">Zone B</option>
-              <option value="c">Zone C</option>
+              <option value="a">A구역</option>
+              <option value="b">B구역</option>
+              <option value="c">C구역</option>
             </select>
           </div>
         </div>
