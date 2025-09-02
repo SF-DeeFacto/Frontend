@@ -24,6 +24,7 @@ const ZoneDrawingSection = ({
           key={zoneId} // zoneId가 변경될 때마다 컴포넌트 재마운트
           zoneId={zoneId} 
           sensorData={sensorData}
+          selectedObject={selectedObject}
           onObjectClick={onObjectClick} 
         />
       </div>

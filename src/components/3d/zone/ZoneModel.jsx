@@ -6,7 +6,7 @@ import { Html } from '@react-three/drei';
 import SensorIndicator from './SensorIndicator';
 import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
 
-function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
+function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const gltf = useLoader(GLTFLoader, modelPath);
   const groupRef = useRef();
   const { camera, raycaster, gl } = useThree();
@@ -14,6 +14,57 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
   const [isModelReady, setIsModelReady] = useState(false);
   const clickableObjectsRef = useRef([]);
   const frameCountRef = useRef(0);
+
+  // 센서 데이터에서 센서 상태를 찾는 함수
+  const getSensorStatusFromData = (sensorName) => {
+    if (!sensorData || Object.keys(sensorData).length === 0) {
+      return 'unknown';
+    }
+
+    // 센서 이름을 기반으로 센서 데이터에서 찾기
+    for (const [sensorType, sensors] of Object.entries(sensorData)) {
+      if (Array.isArray(sensors)) {
+        const foundSensor = sensors.find(sensor => {
+          // 센서 ID나 이름이 매칭되는지 확인
+          return sensor.sensorId === sensorName || 
+                 sensor.sensorName === sensorName ||
+                 sensor.id === sensorName ||
+                 sensor.name === sensorName;
+        });
+        
+        if (foundSensor) {
+          // 센서 상태 반환 (normal, warning, error 등)
+          return foundSensor.status || foundSensor.state || 'normal';
+        }
+      }
+    }
+    
+    return 'unknown';
+  };
+
+  // 센서 데이터에서 센서 정보를 찾는 함수
+  const getSensorInfoFromData = (sensorName) => {
+    if (!sensorData || Object.keys(sensorData).length === 0) {
+      return null;
+    }
+
+    for (const [sensorType, sensors] of Object.entries(sensorData)) {
+      if (Array.isArray(sensors)) {
+        const foundSensor = sensors.find(sensor => {
+          return sensor.sensorId === sensorName || 
+                 sensor.sensorName === sensorName ||
+                 sensor.id === sensorName ||
+                 sensor.name === sensorName;
+        });
+        
+        if (foundSensor) {
+          return foundSensor;
+        }
+      }
+    }
+    
+    return null;
+  };
 
   // 모델 초기 설정 (중심 이동, 그룹 위치/회전)
   useEffect(() => {
@@ -227,7 +278,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
         onPointerDown={handleClick}
       />
 
-      {Object.entries(sensorPositions).map(([meshName, sensorData]) => {
+      {Object.entries(sensorPositions).map(([meshName, sensorPositionData]) => {
         // 센서 타입 분류
         const getSensorType = (name) => {
           if (name.includes('ESD')) return 'ESD';
@@ -235,21 +286,27 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
           if (name.includes('HUM')) return 'Humidity';
           if (name.includes('WD')) return 'WaterDetector';
           if (name.includes('TEM')) return 'Temperature';
+          if (name.includes('LPM')) return 'Particle';
           return 'Unknown';
         };
+
+        // 실제 센서 데이터에서 상태 가져오기
+        const actualStatus = getSensorStatusFromData(meshName);
+        const sensorInfo = getSensorInfoFromData(meshName);
 
         return (
           <SensorIndicator
             key={meshName}
-            position={sensorData.position}
-            status="normal" // 기본 상태
+            position={sensorPositionData.position}
+            status={actualStatus} // 실제 센서 상태 사용
             sensorName={meshName} // 실제 센서 이름 사용
             onClick={() => handleSensorClick({ 
               name: meshName, 
-              position: sensorData.position, 
-              status: 'normal', 
+              position: sensorPositionData.position, 
+              status: actualStatus, 
               id: meshName, 
-              type: getSensorType(meshName)
+              type: getSensorType(meshName),
+              sensorInfo: sensorInfo // 실제 센서 정보 추가
             })}
           />
         );
@@ -259,56 +316,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <ambientLight intensity={0.5} />
 
-      {/* 선택된 센서 정보 */}
-      {selectedObject && (
-        <Html
-          position={[0, 2, 0]}
-          center
-          distanceFactor={15}
-          style={{
-            background: 'rgba(0, 0, 0, 0.9)',
-            color: 'white',
-            padding: '12px',
-            borderRadius: '8px',
-            border: '1px solid #374151',
-            minWidth: '220px',
-            fontSize: '14px',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}
-        >
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">{selectedObject.name}</h3>
-              <button onClick={() => onObjectClick(null)} className="text-gray-400 hover:text-white text-sm">✕</button>
-            </div>
-            {selectedObject.isSensor && (
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-300">상태:</span>
-                  <span className={`font-medium ${
-                    selectedObject.status === 'normal'
-                      ? 'text-green-400'
-                      : selectedObject.status === 'warning'
-                      ? 'text-yellow-400'
-                      : selectedObject.status === 'error'
-                      ? 'text-red-400'
-                      : 'text-gray-400'
-                  }`}>{getStatusText(selectedObject.status)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-300">센서 ID:</span>
-                  <span className="text-white font-mono">{selectedObject.id}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-300">센서 타입:</span>
-                  <span className="text-blue-400">{selectedObject.type}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </Html>
-      )}
+
     </group>
   );
 }

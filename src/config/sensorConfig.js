@@ -36,6 +36,10 @@ export const SENSOR_STATUS_HEX_COLORS = {
   [SENSOR_STATUS.RED]: '#ef4444',
   [SENSOR_STATUS.CONNECTING]: '#3b82f6',
   [SENSOR_STATUS.DISCONNECTED]: '#6b7280',
+  normal: '#10b981',
+  warning: '#f59e0b',
+  error: '#ef4444',
+  unknown: '#6b7280',
   default: '#6b7280'
 };
 
@@ -46,6 +50,10 @@ export const SENSOR_STATUS_3D_COLORS = {
   [SENSOR_STATUS.RED]: 0xef4444,
   [SENSOR_STATUS.CONNECTING]: 0x3b82f6,
   [SENSOR_STATUS.DISCONNECTED]: 0x6b7280,
+  normal: 0x10b981,
+  warning: 0xf59e0b,
+  error: 0xef4444,
+  unknown: 0x6b7280,
   default: 0x6b7280
 };
 
@@ -56,6 +64,10 @@ export const SENSOR_STATUS_TEXT = {
   [SENSOR_STATUS.RED]: '경고',
   [SENSOR_STATUS.CONNECTING]: '연결중',
   [SENSOR_STATUS.DISCONNECTED]: '연결끊김',
+  normal: '정상',
+  warning: '경고',
+  error: '오류',
+  unknown: '알 수 없음',
   default: '알 수 없음'
 };
 

@@ -1,6 +1,5 @@
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-// import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
 
 
 // const Report = () => {
@@ -8,8 +7,7 @@
 //   // local redis에 저장된 사원 번호 {123}  `{}` 까지 값으로 되어서 포함시킴
 //   const EMPLOYEE_ID = '{123}';
 
-//   // 더미 테이터 사용하는 state
-//   //const [reports] = useState(dummyReports);
+//   // 리포트 데이터 state
 //   const [reports, setReports] = useState([]);
 //   const [reportType, setReportType] = useState('전체');
 //   const [selectedPeriod, setSelectedPeriod] = useState('전체');
