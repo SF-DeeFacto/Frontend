@@ -63,14 +63,14 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
                 title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>
               
-              {/* 실시간 표시 */}
+              {/* 실시간 표시
               {connectionInfo.isRealtime && (
                 <div 
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: connectionColor }}
                   title={`연결 상태: ${connectionInfo.connectionState}`}
                 ></div>
-              )}
+              )} */}
             </div>
           </div>
         );

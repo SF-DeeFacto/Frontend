@@ -21,9 +21,9 @@ function GenericZoneViewer({ zoneId, onObjectClick }) {
 
       <Canvas
         camera={{ position: [10, 10, 10], fov: 75 }}
-        style={{ width: '100%', height: '100%', background: '#f0f0f0' }}
+        style={{ width: '100%', height: '100%', background: '#ffffff' }}
         onCreated={({ gl }) => {
-          gl.setClearColor('#f0f0f0');
+          gl.setClearColor('#ffffff');
         }}
       >
         <Suspense fallback={null}>

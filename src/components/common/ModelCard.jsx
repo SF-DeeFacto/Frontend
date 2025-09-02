@@ -2,7 +2,7 @@ import React from 'react';
 
 const ModelCard = ({ zoneId, children, className = '' }) => {
   return (
-    <div className={`w-full h-full flex flex-col items-center justify-center ${className}`} style={{ background: '#f0f0f0' }}>
+    <div className={`w-full h-full flex flex-col items-center justify-center ${className}`} style={{ background: '#ffffff' }}>
       {children || (
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-700">

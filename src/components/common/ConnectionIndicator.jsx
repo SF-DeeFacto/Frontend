@@ -16,13 +16,13 @@ const ConnectionIndicator = ({ connectionState }) => {
     }
   };
 
-  return (
-    <div 
-      className="w-2 h-2 rounded-full"
-      style={{ backgroundColor: getConnectionColor(connectionState) }}
-      title={`연결 상태: ${connectionState}`}
-    />
-  );
+  // return (
+  //   <div 
+  //     className="w-2 h-2 rounded-full"
+  //     style={{ backgroundColor: getConnectionColor(connectionState) }}
+  //     title={`연결 상태: ${connectionState}`}
+  //   />
+  // );
 };
 
 export default ConnectionIndicator;
