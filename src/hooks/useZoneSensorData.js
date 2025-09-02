@@ -58,13 +58,43 @@ export const useZoneSensorData = (zoneId) => {
     }
     debouncerRef.current = new SensorDataDebouncer(500);
     
-    // 디바운싱된 데이터 업데이트 콜백 등록
-    debouncerRef.current.addCallback((data) => {
-      if (data && data.data && data.data.length > 0) {
-        const groupedSensors = groupSensorData(data);
-        setSensorData(groupedSensors);
+    // 디바운싱된 데이터 업데이트 콜백 등록 (스마트 업데이트)
+    debouncerRef.current.addCallback((newData, oldData) => {
+      if (newData && newData.data && newData.data.length > 0) {
+        const groupedSensors = groupSensorData(newData);
+        
+        // 기존 데이터와 비교하여 실제 변경사항만 업데이트
+        setSensorData(prevData => {
+          // 실제로 변경된 센서만 업데이트
+          const updatedData = { ...prevData };
+          
+          Object.keys(groupedSensors).forEach(sensorType => {
+            const newSensors = groupedSensors[sensorType];
+            const oldSensors = prevData[sensorType] || [];
+            
+            // 센서 개수가 다르거나 값이 변경된 경우만 업데이트
+            if (newSensors.length !== oldSensors.length) {
+              updatedData[sensorType] = newSensors;
+            } else {
+              // 각 센서의 값 변경 확인
+              const hasChanges = newSensors.some((newSensor, index) => {
+                const oldSensor = oldSensors[index];
+                return !oldSensor || 
+                       newSensor.sensorStatus !== oldSensor.sensorStatus ||
+                       JSON.stringify(newSensor.values) !== JSON.stringify(oldSensor.values);
+              });
+              
+              if (hasChanges) {
+                updatedData[sensorType] = newSensors;
+              }
+            }
+          });
+          
+          return updatedData;
+        });
+        
         setLastUpdated(new Date().toLocaleTimeString());
-        console.log(`${zoneId}존 디바운싱된 센서 데이터 업데이트 완료:`, {
+        console.log(`${zoneId}존 스마트 센서 데이터 업데이트 완료:`, {
           센서데이터: groupedSensors,
           업데이트시간: new Date().toLocaleTimeString()
         });

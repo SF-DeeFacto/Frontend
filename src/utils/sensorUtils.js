@@ -167,13 +167,45 @@ export const getSensorStatusPriority = (status) => {
 };
 
 /**
- * 센서 데이터 디바운싱을 위한 유틸리티
+ * 센서 값이 실제로 변경되었는지 확인하는 함수
+ */
+export const hasSensorValueChanged = (oldSensor, newSensor) => {
+  if (!oldSensor || !newSensor) return true;
+  
+  // 센서 상태 변경 확인
+  if (oldSensor.sensorStatus !== newSensor.sensorStatus) {
+    return true;
+  }
+  
+  // 센서 값 변경 확인
+  if (oldSensor.sensorType === 'particle') {
+    // 먼지 센서는 3개 값 모두 확인
+    const oldValues = oldSensor.values || {};
+    const newValues = newSensor.values || {};
+    
+    return (
+      oldValues['0.1'] !== newValues['0.1'] ||
+      oldValues['0.3'] !== newValues['0.3'] ||
+      oldValues['0.5'] !== newValues['0.5']
+    );
+  } else {
+    // 다른 센서들은 value 값 확인
+    const oldValue = oldSensor.values?.value;
+    const newValue = newSensor.values?.value;
+    
+    return oldValue !== newValue;
+  }
+};
+
+/**
+ * 센서 데이터 디바운싱을 위한 유틸리티 (스마트 업데이트 포함)
  */
 export class SensorDataDebouncer {
   constructor(delay = 1000) {
     this.delay = delay;
     this.timeoutId = null;
     this.lastData = null;
+    this.lastProcessedData = null;
     this.callbacks = new Set();
   }
 
@@ -193,14 +225,57 @@ export class SensorDataDebouncer {
     }
     
     this.timeoutId = setTimeout(() => {
-      this.callbacks.forEach(callback => {
-        try {
-          callback(this.lastData);
-        } catch (error) {
-          console.error('센서 데이터 디바운싱 콜백 오류:', error);
-        }
-      });
+      // 실제로 변경된 데이터만 처리
+      const hasChanges = this.hasSignificantChanges(this.lastData);
+      
+      if (hasChanges) {
+        this.callbacks.forEach(callback => {
+          try {
+            callback(this.lastData, this.lastProcessedData);
+          } catch (error) {
+            console.error('센서 데이터 디바운싱 콜백 오류:', error);
+          }
+        });
+        this.lastProcessedData = this.lastData;
+      } else {
+        console.log('🔄 센서 데이터 변경 없음 - UI 업데이트 건너뜀');
+      }
     }, this.delay);
+  }
+
+  hasSignificantChanges(newData) {
+    if (!this.lastProcessedData || !newData) return true;
+    
+    try {
+      const oldGrouped = groupSensorData(this.lastProcessedData);
+      const newGrouped = groupSensorData(newData);
+      
+      // 센서 타입별로 변경 확인
+      for (const sensorType of Object.keys(newGrouped)) {
+        const oldSensors = oldGrouped[sensorType] || [];
+        const newSensors = newGrouped[sensorType] || [];
+        
+        // 센서 개수가 다르면 변경
+        if (oldSensors.length !== newSensors.length) {
+          return true;
+        }
+        
+        // 각 센서의 값 변경 확인
+        for (let i = 0; i < newSensors.length; i++) {
+          const oldSensor = oldSensors[i];
+          const newSensor = newSensors[i];
+          
+          if (hasSensorValueChanged(oldSensor, newSensor)) {
+            return true;
+          }
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('센서 데이터 변경 확인 오류:', error);
+      return true; // 오류 시 안전하게 업데이트
+    }
   }
 
   destroy() {
