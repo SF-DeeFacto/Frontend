@@ -8,8 +8,9 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    strictPort: false, // 포트가 사용 중이면 다른 포트 사용
+    strictPort: true, // 포트 고정
     hmr: false, // HMR 완전 비활성화
+    host: 'localhost',
     watch: {
       // 파일 변경 감지를 polling으로 처리
       usePolling: true,
