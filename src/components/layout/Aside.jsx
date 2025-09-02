@@ -66,6 +66,7 @@ const Aside = () => {
       onClick: () => setZoneOpen(!zoneOpen),
       hasSubMenu: true,
     },
+
     {
       icon: <FiBarChart2 />,
       label: "Graph",
