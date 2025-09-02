@@ -100,70 +100,12 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     }
   });
 
-  // 모든 매쉬 이름 출력 함수
-  const logAllMeshNames = () => {
-    if (!gltf.scene) return;
-    
-    console.log('=== 3D 모델의 모든 매쉬 이름 ===');
-    const allMeshes = [];
-    const sensorLikeMeshes = [];
-    const esdMeshes = [];
-    const lpmMeshes = [];
-    const humMeshes = [];
-    const wdMeshes = [];
-    const tempMeshes = [];
-    
-    gltf.scene.traverse((child) => {
-      if (child.isMesh) {
-        const meshInfo = {
-          name: child.name,
-          type: child.type,
-          position: child.position.toArray(),
-          visible: child.visible,
-          parent: child.parent ? child.parent.name : 'No Parent'
-        };
-        
-        allMeshes.push(meshInfo);
-        
-        // 센서 패턴 분류 (모든 센서 타입)
-        if (child.name.match(/^S\d{2}$/)) {
-          sensorLikeMeshes.push(child.name);
-        } else if (child.name.includes('ESD')) {
-          esdMeshes.push(child.name);
-        } else if (child.name.includes('LPM')) {
-          lpmMeshes.push(child.name);
-        } else if (child.name.includes('HUM')) {
-          humMeshes.push(child.name);
-        } else if (child.name.includes('WD')) {
-          wdMeshes.push(child.name);
-        } else if (child.name.includes('TEMP')) {
-          tempMeshes.push(child.name);
-        }
-      }
-    });
-    
-    // 이름순으로 정렬
-    allMeshes.sort((a, b) => a.name.localeCompare(b.name));
-    
-    allMeshes.forEach(mesh => {
-      console.log(`📦 "${mesh.name}" (${mesh.type}) - 부모: ${mesh.parent} - 위치: [${mesh.position.map(p => p.toFixed(3)).join(', ')}] - 보임: ${mesh.visible}`);
-    });
-    
-    console.log(`\n총 ${allMeshes.length}개의 매쉬 발견`);
-    console.log(`S** 패턴 센서: ${sensorLikeMeshes.length}개 -`, sensorLikeMeshes.sort());
-    console.log(`ESD 관련: ${esdMeshes.length}개 -`, esdMeshes.sort());
-    console.log(`LPM 관련: ${lpmMeshes.length}개 -`, lpmMeshes.sort());
-    console.log(`HUM 관련: ${humMeshes.length}개 -`, humMeshes.sort());
-    console.log(`WD 관련: ${wdMeshes.length}개 -`, wdMeshes.sort());
-    console.log(`TEMP 관련: ${tempMeshes.length}개 -`, tempMeshes.sort());
-    console.log('================================');
-  };
+
 
   const calculateSensorPositions = () => {
     if (!gltf.scene) return;
 
-    // 모든 매쉬 이름 로그 출력
-    logAllMeshNames();
+
 
     // 월드 매트릭스 업데이트
     gltf.scene.updateWorldMatrix(true, true);
@@ -176,8 +118,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     
     // 하드코딩된 센서 이름 검색 제거 - traverse로만 센서 찾기
 
-    // traverse로 센서 동적 검색 (하드코딩된 센서 이름 제거)
-    console.log('=== traverse로 센서 동적 검색 ===');
+    // traverse로 센서 동적 검색
     const traverseFoundSensors = [];
     
     gltf.scene.traverse((child) => {
@@ -189,7 +130,6 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
             child.name.includes('WD') ||
             child.name.includes('TEMP')) {
           traverseFoundSensors.push(child.name);
-          console.log(`🔍 traverse로 찾은 센서: "${child.name}"`);
           
           // 센서 추가
           child.userData.clickable = true;
@@ -207,9 +147,6 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
         }
       }
     });
-    
-    console.log(`traverse로 찾은 센서 총 ${traverseFoundSensors.length}개:`, traverseFoundSensors.sort());
-    console.log(`최종 발견된 센서: ${Object.keys(foundSensors).length}개`);
 
     clickableObjectsRef.current = clickableObjects;
     setSensorPositions(foundSensors);

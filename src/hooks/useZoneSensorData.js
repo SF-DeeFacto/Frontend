@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
 import { CONNECTION_STATE } from '../types/sensor';
-import { dashboardApi } from '../services/api/dashboard_api';
+
 import { connectZoneSSE } from '../services/sse';
 
 export const useZoneSensorData = (zoneId) => {
@@ -11,22 +11,7 @@ export const useZoneSensorData = (zoneId) => {
   const [lastUpdated, setLastUpdated] = useState(null);
   const debouncerRef = useRef(null);
 
-  /**
-   * Zone의 센서 데이터를 가져오는 함수 (SSE 연결 전 초기 데이터용)
-   */
-  const getInitialZoneData = useCallback(async () => {
-    try {
-      const upperZoneId = zoneId.toUpperCase();
-      const response = await dashboardApi.getZoneData(upperZoneId);
-      if (response && response.data && response.data.length > 0) {
-        return response;
-      }
-    } catch (error) {
-      // 초기 데이터 로딩 실패는 조용히 처리 (SSE로 대체됨)
-    }
-    
-    return { data: [] };
-  }, [zoneId]);
+
 
   /**
    * 센서 데이터 업데이트 함수 (SSE 데이터용)
@@ -75,19 +60,7 @@ export const useZoneSensorData = (zoneId) => {
       }
     });
     
-    // 초기 데이터 로드 (SSE 연결 전)
-    const loadInitialData = async () => {
-      try {
-        const initialData = await getInitialZoneData();
-        if (initialData.data && initialData.data.length > 0) {
-          updateSensorDataFromSSE(initialData);
-        }
-      } catch (error) {
-        // 초기 데이터 로딩 실패는 조용히 처리
-      }
-    };
-    
-    loadInitialData();
+
     
     // SSE 연결 시작
     const upperZoneId = zoneId.toUpperCase();
@@ -123,7 +96,7 @@ export const useZoneSensorData = (zoneId) => {
         debouncerRef.current = null;
       }
     };
-  }, [zoneId, getInitialZoneData, updateSensorDataFromSSE]);
+  }, [zoneId, updateSensorDataFromSSE]);
 
   return {
     sensorData,
