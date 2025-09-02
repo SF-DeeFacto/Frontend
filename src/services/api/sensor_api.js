@@ -23,14 +23,7 @@ export const sensorApi = {
       const url = `/home/setting/sensor?${queryParams.toString()}`;
       console.log('최종 API URL:', url);
       
-      // 미세먼지 센서 타입인 경우 8080 포트로 요청
-      let finalUrl = url;
-      if (sensorType && sensorType.startsWith('particle_')) {
-        finalUrl = `http://localhost:8080${url}`;
-        console.log('미세먼지 센서 타입 감지, 8080 포트로 요청:', finalUrl);
-      }
-      
-      const response = await dashboardApiClient.get(finalUrl);
+      const response = await dashboardApiClient.get(url);
       console.log('센서 목록 조회 성공:', response.data);
       return {
         success: true,

@@ -68,12 +68,12 @@ const SensorListTab = () => {
     'humidity': '습도',
     'particle_0_1um': '미세먼지 0.1μm',
     'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_51um': '미세먼지 0.51μm',
+    'particle_0_5um': '미세먼지 0.5μm',
     'windDirection': '풍향'
   };
 
   // 센서 타입 목록
-  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_51um', 'windDirection'];
+  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_5um', 'windDirection'];
   const zones = ['all', 'a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'];
 
   // 날짜 포맷팅 함수
