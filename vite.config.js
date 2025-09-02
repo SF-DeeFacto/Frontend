@@ -7,11 +7,17 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // HMR 웹소켓 비활성화 옵션들
-    // hmr: false, // HMR 완전 비활성화
-    // 또는 웹소켓만 비활성화하고 polling 사용
+    port: 5173,
+    strictPort: false, // 포트가 사용 중이면 다른 포트 사용
     hmr: {
-      port: false, // 웹소켓 포트 비활성화
+      // WebSocket 완전 비활성화하고 polling 사용
+      port: false, // WebSocket 포트 비활성화
+      overlay: true, // 에러 오버레이 표시
+    },
+    watch: {
+      // 파일 변경 감지를 polling으로 처리
+      usePolling: true,
+      interval: 1000, // 1초마다 체크
     },
     proxy: {
       '/grafana-api': {
