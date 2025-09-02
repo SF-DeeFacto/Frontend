@@ -406,7 +406,7 @@ const Equipset = ({ onTabChange }) => {
                 setSelectedZone(e.target.value);
                 setEditingType(null); // 구역 변경 시 편집 상태 초기화
               }}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
             >
               <option value="all">전체</option>
               <option value="a">Zone A</option>
@@ -519,7 +519,7 @@ const Equipset = ({ onTabChange }) => {
                       <>
                         <button
                           onClick={onSave}
-                          className="inline-flex items-center px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700"
+                          className="inline-flex items-center px-3 py-1.5 rounded bg-[#494FA2] text-white hover:bg-[#3d4490]"
                         >
                           저장
                         </button>

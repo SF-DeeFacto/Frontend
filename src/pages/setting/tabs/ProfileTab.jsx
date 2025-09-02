@@ -136,7 +136,7 @@ const ProfileTab = () => {
           <div className="flex items-start space-x-12">
             {/* 프로필 사진 영역 */}
             <div className="flex-shrink-0 flex flex-col items-center">
-              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow-lg mb-3">
+              <div className="h-20 w-20 rounded-full bg-gradient-to-br from-[#494FA2] to-purple-400 flex items-center justify-center shadow-lg mb-3">
                 <span className="text-2xl font-bold text-white">
                   {profile.name?.charAt(0) || 'U'}
                 </span>

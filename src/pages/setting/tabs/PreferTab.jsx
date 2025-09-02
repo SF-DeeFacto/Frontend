@@ -30,7 +30,7 @@ const PreferTab = () => {
             <button
               onClick={() => handlePreferenceChange('notifications', !preferences.notifications)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full ${
-                preferences.notifications ? 'bg-blue-600' : 'bg-gray-200'
+                preferences.notifications ? 'bg-[#494FA2]' : 'bg-gray-200'
               }`}
             >
               <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
@@ -72,7 +72,7 @@ const PreferTab = () => {
         </div>
         
         <div className="mt-6">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <button className="bg-[#494FA2] text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-[#494FA2]">
             설정 저장
           </button>
         </div>

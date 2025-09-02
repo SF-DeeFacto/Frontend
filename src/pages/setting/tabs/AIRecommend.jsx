@@ -208,7 +208,7 @@ const AIRecommend = () => {
         {/* <h4 className="text-lg font-medium text-gray-900">AI 추천 임계치 관리</h4> */}
         <button
           onClick={handleBulkApprove}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+          className="px-4 py-2 bg-[#494FA2] text-white rounded-md hover:bg-[#3d4490] transition-colors disabled:bg-gray-400"
           disabled={filteredRecommendations.filter(rec => !rec.appliedStatus).length === 0}
         >
           전체 일괄 승인
@@ -226,7 +226,7 @@ const AIRecommend = () => {
             <select
               value={selectedMonth}
               onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
             >
               <option value="all">전체</option>
               <option value="2025-01">2025년 1월</option>
@@ -243,7 +243,7 @@ const AIRecommend = () => {
             <select
               value={filterZone}
               onChange={(e) => setFilterZone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
             >
               <option value="all">전체</option>
               <option value="a">Zone A</option>
@@ -260,7 +260,7 @@ const AIRecommend = () => {
             <select
               value={filterSensorType}
               onChange={(e) => setFilterSensorType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
             >
               <option value="all">전체</option>
               <option value="temperature">온도</option>
@@ -323,12 +323,12 @@ const AIRecommend = () => {
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-blue-600'}`}>
+                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-[#494FA2]'}`}>
                       {formatThresholdValue(rec.warningLow)} / {formatThresholdValue(rec.warningHigh)}
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-blue-600'}`}>
+                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-[#494FA2]'}`}>
                       {formatThresholdValue(rec.alertLow)} / {formatThresholdValue(rec.alertHigh)}
                     </div>
                   </td>
