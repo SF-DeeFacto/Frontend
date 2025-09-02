@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
 import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../types/sensor';
-import { COMMON_ZONE_CONFIG, isRealtimeZone } from '../config/zoneConfig';
+
 
 export const useZoneManager = () => {
   const [zoneStatuses, setZoneStatuses] = useState({
@@ -42,8 +42,8 @@ export const useZoneManager = () => {
               
               data.data.forEach(zone => {
                 if (zone.zoneName && zone.status) {
-                  // 실시간 데이터를 사용하는 Zone만 처리
-                  if (isRealtimeZone(zone.zoneName.toLowerCase())) {
+                  // 모든 Zone 처리 (실시간 데이터 필터링 제거)
+                  if (zone.zoneName) {
                     console.log(`Zone 상태 업데이트: ${zone.zoneName} = ${zone.status}`);
                     
                     setZoneStatuses(prevStatuses => ({

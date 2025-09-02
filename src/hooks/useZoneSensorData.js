@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { groupSensorData, formatTime } from '../utils/sensorUtils';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
 import { CONNECTION_STATE } from '../types/sensor';
 import { dashboardApi } from '../services/api/dashboard_api';
 import { connectZoneSSE } from '../services/sse';
@@ -9,6 +9,7 @@ export const useZoneSensorData = (zoneId) => {
   const [isLoading, setIsLoading] = useState(true);
   const [connectionState, setConnectionState] = useState(CONNECTION_STATE.CONNECTING);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const debouncerRef = useRef(null);
 
   /**
    * Zone의 센서 데이터를 가져오는 함수
@@ -51,6 +52,25 @@ export const useZoneSensorData = (zoneId) => {
     setIsLoading(true);
     setConnectionState(CONNECTION_STATE.CONNECTING);
     
+    // 디바운서 초기화 (500ms 지연)
+    if (debouncerRef.current) {
+      debouncerRef.current.destroy();
+    }
+    debouncerRef.current = new SensorDataDebouncer(500);
+    
+    // 디바운싱된 데이터 업데이트 콜백 등록
+    debouncerRef.current.addCallback((data) => {
+      if (data && data.data && data.data.length > 0) {
+        const groupedSensors = groupSensorData(data);
+        setSensorData(groupedSensors);
+        setLastUpdated(new Date().toLocaleTimeString());
+        console.log(`${zoneId}존 디바운싱된 센서 데이터 업데이트 완료:`, {
+          센서데이터: groupedSensors,
+          업데이트시간: new Date().toLocaleTimeString()
+        });
+      }
+    });
+    
     // 모든 존에 대해 SSE 연결 시작
     const upperZoneId = zoneId.toUpperCase();
     console.log(`${upperZoneId} 존 - SSE 연결 시작`);
@@ -73,33 +93,20 @@ export const useZoneSensorData = (zoneId) => {
           timestamp: new Date().toLocaleTimeString()
         });
         
-        // SSE 데이터 수신 시 직접 데이터 처리
+        // SSE 데이터 수신 시 디바운싱 적용
         try {
           if (data && data.data && data.data.length > 0) {
-            console.log(`📊 ${upperZoneId} 존 - SSE 데이터 상세:`, {
+            console.log(`📊 ${upperZoneId} 존 - SSE 데이터 수신 (디바운싱 적용):`, {
               전체데이터: data.data,
               첫번째데이터: data.data[0],
               첫번째데이터키: Object.keys(data.data[0] || {}),
               timestamp: new Date().toLocaleTimeString()
             });
 
-            // 백엔드 데이터를 그대로 사용하여 그룹화
-            const groupedSensors = groupSensorData(data);
-            console.log('그룹화된 센서 데이터:', {
-              그룹화된센서: groupedSensors,
-              센서타입별개수: Object.keys(groupedSensors).map(type => ({
-                타입: type,
-                개수: groupedSensors[type]?.length || 0
-              })),
-              timestamp: new Date().toLocaleTimeString()
-            });
-            
-            setSensorData(groupedSensors);
-            setLastUpdated(new Date().toLocaleTimeString());
-            console.log(`${upperZoneId}존 SSE 데이터로 센서 데이터 업데이트 완료:`, {
-              센서데이터: groupedSensors,
-              업데이트시간: new Date().toLocaleTimeString()
-            });
+            // 디바운싱을 통해 데이터 업데이트
+            if (debouncerRef.current) {
+              debouncerRef.current.update(data);
+            }
           } else {
             console.log(`${upperZoneId}존 SSE 데이터가 비어있음:`, {
               data,
@@ -124,6 +131,11 @@ export const useZoneSensorData = (zoneId) => {
     
     return () => {
       disconnectSSE();
+      // 디바운서 정리
+      if (debouncerRef.current) {
+        debouncerRef.current.destroy();
+        debouncerRef.current = null;
+      }
     };
   }, [zoneId, updateSensorData]);
 
