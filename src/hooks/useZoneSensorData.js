@@ -35,29 +35,18 @@ export const useZoneSensorData = (zoneId) => {
     const groupedSensors = groupSensorData(backendData);
     
     setSensorData(prevData => {
-      // 실제로 변경된 센서만 업데이트
+      // 이전 데이터를 유지하면서 새로운 데이터로 업데이트
       const updatedData = { ...prevData };
       
       Object.keys(groupedSensors).forEach(sensorType => {
         const newSensors = groupedSensors[sensorType];
         const oldSensors = prevData[sensorType] || [];
         
-        // 센서 개수가 다르거나 값이 변경된 경우만 업데이트
-        if (newSensors.length !== oldSensors.length) {
+        // 새로운 센서 데이터가 있으면 업데이트, 없으면 이전 데이터 유지
+        if (newSensors && newSensors.length > 0) {
           updatedData[sensorType] = newSensors;
-        } else {
-          // 각 센서의 값 변경 확인
-          const hasChanges = newSensors.some((newSensor, index) => {
-            const oldSensor = oldSensors[index];
-            return !oldSensor || 
-                   newSensor.sensorStatus !== oldSensor.sensorStatus ||
-                   JSON.stringify(newSensor.values) !== JSON.stringify(oldSensor.values);
-          });
-          
-          if (hasChanges) {
-            updatedData[sensorType] = newSensors;
-          }
         }
+        // 새로운 센서 데이터가 없으면 이전 데이터 유지 (삭제하지 않음)
       });
       
       return updatedData;
@@ -122,6 +111,7 @@ export const useZoneSensorData = (zoneId) => {
       onError: (error) => {
         setConnectionState(CONNECTION_STATE.ERROR);
         setIsLoading(false);
+        // 연결 오류 시에도 이전 센서 데이터는 유지
       }
     });
     
