@@ -25,37 +25,22 @@ const SensorListTab = () => {
         size: 100 // 충분히 큰 크기로 설정
       };
       
-      console.log('=== API 호출 시작 ===');
-      console.log('API 호출 파라미터:', params);
-      console.log('현재 필터 상태:', { filterType, filterZone });
+      console.log('🚀 센서 목록 조회 시작');
+      console.log('📋 요청 파라미터:', params);
       
       const result = await sensorApi.getSensors(params);
       if (!isMounted) return;
       
-      console.log('API 응답:', result);
-      console.log('API 응답 전체 구조:', JSON.stringify(result, null, 2));
+      console.log('✅ 센서 목록 조회 성공:', result);
       
       if (result.success) {
         const payload = result.data;
-        console.log('payload 구조:', JSON.stringify(payload, null, 2));
-        
         const list = payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []);
-        console.log('파싱된 센서 목록:', list);
-        console.log('센서 목록 길이:', list.length);
-        
-        // 센서 타입별 개수 확인
-        const sensorTypeCount = {};
-        list.forEach(sensor => {
-          const type = sensor.sensorType;
-          sensorTypeCount[type] = (sensorTypeCount[type] || 0) + 1;
-        });
-        console.log('센서 타입별 개수:', sensorTypeCount);
-        console.log('=== API 호출 완료 ===');
         
         setSensors(list);
         setFilteredSensors(list);
       } else {
-        console.error('API 호출 실패:', result.error);
+        console.error('❌ 센서 목록 조회 실패:', result.error);
         setSensors([]);
         setFilteredSensors([]);
       }

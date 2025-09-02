@@ -458,9 +458,7 @@ const Report = () => {
         size: itemsPerPage,
       };
       console.log('🚀 리포트 목록 조회 시작');
-      console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
       console.log('📋 요청 파라미터:', params);
-      console.log('🔗 요청 URL:', `${API_BASE}/reports/list`);
 
       const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
@@ -468,8 +466,7 @@ const Report = () => {
           'X-Employee-Id': EMPLOYEE_ID
         },
       });
-      console.log('✅ 리포트 목록 조회 성공:', res.status, res.data);
-      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
+      console.log('✅ 리포트 목록 조회 성공:', res.data);
 
       // ApiResponseDto 형태: { code, message, data }
       const payload = res.data?.data ?? res.data;
@@ -480,9 +477,7 @@ const Report = () => {
       setReports(content || []);
       setTotalItems(total);
     } catch (err) {
-      console.error('❌ 리포트 조회 실패');
-      console.error('⏱️ 실패까지 소요 시간:', new Date().toLocaleTimeString());
-      console.error('🔍 에러 상세 정보:', {
+      console.error('❌ 리포트 조회 실패:', {
         message: err.message,
         status: err.response?.status,
         data: err.response?.data
@@ -555,7 +550,7 @@ const Report = () => {
       const blob = res.data;
       let text = '';
       try { text = await blob.text(); } catch (e) { text = '[cannot parse error body]'; }
-      console.error('[REPORTS] download error', { status: res.status, body: text });
+      // console.error('[REPORTS] download error', { status: res.status, body: text });
       setError(`서버 오류(${res.status}): ${text}`);
       return;
     }
@@ -577,7 +572,7 @@ const Report = () => {
     link.remove();
     URL.revokeObjectURL(link.href);
   } catch (err) {
-    console.error('[REPORTS] download unexpected error', err);
+    // console.error('[REPORTS] download unexpected error', err);
     setError('파일 다운로드 중 네트워크 오류가 발생했습니다.');
     // 폴백: 새 탭으로 열어 서버 에러/로그 확인 (브라우저에서 직접 열어보게 함)
     window.open(url, '_blank', 'noopener,noreferrer');

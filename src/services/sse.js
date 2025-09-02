@@ -46,7 +46,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
     if (isDestroyed) return; // 이미 해제된 경우 연결하지 않음
     
     console.log('🔌 SSE 연결 시작:', url);
-    console.log('⏰ SSE 연결 시작 시간:', new Date().toLocaleTimeString());
     
     try {
       eventSource = new EventSourcePolyfill(url, {
@@ -60,7 +59,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         if (isDestroyed) return;
         
         console.log('✅ SSE 연결 성공:', url);
-        console.log('⏰ SSE 연결 성공 시간:', new Date().toLocaleTimeString());
         
         lastMessageTime = Date.now();
         retryCount = 0; // 연결 성공 시 재시도 카운트 리셋
@@ -88,11 +86,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         
         try {
           const parsedData = JSON.parse(event.data);
-          console.log('📨 SSE 메시지 수신:', {
-            url: url,
-            timestamp: new Date().toLocaleTimeString(),
-            data: parsedData
-          });
+          console.log('📨 SSE 메시지 수신:', parsedData);
           onMessage(parsedData);
         } catch (parseError) {
           console.error('❌ SSE 메시지 파싱 오류:', parseError);
@@ -103,13 +97,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       eventSource.onerror = (error) => {
         if (isDestroyed) return;
         
-        console.error('❌ SSE 연결 오류:', {
-          url: url,
-          timestamp: new Date().toLocaleTimeString(),
-          error: error,
-          retryCount: retryCount,
-          maxRetries: maxRetries
-        });
+        console.error('❌ SSE 연결 오류:', error);
         
         // 하트비트 타이머 정리
         if (heartbeatTimer) {

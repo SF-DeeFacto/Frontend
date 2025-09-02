@@ -18,7 +18,6 @@ export const login = async (credentials) => {
     const isDev = import.meta.env.DEV;
     if (isDev) {
       console.log('🚀 로그인 요청 시작:', credentials.username);
-      console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
     }
     
     const response = await authApiClient.post('/auth/login', {
@@ -28,7 +27,6 @@ export const login = async (credentials) => {
 
     if (isDev) {
       console.log('✅ 로그인 성공:', response.data.message);
-      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
     }
 
     // 백엔드 응답 구조에 맞게 수정
@@ -54,7 +52,7 @@ export const login = async (credentials) => {
       const userInfo = userInfoResponse.data.data; // ApiResponseDto 구조에 맞게 수정
       
       if (isDev) {
-        console.log('사용자 정보 조회 성공:', userInfo.name);
+        // console.log('사용자 정보 조회 성공:', userInfo.name);
       }
       
       // 사용자 정보를 localStorage에 저장 (백엔드에서 제공하는 모든 필드 포함)
@@ -74,7 +72,7 @@ export const login = async (credentials) => {
       }));
       
       if (isDev) {
-        console.log('사용자 정보 저장 완료');
+        // console.log('사용자 정보 저장 완료');
       }
     } catch (userInfoError) {
       console.error('사용자 정보 가져오기 실패:', userInfoError);
@@ -121,18 +119,18 @@ export const login = async (credentials) => {
 // 로그아웃
 export const logout = async () => {
   try {
-    console.log('로그아웃 요청 시작');
+    // console.log('로그아웃 요청 시작');
     const response = await authApiClient.post('/auth/logout');
-    console.log('로그아웃 응답:', response.data);
+    // console.log('로그아웃 응답:', response.data);
   } catch (error) {
-    console.error('Logout failed:', error);
-    console.error('Logout error details:', {
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data
-    });
+    // console.error('Logout failed:', error);
+    // console.error('Logout error details:', {
+    //   message: error.message,
+    //   code: error.code,
+    //   status: error.response?.status,
+    //   statusText: error.response?.statusText,
+    //   data: error.response?.data
+    // });
   } finally {
     // 로컬 스토리지에서 모든 사용자 관련 데이터 삭제
     localStorage.removeItem('access_token');
@@ -144,7 +142,7 @@ export const logout = async () => {
     // 인증 캐시 무효화 (로그아웃) - localStorage 이벤트 트리거
     window.dispatchEvent(new StorageEvent('storage', { key: 'access_token', newValue: null }));
     
-    console.log('로컬 스토리지 정리 완료');
+    // console.log('로컬 스토리지 정리 완료');
     return { success: true };
   }
 };
