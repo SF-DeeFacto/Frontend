@@ -2,12 +2,10 @@
 // import axios from 'axios';
 
 
-
 // const Report = () => {
 //   // TODO: 실제로는 로그인 정보에서 employeeId를 가져오도록 변경하세요
 //   // local redis에 저장된 사원 번호 {123}  `{}` 까지 값으로 되어서 포함시킴
 //   const EMPLOYEE_ID = '{123}';
-
 
 //   const [reports, setReports] = useState([]);
 //   const [reportType, setReportType] = useState('전체');

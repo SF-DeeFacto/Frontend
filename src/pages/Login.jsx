@@ -43,7 +43,6 @@ const Login = () => {
     } finally {
       setIsLoading(false);
     }
-    // ===== 실제 백엔드 로그인 기능 끝 =====
   };
 
   const styles = {

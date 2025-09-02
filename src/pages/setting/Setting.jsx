@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Equipset from './tabs/Equipset';
 import Userset from './tabs/Userset';
 import PwudTab from './tabs/PwudTab';
 import PreferTab from './tabs/PreferTab';
 import ProfileTab from './tabs/ProfileTab';
+import SensorListTab from './tabs/SensorListTab';
+import AIRecommend from './tabs/AIRecommend';
 
 const Setting = () => {
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState('profile');
+
+  // 센서 목록에서 온 경우 센서 관리 탭으로 이동
+  useEffect(() => {
+    if (location.state?.activeTab) {
+      setActiveTab(location.state.activeTab);
+    }
+  }, [location.state]);
 
   const tabs = [
     { id: 'profile', name: '프로필', component: ProfileTab },
     { id: 'prefer', name: '환경설정', component: PreferTab },
     { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
     { id: 'userset', name: '회원정보 관리', component: Userset },
-    { id: 'equipset', name: '센서 관리', component: Equipset }
+    { id: 'sensorlist', name: '센서 목록', component: SensorListTab },
+    { id: 'equipset', name: '센서 관리', component: Equipset },
+    { id: 'airecommendation', name: 'AI 추천 관리', component: AIRecommend }
   ];
 
   const ActiveComponent = tabs.find(tab => tab.id === activeTab)?.component;
@@ -45,7 +58,7 @@ const Setting = () => {
 
         {/* 탭 컨텐츠 */}
         <div className="p-6">
-          {ActiveComponent && <ActiveComponent />}
+          {ActiveComponent && <ActiveComponent onTabChange={setActiveTab} />}
         </div>
       </div>
     </div>

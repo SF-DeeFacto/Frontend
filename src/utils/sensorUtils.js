@@ -1,50 +1,115 @@
 import { SENSOR_STATUS } from '../types/sensor';
-import { 
-  getStatusColor,
-  getStatusHexColor,
-  getStatusEmoji,
-  getStatusText
-} from '../config/sensorConfig';
+import { getStatusHexColor, getStatusText } from '../config/sensorConfig';
 
-// 통합 설정의 함수들을 재-export (기존 호환성 유지)
-export { getStatusColor, getStatusHexColor, getStatusEmoji, getStatusText };
+// getStatusText와 getStatusHexColor를 재-export
+export { getStatusText, getStatusHexColor };
 
 /**
- * 센서 데이터를 그룹화
+ * 센서 상태에 따른 Tailwind CSS 색상 클래스 반환
  */
-export const groupSensorData = (sensors) => {
+export const getStatusColor = (status) => {
+  switch (status) {
+    case SENSOR_STATUS.GREEN:
+      return 'bg-green-500';
+    case SENSOR_STATUS.YELLOW:
+      return 'bg-yellow-500';
+    case SENSOR_STATUS.RED:
+      return 'bg-red-500';
+    case SENSOR_STATUS.CONNECTING:
+      return 'bg-blue-500';
+    case SENSOR_STATUS.DISCONNECTED:
+      return 'bg-gray-500';
+    default:
+      return 'bg-gray-500';
+  }
+};
+
+/**
+ * 센서 상태에 따른 이모지 반환
+ */
+export const getStatusEmoji = (status) => {
+  switch (status) {
+    case SENSOR_STATUS.GREEN:
+      return '🟢';
+    case SENSOR_STATUS.YELLOW:
+      return '🟡';
+    case SENSOR_STATUS.RED:
+      return '🔴';
+    case SENSOR_STATUS.CONNECTING:
+      return '🔵';
+    case SENSOR_STATUS.DISCONNECTED:
+      return '⚫';
+    default:
+      return '⚪';
+  }
+};
+
+/**
+ * 백엔드 센서 데이터를 센서 타입별로 그룹화하고 정렬
+ * 백엔드 데이터 구조: { timestamp, sensors: [{ sensorId, sensorType, sensorStatus, timestamp, values }] }
+ */
+export const groupSensorData = (backendData) => {
+  if (!backendData?.data || !Array.isArray(backendData.data)) {
+    return {};
+  }
+
   const grouped = {};
+  const sensorMap = new Map(); // 센서별 최신 데이터 추적용
   
-  Object.values(sensors).forEach(sensor => {
-    // 백엔드에서 오는 원본 센서 타입 사용
-    const sensorType = sensor.sensorType || sensor.sensor_type;
+  // 모든 데이터 포인트의 센서들을 처리
+  backendData.data.forEach(dataPoint => {
+    if (dataPoint.sensors && Array.isArray(dataPoint.sensors)) {
+      dataPoint.sensors.forEach(sensor => {
+        const sensorType = sensor.sensorType;
+        const sensorId = sensor.sensorId;
+        const sensorKey = `${sensorType}_${sensorId}`;
+        
+        // 센서별 최신 데이터만 유지 (타임스탬프 비교)
+        const existingSensor = sensorMap.get(sensorKey);
+        const currentTimestamp = new Date(sensor.timestamp).getTime();
+        
+        if (!existingSensor || new Date(existingSensor.timestamp).getTime() < currentTimestamp) {
+          const sensorData = {
+            sensorId: sensor.sensorId,
+            sensorType: sensor.sensorType,
+            sensorStatus: sensor.sensorStatus,
+            timestamp: sensor.timestamp,
+            values: sensor.values
+          };
+          
+          sensorMap.set(sensorKey, sensorData);
+        }
+      });
+    }
+  });
+  
+  // 센서 타입별로 그룹화하고 타임스탬프 순으로 정렬
+  sensorMap.forEach((sensorData, sensorKey) => {
+    const sensorType = sensorData.sensorType;
     if (!grouped[sensorType]) {
       grouped[sensorType] = [];
     }
-    
-    // 백엔드 데이터를 그대로 사용
-    const convertedSensor = {
-      sensor_id: sensor.sensorId || sensor.sensor_id,
-      sensor_type: sensorType,
-      timestamp: sensor.timestamp,
-      status: sensor.sensorStatus || sensor.status || 'normal'
-    };
-
-    // 백엔드 values 객체를 그대로 사용
-    if (sensor.values) {
-      if (sensorType === 'particle') {
-        // 먼지 센서: 백엔드에서 오는 값 그대로 사용
-        convertedSensor.val_0_1 = parseFloat(sensor.values['0.1']) || 0;
-        convertedSensor.val_0_3 = parseFloat(sensor.values['0.3']) || 0;
-        convertedSensor.val_0_5 = parseFloat(sensor.values['0.5']) || 0;
-      } else {
-        // 다른 센서: 백엔드에서 오는 값 그대로 사용
-        convertedSensor.val = parseFloat(sensor.values.value || sensor.values) || 0;
-      }
-    }
-    
-    grouped[sensorType].push(convertedSensor);
+    grouped[sensorType].push(sensorData);
   });
+  
+  // 각 센서 타입별로 센서 ID 순서대로 정렬
+  Object.keys(grouped).forEach(sensorType => {
+    grouped[sensorType].sort((a, b) => {
+      // 센서 ID에서 숫자 부분 추출
+      const extractNumber = (sensorId) => {
+        const match = sensorId.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      };
+      
+      const aNumber = extractNumber(a.sensorId);
+      const bNumber = extractNumber(b.sensorId);
+      
+      // 숫자 순서대로 정렬
+      return aNumber - bNumber;
+    });
+  });
+  
+  // 프로덕션 환경에서는 로그 제거
   
   return grouped;
 };
@@ -65,15 +130,15 @@ export const formatTime = (date) => {
  * 센서 값이 유효한지 확인
  */
 export const isSensorValueValid = (sensorData) => {
-  if (sensorData.sensor_type === 'particle') {
+  if (sensorData.sensorType === 'particle') {
     // 먼지 센서는 3개 값 중 하나라도 존재하면 유효
-    return sensorData.val_0_1 !== undefined && sensorData.val_0_1 !== null ||
-           sensorData.val_0_3 !== undefined && sensorData.val_0_3 !== null ||
-           sensorData.val_0_5 !== undefined && sensorData.val_0_5 !== null;
+    return sensorData.values?.['0.1'] !== undefined && sensorData.values?.['0.1'] !== null ||
+           sensorData.values?.['0.3'] !== undefined && sensorData.values?.['0.3'] !== null ||
+           sensorData.values?.['0.5'] !== undefined && sensorData.values?.['0.5'] !== null;
   }
   
   // 다른 센서들은 값이 존재하면 유효 (0도 유효한 값)
-  return sensorData.val !== undefined && sensorData.val !== null;
+  return sensorData.values?.value !== undefined && sensorData.values?.value !== null;
 };
 
 /**
@@ -91,3 +156,73 @@ export const getSensorStatusPriority = (status) => {
       return 0; // 알 수 없음
   }
 };
+
+/**
+ * 센서 값이 실제로 변경되었는지 확인하는 함수
+ */
+export const hasSensorValueChanged = (oldSensor, newSensor) => {
+  if (!oldSensor || !newSensor) return true;
+  
+  // 센서 상태 변경 확인
+  if (oldSensor.sensorStatus !== newSensor.sensorStatus) {
+    return true;
+  }
+  
+  // 센서 값 변경 확인
+  if (oldSensor.sensorType === 'particle') {
+    // 먼지 센서는 3개 값 모두 확인
+    const oldValues = oldSensor.values || {};
+    const newValues = newSensor.values || {};
+    
+    return (
+      oldValues['0.1'] !== newValues['0.1'] ||
+      oldValues['0.3'] !== newValues['0.3'] ||
+      oldValues['0.5'] !== newValues['0.5']
+    );
+  } else {
+    // 다른 센서들은 value 값 확인
+    const oldValue = oldSensor.values?.value;
+    const newValue = newSensor.values?.value;
+    
+    return oldValue !== newValue;
+  }
+};
+
+/**
+ * 센서 데이터 디바운싱을 위한 유틸리티 (단순화된 버전)
+ */
+export class SensorDataDebouncer {
+  constructor(delay = 300) {
+    this.delay = delay;
+    this.timeoutId = null;
+    this.callback = null;
+  }
+
+  addCallback(callback) {
+    this.callback = callback;
+  }
+
+  update(data) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+    
+    this.timeoutId = setTimeout(() => {
+      if (this.callback) {
+        try {
+          this.callback(data);
+        } catch (error) {
+          console.error('센서 데이터 디바운싱 콜백 오류:', error);
+        }
+      }
+    }, this.delay);
+  }
+
+  destroy() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+    this.callback = null;
+  }
+}

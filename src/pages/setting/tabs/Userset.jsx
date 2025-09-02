@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 
 const Userset = () => {
-  // 더미 데이터 주석처리 - 실제 API에서 데이터 로드
+  // 사용자 데이터 로드
   // const [users, setUsers] = useState([
   //   { 
   //     id: 1, 

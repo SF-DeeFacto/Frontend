@@ -6,7 +6,7 @@ import { Html } from '@react-three/drei';
 import SensorIndicator from './SensorIndicator';
 import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
 
-function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
+function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const gltf = useLoader(GLTFLoader, modelPath);
   const groupRef = useRef();
   const { camera, raycaster, gl } = useThree();
@@ -14,6 +14,57 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
   const [isModelReady, setIsModelReady] = useState(false);
   const clickableObjectsRef = useRef([]);
   const frameCountRef = useRef(0);
+
+  // 센서 데이터에서 센서 상태를 찾는 함수
+  const getSensorStatusFromData = (sensorName) => {
+    if (!sensorData || Object.keys(sensorData).length === 0) {
+      return 'unknown';
+    }
+
+    // 센서 이름을 기반으로 센서 데이터에서 찾기
+    for (const [sensorType, sensors] of Object.entries(sensorData)) {
+      if (Array.isArray(sensors)) {
+        const foundSensor = sensors.find(sensor => {
+          // 센서 ID나 이름이 매칭되는지 확인
+          return sensor.sensorId === sensorName || 
+                 sensor.sensorName === sensorName ||
+                 sensor.id === sensorName ||
+                 sensor.name === sensorName;
+        });
+        
+        if (foundSensor) {
+          // 센서 상태 반환 (normal, warning, error 등)
+          return foundSensor.status || foundSensor.state || 'normal';
+        }
+      }
+    }
+    
+    return 'unknown';
+  };
+
+  // 센서 데이터에서 센서 정보를 찾는 함수
+  const getSensorInfoFromData = (sensorName) => {
+    if (!sensorData || Object.keys(sensorData).length === 0) {
+      return null;
+    }
+
+    for (const [sensorType, sensors] of Object.entries(sensorData)) {
+      if (Array.isArray(sensors)) {
+        const foundSensor = sensors.find(sensor => {
+          return sensor.sensorId === sensorName || 
+                 sensor.sensorName === sensorName ||
+                 sensor.id === sensorName ||
+                 sensor.name === sensorName;
+        });
+        
+        if (foundSensor) {
+          return foundSensor;
+        }
+      }
+    }
+    
+    return null;
+  };
 
   // 모델 초기 설정 (중심 이동, 그룹 위치/회전)
   useEffect(() => {
@@ -49,31 +100,51 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
     }
   });
 
+
+
   const calculateSensorPositions = () => {
     if (!gltf.scene) return;
+
+
 
     // 월드 매트릭스 업데이트
     gltf.scene.updateWorldMatrix(true, true);
 
     const foundSensors = {};
     const clickableObjects = [];
-    const sensorNames = Array.from({ length: 55 }, (_, i) => `S${String(i + 1).padStart(2, '0')}`);
+    
+    // 실제 모델에서 센서를 동적으로 찾기 (하드코딩된 센서 이름 제거)
+    const actualSensorNames = [];
+    
+    // 하드코딩된 센서 이름 검색 제거 - traverse로만 센서 찾기
 
-    sensorNames.forEach(meshName => {
-      const target = gltf.scene.getObjectByName(meshName);
-      if (target) {
-        target.userData.clickable = true;
-        target.userData.sensorName = meshName;
-        clickableObjects.push(target);
+    // traverse로 센서 동적 검색
+    const traverseFoundSensors = [];
+    
+    gltf.scene.traverse((child) => {
+      if (child.isMesh && child.name) {
+        // 실제 센서 패턴 확인 (LPM, TEMP 사용)
+        if (child.name.includes('ESD') || 
+            child.name.includes('LPM') || 
+            child.name.includes('HUM') || 
+            child.name.includes('WD') ||
+            child.name.includes('TEMP')) {
+          traverseFoundSensors.push(child.name);
+          
+          // 센서 추가
+          child.userData.clickable = true;
+          child.userData.sensorName = child.name;
+          clickableObjects.push(child);
 
-        const box = new THREE.Box3().setFromObject(target);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
+          const box = new THREE.Box3().setFromObject(child);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
 
-        foundSensors[meshName] = {
-          position: [center.x, box.max.y, center.z],
-          mesh: target
-        };
+          foundSensors[child.name] = {
+            position: [center.x, box.max.y, center.z],
+            mesh: child
+          };
+        }
       }
     });
 
@@ -83,18 +154,27 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
 
   // 클릭 이벤트
   const handleClick = event => {
+    console.log('클릭 이벤트 발생!', event);
     event.stopPropagation();
+    
     const rect = gl.domElement.getBoundingClientRect();
     const mouse = new THREE.Vector2(
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
       -((event.clientY - rect.top) / rect.height) * 2 + 1
     );
 
+    console.log('마우스 좌표:', mouse);
+    
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(clickableObjectsRef.current, false);
+    
+    console.log('클릭 가능한 객체들:', clickableObjectsRef.current);
+    console.log('교차된 객체들:', intersects);
 
     if (intersects.length > 0) {
       const clickedObject = intersects[0].object;
+      console.log('클릭된 객체:', clickedObject);
+      
       if (clickedObject.userData.clickable) {
         const worldPosition = new THREE.Vector3();
         clickedObject.getWorldPosition(worldPosition);
@@ -128,17 +208,43 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
   };
 
   return (
-    <group ref={groupRef} onClick={handleClick}>
-      <primitive object={gltf.scene} scale={[0.002, 0.002, 0.002]} />
+    <group ref={groupRef}>
+      <primitive 
+        object={gltf.scene} 
+        scale={[0.002, 0.002, 0.002]} 
+        onPointerDown={handleClick}
+      />
 
-      {Object.entries(sensorPositions).map(([meshName, sensorData]) => {
+      {Object.entries(sensorPositions).map(([meshName, sensorPositionData]) => {
+        // 센서 타입 분류
+        const getSensorType = (name) => {
+          if (name.includes('ESD')) return 'ESD';
+          if (name.includes('Handle')) return 'Handle';
+          if (name.includes('HUM')) return 'Humidity';
+          if (name.includes('WD')) return 'WaterDetector';
+          if (name.includes('TEM')) return 'Temperature';
+          if (name.includes('LPM')) return 'Particle';
+          return 'Unknown';
+        };
+
+        // 실제 센서 데이터에서 상태 가져오기
+        const actualStatus = getSensorStatusFromData(meshName);
+        const sensorInfo = getSensorInfoFromData(meshName);
+
         return (
           <SensorIndicator
             key={meshName}
-            position={sensorData.position}
-            status="normal" // 기본 상태
-            sensorName={meshName}
-            onClick={() => handleSensorClick({ name: meshName, position: sensorData.position, status: 'normal', id: meshName, type: 'unknown' })}
+            position={sensorPositionData.position}
+            status={actualStatus} // 실제 센서 상태 사용
+            sensorName={meshName} // 실제 센서 이름 사용
+            onClick={() => handleSensorClick({ 
+              name: meshName, 
+              position: sensorPositionData.position, 
+              status: actualStatus, 
+              id: meshName, 
+              type: getSensorType(meshName),
+              sensorInfo: sensorInfo // 실제 센서 정보 추가
+            })}
           />
         );
       })}
@@ -147,52 +253,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
       <directionalLight position={[5, 5, 5]} intensity={1} />
       <ambientLight intensity={0.5} />
 
-      {/* 선택된 센서 정보 */}
-      {selectedObject && (
-        <Html
-          position={[0, 2, 0]}
-          center
-          distanceFactor={15}
-          style={{
-            background: 'rgba(0, 0, 0, 0.9)',
-            color: 'white',
-            padding: '12px',
-            borderRadius: '8px',
-            border: '1px solid #374151',
-            minWidth: '200px',
-            fontSize: '14px',
-            backdropFilter: 'blur(10px)',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-          }}
-        >
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-white">{selectedObject.name}</h3>
-              <button onClick={() => onObjectClick(null)} className="text-gray-400 hover:text-white text-sm">✕</button>
-            </div>
-            {selectedObject.isSensor && (
-              <div className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-300">상태:</span>
-                  <span className={`font-medium ${
-                    selectedObject.status === 'normal'
-                      ? 'text-green-400'
-                      : selectedObject.status === 'warning'
-                      ? 'text-yellow-400'
-                      : selectedObject.status === 'error'
-                      ? 'text-red-400'
-                      : 'text-gray-400'
-                  }`}>{getStatusText(selectedObject.status)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-300">센서 ID:</span>
-                  <span className="text-white">{selectedObject.id}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        </Html>
-      )}
+
     </group>
   );
 }

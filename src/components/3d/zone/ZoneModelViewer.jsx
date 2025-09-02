@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei';
 import ZoneModel from './ZoneModel';
 
 // 범용 존 뷰어 컴포넌트
-function GenericZoneViewer({ zoneId, onObjectClick }) {
+function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }) {
   const modelPath = `/models/${zoneId.toUpperCase()}.glb`;
   
   return (
@@ -30,6 +30,8 @@ function GenericZoneViewer({ zoneId, onObjectClick }) {
           <ZoneModel 
             modelPath={modelPath} 
             zoneId={zoneId} 
+            sensorData={sensorData}
+            selectedObject={selectedObject}
             onObjectClick={onObjectClick}
           />
         </Suspense>
@@ -47,11 +49,16 @@ function GenericZoneViewer({ zoneId, onObjectClick }) {
   );
 }
 
-const ZoneModelViewer = ({ zoneId, onObjectClick }) => {
+const ZoneModelViewer = ({ zoneId, sensorData, selectedObject, onObjectClick }) => {
   // 모든 존을 범용 뷰어로 처리
   return (
     <div className="w-full h-full">
-      <GenericZoneViewer zoneId={zoneId} onObjectClick={onObjectClick} />
+      <GenericZoneViewer 
+        zoneId={zoneId} 
+        sensorData={sensorData}
+        selectedObject={selectedObject}
+        onObjectClick={onObjectClick} 
+      />
     </div>
   );
 };

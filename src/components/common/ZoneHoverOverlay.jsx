@@ -2,61 +2,39 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
-import { getStatusHexColor } from '../../config/sensorConfig';
+import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
 
-const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
+const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   if (!hoveredZone) return null;
 
-  // Zone 상태별 색상 매핑 (공용 유틸리티 사용)
-
-  // 메시 이름을 Zone 상태 키로 변환
-  const getZoneStatusKey = (meshName) => {
-    const zoneMapping = {
-      // 소문자 메쉬
-      'a01': 'zone_A',
-      'a02': 'zone_A02',
-      'b01': 'zone_B', 
-      'b02': 'zone_B02',
-      'b03': 'zone_B03',
-      'b04': 'zone_B04',
-      'c01': 'zone_C01',
-      'c02': 'zone_C02',
-      // 대문자 메쉬
-      'A01': 'zone_A',
-      'A02': 'zone_A02',
-      'B01': 'zone_B', 
-      'B02': 'zone_B02',
-      'B03': 'zone_B03',
-      'B04': 'zone_B04',
-      'C01': 'zone_C01',
-      'C02': 'zone_C02'
-    };
-    return zoneMapping[meshName];
+  // 호버된 존의 상태를 가져오는 함수 (실제 SSE 데이터 사용)
+  const getZoneStatus = (hoveredZone) => {
+    // 대문자로 변환하여 zoneStatuses에서 찾기
+    const zoneKey = hoveredZone.toUpperCase();
+    return zoneStatuses?.[zoneKey] || 'CONNECTING';
   };
 
   // 호버된 존의 상태 색상을 가져오는 함수
   const getZoneStatusColor = (hoveredZone) => {
-    const zoneKey = getZoneStatusKey(hoveredZone);
-    const status = zoneStatuses?.[zoneKey];
-    return getStatusHexColor(status || 'CONNECTING');
+    const status = getZoneStatus(hoveredZone);
+    return getStatusHexColor(status);
   };
 
   // 호버된 존의 상태 텍스트를 가져오는 함수
   const getZoneStatusText = (hoveredZone) => {
-    const zoneKey = getZoneStatusKey(hoveredZone);
-    const status = zoneStatuses?.[zoneKey];
-    switch(status) {
-      case 'GREEN': return '안전';
-      case 'YELLOW': return '경고';
-      case 'RED': return '위험';
-      default: return '연결중';
-    }
+    const status = getZoneStatus(hoveredZone);
+    return getStatusText(status);
   };
 
   // A01, A02, B01, B02는 왼쪽에, 나머지는 오른쪽에 표시
   const leftZones = ['a01', 'a02', 'b01', 'b02', 'A01', 'A02', 'B01', 'B02'];
   const isLeftZone = leftZones.includes(hoveredZone);
   const overlayPosition = isLeftZone ? 'left-4' : 'right-4';
+
+  // 현재 존 상태
+  const currentStatus = getZoneStatus(hoveredZone);
+  const statusColor = getZoneStatusColor(hoveredZone);
+  const statusText = getZoneStatusText(hoveredZone);
 
   return (
     <div className={`absolute top-20 ${overlayPosition} z-50`}>
@@ -84,10 +62,28 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <div>
-            <div style={{ fontSize: '16px', marginBottom: '4px' }}>
-              Zone {hoveredZone.toUpperCase()}
-            </div>
+          <div style={{ fontSize: '16px' }}>
+            Zone {hoveredZone.toUpperCase()}
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
+            <span style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              backgroundColor: statusColor,
+              boxShadow: `0 0 4px ${statusColor}`
+            }} />
+            <span style={{
+              color: statusColor,
+              fontWeight: 'bold',
+              fontSize: '12px'
+            }}>
+              {statusText}
+            </span>
           </div>
         </div>
         
@@ -100,7 +96,6 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          marginBottom: '12px',
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {(() => {
@@ -140,22 +135,15 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses }) => {
             }
           })()}
         </div>
-
-        {/* 상태 정보 */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          fontSize: '12px'
-        }}>
-          <span>상태:</span>
-          <span style={{
-            color: getZoneStatusColor(hoveredZone),
-            fontWeight: 'bold'
-          }}>
-            {getZoneStatusText(hoveredZone)}
-          </span>
-        </div>
       </div>
+
+      {/* CSS 애니메이션 */}
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   );
 };

@@ -139,6 +139,7 @@ const AppRoutes = () => {
         <Route path="/home/report" element={<Report />} />
         <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
+
         <Route path="/home/setting" element={<Setting />} />
         <Route path="/home/zone/:zoneId" element={<DynamicZone />} />
         <Route path="*" element={<NotFound />} />

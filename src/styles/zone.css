@@ -170,7 +170,7 @@
   border-left: 4px solid #3b82f6;
 }
 
-.sensor-card.esd {
+.sensor-card.electrostatic {
   border-left: 4px solid #f59e0b;
 }
 
@@ -178,7 +178,7 @@
   border-left: 4px solid #8b5cf6;
 }
 
-.sensor-card.windDir {
+.sensor-card.winddirection {
   border-left: 4px solid #10b981;
 }
 
