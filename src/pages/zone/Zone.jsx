@@ -42,7 +42,7 @@ const Zone = ({ zoneId }) => {
   }
 
   return (
-    <main className="flex items-start gap-[30px] relative w-full min-w-[1200px] p-6 pb-[30px] h-[calc(100vh-156px)]">
+    <main className="flex items-start gap-[15px] relative w-full pb-[30px] h-[calc(100vh-156px)]">
       {/* Zone 도면 영역 */}
       <ZoneDrawingSection
         zoneId={currentZoneId}

@@ -271,7 +271,7 @@ const Aside = () => {
     <aside
       className={`${
         isCollapsed ? "w-[70px]" : "w-[240px]"
-      } h-[calc(100vh-64px)] shadow-sm flex flex-col items-center px-3 pt-5 transition-all duration-300 ease-in-out border-r`}
+      } min-h-[calc(100vh-64px)] shadow-sm flex flex-col items-center px-3 pt-5 transition-all duration-300 ease-in-out border-r`}
       style={sidebarStyle}
     >
       {/* 토글 버튼 */}

@@ -31,7 +31,7 @@ const ZoneDrawingSection = ({
   }, [zoneId, sensorData, selectedObject, onObjectClick, onCloseSensorInfo]);
 
   return (
-    <section className="relative flex-1 max-w-[900px] h-full">
+    <section className="relative flex-1 max-w-[50%] h-full">
       <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">도면 영역</h1>
         <div className="w-full flex-1">

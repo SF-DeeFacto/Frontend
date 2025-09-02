@@ -31,7 +31,7 @@ const MainLayout = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-[calc(100vh-64px)]">
         <Aside />
         <div className="flex-1 bg-gray-50">
           {title && (

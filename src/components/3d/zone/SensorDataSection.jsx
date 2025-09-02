@@ -37,7 +37,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
   }, [sensorData, zoneId]);
 
   return (
-    <aside className="w-[60%] h-full">
+    <aside className="flex-shrink-0 w-[60%] h-full">
       <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col overflow-y-auto overflow-x-hidden">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">실시간 센서 데이터</h2>
