@@ -83,12 +83,16 @@ const SensorListTab = () => {
   // 센서 타입별 한글 매핑
   const sensorTypeMapping = {
     'electrostatic': '정전기',
+    'Electrostatic': '정전기',
     'temperature': '온도',
+    'Temperature': '온도',
     'humidity': '습도',
+    'Humidity': '습도',
     'particle_0_1um': '미세먼지 0.1μm',
     'particle_0_3um': '미세먼지 0.3μm',
     'particle_0_5um': '미세먼지 0.5μm',
-    'windDirection': '풍향'
+    'windDirection': '풍향',
+    'WindDirection': '풍향'
   };
 
   // 센서 타입 목록
