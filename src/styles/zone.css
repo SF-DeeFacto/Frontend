@@ -1,20 +1,27 @@
-/* Zone별 센서 카드 스타일링 */
+/* Zone별 센서 카드 스타일링 - 모던 디자인 적용 */
 
 /* 센서 카드 기본 스타일 */
 .sensor-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
 }
 
+.dark .sensor-card {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(45, 45, 45, 0.9) 100%);
+  border: 1px solid rgba(64, 64, 64, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
 .sensor-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
-  border-color: rgba(148, 163, 184, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 /* 클릭 가능한 카드 스타일 */
@@ -54,6 +61,10 @@
   letter-spacing: 0.025em;
 }
 
+.dark .sensor-title {
+  color: #f1f5f9;
+}
+
 .sensor-id-badge {
   background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
   color: #475569;
@@ -62,6 +73,12 @@
   font-size: 0.65rem;
   font-weight: 500;
   border: 1px solid rgba(203, 213, 225, 0.5);
+}
+
+.dark .sensor-id-badge {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  color: #d1d5db;
+  border: 1px solid rgba(75, 85, 99, 0.5);
 }
 
 /* 센서 값 섹션 */
@@ -112,10 +129,19 @@
   border: 1px solid rgba(226, 232, 240, 0.6);
 }
 
+.dark .particle-details {
+  background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  border: 1px solid rgba(75, 85, 99, 0.6);
+}
+
 .particle-detail-item {
   font-size: 0.75rem;
   color: #64748b;
   margin-bottom: 0.25rem;
+}
+
+.dark .particle-detail-item {
+  color: #9ca3af;
 }
 
 .particle-detail-item:last-child {
@@ -149,10 +175,18 @@
   color: #94a3b8;
 }
 
+.dark .particle-label {
+  color: #6b7280;
+}
+
 .particle-value {
   font-size: 1.5rem;
   font-weight: 800;
   color: #1e293b;
+}
+
+.dark .particle-value {
+  color: #f1f5f9;
 }
 
 .particle-values .sensor-unit {
@@ -161,25 +195,55 @@
   opacity: 0.8;
 }
 
-/* 센서 타입별 특별 스타일 */
+/* 센서 타입별 특별 스타일 - 모던 그라디언트 적용 */
 .sensor-card.temperature {
-  border-left: 4px solid #ef4444;
+  border-left: 6px solid transparent;
+  border-image: linear-gradient(135deg, #ef4444, #dc2626) 1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 242, 242, 0.3) 100%);
+}
+
+.dark .sensor-card.temperature {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(69, 10, 10, 0.3) 100%);
 }
 
 .sensor-card.humidity {
-  border-left: 4px solid #3b82f6;
+  border-left: 6px solid transparent;
+  border-image: linear-gradient(135deg, #3b82f6, #2563eb) 1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(239, 246, 255, 0.3) 100%);
+}
+
+.dark .sensor-card.humidity {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(30, 58, 138, 0.3) 100%);
 }
 
 .sensor-card.esd {
-  border-left: 4px solid #f59e0b;
+  border-left: 6px solid transparent;
+  border-image: linear-gradient(135deg, #f59e0b, #d97706) 1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 251, 235, 0.3) 100%);
+}
+
+.dark .sensor-card.esd {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(120, 53, 15, 0.3) 100%);
 }
 
 .sensor-card.particle {
-  border-left: 4px solid #8b5cf6;
+  border-left: 6px solid transparent;
+  border-image: linear-gradient(135deg, #8b5cf6, #7c3aed) 1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(250, 245, 255, 0.3) 100%);
+}
+
+.dark .sensor-card.particle {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(91, 33, 182, 0.3) 100%);
 }
 
 .sensor-card.windDir {
-  border-left: 4px solid #10b981;
+  border-left: 6px solid transparent;
+  border-image: linear-gradient(135deg, #10b981, #059669) 1;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(240, 253, 244, 0.3) 100%);
+}
+
+.dark .sensor-card.windDir {
+  background: linear-gradient(135deg, rgba(38, 38, 38, 0.9) 0%, rgba(5, 46, 22, 0.3) 100%);
 }
 
 /* 애니메이션 효과 */

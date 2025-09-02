@@ -151,22 +151,19 @@ const Header = () => {
     return { dateString, weekdayString, timeString };
   };
 
-  // 스타일 객체들
+  // 스타일 객체들 - 브랜드 색상 적용하면서 심플한 디자인
   const styles = {
     header: {
-      backgroundColor: '#F0F0F980',
-      borderColor: '#F0F0F9'
+      background: 'linear-gradient(135deg, rgba(240, 240, 249, 0.95) 0%, rgba(229, 229, 242, 0.95) 100%)',
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid rgba(229, 229, 242, 0.6)',
+      boxShadow: '0 1px 2px rgba(73, 79, 162, 0.1)'
     },
     logo: {
-      marginLeft: '30px',
       height: '100%'
     },
-    timeInfo: {
-      marginRight: '50px'
-    },
-    userNav: {
-      marginRight: '40px'
-    },
+    timeInfo: {},
+    userNav: {},
     logoIcon: {
       fontSize: '24px',
       lineHeight: '24px'
@@ -180,7 +177,6 @@ const Header = () => {
     weatherInfo: {
       marginLeft: '25px'
     },
-
   };
 
   const { dateString, weekdayString, timeString } = getCurrentTimeInfo();
@@ -241,99 +237,118 @@ const Header = () => {
     }
   };
 
-  // 시간 정보 컴포넌트
+  // 시간 정보 컴포넌트 - 심플하고 깔끔한 디자인
   const TimeInfo = () => {
     return (
       <div
-        className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
+        className="flex items-center gap-6 h-full"
         style={styles.timeInfo}
       >
+        {/* 날씨 정보 - 심플한 인라인 스타일 */}
         <div 
-          className="cursor-pointer hover:opacity-80 transition-opacity"
+          className="cursor-pointer hover:opacity-80 transition-opacity duration-200 flex items-center gap-2"
           onClick={refreshWeatherInfo}
           title="날씨 정보 새로고침"
         >
-          <Text variant="body" size="sm" weight="normal">
-           {weatherData ? (
-             <>
-               {weatherData.icon && (
-                 <span className="mr-1">
-                   {weatherData.icon === '01d' ? '☀️' : 
-                    weatherData.icon === '01n' ? '🌙' :
-                    weatherData.icon === '02d' ? '⛅' : 
-                    weatherData.icon === '02n' ? '☁️' :
-                    weatherData.icon === '03d' ? '☁️' : 
-                    weatherData.icon === '03n' ? '☁️' :
-                    weatherData.icon === '04d' ? '☁️' : 
-                    weatherData.icon === '04n' ? '☁️' :
-                    weatherData.icon === '09d' ? '🌧️' : 
-                    weatherData.icon === '09n' ? '🌧️' :
-                    weatherData.icon === '10d' ? '🌦️' : 
-                    weatherData.icon === '10n' ? '🌧️' :
-                    weatherData.icon === '11d' ? '⛈️' : 
-                    weatherData.icon === '11n' ? '⛈️' :
-                    weatherData.icon === '13d' ? '❄️' : 
-                    weatherData.icon === '13n' ? '❄️' :
-                    weatherData.icon === '50d' ? '🌫️' : 
-                    weatherData.icon === '50n' ? '🌫️' : '🌤️'}
-                 </span>
-               )}
-               {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
-               {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
-             </>
-           ) : (
-             <span className="text-gray-500">날씨 정보 로딩중...</span>
-           )}
-         </Text>
-      </div>
-      <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
-        {dateString} {weekdayString} {timeString}
-      </Text>
+          <span className="text-base">
+            {weatherData ? (
+              weatherData.icon === '01d' ? '☀️' : 
+              weatherData.icon === '01n' ? '🌙' :
+              weatherData.icon === '02d' ? '⛅' : 
+              weatherData.icon === '02n' ? '☁️' :
+              weatherData.icon === '03d' ? '☁️' : 
+              weatherData.icon === '03n' ? '☁️' :
+              weatherData.icon === '04d' ? '☁️' : 
+              weatherData.icon === '04n' ? '☁️' :
+              weatherData.icon === '09d' ? '🌧️' : 
+              weatherData.icon === '09n' ? '🌧️' :
+              weatherData.icon === '10d' ? '🌦️' : 
+              weatherData.icon === '10n' ? '🌧️' :
+              weatherData.icon === '11d' ? '⛈️' : 
+              weatherData.icon === '11n' ? '⛈️' :
+              weatherData.icon === '13d' ? '❄️' : 
+              weatherData.icon === '13n' ? '❄️' :
+              weatherData.icon === '50d' ? '🌫️' : 
+              weatherData.icon === '50n' ? '🌫️' : '🌤️'
+            ) : '🌤️'}
+          </span>
+          <Text variant="body" size="sm" weight="normal" color="secondary-500">
+            {weatherData ? (
+              <>
+                {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
+                {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
+              </>
+            ) : (
+              <span className="text-secondary-500">로딩중...</span>
+            )}
+          </Text>
+        </div>
+        
+        {/* 구분선 */}
+        <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+        
+        {/* 시간 정보 - 한 줄로 표현 */}
+        <div>
+          <Text variant="body" size="sm" weight="normal" color="secondary-500">
+            {dateString} {weekdayString} {timeString}
+          </Text>
+        </div>
       </div>
     );
   };
 
-  // 사용자 네비게이션 컴포넌트
+  // 사용자 네비게이션 컴포넌트 - 간격 조정된 깔끔한 디자인
   const UserNavigation = () => (
-    <nav className="flex items-center justify-center h-full" style={styles.userNav}>
-      <div className="flex items-center justify-center h-full">
-        <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors flex items-center justify-center">
-          <FiSettings onClick={() => navigate("/home/setting")} />
-        </Icon>
-      </div>
-      
-      <div
-        className="relative cursor-pointer flex items-center justify-center h-full"
-        onClick={() => navigate("/home/alarm")}
-        style={styles.notificationDot}
+    <nav className="flex items-center h-full" style={styles.userNav}>
+      {/* 설정 버튼 - 심플한 아이콘 버튼 */}
+      <button
+        onClick={() => navigate("/home/setting")}
+        className="p-5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title="설정"
       >
-        <Icon className="text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center">
-          <FiBell />
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          <FiSettings size={20} />
+        </Icon>
+      </button>
+      
+      {/* 알림 버튼 - 심플한 아이콘 버튼 */}
+      <button
+        onClick={() => navigate("/home/alarm")}
+        className="relative p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200 ml-1"
+        title="알림"
+      >
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          <FiBell size={20} />
         </Icon>
         
         {/* 알림 개수 뱃지 */}
         {alarmCount > 0 && (
-          <span className="absolute top-2 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
             {alarmCount > 99 ? '99+' : alarmCount}
-        </span>
+          </span>
         )}
         
-        {/* 기존 알림 점 (알림이 없을 때만 표시) */}
+        {/* 알림 점 (알림이 없을 때) */}
         {alarmCount === 0 && (
-          <span className="absolute top-2 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+          <span className="absolute top-1 right-1 w-2 h-2 bg-danger-500 rounded-full" />
         )}
-      </div>
+      </button>
       
-      <Text 
-        variant="body" 
-        size="sm" 
-        weight="medium" 
-        color="gray-800"
-        className="whitespace-nowrap flex items-center justify-center h-full"
-        style={styles.userName}
-      >
-        {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
-      </Text>
+      {/* 구분선 */}
+      <div className="h-6 w-px bg-brand-medium/50 dark:bg-neutral-600/50 mx-4"></div>
+      
+      {/* 사용자 정보 - 텍스트만 */}
+      <div>
+        <Text 
+          variant="body" 
+          size="sm" 
+          weight="normal" 
+          color="secondary-500"
+          className="whitespace-nowrap"
+        >
+          {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
+        </Text>
+      </div>
     </nav>
   );
 
@@ -341,8 +356,7 @@ const Header = () => {
 
   return (
     <header 
-      className="flex w-full h-[54px] justify-between items-center flex-shrink-0 border-b" 
-      style={styles.header}
+      className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft transition-colors duration-300" 
     >
       <Logo />
       

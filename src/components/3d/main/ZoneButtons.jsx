@@ -37,7 +37,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   };
 
   return (
-    <div className="flex flex-wrap gap-[30px] justify-center">
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 justify-items-center mt-8">
       {zones.map((zone) => {
         const connectionInfo = getZoneConnectionInfo(zone);
         const statusColor = getStatusHexColor(connectionInfo.status);
@@ -47,30 +47,56 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
           <div
             key={zone.id}
             onClick={() => navigate(`/home/zone/${zone.id}`)}
-            className="text-black font-bold bg-white border border-gray-300 hover:bg-gray-50 flex flex-col items-center gap-2 px-4 py-3 rounded cursor-pointer transition-colors min-w-[120px]"
+            className="modern-card modern-card-hover group cursor-pointer p-6 min-w-[140px] relative overflow-hidden"
           >
-            {/* Zone 이름과 상태 아이콘 */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{zone.name}</span>
+            {/* 배경 그라디언트 */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            
+            {/* 컨텐츠 */}
+            <div className="relative z-10 flex flex-col items-center gap-3">
+              {/* Zone 이름 */}
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-secondary-800 group-hover:text-primary-600 transition-colors duration-200">
+                  {zone.name}
+                </h3>
+              </div>
               
-              {/* 상태 아이콘 */}
-              <div 
-                className="w-[17.54px] h-[17.54px] rounded-[8.77px] border border-gray-300 transition-colors"
-                style={{ 
-                  backgroundColor: statusColor,
-                  animation: connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'pulse 2s infinite' : 'none'
-                }}
-                title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
-              ></div>
+              {/* 상태 인디케이터 */}
+              <div className="flex items-center gap-3">
+                <div 
+                  className={`w-5 h-5 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 ${
+                    connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
+                  }`}
+                  style={{ 
+                    backgroundColor: statusColor,
+                    boxShadow: `0 0 20px ${statusColor}30`
+                  }}
+                  title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+                ></div>
+                
+                {/* 상태 텍스트 */}
+                <span className="text-xs font-medium text-secondary-600 group-hover:text-primary-600 transition-colors duration-200">
+                  {getStatusText(connectionInfo.status)}
+                </span>
+              </div>
               
-              {/* 실시간 표시
-              {connectionInfo.isRealtime && (
+              {/* 연결 상태 표시 */}
+              <div className="flex items-center gap-1.5 text-2xs text-secondary-500">
                 <div 
                   className="w-2 h-2 rounded-full"
                   style={{ backgroundColor: connectionColor }}
-                  title={`연결 상태: ${connectionInfo.connectionState}`}
                 ></div>
-              )} */}
+                <span>{connectionInfo.dataSource}</span>
+              </div>
+            </div>
+            
+            {/* 호버 효과 아이콘 */}
+            <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              <div className="w-6 h-6 bg-brand-main rounded-full flex items-center justify-center">
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
             </div>
           </div>
         );

@@ -609,8 +609,8 @@ const Report = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {loading && <div className="text-sm text-gray-500">로딩 중...</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {loading && <div className="text-sm text-gray-500 dark:text-neutral-400">로딩 중...</div>}
+      {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
 
       {/* 기존 필터/검색 UI (생략 가능) */}
       <div className="flex items-center justify-between">
@@ -619,7 +619,7 @@ const Report = () => {
             <select
               value={reportType}
               onChange={(e) => { setReportType(e.target.value); handleFilterChange(); }}
-              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm"
+              className="appearance-none bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
             >
               <option value="전체">리포트 형식</option>
               <option value="정기">정기</option>
@@ -634,34 +634,34 @@ const Report = () => {
             placeholder="리포트명 입력하세요"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm w-64"
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
           />
         </div>
       </div>
 
       {/* 리포트 테이블 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-neutral-700">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">No</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">정기유무</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">리포트명</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">생성일자</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">다운로드</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">No</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">정기유무</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">리포트명</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">생성일자</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">다운로드</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-neutral-600">
             {currentReports.map((report, index) => (
-              <tr key={report.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">{startIndex + index + 1}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.type || '정기'}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.fileName || '내용 입력'}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.createdAt ? formatDate(report.createdAt) : '내용 입력'}</td>
+              <tr key={report.id} className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200">
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{startIndex + index + 1}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.type || '정기'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.fileName || '내용 입력'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.createdAt ? formatDate(report.createdAt) : '내용 입력'}</td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => handleDownload(report.fileName)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-md text-sm transition-colors duration-200"
                   >
                     Download
                   </button>
@@ -676,11 +676,33 @@ const Report = () => {
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-2">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-2 text-sm rounded-md bg-gray-100">Previous</button>
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)} 
+              disabled={currentPage === 1} 
+              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              Previous
+            </button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <button key={i + 1} onClick={() => handlePageChange(i + 1)} className={`px-3 py-2 text-sm rounded-md ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}>{i + 1}</button>
+              <button 
+                key={i + 1} 
+                onClick={() => handlePageChange(i + 1)} 
+                className={`px-3 py-2 text-sm rounded-md transition-colors duration-200 ${
+                  currentPage === i + 1 
+                    ? 'bg-blue-600 dark:bg-blue-700 text-white' 
+                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600'
+                }`}
+              >
+                {i + 1}
+              </button>
             ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-2 text-sm rounded-md bg-gray-100">Next</button>
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)} 
+              disabled={currentPage === totalPages} 
+              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              Next
+            </button>
           </nav>
         </div>
       )}

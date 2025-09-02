@@ -11,7 +11,7 @@ import Text from '../components/common/Text';
 // 빈 상태 컴포넌트
 const EmptyState = () => (
   <div className="text-center py-12">
-    <Text variant="body" size="lg" color="gray-500">
+    <Text variant="body" size="lg" color="gray-500" className="dark:text-neutral-400">
       해당 조건의 알림이 없습니다.
     </Text>
   </div>
@@ -57,18 +57,18 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
   };
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-6">
+    <div className="flex items-center justify-center space-x-1 mt-8">
       {/* 이전 페이지 버튼 */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 0}
-        className={`px-3 py-2 rounded-lg transition-colors ${
+        className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-soft hover:shadow-medium ${
           currentPage === 0
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ? 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
+            : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 hover:scale-105'
         }`}
       >
-        이전
+        ← 이전
       </button>
 
       {/* 페이지 번호들 */}
@@ -77,15 +77,15 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
           key={index}
           onClick={() => typeof page === 'number' && onPageChange(page)}
           disabled={page === '...'}
-          className={`px-3 py-2 rounded-lg transition-colors ${
+          className={`px-3.5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
             page === '...'
-              ? 'bg-transparent text-gray-400 cursor-default'
+              ? 'bg-transparent text-secondary-400 dark:text-neutral-500 cursor-default'
               : page === currentPage
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft scale-105'
+              : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 shadow-soft hover:shadow-medium hover:scale-105'
           }`}
         >
-          {page === '...' ? '...' : page + 1}
+          {page === '...' ? '•••' : page + 1}
         </button>
       ))}
 
@@ -93,13 +93,13 @@ const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages - 1}
-        className={`px-3 py-2 rounded-lg transition-colors ${
+        className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-soft hover:shadow-medium ${
           currentPage === totalPages - 1
-            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            ? 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
+            : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 hover:scale-105'
         }`}
       >
-        다음
+        다음 →
       </button>
     </div>
   );
@@ -174,10 +174,27 @@ const Alarm = () => {
   }, [alarmType, statusFilter, changePage]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
       {/* 로딩 및 에러 상태 표시 */}
-      {loading && <div className="text-sm text-gray-500">로딩 중...</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {loading && (
+        <LoadingSpinner 
+          size="md" 
+          text="알림을 불러오는 중..." 
+          className="py-8"
+        />
+      )}
+      {error && (
+        <div className="modern-card p-4 border-l-4 border-l-danger-500 bg-danger-50/50 dark:bg-danger-900/20">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 bg-danger-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">!</span>
+            </div>
+            <Text variant="body" size="sm" color="danger-600" className="font-medium dark:text-danger-400">
+              {error}
+            </Text>
+          </div>
+        </div>
+      )}
 
       {/* 상단 필터 섹션 */}
       <AlarmFilters
@@ -190,25 +207,49 @@ const Alarm = () => {
       />
 
       {/* 알림 리스트 */}
-      <div className="space-y-3">
-        {filteredAlarms.map((alarm) => (
-          <AlarmCard
-            key={alarm.id}
-            alarm={alarm}
-            onMarkAsRead={markAsRead}
-            onToggleFavorite={toggleFavorite}
-          />
+      <div className="space-y-4">
+        {filteredAlarms.map((alarm, index) => (
+          <div 
+            key={alarm.id} 
+            className="animate-slide-up"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <AlarmCard
+              alarm={alarm}
+              onMarkAsRead={markAsRead}
+              onToggleFavorite={toggleFavorite}
+            />
+          </div>
         ))}
       </div>
 
       {/* 빈 상태 */}
-      {filteredAlarms.length === 0 && <EmptyState />}
+      {filteredAlarms.length === 0 && !loading && (
+        <div className="modern-card p-12 text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-neutral-700 dark:to-neutral-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-secondary-400 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 7H4l5-5v5zM12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+            </svg>
+          </div>
+          <Text variant="body" size="lg" color="secondary-500" className="font-medium dark:text-neutral-300">
+            해당 조건의 알림이 없습니다
+          </Text>
+          <Text variant="body" size="sm" color="secondary-400" className="mt-2 dark:text-neutral-400">
+            다른 필터 조건을 선택해보세요
+          </Text>
+        </div>
+      )}
 
       {/* 페이지 정보 및 페이지네이션 */}
       {filteredAlarms.length > 0 && (
         <>
-          <div className="text-center text-sm text-gray-500 mt-4">
-            총 {totalElements}개의 알림 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 bg-white/60 dark:bg-neutral-800/60 rounded-xl px-4 py-2 backdrop-blur-sm border border-brand-medium/40 dark:border-neutral-600/40 shadow-soft">
+              <div className="w-2 h-2 bg-brand-main rounded-full"></div>
+              <Text variant="body" size="sm" color="secondary-600" className="font-medium dark:text-neutral-300">
+                총 {totalElements}개 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
+              </Text>
+            </div>
           </div>
           <Pagination
             currentPage={currentPage}

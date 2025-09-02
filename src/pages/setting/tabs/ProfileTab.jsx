@@ -109,7 +109,7 @@ const ProfileTab = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-center py-8">
-          <div className="text-gray-500">사용자 정보를 불러오는 중...</div>
+          <div className="text-gray-500 dark:text-neutral-400">사용자 정보를 불러오는 중...</div>
         </div>
       </div>
     );
@@ -120,7 +120,7 @@ const ProfileTab = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center justify-center py-8">
-          <div className="text-red-500">{error}</div>
+          <div className="text-red-500 dark:text-red-400">{error}</div>
         </div>
       </div>
     );
@@ -132,7 +132,7 @@ const ProfileTab = () => {
         {/* <h4 className="text-lg font-medium text-gray-900 mb-6">프로필 정보</h4> */}
         
         {/* 프로필 레이아웃 */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6 transition-colors duration-300">
           <div className="flex items-start space-x-12">
             {/* 프로필 사진 영역 */}
             <div className="flex-shrink-0 flex flex-col items-center">
@@ -142,10 +142,10 @@ const ProfileTab = () => {
                 </span>
               </div>
               <div className="text-center space-y-1">
-                <div className="text-base font-semibold text-gray-900">
+                <div className="text-base font-semibold text-gray-900 dark:text-neutral-100">
                   {profile.name || '이름 없음'}
                 </div>
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-neutral-400">
                   {profile.gender === 'M' ? '남성' : profile.gender === 'F' ? '여성' : profile.gender || '성별 정보 없음'}
                 </div>
               </div>
@@ -158,40 +158,40 @@ const ProfileTab = () => {
                 <div className="space-y-7">
                   {/* 사원번호 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       사원번호
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.employeeId || '사원번호 없음'}
                     </div>
                   </div>
                   
                   {/* 이메일 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       이메일
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.email || '이메일 없음'}
                     </div>
                   </div>
                   
                   {/* 부서 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       부서
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.department || '부서 정보 없음'}
                     </div>
                   </div>
                   
                   {/* 직책 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       직책
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.position || '직책 정보 없음'}
                     </div>
                   </div>
@@ -201,20 +201,20 @@ const ProfileTab = () => {
                 <div className="space-y-7">
                   {/* 권한 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       권한
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.role === 'ADMIN' ? '관리자' : profile.role === 'USER' ? '일반 사용자' : profile.role || '권한 정보 없음'}
                     </div>
                   </div>
                   
                   {/* 구역범위 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       구역범위
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.scope === 'a,b,c' ? '전체구역' : 
                        profile.scope === 'a' ? 'A구역' : 
                        profile.scope === 'b' ? 'B구역' : 
@@ -225,10 +225,10 @@ const ProfileTab = () => {
                   
                   {/* 근무시간 */}
                   <div>
-                    <label className="block text-base font-medium text-gray-800 mb-1">
+                    <label className="block text-base font-medium text-gray-800 dark:text-neutral-200 mb-1">
                       근무시간
                     </label>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-gray-600 dark:text-neutral-300">
                       {profile.shift === 'DAY' ? '주간(D)' : 
                        profile.shift === 'NIGHT' ? '야간(N)' : 
                        profile.shift || '근무시간 정보 없음'}

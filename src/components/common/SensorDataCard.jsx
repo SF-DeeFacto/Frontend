@@ -32,7 +32,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
     // 센서 값이 유효하지 않은 경우 "데이터 준비 중" 표시
     if (!isSensorValueValid(sensorData)) {
       return (
-        <div className="text-center text-gray-500">
+        <div className="text-center text-gray-500 dark:text-neutral-400">
           <div className="text-sm">데이터 준비 중</div>
         </div>
       );
@@ -92,7 +92,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
               }}
               title={`상태: ${sensorData.val || sensorData.val_0_5}`}
             ></div>
-            <div className="sensor-value" style={{ color: '#1e293b' }}>
+            <div className="sensor-value text-secondary-800 dark:text-neutral-100">
               {renderSensorValue()}
               {sensorData.sensor_type !== 'particle' && (
                 <span className="sensor-unit">{sensorUnit}</span>

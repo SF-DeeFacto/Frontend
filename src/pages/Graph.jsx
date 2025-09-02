@@ -99,16 +99,16 @@ const Graph = () => {
       
       
       {/* 상단 Zone, Sensor 선택 UI */}
-      <div style={{ display: 'flex', flexDirection: 'row', gap: '1.5rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 'bold' }}>Zone</span>
+      <div className="flex flex-row gap-6 items-center mb-6 flex-wrap">
+        <label className="flex items-center gap-2">
+          <span className="font-bold text-secondary-800 dark:text-neutral-100">Zone</span>
           <select
             value={selectedZone}
             onChange={e => {
               setSelectedZone(e.target.value);
               setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
             }}
-            style={{ padding: '0.5rem', borderRadius: 4 }}
+            className="px-3 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
           >
             {ZONES.map(zone => (
               <option key={zone} value={zone}>{zone}</option>
@@ -120,14 +120,14 @@ const Graph = () => {
       
       
       {/* 기존 그래프 영역 */}
-      <div style={{ width: '100%', height: '190vh', background: '#f5f5f5', borderRadius: '8px', overflow: 'hidden' }}>
+      <div className="w-full h-[190vh] bg-gray-100 dark:bg-neutral-800 rounded-lg overflow-hidden transition-colors duration-300">
         <iframe
           src={dashboardUrl}
           width="100%"
           height="100%"
           frameBorder="0"
           title="Grafana Dashboard"
-          style={{ border: 0 }}
+          className="border-0"
           allowFullScreen
         />
       </div>

@@ -32,8 +32,8 @@ const ZoneDrawingSection = ({
 
   return (
     <section className="relative flex-1 max-w-[50%] h-full">
-      <div className="bg-white rounded-lg shadow-md p-6 h-full flex flex-col">
-        <h1 className="text-xl font-semibold text-gray-800 mb-4">도면 영역</h1>
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 h-full flex flex-col transition-colors duration-300">
+        <h1 className="text-xl font-semibold text-gray-800 dark:text-neutral-100 mb-4 transition-colors duration-300">도면 영역</h1>
         <div className="w-full flex-1">
           {renderZoneDrawing}
         </div>
