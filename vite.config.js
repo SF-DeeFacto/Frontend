@@ -9,11 +9,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false, // 포트가 사용 중이면 다른 포트 사용
-    hmr: {
-      // WebSocket 완전 비활성화하고 polling 사용
-      port: false, // WebSocket 포트 비활성화
-      overlay: true, // 에러 오버레이 표시
-    },
+    hmr: false, // HMR 완전 비활성화
     watch: {
       // 파일 변경 감지를 polling으로 처리
       usePolling: true,
