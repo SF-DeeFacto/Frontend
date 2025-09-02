@@ -4,25 +4,8 @@ import ConnectionIndicator from '../../common/ConnectionIndicator';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
 
 const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
-  // 디버깅용 로그 추가
-  console.log('🔍 SensorDataSection 렌더링:', {
-    zoneId,
-    connectionState,
-    sensorData,
-    sensorDataKeys: Object.keys(sensorData || {}),
-    sensorDataLength: Object.keys(sensorData || {}).length,
-    SENSOR_TYPES: SENSOR_TYPES.map(type => type.type),
-    timestamp: new Date().toLocaleTimeString()
-  });
-
   // 실제 센서 데이터 사용
   const displayData = sensorData || {};
-  
-  console.log('📊 센서 데이터:', {
-    displayData,
-    displayDataKeys: Object.keys(displayData),
-    timestamp: new Date().toLocaleTimeString()
-  });
 
   /**
    * 센서 ID에서 숫자 부분을 추출하는 함수
@@ -53,14 +36,6 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
     
     // 센서들을 ID 순서대로 정렬
     const sortedSensors = sortSensorsById(sensors);
-    
-    console.log(`🔍 ${type} 센서 렌더링:`, {
-      type,
-      sensors,
-      sortedSensors,
-      sensorsLength: sensors?.length || 0,
-      timestamp: new Date().toLocaleTimeString()
-    });
     
     return (
       <div key={type} className="flex flex-col gap-4">

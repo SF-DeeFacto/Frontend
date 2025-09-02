@@ -32,20 +32,24 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
       setIsAnimating(true);
       
       // 부드러운 값 변경 애니메이션
-      setTimeout(() => {
+      const animationTimer = setTimeout(() => {
         setDisplayValues(currentValues);
         prevValuesRef.current = currentValues;
         
-        setTimeout(() => {
+        const resetTimer = setTimeout(() => {
           setIsAnimating(false);
         }, 300);
+        
+        return () => clearTimeout(resetTimer);
       }, 150);
+      
+      return () => clearTimeout(animationTimer);
     } else if (Object.keys(displayValues).length === 0) {
       // 초기 값 설정
       setDisplayValues(currentValues);
       prevValuesRef.current = currentValues;
     }
-  }, [sensorData, displayValues]);
+  }, [sensorData]);
 
   const handleCardClick = () => {
     if (zoneId) {

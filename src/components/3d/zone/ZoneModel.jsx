@@ -120,53 +120,14 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
     const foundSensors = {};
     const clickableObjects = [];
     
-    // 실제 모델에서 발견된 센서 이름들 사용
-    const actualSensorNames = [
-      // ESD 센서들 (001~012)
-      'ESD-001', 'ESD-002', 'ESD-003', 'ESD-004', 'ESD-005', 'ESD-006', 
-      'ESD-007', 'ESD-008', 'ESD-009', 'ESD-010', 'ESD-011', 'ESD-012',
-      // LPM 센서들 (001~012)
-      'LPM-001', 'LPM-002', 'LPM-003', 'LPM-004', 'LPM-005', 'LPM-006',
-      'LPM-007', 'LPM-008', 'LPM-009', 'LPM-010', 'LPM-011', 'LPM-012',
-      // HUM 센서들 (001~012)
-      'HUM-001', 'HUM-002', 'HUM-003', 'HUM-004', 'HUM-005', 'HUM-006',
-      'HUM-007', 'HUM-008', 'HUM-009', 'HUM-010', 'HUM-011', 'HUM-012',
-      // WD 센서들 (001~012)
-      'WD-001', 'WD-002', 'WD-003', 'WD-004', 'WD-005', 'WD-006',
-      'WD-007', 'WD-008', 'WD-009', 'WD-010', 'WD-011', 'WD-012',
-      // TEMP 온도 센서들 (TEM이 아니라 TEMP)
-      'TEMP-001', 'TEMP-002', 'TEMP-003', 'TEMP-004', 'TEMP-005', 'TEMP-006', 'TEMP-007', 'TEMP-008', 'TEMP-009', 'TEMP-010', 'TEMP-011', 'TEMP-012'
-    ];
+    // 실제 모델에서 센서를 동적으로 찾기 (하드코딩된 센서 이름 제거)
+    const actualSensorNames = [];
     
-    console.log(`=== 실제 센서 이름 ${actualSensorNames.length}개로 검색 시작 ===`);
-    console.log('센서 목록:', actualSensorNames.sort());
+    // 하드코딩된 센서 이름 검색 제거 - traverse로만 센서 찾기
 
-    // 실제 센서 이름들로 검색
-    actualSensorNames.forEach(meshName => {
-      const target = gltf.scene.getObjectByName(meshName);
-      if (target) {
-        console.log(`✅ 센서 "${meshName}" 찾음!`, target);
-        target.userData.clickable = true;
-        target.userData.sensorName = meshName;
-        clickableObjects.push(target);
-
-        const box = new THREE.Box3().setFromObject(target);
-        const center = new THREE.Vector3();
-        box.getCenter(center);
-
-        foundSensors[meshName] = {
-          position: [center.x, box.max.y, center.z],
-          mesh: target
-        };
-      } else {
-        console.log(`❌ 센서 "${meshName}" 못 찾음`);
-      }
-    });
-
-    // traverse로 추가 센서 확인 및 보완
-    console.log('=== traverse로 추가 센서 확인 ===');
+    // traverse로 센서 동적 검색 (하드코딩된 센서 이름 제거)
+    console.log('=== traverse로 센서 동적 검색 ===');
     const traverseFoundSensors = [];
-    const missingByTraverse = [];
     
     gltf.scene.traverse((child) => {
       if (child.isMesh && child.name) {
@@ -179,32 +140,25 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
           traverseFoundSensors.push(child.name);
           console.log(`🔍 traverse로 찾은 센서: "${child.name}"`);
           
-          // getObjectByName으로 못 찾았던 것들 추가
-          if (!foundSensors[child.name]) {
-            missingByTraverse.push(child.name);
-            console.log(`⚠️ traverse로만 찾을 수 있는 센서: "${child.name}"`);
-            
-            // traverse로 찾은 센서도 추가
-            child.userData.clickable = true;
-            child.userData.sensorName = child.name;
-            clickableObjects.push(child);
+          // 센서 추가
+          child.userData.clickable = true;
+          child.userData.sensorName = child.name;
+          clickableObjects.push(child);
 
-            const box = new THREE.Box3().setFromObject(child);
-            const center = new THREE.Vector3();
-            box.getCenter(center);
+          const box = new THREE.Box3().setFromObject(child);
+          const center = new THREE.Vector3();
+          box.getCenter(center);
 
-            foundSensors[child.name] = {
-              position: [center.x, box.max.y, center.z],
-              mesh: child
-            };
-          }
+          foundSensors[child.name] = {
+            position: [center.x, box.max.y, center.z],
+            mesh: child
+          };
         }
       }
     });
     
     console.log(`traverse로 찾은 센서 총 ${traverseFoundSensors.length}개:`, traverseFoundSensors.sort());
     console.log(`최종 발견된 센서: ${Object.keys(foundSensors).length}개`);
-    console.log(`traverse로만 찾을 수 있었던 센서 ${missingByTraverse.length}개:`, missingByTraverse.sort());
 
     clickableObjectsRef.current = clickableObjects;
     setSensorPositions(foundSensors);
@@ -289,7 +243,7 @@ function ZoneModel({ modelPath, zoneId, onObjectClick, selectedObject }) {
             key={meshName}
             position={sensorData.position}
             status="normal" // 기본 상태
-            sensorName={meshName} // 실제 센서 이름 사용 (ESD-001, HUM-003 등)
+            sensorName={meshName} // 실제 센서 이름 사용
             onClick={() => handleSensorClick({ 
               name: meshName, 
               position: sensorData.position, 
