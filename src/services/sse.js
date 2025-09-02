@@ -45,6 +45,9 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   const createEventSource = () => {
     if (isDestroyed) return; // 이미 해제된 경우 연결하지 않음
     
+    console.log('🔌 SSE 연결 시작:', url);
+    console.log('⏰ SSE 연결 시작 시간:', new Date().toLocaleTimeString());
+    
     try {
       eventSource = new EventSourcePolyfill(url, {
         headers: {
@@ -55,6 +58,9 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       
       eventSource.onopen = (event) => {
         if (isDestroyed) return;
+        
+        console.log('✅ SSE 연결 성공:', url);
+        console.log('⏰ SSE 연결 성공 시간:', new Date().toLocaleTimeString());
         
         lastMessageTime = Date.now();
         retryCount = 0; // 연결 성공 시 재시도 카운트 리셋
@@ -67,6 +73,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
           const timeSinceLastMessage = now - lastMessageTime;
           
           if (timeSinceLastMessage > 60000) { // 1분 이상 메시지 없음
+            console.log('⚠️ SSE 하트비트 타임아웃, 재연결 시도');
             reconnect();
           }
         }, 30000); // 30초마다 체크
@@ -81,14 +88,28 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         
         try {
           const parsedData = JSON.parse(event.data);
+          console.log('📨 SSE 메시지 수신:', {
+            url: url,
+            timestamp: new Date().toLocaleTimeString(),
+            data: parsedData
+          });
           onMessage(parsedData);
         } catch (parseError) {
+          console.error('❌ SSE 메시지 파싱 오류:', parseError);
           onError(parseError);
         }
       };
       
       eventSource.onerror = (error) => {
         if (isDestroyed) return;
+        
+        console.error('❌ SSE 연결 오류:', {
+          url: url,
+          timestamp: new Date().toLocaleTimeString(),
+          error: error,
+          retryCount: retryCount,
+          maxRetries: maxRetries
+        });
         
         // 하트비트 타이머 정리
         if (heartbeatTimer) {
@@ -101,12 +122,15 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         // 자동 재연결 시도
         if (retryCount < maxRetries) {
           retryCount++;
+          console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${retryDelay}ms 후)`);
           
           reconnectTimer = setTimeout(() => {
             if (!isDestroyed) {
               reconnect();
             }
           }, retryDelay);
+        } else {
+          console.error('❌ SSE 최대 재시도 횟수 초과, 연결 포기');
         }
       };
       

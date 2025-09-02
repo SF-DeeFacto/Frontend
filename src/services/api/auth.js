@@ -17,7 +17,8 @@ export const login = async (credentials) => {
     // 개발 환경에서만 로그 출력
     const isDev = import.meta.env.DEV;
     if (isDev) {
-      console.log('로그인 요청 시작:', credentials.username);
+      console.log('🚀 로그인 요청 시작:', credentials.username);
+      console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
     }
     
     const response = await authApiClient.post('/auth/login', {
@@ -26,7 +27,8 @@ export const login = async (credentials) => {
     });
 
     if (isDev) {
-      console.log('로그인 성공:', response.data.message);
+      console.log('✅ 로그인 성공:', response.data.message);
+      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
     }
 
     // 백엔드 응답 구조에 맞게 수정

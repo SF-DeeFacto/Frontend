@@ -13,26 +13,32 @@ import { dashboardApiClient } from '../index';
 export const dashboardApi = {
   // 대시보드 초기 데이터 조회
   getDashboardData: async () => {
-    // console.log(' 대시보드 데이터 조회 시작');
+    console.log('🚀 대시보드 데이터 조회 시작');
+    console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
     try {
       const response = await dashboardApiClient.get('/home/dashboard');
-      // console.log('대시보드 데이터 조회 성공:', response.data);
+      console.log('✅ 대시보드 데이터 조회 성공:', response.data);
+      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
       return response.data;
     } catch (error) {
-      console.error(' 대시보드 데이터 조회 실패:', error);
+      console.error('❌ 대시보드 데이터 조회 실패:', error);
+      console.error('⏱️ 실패까지 소요 시간:', new Date().toLocaleTimeString());
       throw error;
     }
   },
 
   // 특정 존 데이터 조회
   getZoneData: async (zoneId) => {
-    // console.log(`존 데이터 조회 시작: ${zoneId}`);
+    console.log(`🚀 존 데이터 조회 시작: ${zoneId}`);
+    console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
     try {
       const response = await dashboardApiClient.get(`/home/zone?zoneId=${zoneId}`);
-      console.log(`존 데이터 조회 성공 (${zoneId}):`, response.data);
+      console.log(`✅ 존 데이터 조회 성공 (${zoneId}):`, response.data);
+      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
       return response.data;
     } catch (error) {
-      console.error(`존 데이터 조회 실패 (${zoneId}):`, error);
+      console.error(`❌ 존 데이터 조회 실패 (${zoneId}):`, error);
+      console.error('⏱️ 실패까지 소요 시간:', new Date().toLocaleTimeString());
       throw error;
     }
   },

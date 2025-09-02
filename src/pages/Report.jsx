@@ -457,7 +457,10 @@ const Report = () => {
         page: Math.max(0, page - 1), // Spring Pageable: 0-based
         size: itemsPerPage,
       };
-      // console.log('[REPORTS] GET', `${API_BASE}/reports/list`, params, { 'X-Employee-Id': EMPLOYEE_ID });
+      console.log('🚀 리포트 목록 조회 시작');
+      console.log('⏰ 요청 시작 시간:', new Date().toLocaleTimeString());
+      console.log('📋 요청 파라미터:', params);
+      console.log('🔗 요청 URL:', `${API_BASE}/reports/list`);
 
       const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
@@ -465,7 +468,8 @@ const Report = () => {
           'X-Employee-Id': EMPLOYEE_ID
         },
       });
-      // console.log('[REPORTS] response', res.status, res.data);
+      console.log('✅ 리포트 목록 조회 성공:', res.status, res.data);
+      console.log('⏱️ 응답까지 소요 시간:', new Date().toLocaleTimeString());
 
       // ApiResponseDto 형태: { code, message, data }
       const payload = res.data?.data ?? res.data;
@@ -476,7 +480,9 @@ const Report = () => {
       setReports(content || []);
       setTotalItems(total);
     } catch (err) {
-      console.error('리포트 조회 실패', {
+      console.error('❌ 리포트 조회 실패');
+      console.error('⏱️ 실패까지 소요 시간:', new Date().toLocaleTimeString());
+      console.error('🔍 에러 상세 정보:', {
         message: err.message,
         status: err.response?.status,
         data: err.response?.data
