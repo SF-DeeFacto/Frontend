@@ -1,6 +1,5 @@
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-// import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
 
 
 // const Report = () => {
@@ -8,8 +7,6 @@
 //   // local redis에 저장된 사원 번호 {123}  `{}` 까지 값으로 되어서 포함시킴
 //   const EMPLOYEE_ID = '{123}';
 
-//   // 더미 테이터 사용하는 state
-//   //const [reports] = useState(dummyReports);
 //   const [reports, setReports] = useState([]);
 //   const [reportType, setReportType] = useState('전체');
 //   const [selectedPeriod, setSelectedPeriod] = useState('전체');
@@ -423,7 +420,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
+
 // const API_BASE = 'http://localhost:8085';
 const API_BASE = '/report-api';
 const EMPLOYEE_ID = '1';
@@ -460,7 +457,8 @@ const Report = () => {
         page: Math.max(0, page - 1), // Spring Pageable: 0-based
         size: itemsPerPage,
       };
-      console.log('[REPORTS] GET', `${API_BASE}/reports/list`, params, { 'X-Employee-Id': EMPLOYEE_ID });
+      console.log('🚀 리포트 목록 조회 시작');
+      console.log('📋 요청 파라미터:', params);
 
       const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
@@ -468,7 +466,7 @@ const Report = () => {
           'X-Employee-Id': EMPLOYEE_ID
         },
       });
-      console.log('[REPORTS] response', res.status, res.data);
+      console.log('✅ 리포트 목록 조회 성공:', res.data);
 
       // ApiResponseDto 형태: { code, message, data }
       const payload = res.data?.data ?? res.data;
@@ -479,7 +477,7 @@ const Report = () => {
       setReports(content || []);
       setTotalItems(total);
     } catch (err) {
-      console.error('리포트 조회 실패', {
+      console.error('❌ 리포트 조회 실패:', {
         message: err.message,
         status: err.response?.status,
         data: err.response?.data
@@ -540,7 +538,7 @@ const Report = () => {
   setError(null);
   const url = `${API_BASE}/reports/download/${fileName}`;
   try {
-    console.log('[REPORTS] download', url);
+    // console.log('[REPORTS] download', url);
     const res = await axios.get(url, {
       headers: { 'X-Employee-Id': EMPLOYEE_ID },
       responseType: 'blob',
@@ -552,7 +550,7 @@ const Report = () => {
       const blob = res.data;
       let text = '';
       try { text = await blob.text(); } catch (e) { text = '[cannot parse error body]'; }
-      console.error('[REPORTS] download error', { status: res.status, body: text });
+      // console.error('[REPORTS] download error', { status: res.status, body: text });
       setError(`서버 오류(${res.status}): ${text}`);
       return;
     }
@@ -574,7 +572,7 @@ const Report = () => {
     link.remove();
     URL.revokeObjectURL(link.href);
   } catch (err) {
-    console.error('[REPORTS] download unexpected error', err);
+    // console.error('[REPORTS] download unexpected error', err);
     setError('파일 다운로드 중 네트워크 오류가 발생했습니다.');
     // 폴백: 새 탭으로 열어 서버 에러/로그 확인 (브라우저에서 직접 열어보게 함)
     window.open(url, '_blank', 'noopener,noreferrer');

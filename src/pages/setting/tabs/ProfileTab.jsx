@@ -25,13 +25,13 @@ const ProfileTab = () => {
         const userData = localStorage.getItem('user');
         
         if (!token || !userData) {
-          console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
+          // console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
           navigate('/login');
           return;
         }
         
         const user = JSON.parse(userData);
-        console.log('프로필 탭에서 로드된 사용자 데이터:', user);
+        // console.log('프로필 탭에서 로드된 사용자 데이터:', user);
         
         // 사용자 정보를 프로필 상태에 설정
         setProfile({

@@ -9,7 +9,7 @@ async function getDashboards() {
       Authorization: `Bearer ${API_KEY}`,
     },
   });
-  console.log("data : "+res.data);
+  // console.log("data : "+res.data);
 
     return res.data;
 }

@@ -9,10 +9,11 @@ export const SENSOR_STATUS = {
 
 // 센서 타입
 export const SENSOR_TYPE = {
-  PARTICLE: 'particle',
   TEMPERATURE: 'temperature',
   HUMIDITY: 'humidity',
-  GAS: 'gas'
+  ELECTROSTATIC: 'electrostatic',
+  PARTICLE: 'particle',
+  WINDDIRECTION: 'winddirection'
 };
 
 // Zone 정보 타입

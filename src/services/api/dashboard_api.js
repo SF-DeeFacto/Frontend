@@ -7,43 +7,47 @@ import { connectMainSSE, connectZoneSSE, SSE_URLS } from '../sse';
 // Dashboard 백엔드 API 클라이언트 import
 import { dashboardApiClient } from '../index';
 
+
+
 // 일반 HTTP API 함수들
 export const dashboardApi = {
   // 대시보드 초기 데이터 조회
   getDashboardData: async () => {
-    console.log(' 대시보드 데이터 조회 시작');
+    console.log('🚀 대시보드 데이터 조회 시작');
     try {
       const response = await dashboardApiClient.get('/home/dashboard');
-      console.log('대시보드 데이터 조회 성공:', response.data);
+      console.log('✅ 대시보드 데이터 조회 성공:', response.data);
       return response.data;
     } catch (error) {
-      console.error(' 대시보드 데이터 조회 실패:', error);
+      console.error('❌ 대시보드 데이터 조회 실패:', error);
       throw error;
     }
   },
 
   // 특정 존 데이터 조회
   getZoneData: async (zoneId) => {
-    console.log(` 존 데이터 조회 시작: ${zoneId}`);
+    console.log(`🚀 존 데이터 조회 시작: ${zoneId}`);
     try {
-      const response = await dashboardApiClient.get(`/home/zone/${zoneId}`);
-      console.log(` 존 데이터 조회 성공 (${zoneId}):`, response.data);
+      const response = await dashboardApiClient.get(`/home/zone?zoneId=${zoneId}`);
+      console.log(`✅ 존 데이터 조회 성공 (${zoneId}):`, response.data);
       return response.data;
     } catch (error) {
-      console.error(` 존 데이터 조회 실패 (${zoneId}):`, error);
+      console.error(`❌ 존 데이터 조회 실패 (${zoneId}):`, error);
       throw error;
     }
   },
 
+
+
   // 대시보드 설정 업데이트
   updateDashboardSettings: async (settings) => {
-    console.log(' 대시보드 설정 업데이트 시작:', settings);
+    console.log('🚀 대시보드 설정 업데이트 시작:', settings);
     try {
       const response = await dashboardApiClient.put('/home/settings', settings);
-      console.log(' 대시보드 설정 업데이트 성공:', response.data);
+      console.log('✅ 대시보드 설정 업데이트 성공:', response.data);
       return response.data;
     } catch (error) {
-      console.error(' 대시보드 설정 업데이트 실패:', error);
+      console.error('❌ 대시보드 설정 업데이트 실패:', error);
       throw error;
     }
   }

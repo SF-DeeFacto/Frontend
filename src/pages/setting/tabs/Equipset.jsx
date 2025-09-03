@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { thresholdApi } from '../../../services/api/threshold_api';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -15,225 +16,36 @@ const Equipset = ({ onTabChange }) => {
   // 선택된 구역
   const [selectedZone, setSelectedZone] = useState('all');
   
-  // 새로운 API 구조에 맞춘 더미 데이터 - 구역별 센서 타입
-  const [sensorThresholds, setSensorThresholds] = useState({
-    'a': [
-      {
-        zoneId: "a",
-        sensorType: "temperature",
-        warningLow: 20.0,
-        warningHigh: 22.0,
-        alertLow: 19.0,
-        alertHigh: 24.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "humidity",
-        warningLow: 40.0,
-        warningHigh: 50.0,
-        alertLow: 32.0,
-        alertHigh: 52.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "winddirection",
-        warningLow: -14.0,
-        warningHigh: 14.0,
-        alertLow: -20.0,
-        alertHigh: 20.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "electrostatic",
-        warningLow: null,
-        warningHigh: 80.0,
-        alertLow: null,
-        alertHigh: 100.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "particle_0_1um",
-        warningLow: null,
-        warningHigh: 1000.0,
-        alertLow: null,
-        alertHigh: 1045.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "particle_0_3um",
-        warningLow: null,
-        warningHigh: 102.0,
-        alertLow: null,
-        alertHigh: 108.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
-      },
-      {
-        zoneId: "a",
-        sensorType: "particle_0_5um",
-        warningLow: null,
-        warningHigh: 35.0,
-        alertLow: null,
-        alertHigh: 39.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T16:38:40"
+  // API에서 가져온 임계치 상태 (구역별 배열 매핑)
+  const [sensorThresholds, setSensorThresholds] = useState({});
+
+  // 초기 및 구역 변경 시 임계치 로드
+  useEffect(() => {
+    let isMounted = true;
+    const loadThresholds = async () => {
+      const result = await thresholdApi.getThresholds();
+      if (!isMounted) return;
+      if (result.success) {
+        const payload = result.data;
+        const list = Array.isArray(payload?.data)
+          ? payload.data
+          : (payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []));
+        // 서버가 전체 임계치를 내려주므로 zoneId로 그룹핑
+        const grouped = list.reduce((acc, item) => {
+          const key = item.zoneId?.toLowerCase?.() || 'unknown';
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(item);
+          return acc;
+        }, {});
+        setSensorThresholds(grouped);
+      } else {
+        console.error(result.error);
+        setSensorThresholds({});
       }
-    ],
-    'b': [
-      {
-        zoneId: "b",
-        sensorType: "temperature",
-        warningLow: 18.0,
-        warningHigh: 25.0,
-        alertLow: 15.0,
-        alertHigh: 30.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "humidity",
-        warningLow: 45.0,
-        warningHigh: 55.0,
-        alertLow: 35.0,
-        alertHigh: 65.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "winddirection",
-        warningLow: -12.0,
-        warningHigh: 12.0,
-        alertLow: -18.0,
-        alertHigh: 18.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "electrostatic",
-        warningLow: null,
-        warningHigh: 75.0,
-        alertLow: null,
-        alertHigh: 95.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "particle_0_1um",
-        warningLow: null,
-        warningHigh: 950.0,
-        alertLow: null,
-        alertHigh: 1000.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "particle_0_3um",
-        warningLow: null,
-        warningHigh: 95.0,
-        alertLow: null,
-        alertHigh: 105.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      },
-      {
-        zoneId: "b",
-        sensorType: "particle_0_5um",
-        warningLow: null,
-        warningHigh: 30.0,
-        alertLow: null,
-        alertHigh: 35.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T15:20:15"
-      }
-    ],
-    'c': [
-      {
-        zoneId: "c",
-        sensorType: "temperature",
-        warningLow: 22.0,
-        warningHigh: 26.0,
-        alertLow: 18.0,
-        alertHigh: 32.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "humidity",
-        warningLow: 35.0,
-        warningHigh: 65.0,
-        alertLow: 25.0,
-        alertHigh: 75.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "winddirection",
-        warningLow: -16.0,
-        warningHigh: 16.0,
-        alertLow: -22.0,
-        alertHigh: 22.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "electrostatic",
-        warningLow: null,
-        warningHigh: 85.0,
-        alertLow: null,
-        alertHigh: 110.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "particle_0_1um",
-        warningLow: null,
-        warningHigh: 1100.0,
-        alertLow: null,
-        alertHigh: 1200.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "particle_0_3um",
-        warningLow: null,
-        warningHigh: 110.0,
-        alertLow: null,
-        alertHigh: 120.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      },
-      {
-        zoneId: "c",
-        sensorType: "particle_0_5um",
-        warningLow: null,
-        warningHigh: 40.0,
-        alertLow: null,
-        alertHigh: 45.0,
-        updatedUserId: "admin",
-        updatedAt: "2025-08-22T14:45:30"
-      }
-    ]
-  });
+    };
+    loadThresholds();
+    return () => { isMounted = false; };
+  }, [selectedZone]);
 
   // 현재 선택된 구역의 센서 데이터
   const currentSensors = selectedZone === 'all' 
@@ -273,7 +85,7 @@ const Equipset = ({ onTabChange }) => {
     }
   };
 
-  const onSave = () => {
+  const onSave = async () => {
     const v = {
       warningLow: editForm.warningLow !== '' ? parseFloat(editForm.warningLow) : null,
       warningHigh: editForm.warningHigh !== '' ? parseFloat(editForm.warningHigh) : null,
@@ -324,29 +136,24 @@ const Equipset = ({ onTabChange }) => {
     };
 
     try {
-      // TODO: 실제 API 호출
-      // const response = await fetch('/api/sensor-thresholds', {
-      //   method: 'PUT',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-      //   },
-      //   body: JSON.stringify(updatedSensor)
-      // });
-      // 
-      // if (!response.ok) {
-      //   throw new Error('센서 임계치 업데이트에 실패했습니다.');
-      // }
+      const result = await thresholdApi.updateThreshold(updatedSensor);
+      if (!result.success) throw new Error(result.error || '업데이트 실패');
 
-      // 임시로 로컬 상태 업데이트 (실제 API 호출 시 제거)
-      const updatedZoneSensors = sensorThresholds[selectedZone].map((s) =>
-        s.sensorType === editingType ? updatedSensor : s
-      );
-      
-      setSensorThresholds(prev => ({
-        ...prev,
-        [selectedZone]: updatedZoneSensors
-      }));
+      // 성공 시 목록 갱신
+      const reload = await thresholdApi.getThresholds();
+      if (reload.success) {
+        const payload = reload.data;
+        const list = Array.isArray(payload?.data)
+          ? payload.data
+          : (payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []));
+        const grouped = list.reduce((acc, item) => {
+          const key = item.zoneId?.toLowerCase?.() || 'unknown';
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(item);
+          return acc;
+        }, {});
+        setSensorThresholds(grouped);
+      }
 
       alert('센서 임계치가 성공적으로 업데이트되었습니다.');
       onCancel();
@@ -409,9 +216,9 @@ const Equipset = ({ onTabChange }) => {
               className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
             >
               <option value="all">전체</option>
-              <option value="a">Zone A</option>
-              <option value="b">Zone B</option>
-              <option value="c">Zone C</option>
+              <option value="a">A구역</option>
+              <option value="b">B구역</option>
+              <option value="c">C구역</option>
             </select>
           </div>
         </div>

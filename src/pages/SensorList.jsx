@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { sensorApi } from '../services/api/sensor_api';
 import { getStatusColor } from '../config/sensorConfig';
 
 const SensorList = () => {
@@ -10,116 +11,72 @@ const SensorList = () => {
   const [filterZone, setFilterZone] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // 센서 데이터 로드 (실제 API 구조에 맞춘 더미 데이터)
+  // 센서 데이터 로드 (API)
   useEffect(() => {
-    const dummySensors = [
-      { 
-        sensorId: 'esd-001',
-        zoneId: 'a01',
-        sensorType: 'electrostatic',
-        updatedAt: '2025-08-22T16:38:40',
-        updatedUserId: 'admin',
-        warningLow: null,
-        warningHigh: 80.0,
-        alertLow: null,
-        alertHigh: 100.0
-      },
-      { 
-        sensorId: 'temp-001',
-        zoneId: 'a01',
-        sensorType: 'temperature',
-        updatedAt: '2025-08-22T15:20:15',
-        updatedUserId: 'admin',
-        warningLow: 18.0,
-        warningHigh: 25.0,
-        alertLow: 15.0,
-        alertHigh: 30.0
-      },
-      { 
-        sensorId: 'humid-001',
-        zoneId: 'a02',
-        sensorType: 'humidity',
-        updatedAt: '2025-08-22T14:45:30',
-        updatedUserId: 'user01',
-        warningLow: 40.0,
-        warningHigh: 60.0,
-        alertLow: 30.0,
-        alertHigh: 70.0
-      },
-      { 
-        sensorId: 'particle-001',
-        zoneId: 'b01',
-        sensorType: 'particle',
-        updatedAt: '2025-08-22T13:12:45',
-        updatedUserId: 'admin',
-        warningLow: null,
-        warningHigh: 50.0,
-        alertLow: null,
-        alertHigh: 100.0
-      },
-      { 
-        sensorId: 'wind-001',
-        zoneId: 'c01',
-        sensorType: 'windDirection',
-        updatedAt: '2025-08-22T12:08:20',
-        updatedUserId: 'user02',
-        warningLow: null,
-        warningHigh: null,
-        alertLow: null,
-        alertHigh: null
-      },
-      { 
-        sensorId: 'temp-002',
-        zoneId: 'b02',
-        sensorType: 'temperature',
-        updatedAt: '2025-08-22T11:35:10',
-        updatedUserId: 'admin',
-        warningLow: 20.0,
-        warningHigh: 28.0,
-        alertLow: 15.0,
-        alertHigh: 35.0
-      },
-      { 
-        sensorId: 'esd-002',
-        zoneId: 'c02',
-        sensorType: 'electrostatic',
-        updatedAt: '2025-08-22T10:22:55',
-        updatedUserId: 'user01',
-        warningLow: null,
-        warningHigh: 75.0,
-        alertLow: null,
-        alertHigh: 95.0
+    let isMounted = true;
+    const loadSensors = async () => {
+      // 상태 초기화 (이전 데이터 클리어)
+      setSensors([]);
+      setFilteredSensors([]);
+      
+      const params = {
+        sensorType: filterType !== 'all' ? filterType : undefined,
+        zoneId: filterZone !== 'all' ? filterZone : undefined,
+        page: 0,
+        size: 100
+      };
+      
+      console.log('=== API 호출 시작 ===');
+      console.log('API 호출 파라미터:', params);
+      console.log('현재 필터 상태:', { filterType, filterZone });
+      
+      const result = await sensorApi.getSensors(params);
+      if (!isMounted) return;
+      
+      if (result.success) {
+        const payload = result.data;
+        console.log('payload 구조:', JSON.stringify(payload, null, 2));
+        
+        const list = payload?.data?.content || payload?.content || (Array.isArray(payload) ? payload : []);
+        console.log('파싱된 센서 목록:', list);
+        console.log('센서 목록 길이:', list.length);
+        
+        // 센서 타입별 개수 확인
+        const sensorTypeCount = {};
+        list.forEach(sensor => {
+          const type = sensor.sensorType;
+          sensorTypeCount[type] = (sensorTypeCount[type] || 0) + 1;
+        });
+        console.log('센서 타입별 개수:', sensorTypeCount);
+        console.log('=== API 호출 완료 ===');
+        
+        setSensors(list);
+        setFilteredSensors(list);
+      } else {
+        console.error('센서 목록 조회 실패:', result.error);
+        setSensors([]);
+        setFilteredSensors([]);
       }
-    ];
-    setSensors(dummySensors);
-    setFilteredSensors(dummySensors);
-  }, []);
+    };
+    loadSensors();
+    return () => { isMounted = false; };
+  }, [filterType, filterZone]);
 
-  // 필터링 로직
+  // 검색어 필터링만 (클라이언트 사이드)
   useEffect(() => {
-    let filtered = sensors;
-
-    // 센서 타입 필터
-    if (filterType !== 'all') {
-      filtered = filtered.filter(sensor => sensor.sensorType === filterType);
+    if (!searchTerm) {
+      setFilteredSensors(sensors);
+      return;
     }
-
-    // 구역 필터
-    if (filterZone !== 'all') {
-      filtered = filtered.filter(sensor => sensor.zoneId === filterZone);
-    }
-
-    // 검색어 필터
-    if (searchTerm) {
-      filtered = filtered.filter(sensor => 
-        sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
+    
+    const filtered = sensors.filter(sensor => 
+      sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
     setFilteredSensors(filtered);
-  }, [sensors, filterType, filterZone, searchTerm]);
+  }, [sensors, searchTerm]);
 
   // 센서 설정 페이지로 이동
   const handleSensorConfig = (sensorId) => {
@@ -133,16 +90,22 @@ const SensorList = () => {
 
   // 센서 타입별 한글 매핑
   const sensorTypeMapping = {
-    'electrostatic': 'ESD',
+    'electrostatic': '정전기',
+    'Electrostatic': '정전기',
     'temperature': '온도',
+    'Temperature': '온도',
     'humidity': '습도',
-    'particle': '미세먼지',
-    'windDirection': '풍향'
+    'Humidity': '습도',
+    'windDirection': '풍향',
+    'WindDirection': '풍향',
+    'particle_0_1um': '미세먼지 0.1μm',
+    'particle_0_3um': '미세먼지 0.3μm',
+    'particle_0_5um': '미세먼지 0.5μm'
   };
 
   // 센서 타입 목록
-  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle', 'windDirection'];
-  const zones = ['all', 'a01', 'a02', 'b01', 'b02', 'b03', 'b04', 'c01', 'c02'];
+  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_5um', 'windDirection'];
+  const zones = ['all', 'a', 'b', 'c'];
 
   // 날짜 포맷팅 함수
   const formatDateTime = (isoString) => {
@@ -211,7 +174,7 @@ const SensorList = () => {
             >
               {zones.map(zone => (
                 <option key={zone} value={zone}>
-                  {zone === 'all' ? '전체' : zone.toUpperCase()}
+                  {zone === 'all' ? '전체' : `${zone.toUpperCase()}구역`}
                 </option>
               ))}
             </select>

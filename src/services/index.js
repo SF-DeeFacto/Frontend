@@ -22,12 +22,12 @@ const createAuthApiClient = () => {
       
       // 요청 시작 시간 기록
       config.metadata = { startTime: new Date() };
-      console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
-      console.log(`📊 요청 설정:`, {
-        baseURL: config.baseURL,
-        timeout: config.timeout,
-        headers: config.headers
-      });
+      // console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
+      // console.log(`📊 요청 설정:`, {
+      //   baseURL: config.baseURL,
+      //   timeout: config.timeout,
+      //   headers: config.headers
+      // });
       
       return config;
     },
@@ -45,9 +45,9 @@ const createAuthApiClient = () => {
       const startTime = response.config.metadata?.startTime;
       const duration = startTime ? endTime - startTime : '알 수 없음';
       
-      console.log(`✅ API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
-      console.log(`⏱️ 응답 시간: ${duration}ms`);
-      console.log(`📊 응답 상태: ${response.status} ${response.statusText}`);
+      // console.log(`✅ API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      // console.log(`⏱️ 응답 시간: ${duration}ms`);
+      // console.log(`📊 응답 상태: ${response.status} ${response.statusText}`);
       
       return response;
     },
@@ -57,16 +57,16 @@ const createAuthApiClient = () => {
       const startTime = error.config?.metadata?.startTime;
       const duration = startTime ? endTime - startTime : '알 수 없음';
       
-      console.error(`❌ API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
-      console.error(`⏱️ 요청 지속 시간: ${duration}ms`);
-      console.error(`🔍 에러 상세 정보:`, {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
-        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
-      });
+      // console.error(`❌ API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      // console.error(`⏱️ 요청 지속 시간: ${duration}ms`);
+      // console.error(`🔍 에러 상세 정보:`, {
+      //   message: error.message,
+      //   code: error.code,
+      //   status: error.response?.status,
+      //   statusText: error.response?.statusText,
+      //   timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+      //   networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
+      // });
       
       const originalRequest = error.config;
       
@@ -74,7 +74,7 @@ const createAuthApiClient = () => {
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         
-        console.log('🔐 토큰 만료, 로그인 페이지로 이동...');
+        // console.log('🔐 토큰 만료, 로그인 페이지로 이동...');
         
         // refresh 엔드포인트가 없으므로 바로 로그인 페이지로 이동
         localStorage.clear();

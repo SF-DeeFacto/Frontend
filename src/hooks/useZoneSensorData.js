@@ -1,74 +1,107 @@
-import { useState, useEffect, useCallback } from 'react';
-import { getZoneSensorData } from '../dummy/data/zoneSensorData';
-import { groupSensorData, formatTime } from '../utils/sensorUtils';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
 import { CONNECTION_STATE } from '../types/sensor';
-import { COMMON_ZONE_CONFIG } from '../config/zoneConfig';
+
+import { connectZoneSSE } from '../services/sse';
 
 export const useZoneSensorData = (zoneId) => {
   const [sensorData, setSensorData] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [connectionState, setConnectionState] = useState(CONNECTION_STATE.CONNECTING);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const debouncerRef = useRef(null);
+
+
 
   /**
-   * Zone의 센서 데이터를 가져오는 함수
-   * 새로 만든 zoneSensorData에서 데이터를 가져옴
+   * 센서 데이터 업데이트 함수 (SSE 데이터용)
    */
-  const getZoneSensorDataCallback = useCallback(() => {
-    const zoneDataObj = getZoneSensorData(zoneId);
-    if (!zoneDataObj || zoneDataObj.length === 0) return {};
+  const updateSensorDataFromSSE = useCallback((backendData) => {
+    const groupedSensors = groupSensorData(backendData);
     
-    // zoneSensorData는 배열의 첫 번째 요소에 모든 센서가 들어있음
-    const currentData = zoneDataObj[0];
-    
-    const sensors = {};
-    currentData.sensors.forEach(sensor => {
-      sensors[sensor.sensorId] = sensor;
+    setSensorData(prevData => {
+      // 이전 데이터를 유지하면서 새로운 데이터로 업데이트
+      const updatedData = { ...prevData };
+      
+      Object.keys(groupedSensors).forEach(sensorType => {
+        const newSensors = groupedSensors[sensorType];
+        const oldSensors = prevData[sensorType] || [];
+        
+        // 새로운 센서 데이터가 있으면 업데이트, 없으면 이전 데이터 유지
+        if (newSensors && newSensors.length > 0) {
+          updatedData[sensorType] = newSensors;
+        }
+        // 새로운 센서 데이터가 없으면 이전 데이터 유지 (삭제하지 않음)
+      });
+      
+      return updatedData;
     });
     
-    console.log(`🔄 ${zoneId} 존 센서 데이터 가져옴 (센서 개수: ${currentData.sensors.length}개)`);
-    return sensors;
-  }, [zoneId]);
-
-  /**
-   * 센서 데이터 업데이트 함수
-   */
-  const updateSensorData = useCallback(() => {
-    const rawSensorData = getZoneSensorDataCallback();
-    const groupedSensors = groupSensorData(rawSensorData);
-    
-    setSensorData(groupedSensors);
     setLastUpdated(new Date().toLocaleTimeString());
-    console.log(`${zoneId}존 센서 데이터 설정 완료:`, groupedSensors);
-  }, [getZoneSensorDataCallback, zoneId]);
+  }, []);
 
   // 초기화 및 데이터 설정
   useEffect(() => {
     // Zone이 변경될 때마다 상태 초기화
-    console.log(`🔄 ${zoneId} Zone 변경 감지, 상태 초기화`);
     setSensorData({});
     setIsLoading(true);
     setConnectionState(CONNECTION_STATE.CONNECTING);
     
-    // zoneSensorData 사용
-    console.log(`${zoneId}존 - zoneSensorData 사용`);
-    setConnectionState(CONNECTION_STATE.CONNECTED);
-    setIsLoading(false);
+    // 디바운서 초기화 (300ms 지연으로 단축)
+    if (debouncerRef.current) {
+      debouncerRef.current.destroy();
+    }
+    debouncerRef.current = new SensorDataDebouncer(300);
     
-    // 초기 데이터 설정
-    updateSensorData();
+    // 디바운싱된 데이터 업데이트 콜백 등록
+    debouncerRef.current.addCallback((newData) => {
+      if (newData && newData.data && newData.data.length > 0) {
+        updateSensorDataFromSSE(newData);
+      }
+    });
     
-    // 주기적으로 데이터 업데이트 (타임스탬프 갱신)
-    const intervalId = setInterval(updateSensorData, COMMON_ZONE_CONFIG.DATA_UPDATE_INTERVAL);
+
     
-    return () => clearInterval(intervalId);
-  }, [zoneId, updateSensorData]);
+    // SSE 연결 시작
+    const upperZoneId = zoneId.toUpperCase();
+    setConnectionState(CONNECTION_STATE.CONNECTING);
+    
+    const disconnectSSE = connectZoneSSE(upperZoneId, {
+      onOpen: (event) => {
+        setConnectionState(CONNECTION_STATE.CONNECTED);
+        setIsLoading(false);
+      },
+      
+      onMessage: (data) => {
+        // SSE 데이터 수신 시 디바운싱 적용
+        if (data && data.data && data.data.length > 0) {
+          if (debouncerRef.current) {
+            debouncerRef.current.update(data);
+          }
+        }
+      },
+      
+      onError: (error) => {
+        setConnectionState(CONNECTION_STATE.ERROR);
+        setIsLoading(false);
+        // 연결 오류 시에도 이전 센서 데이터는 유지
+      }
+    });
+    
+    return () => {
+      disconnectSSE();
+      // 디바운서 정리
+      if (debouncerRef.current) {
+        debouncerRef.current.destroy();
+        debouncerRef.current = null;
+      }
+    };
+  }, [zoneId, updateSensorDataFromSSE]);
 
   return {
     sensorData,
     isLoading,
     connectionState,
-    lastUpdated: formatTime(lastUpdated),
-    updateSensorData
+    lastUpdated: formatTime(lastUpdated)
   };
 };
