@@ -7,6 +7,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
 import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../types/sensor';
+import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 
 export const useZoneManager = () => {
@@ -67,17 +68,29 @@ export const useZoneManager = () => {
           }));
         },
         onError: (error) => {
+          const errorInfo = handleSSEError(error, { 
+            context: '메인 SSE 연결' 
+          });
+          
           setConnectionStates(prev => ({
             ...prev,
             mainSSE: CONNECTION_STATE.ERROR
           }));
+          
+          console.warn('메인 SSE 연결 오류:', errorInfo.message);
         }
       });
     } catch (error) {
+      const errorInfo = handleSSEError(error, { 
+        context: '메인 SSE 연결 초기화' 
+      });
+      
       setConnectionStates(prev => ({
         ...prev,
         mainSSE: CONNECTION_STATE.ERROR
       }));
+      
+      console.warn('메인 SSE 연결 초기화 오류:', errorInfo.message);
       return null;
     }
   }, []);

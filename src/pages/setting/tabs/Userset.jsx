@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
 
 const Userset = () => {
   // 사용자 데이터 로드
@@ -177,8 +178,9 @@ const Userset = () => {
       // console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
-      console.error('사용자 목록 로드 실패:', error);
-      setError(`사용자 목록을 불러오는데 실패했습니다: ${error.message}`);
+      const errorInfo = handleApiError(error, '사용자 목록 로드');
+      console.error('사용자 목록 로드 실패:', errorInfo.message);
+      setError(errorInfo.userMessage);
       setUsers([]);
       setPagination({
         page: 0,
@@ -268,9 +270,9 @@ const Userset = () => {
         alert('사용자가 성공적으로 등록되었습니다.');
         
       } catch (error) {
-        console.error('사용자 등록 실패:', error);
-        const errorMessage = error.response?.data?.message || '사용자 등록에 실패했습니다.';
-        alert(errorMessage);
+        const errorInfo = handleApiError(error, '사용자 등록');
+        console.error('사용자 등록 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
       } finally {
         setLoading(false);
       }
@@ -311,9 +313,9 @@ const Userset = () => {
         alert('사용자 정보가 성공적으로 수정되었습니다.');
         
       } catch (error) {
-        console.error('사용자 정보 수정 실패:', error);
-        const errorMessage = error.response?.data?.message || '사용자 정보 수정에 실패했습니다.';
-        alert(errorMessage);
+        const errorInfo = handleApiError(error, '사용자 정보 수정');
+        console.error('사용자 정보 수정 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
       } finally {
         setLoading(false);
       }
@@ -335,9 +337,9 @@ const Userset = () => {
         alert('사용자가 성공적으로 삭제되었습니다.');
         
       } catch (error) {
-        console.error('사용자 삭제 실패:', error);
-        const errorMessage = error.response?.data?.message || '사용자 삭제에 실패했습니다.';
-        alert(errorMessage);
+        const errorInfo = handleApiError(error, '사용자 삭제');
+        console.error('사용자 삭제 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
       } finally {
         setLoading(false);
       }

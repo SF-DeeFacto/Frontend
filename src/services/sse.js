@@ -4,6 +4,7 @@
 
 // EventSourcePolyfill import 추가
 import { EventSourcePolyfill } from 'event-source-polyfill';
+import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 // SSE URL 설정
 export const SSE_URLS = {
@@ -97,6 +98,14 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
       eventSource.onerror = (error) => {
         if (isDestroyed) return;
         
+        // 통합 에러 처리
+        const errorInfo = handleSSEError(error, { 
+          url, 
+          retryCount, 
+          maxRetries,
+          context: 'SSE 연결 에러'
+        });
+        
         console.error('❌ SSE 연결 오류:', error);
         
         // 하트비트 타이머 정리
@@ -108,7 +117,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         onError(error);
         
         // 자동 재연결 시도
-        if (retryCount < maxRetries) {
+        if (retryCount < maxRetries && errorInfo.retryable) {
           retryCount++;
           console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${retryDelay}ms 후)`);
           

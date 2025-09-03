@@ -1,4 +1,5 @@
 import authApiClient from '../index';
+import { handleApiError } from '../../utils/unifiedErrorHandler';
 
 // 로그인
 export const login = async (credentials) => {
@@ -85,21 +86,7 @@ export const login = async (credentials) => {
 
     return { success: true, employeeId };
   } catch (error) {
-    console.error('=== 로그인 에러 상세 정보 ===');
-    console.error('Login error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      code: error.code,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL,
-        headers: error.config?.headers
-      }
-    });
+    const errorInfo = handleApiError(error, '로그인');
     
     // 서버 연결 실패 시 더 자세한 정보 제공
     if (error.code === 'ERR_NETWORK') {
@@ -111,7 +98,7 @@ export const login = async (credentials) => {
     
     return {
       success: false,
-      error: error.response?.data?.message || '로그인에 실패했습니다.'
+      error: errorInfo.userMessage
     };
   }
 };
@@ -159,7 +146,8 @@ export const getUserInfo = async () => {
     const response = await authApiClient.get('/users/profile');
     return response.data;
   } catch (error) {
-    console.error('Failed to get user info:', error);
+    const errorInfo = handleApiError(error, '사용자 정보 조회');
+    console.error('사용자 정보 조회 실패:', errorInfo.message);
     return null;
   }
 };

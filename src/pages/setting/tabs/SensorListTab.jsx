@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
 
 const SensorListTab = () => {
   const navigate = useNavigate();
@@ -40,7 +41,8 @@ const SensorListTab = () => {
         setSensors(list);
         setFilteredSensors(list);
       } else {
-        console.error('❌ 센서 목록 조회 실패:', result.error);
+        const errorInfo = handleApiError(new Error(result.error), '센서 목록 조회');
+        console.error('❌ 센서 목록 조회 실패:', errorInfo.message);
         setSensors([]);
         setFilteredSensors([]);
       }

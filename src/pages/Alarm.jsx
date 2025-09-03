@@ -3,6 +3,7 @@ import { notificationApi } from '../services/api/notification_api';
 import { getFilteredAlarms, shouldResetPage } from '../utils/alarmFilters';
 import { useAlarmData } from '../hooks/useAlarmData';
 import { useAlarmPolling } from '../hooks/useAlarmPolling';
+import { handleApiError } from '../utils/unifiedErrorHandler';
 import AlarmFilters from '../components/alarm/AlarmFilters';
 import AlarmCard from '../components/alarm/AlarmCard';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -142,7 +143,8 @@ const Alarm = () => {
         }));
       }
     } catch (error) {
-      console.error('알림 카운터 업데이트 실패:', error);
+      const errorInfo = handleApiError(error, '알림 카운터 업데이트');
+      console.warn('알림 카운터 업데이트 실패:', errorInfo.message);
     }
   }, []);
 

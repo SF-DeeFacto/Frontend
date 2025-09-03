@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
 import { CONNECTION_STATE } from '../types/sensor';
+import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 import { connectZoneSSE } from '../services/sse';
 
@@ -82,9 +83,15 @@ export const useZoneSensorData = (zoneId) => {
       },
       
       onError: (error) => {
+        const errorInfo = handleSSEError(error, { 
+          zoneId, 
+          context: 'Zone 센서 데이터 SSE 연결' 
+        });
+        
         setConnectionState(CONNECTION_STATE.ERROR);
         setIsLoading(false);
         // 연결 오류 시에도 이전 센서 데이터는 유지
+        console.warn(`Zone ${zoneId} SSE 연결 오류:`, errorInfo.message);
       }
     });
     

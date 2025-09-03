@@ -1,5 +1,6 @@
 // 알림 관련 API 전용 파일
 import { authApiClient } from '../index';
+import { handleApiError } from '../../utils/unifiedErrorHandler';
 
 // 개발 환경 체크
 const isDev = import.meta.env.DEV;
@@ -8,19 +9,7 @@ const isDev = import.meta.env.DEV;
 export const notificationApi = {
   // 알림 목록 조회 (페이지네이션 및 필터링 지원)
   getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null) => {
-    const startTime = Date.now();
-    const requestId = Math.random().toString(36).substr(2, 9);
-    
     try {
-      console.log(`🚀 [${requestId}] 알림 목록 조회 시작`);
-      console.log(`⏰ [${requestId}] 요청 시작 시간:`, new Date().toLocaleTimeString());
-      console.log(`📋 [${requestId}] 요청 파라미터:`, { page, size, isRead, isFlagged });
-      console.log(`🔧 [${requestId}] API 클라이언트 설정:`, {
-        baseURL: authApiClient.defaults.baseURL,
-        timeout: authApiClient.defaults.timeout,
-        headers: authApiClient.defaults.headers
-      });
-
       const params = new URLSearchParams();
       if (page !== null) params.append('page', page);
       if (size !== null) params.append('size', size);
@@ -28,214 +17,56 @@ export const notificationApi = {
       if (isFlagged !== null) params.append('isFlagged', isFlagged);
       
       const requestUrl = `/noti/list?${params.toString()}`;
-      console.log(`🔗 [${requestId}] 요청 URL:`, requestUrl);
-      
       const response = await authApiClient.get(requestUrl);
       
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      console.log(`✅ [${requestId}] 알림 목록 조회 성공`);
-      console.log(`⏱️ [${requestId}] 총 소요 시간: ${duration}ms`);
-      console.log(`📊 [${requestId}] 응답 데이터:`, response.data);
-      
-      // 전체 응답 구조를 반환하여 페이지네이션 정보도 함께 사용할 수 있도록 함
       return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
     } catch (error) {
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      console.error(`❌ [${requestId}] 알림 목록 조회 실패`);
-      console.error(`⏱️ [${requestId}] 실패까지 소요 시간: ${duration}ms`);
-      console.error(`🔍 [${requestId}] 에러 상세 정보:`, {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
-        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상',
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          headers: error.config?.headers,
-          timeout: error.config?.timeout
-        }
-      });
-      
-      // 서버 연결 실패 시 더 자세한 정보 제공
-      if (error.code === 'ERR_NETWORK') {
-        throw new Error('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      }
-      
-      throw new Error(error.response?.data?.message || '알림 목록 조회에 실패했습니다.');
+      const errorInfo = handleApiError(error, '알림 목록 조회');
+      throw new Error(errorInfo.userMessage);
     }
   },
 
   // 안읽은 알림 개수 조회
   getUnreadNotificationCount: async () => {
-    const startTime = Date.now();
-    const requestId = Math.random().toString(36).substr(2, 9);
-    
     try {
-      console.log(`🚀 [${requestId}] 안읽은 알림 개수 조회 시작`);
-      console.log(`⏰ [${requestId}] 요청 시작 시간:`, new Date().toLocaleTimeString());
-      
       const response = await authApiClient.get('/noti/count');
-      
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      console.log(`✅ [${requestId}] 안읽은 알림 개수 조회 성공`);
-      console.log(`⏱️ [${requestId}] 총 소요 시간: ${duration}ms`);
-      console.log(`📊 [${requestId}] 응답 데이터:`, response.data);
-      
-      // 최소한의 콘솔 로그
-      if (isDev) {
-        console.log(`안읽은 알림: ${response.data.data}개`);
-      }
-      
       return response.data;
     } catch (error) {
-      const endTime = Date.now();
-      const duration = endTime - startTime;
-      
-      console.error(`❌ [${requestId}] 안읽은 알림 개수 조회 실패`);
-      console.error(`⏱️ [${requestId}] 실패까지 소요 시간: ${duration}ms`);
-      console.error(`🔍 [${requestId}] 에러 상세 정보:`, {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
-        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상',
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          headers: error.config?.headers,
-          timeout: error.config?.timeout
-        }
-      });
-      
-      // 서버 연결 실패 시 더 자세한 정보 제공
-      if (error.code === 'ERR_NETWORK') {
-        throw new Error('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      }
-      
-      throw new Error(error.response?.data?.message || '안읽은 알림 개수 조회에 실패했습니다.');
+      const errorInfo = handleApiError(error, '안읽은 알림 개수 조회');
+      throw new Error(errorInfo.userMessage);
     }
   },
 
   // 알림 읽음 처리
   markNotificationAsRead: async (notificationId) => {
     try {
-      console.log('=== 알림 읽음 처리 시작 ===');
-      console.log('알림 ID:', notificationId);
-      
       const response = await authApiClient.post(`/noti/read/${notificationId}`);
-      
-      console.log('=== 알림 읽음 처리 성공 ===');
-      console.log('응답 데이터:', response.data);
-      
       return response.data;
     } catch (error) {
-      console.error('=== 알림 읽음 처리 에러 상세 정보 ===');
-      console.error('Mark as read error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          headers: error.config?.headers
-        }
-      });
-      
-      // 서버 연결 실패 시 더 자세한 정보 제공
-      if (error.code === 'ERR_NETWORK') {
-        throw new Error('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      }
-      
-      throw new Error(error.response?.data?.message || '알림 읽음 처리에 실패했습니다.');
+      const errorInfo = handleApiError(error, '알림 읽음 처리');
+      throw new Error(errorInfo.userMessage);
     }
   },
 
   // 알림 일괄 읽음 처리
   markAllNotificationsAsRead: async () => {
     try {
-
-
       const response = await authApiClient.post('/noti/read/all');
-      
-
-      
       return response.data;
     } catch (error) {
-      console.error('=== 알림 일괄 읽음 처리 에러 상세 정보 ===');
-      console.error('Mark all as read error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          headers: error.config?.headers
-        }
-      });
-      
-      // 서버 연결 실패 시 더 자세한 정보 제공
-      if (error.code === 'ERR_NETWORK') {
-        throw new Error('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      }
-      
-      throw new Error(error.response?.data?.message || '알림 일괄 읽음 처리에 실패했습니다.');
+      const errorInfo = handleApiError(error, '알림 일괄 읽음 처리');
+      throw new Error(errorInfo.userMessage);
     }
   },
 
   // 알림 즐겨찾기 설정/해제
   toggleNotificationFavorite: async (notificationId) => {
     try {
-
-
       const response = await authApiClient.post(`/noti/favorite/${notificationId}`);
-      
-
-      
       return response.data;
     } catch (error) {
-      console.error('=== 알림 즐겨찾기 토글 에러 상세 정보 ===');
-      console.error('Toggle favorite error:', error);
-      console.error('Error details:', {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        config: {
-          url: error.config?.url,
-          method: error.config?.method,
-          baseURL: error.config?.baseURL,
-          headers: error.config?.headers
-        }
-      });
-      
-      // 서버 연결 실패 시 더 자세한 정보 제공
-      if (error.code === 'ERR_NETWORK') {
-        throw new Error('백엔드 서버에 연결할 수 없습니다. 서버가 실행 중인지 확인해주세요.');
-      }
-      
-      throw new Error(error.response?.data?.message || '알림 즐겨찾기 토글에 실패했습니다.');
+      const errorInfo = handleApiError(error, '알림 즐겨찾기 토글');
+      throw new Error(errorInfo.userMessage);
     }
   }
 };

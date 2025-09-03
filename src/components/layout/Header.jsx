@@ -11,6 +11,7 @@ const Header = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
+  const [currentTime, setCurrentTime] = useState(new Date()); // 실시간 시간 상태
   
 
   
@@ -138,9 +139,17 @@ const Header = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // 실시간 시간 업데이트
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // 1초마다 업데이트
+    
+    return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
+  }, []);
+
   // 현재 시간 정보 가져오기
   const getCurrentTimeInfo = () => {
-    const currentTime = new Date();
     const dateString = currentTime.toLocaleDateString();
     const weekdayString = `(${currentTime.toLocaleDateString('ko-KR', { weekday: 'short' })})`;
     const timeString = currentTime.toLocaleTimeString([], { 

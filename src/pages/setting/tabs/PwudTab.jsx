@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { userService } from '../../../services/userService';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
 
 const PwudTab = () => {
   const [passwords, setPasswords] = useState({
@@ -90,13 +91,8 @@ const PwudTab = () => {
         setErrors({});
         
       } catch (error) {
-        console.error('비밀번호 변경 실패:', error);
-        // console.error('에러 상세 정보:', {
-        //   status: error.response?.status,
-        //   statusText: error.response?.statusText,
-        //   data: error.response?.data,
-        //   message: error.message
-        // });
+        const errorInfo = handleApiError(error, '비밀번호 변경');
+        console.error('비밀번호 변경 실패:', errorInfo.message);
         
         // 에러 메시지 설정
         if (error.response?.status === 400) {
@@ -104,7 +100,7 @@ const PwudTab = () => {
         } else if (error.response?.status === 422) {
           setErrors({ newPassword: '새 비밀번호 형식이 올바르지 않습니다.' });
         } else {
-          alert('비밀번호 변경에 실패했습니다. 다시 시도해주세요.');
+          alert(errorInfo.userMessage);
         }
       } finally {
         setIsLoading(false);

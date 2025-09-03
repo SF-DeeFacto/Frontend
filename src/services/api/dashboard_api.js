@@ -6,6 +6,7 @@ import { connectMainSSE, connectZoneSSE, SSE_URLS } from '../sse';
 
 // Dashboard 백엔드 API 클라이언트 import
 import { dashboardApiClient } from '../index';
+import { handleApiError } from '../../utils/unifiedErrorHandler';
 
 
 
@@ -19,8 +20,9 @@ export const dashboardApi = {
       console.log('✅ 대시보드 데이터 조회 성공:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ 대시보드 데이터 조회 실패:', error);
-      throw error;
+      const errorInfo = handleApiError(error, '대시보드 데이터 조회');
+      console.error('❌ 대시보드 데이터 조회 실패:', errorInfo.message);
+      throw new Error(errorInfo.userMessage);
     }
   },
 
@@ -32,8 +34,9 @@ export const dashboardApi = {
       console.log(`✅ 존 데이터 조회 성공 (${zoneId}):`, response.data);
       return response.data;
     } catch (error) {
-      console.error(`❌ 존 데이터 조회 실패 (${zoneId}):`, error);
-      throw error;
+      const errorInfo = handleApiError(error, `존 데이터 조회 (${zoneId})`);
+      console.error(`❌ 존 데이터 조회 실패 (${zoneId}):`, errorInfo.message);
+      throw new Error(errorInfo.userMessage);
     }
   },
 
@@ -47,8 +50,9 @@ export const dashboardApi = {
       console.log('✅ 대시보드 설정 업데이트 성공:', response.data);
       return response.data;
     } catch (error) {
-      console.error('❌ 대시보드 설정 업데이트 실패:', error);
-      throw error;
+      const errorInfo = handleApiError(error, '대시보드 설정 업데이트');
+      console.error('❌ 대시보드 설정 업데이트 실패:', errorInfo.message);
+      throw new Error(errorInfo.userMessage);
     }
   }
 };

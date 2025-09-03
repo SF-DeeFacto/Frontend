@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { notificationApi } from '../services/api/notification_api';
 import { mapAlarmList } from '../utils/alarmMapper';
-import { handleAlarmApiError, showErrorAlert } from '../utils/errorHandler';
+import { handleApiError } from '../utils/unifiedErrorHandler';
 
 /**
  * 알림 데이터 관리 커스텀 훅
@@ -34,8 +34,8 @@ export const useAlarmData = (pageSize = 7) => {
       
       return { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements };
     } catch (error) {
-      console.error('알림 조회 실패', error);
-      setError('알림 목록을 불러오는 중 오류가 발생했습니다.');
+      const errorInfo = handleApiError(error, '알림 조회');
+      setError(errorInfo.userMessage);
       
       // 에러 발생 시 빈 상태로 설정
       setAlarms([]);
@@ -60,8 +60,9 @@ export const useAlarmData = (pageSize = 7) => {
       
       return { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements };
     } catch (error) {
-      console.error('폴링 중 알림 업데이트 실패:', error);
-      // 폴링 에러는 사용자에게 알리지 않음
+      const errorInfo = handleApiError(error, '알림 폴링 업데이트');
+      // 폴링 에러는 사용자에게 알리지 않음 (LOW 심각도로 처리)
+      console.warn('폴링 중 알림 업데이트 실패:', errorInfo.message);
       throw error;
     }
   }, [pageSize]);
@@ -96,9 +97,8 @@ export const useAlarmData = (pageSize = 7) => {
       // console.log(`알림 ${alarmId} 읽음 처리 완료`);
       return true;
     } catch (error) {
-      const errorInfo = handleAlarmApiError(error, '알림 읽음 처리');
-      showErrorAlert(errorInfo);
-      throw error;
+      const errorInfo = handleApiError(error, '알림 읽음 처리');
+      throw new Error(errorInfo.userMessage);
     }
   }, []);
 
@@ -121,9 +121,8 @@ export const useAlarmData = (pageSize = 7) => {
       // console.log(`알림 ${alarmId} 즐겨찾기 토글 완료`);
       return true;
     } catch (error) {
-      const errorInfo = handleAlarmApiError(error, '즐겨찾기 처리');
-      showErrorAlert(errorInfo);
-      throw error;
+      const errorInfo = handleApiError(error, '즐겨찾기 처리');
+      throw new Error(errorInfo.userMessage);
     }
   }, []);
 
@@ -146,9 +145,8 @@ export const useAlarmData = (pageSize = 7) => {
       // console.log('모든 알림을 전체 읽음 처리 완료');
       return true;
     } catch (error) {
-      const errorInfo = handleAlarmApiError(error, '전체 읽음 처리');
-      showErrorAlert(errorInfo);
-      throw error;
+      const errorInfo = handleApiError(error, '전체 읽음 처리');
+      throw new Error(errorInfo.userMessage);
     }
   }, []);
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { thresholdApi } from '../../../services/api/threshold_api';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -39,7 +40,8 @@ const Equipset = ({ onTabChange }) => {
         }, {});
         setSensorThresholds(grouped);
       } else {
-        console.error(result.error);
+        const errorInfo = handleApiError(new Error(result.error), '임계치 목록 조회');
+        console.error('임계치 목록 조회 실패:', errorInfo.message);
         setSensorThresholds({});
       }
     };
@@ -137,7 +139,10 @@ const Equipset = ({ onTabChange }) => {
 
     try {
       const result = await thresholdApi.updateThreshold(updatedSensor);
-      if (!result.success) throw new Error(result.error || '업데이트 실패');
+      if (!result.success) {
+        const errorInfo = handleApiError(new Error(result.error), '임계치 업데이트');
+        throw new Error(errorInfo.userMessage);
+      }
 
       // 성공 시 목록 갱신
       const reload = await thresholdApi.getThresholds();
@@ -158,8 +163,9 @@ const Equipset = ({ onTabChange }) => {
       alert('센서 임계치가 성공적으로 업데이트되었습니다.');
       onCancel();
     } catch (error) {
-      console.error('센서 임계치 업데이트 오류:', error);
-      alert('센서 임계치 업데이트에 실패했습니다. 다시 시도해주세요.');
+      const errorInfo = handleApiError(error, '임계치 업데이트');
+      console.error('센서 임계치 업데이트 오류:', errorInfo.message);
+      alert(errorInfo.userMessage);
     }
   };
 
