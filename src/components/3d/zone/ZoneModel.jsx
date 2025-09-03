@@ -249,9 +249,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
         );
       })}
 
-      {/* 광원 */}
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-      <ambientLight intensity={0.5} />
+      {/* 광원 - 적당히 어둡게 조정 */}
+      <directionalLight position={[5, 5, 5]} intensity={1.2} />
+      <ambientLight intensity={0.6} />
 
 
     </group>

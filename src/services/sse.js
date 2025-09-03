@@ -35,8 +35,8 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   // 실제 EventSource API 사용
   let eventSource = null;
   let retryCount = 0;
-  const maxRetries = 3;
-  const retryDelay = 2000; // 2초로 증가
+  const maxRetries = 5; // 재시도 횟수 증가
+  const retryDelay = 3000; // 3초로 증가
   
   let lastMessageTime = Date.now(); // 마지막 메시지 수신 시간
   let heartbeatTimer = null; // 하트비트 타이머
@@ -60,6 +60,11 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         if (isDestroyed) return;
         
         console.log('✅ SSE 연결 성공:', url);
+        console.log('📊 SSE 연결 상태:', {
+          readyState: eventSource.readyState,
+          url: eventSource.url,
+          timestamp: new Date().toISOString()
+        });
         
         lastMessageTime = Date.now();
         retryCount = 0; // 연결 성공 시 재시도 카운트 리셋
@@ -71,11 +76,11 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
           const now = Date.now();
           const timeSinceLastMessage = now - lastMessageTime;
           
-          if (timeSinceLastMessage > 60000) { // 1분 이상 메시지 없음
+          if (timeSinceLastMessage > 120000) { // 2분 이상 메시지 없음 (타임아웃 시간 증가)
             console.log('⚠️ SSE 하트비트 타임아웃, 재연결 시도');
             reconnect();
           }
-        }, 30000); // 30초마다 체크
+        }, 60000); // 1분마다 체크 (체크 간격 증가)
         
         onOpen?.(event);
       };
@@ -119,15 +124,24 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         // 자동 재연결 시도
         if (retryCount < maxRetries && errorInfo.retryable) {
           retryCount++;
-          console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${retryDelay}ms 후)`);
+          const currentRetryDelay = retryDelay * Math.pow(1.5, retryCount - 1); // 지수 백오프
+          console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${currentRetryDelay}ms 후)`);
           
           reconnectTimer = setTimeout(() => {
             if (!isDestroyed) {
               reconnect();
             }
-          }, retryDelay);
+          }, currentRetryDelay);
         } else {
           console.error('❌ SSE 최대 재시도 횟수 초과, 연결 포기');
+          // 최대 재시도 후에도 5분 후에 다시 시도
+          setTimeout(() => {
+            if (!isDestroyed) {
+              console.log('🔄 SSE 장기 재연결 시도');
+              retryCount = 0; // 재시도 카운트 리셋
+              reconnect();
+            }
+          }, 300000); // 5분 후
         }
       };
       
