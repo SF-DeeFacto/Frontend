@@ -20,23 +20,8 @@ export const useZoneSensorData = (zoneId) => {
   const updateSensorDataFromSSE = useCallback((backendData) => {
     const groupedSensors = groupSensorData(backendData);
     
-    setSensorData(prevData => {
-      // 이전 데이터를 유지하면서 새로운 데이터로 업데이트
-      const updatedData = { ...prevData };
-      
-      Object.keys(groupedSensors).forEach(sensorType => {
-        const newSensors = groupedSensors[sensorType];
-        const oldSensors = prevData[sensorType] || [];
-        
-        // 새로운 센서 데이터가 있으면 업데이트, 없으면 이전 데이터 유지
-        if (newSensors && newSensors.length > 0) {
-          updatedData[sensorType] = newSensors;
-        }
-        // 새로운 센서 데이터가 없으면 이전 데이터 유지 (삭제하지 않음)
-      });
-      
-      return updatedData;
-    });
+    // 새로운 센서 데이터로 완전히 교체 (백엔드에서 항상 전체 센서 상태를 보내므로)
+    setSensorData(groupedSensors);
     
     setLastUpdated(new Date().toLocaleTimeString());
   }, []);

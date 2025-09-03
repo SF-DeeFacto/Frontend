@@ -57,6 +57,13 @@ export const groupSensorData = (backendData) => {
   const sensorMap = new Map(); // 센서별 최신 데이터 추적용
   
   // 모든 데이터 포인트의 센서들을 처리
+  console.log('🔍 입력 데이터 분석:', backendData.data.map((dp, idx) => ({
+    블록: idx,
+    타임스탬프: dp.timestamp,
+    센서개수: dp.sensors?.length || 0,
+    센서ID들: dp.sensors?.map(s => s.sensorId) || []
+  })));
+  
   backendData.data.forEach(dataPoint => {
     if (dataPoint.sensors && Array.isArray(dataPoint.sensors)) {
       dataPoint.sensors.forEach(sensor => {
@@ -68,7 +75,11 @@ export const groupSensorData = (backendData) => {
         const existingSensor = sensorMap.get(sensorKey);
         const currentTimestamp = new Date(sensor.timestamp).getTime();
         
-        if (!existingSensor || new Date(existingSensor.timestamp).getTime() < currentTimestamp) {
+        // 기존 센서가 없거나, 현재 센서가 더 최신이거나, 같은 타임스탬프인 경우 업데이트
+        if (!existingSensor || 
+            new Date(existingSensor.timestamp).getTime() < currentTimestamp ||
+            new Date(existingSensor.timestamp).getTime() === currentTimestamp) {
+          
           const sensorData = {
             sensorId: sensor.sensorId,
             sensorType: sensor.sensorType,
@@ -78,6 +89,9 @@ export const groupSensorData = (backendData) => {
           };
           
           sensorMap.set(sensorKey, sensorData);
+        } else {
+          // 스킵되는 센서 로그 (문제 파악용)
+          console.log(`⏭️ 센서 스킵: ${sensorKey} - 기존: ${existingSensor.timestamp}, 현재: ${sensor.timestamp}`);
         }
       });
     }
@@ -109,7 +123,16 @@ export const groupSensorData = (backendData) => {
     });
   });
   
-  // 프로덕션 환경에서는 로그 제거
+  // 최종 결과 확인
+  const finalCount = Object.values(grouped).reduce((sum, sensors) => sum + sensors.length, 0);
+  console.log('🎯 처리 결과:', {
+    입력센서: backendData.data.reduce((sum, dp) => sum + (dp.sensors?.length || 0), 0),
+    출력센서: finalCount,
+    센서타입별: Object.entries(grouped).map(([type, sensors]) => ({
+      타입: type,
+      개수: sensors.length
+    }))
+  });
   
   return grouped;
 };
