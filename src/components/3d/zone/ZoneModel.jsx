@@ -180,14 +180,19 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
         clickedObject.getWorldPosition(worldPosition);
 
         if (onObjectClick) {
+          // 실제 센서 데이터에서 상태 가져오기
+          const actualStatus = getSensorStatusFromData(clickedObject.name);
+          const sensorInfo = getSensorInfoFromData(clickedObject.name);
+          
           onObjectClick({
             name: clickedObject.name,
             position: worldPosition,
             object: clickedObject,
             isSensor: true,
-            status: 'normal', // 기본 상태
+            status: actualStatus, // 실제 센서 상태 사용
             id: clickedObject.name,
-            type: 'unknown' // 기본 타입
+            type: getSensorType(clickedObject.name),
+            sensorData: sensorInfo // 센서 데이터 추가
           });
         }
       }
