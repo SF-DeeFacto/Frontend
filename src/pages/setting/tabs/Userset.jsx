@@ -2,46 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 
 const Userset = () => {
-  // 사용자 데이터 로드
-  // const [users, setUsers] = useState([
-  //   { 
-  //     id: 1, 
-  //     employeeId: 'EMP001',
-  //     name: '홍길동', 
-  //     password: '********',
-  //     email: 'hong@example.com', 
-  //     gender: 'male',
-  //     department: '개발팀',
-  //     position: '개발자',
-  //     role: 'admin', 
-  //     status: 'active' 
-  //   },
-  //   { 
-  //     id: 2, 
-  //     employeeId: 'EMP002',
-  //     name: '김철수', 
-  //     password: '********',
-  //     email: 'kim@example.com', 
-  //     gender: 'male',
-  //     department: '디자인팀',
-  //     position: '디자이너',
-  //     role: 'user', 
-  //     status: 'active' 
-  //   },
-  //   { 
-  //     id: 3, 
-  //     employeeId: 'EMP003',
-  //     name: '이영희', 
-  //     password: '********',
-  //     email: 'lee@example.com', 
-  //     gender: 'female',
-  //     department: '마케팅팀',
-  //     position: '매니저',
-  //     role: 'user', 
-  //     status: 'inactive' 
-  //   }
-  // ]);
-
   // 실제 API 연결용 상태
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({
@@ -117,8 +77,8 @@ const Userset = () => {
           employeeId: trimmedTerm
         };
         
-        // console.log('이름 검색 파라미터:', nameSearchParams);
-        // console.log('사번 검색 파라미터:', employeeIdSearchParams);
+        console.log('이름 검색 파라미터:', nameSearchParams);
+        console.log('사번 검색 파라미터:', employeeIdSearchParams);
         
         // 두 검색을 병렬로 실행
         const [nameResponse, employeeIdResponse] = await Promise.all([
@@ -148,7 +108,7 @@ const Userset = () => {
           size: size || pagination.size || 10
         };
         
-        // console.log('전체 조회 파라미터:', searchParams);
+        console.log('전체 조회 파라미터:', searchParams);
         const response = await userService.searchUsers(searchParams);
         
         if (response && response.data) {
@@ -174,7 +134,7 @@ const Userset = () => {
         totalPages: totalPages
       });
       
-      // console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
+      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
       console.error('사용자 목록 로드 실패:', error);
@@ -213,13 +173,13 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    // console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
+    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
     setEditingUser(prev => {
       const updated = {
         ...prev,
         [key]: value
       };
-      // console.log('수정된 사용자 정보:', updated); // 디버깅용
+      console.log('수정된 사용자 정보:', updated); // 디버깅용
       return updated;
     });
   };
@@ -243,7 +203,7 @@ const Userset = () => {
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
-        // console.log('등록 요청 데이터:', userData); // 디버깅용
+        console.log('등록 요청 데이터:', userData); // 디버깅용
         
         await userService.registerUser(userData);
         
@@ -298,8 +258,8 @@ const Userset = () => {
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
         
-        // console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
-        // console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
+        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
+        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
         
         await userService.updateUser(userData);
         
@@ -350,13 +310,6 @@ const Userset = () => {
     setShowAddModal(false); // 등록 모달 닫기
   };
 
-  // 상태 변경 함수 - 더 이상 사용하지 않음 (백엔드에서 isActive로 관리)
-  // const handleStatusChange = (userId, newStatus) => {
-  //   setUsers(prev => prev.map(user => 
-  //     user.id === userId ? { ...user, status: newStatus } : user
-  //   ));
-  // };
-
   const getRoleLabel = (role) => {
     return roles.find(r => r.value === role)?.label || role;
   };
@@ -391,32 +344,26 @@ const Userset = () => {
       default: return shift;
     }
   };
-
-  // 검색은 API에서 처리하므로 필터링 로직 제거
-  // const filteredUsers = users.filter(user =>
-  //   user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //   user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
   
   // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
   const filteredUsers = users;
   
   // 디버깅: users 상태 확인
-  // console.log('현재 users 상태:', users);
-  // console.log('filteredUsers:', filteredUsers);
-  // console.log('users 길이:', users.length);
+  console.log('현재 users 상태:', users);
+  console.log('filteredUsers:', filteredUsers);
+  console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4> */}
         <button
           onClick={() => {
             setShowAddModal(true);
             setShowEditForm(false); // 수정 모달 닫기
             setEditingUser(null);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-[#494FA2] text-white px-4 py-2 rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
         >
           사용자 등록
         </button>
@@ -435,7 +382,7 @@ const Userset = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="사번 또는 이름으로 검색하세요"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -537,7 +484,7 @@ const Userset = () => {
                     </span>
                     <button
                       onClick={() => handleEditClick(user)}
-                      className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                      className="text-[#494FA2] hover:text-[#3d4490] text-sm font-medium"
                       disabled={loading}
                     >
                       수정
@@ -618,7 +565,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.employeeId}
                       onChange={(e) => handleNewUserChange('employeeId', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                       placeholder="사번"
                     />
                   </div>
@@ -630,7 +577,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.name}
                       onChange={(e) => handleNewUserChange('name', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                       placeholder="이름"
                     />
                   </div>
@@ -641,7 +588,7 @@ const Userset = () => {
                     <select
                       value={newUser.gender}
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       <option value="male">남성</option>
@@ -659,7 +606,7 @@ const Userset = () => {
                     <select
                       value={newUser.department}
                       onChange={(e) => handleNewUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -674,7 +621,7 @@ const Userset = () => {
                     <select
                       value={newUser.position}
                       onChange={(e) => handleNewUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -689,7 +636,7 @@ const Userset = () => {
                     <select
                       value={newUser.role}
                       onChange={(e) => handleNewUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {roles.map(role => (
@@ -708,7 +655,7 @@ const Userset = () => {
                      type="password"
                      value={newUser.password}
                      onChange={(e) => handleNewUserChange('password', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      placeholder="비밀번호를 입력하세요"
                    />
                  </div>
@@ -722,7 +669,7 @@ const Userset = () => {
                      type="email"
                      value={newUser.email}
                      onChange={(e) => handleNewUserChange('email', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      placeholder="이메일을 입력하세요"
                    />
                                   </div>
@@ -736,7 +683,7 @@ const Userset = () => {
                      <select
                        value={newUser.scope}
                        onChange={(e) => handleNewUserChange('scope', e.target.value)}
-                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      >
                        <option value="">선택</option>
                        {scopes.map(scope => (
@@ -751,7 +698,7 @@ const Userset = () => {
                      <select
                        value={newUser.shift}
                        onChange={(e) => handleNewUserChange('shift', e.target.value)}
-                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      >
                        <option value="">선택</option>
                        {shifts.map(shift => (
@@ -766,7 +713,7 @@ const Userset = () => {
                  <div className="flex space-x-2 mt-4">
                    <button
                      onClick={handleAddUser}
-                     className="flex-1 bg-blue-600 text-white px-3 py-2 text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                    >
                      등록
                    </button>
@@ -837,7 +784,7 @@ const Userset = () => {
                     <select
                       value={editingUser.gender}
                       onChange={(e) => handleEditUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="male">남성</option>
                       <option value="female">여성</option>
@@ -854,7 +801,7 @@ const Userset = () => {
                     <select
                       value={editingUser.department}
                       onChange={(e) => handleEditUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -869,7 +816,7 @@ const Userset = () => {
                     <select
                       value={editingUser.position}
                       onChange={(e) => handleEditUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -884,7 +831,7 @@ const Userset = () => {
                     <select
                       value={editingUser.role}
                       onChange={(e) => handleEditUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       {roles.map(role => (
                         <option key={role.value} value={role.value}>{role.label}</option>
@@ -905,7 +852,7 @@ const Userset = () => {
                         console.log('구역범위 변경:', e.target.value); // 디버깅용
                         handleEditUserChange('scope', e.target.value);
                       }}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       {scopes.map(scope => (
                         <option key={scope.value} value={scope.value}>{scope.label}</option>
@@ -919,7 +866,7 @@ const Userset = () => {
                     <select
                       value={editingUser.shift || 'DAY'}
                       onChange={(e) => handleEditUserChange('shift', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       {shifts.map(shift => (
                         <option key={shift.value} value={shift.value}>{shift.label}</option>
@@ -939,7 +886,7 @@ const Userset = () => {
                     type="email"
                     value={editingUser.email}
                     onChange={(e) => handleEditUserChange('email', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   />
                 </div>
 
@@ -951,7 +898,7 @@ const Userset = () => {
                   <select
                     value={editingUser.isActive ? 'active' : 'inactive'}
                     onChange={(e) => handleEditUserChange('isActive', e.target.value === 'active')}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   >
                     <option value="active">활성</option>
                     <option value="inactive">비활성</option>
@@ -961,7 +908,7 @@ const Userset = () => {
                 <div className="flex space-x-2 mt-4">
                   <button
                     onClick={handleEditUser}
-                    className="flex-1 bg-blue-600 text-white px-3 py-2 text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   >
                     수정
                   </button>

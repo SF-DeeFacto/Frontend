@@ -33,21 +33,21 @@ const Setting = () => {
 
   return (
     <div className="p-1">
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="modern-card">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
         </div>
         
         {/* 탭 네비게이션 */}
-        <div className="border-b border-gray-200">
+        <div className="border-b border-gray-200 dark:border-neutral-700">
           <nav className="flex space-x-8 px-6" aria-label="Tabs">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                className={`py-4 px-1 border-b-2 font-medium text-[15px] transition-colors duration-300 ${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-[#494FA2] text-[#494FA2] dark:text-brand-main'
+                    : 'border-transparent text-gray-500 dark:text-neutral-400 hover:text-gray-700 dark:hover:text-neutral-200 hover:border-gray-300 dark:hover:border-neutral-600'
                 }`}
               >
                 {tab.name}
