@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
-import { notificationApi } from '../services/api/notification_api';
-import { mapAlarmList } from '../utils/alarmMapper';
-import { handleApiError } from '../utils/unifiedErrorHandler';
+import { notificationApi } from '@services/api/notification_api';
+import { mapAlarmList } from '@utils/alarmMapper';
+import { handleApiError } from '@utils/unifiedErrorHandler';
 
 /**
  * 알림 데이터 관리 커스텀 훅

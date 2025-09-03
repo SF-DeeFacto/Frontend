@@ -1,21 +1,21 @@
 /**
  * 전역 상태 관리 시스템
  * Context API와 useReducer를 사용한 중앙화된 상태 관리
+ * 모듈식 리듀서 구조로 리팩토링됨
  */
 
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useMemo } from 'react';
+import { authReducer, initialAuthState } from './auth';
+import { sensorReducer, initialSensorState } from './sensors';
+import { uiReducer, initialUIState } from './ui';
 
-// 전역 상태 초기값
+// 전역 상태 초기값 - 모듈식 구조
 const initialState = {
-  // 인증 상태 (AuthContext에서 관리)
-  auth: {
-    user: null,
-    isAuthenticated: false,
-    isLoading: false,
-    error: null
-  },
+  auth: initialAuthState,
+  sensors: initialSensorState,
+  ui: initialUIState,
   
-  // Zone 상태
+  // 레거시 상태 (점진적 마이그레이션을 위해 유지)
   zones: {
     zoneStatuses: {},
     connectionStates: {},
@@ -23,15 +23,6 @@ const initialState = {
     zones: []
   },
   
-  // 센서 데이터
-  sensors: {
-    data: {},
-    loading: false,
-    error: null,
-    lastUpdated: null
-  },
-  
-  // 알림 상태
   alarms: {
     alarms: [],
     loading: false,
@@ -42,16 +33,6 @@ const initialState = {
     hasUnreadAlarms: false
   },
   
-  // UI 상태
-  ui: {
-    loading: false,
-    error: null,
-    notifications: [],
-    theme: 'light',
-    sidebarCollapsed: false
-  },
-  
-  // 날씨 정보
   weather: {
     data: null,
     loading: false,
@@ -94,108 +75,89 @@ export const ACTION_TYPES = {
   SET_WEATHER_ERROR: 'SET_WEATHER_ERROR'
 };
 
-// 리듀서 함수
+// 통합 리듀서 함수
 const globalReducer = (state, action) => {
+  // 모듈별 리듀서 적용
+  const newState = {
+    ...state,
+    auth: authReducer(state.auth, action),
+    sensors: sensorReducer(state.sensors, action),
+    ui: uiReducer(state.ui, action),
+  };
+
+  // 레거시 액션 처리
   switch (action.type) {
     // Zone 관련 액션들
     case ACTION_TYPES.SET_ZONE_STATUSES:
       return {
-        ...state,
+        ...newState,
         zones: {
-          ...state.zones,
+          ...newState.zones,
           zoneStatuses: action.payload
         }
       };
       
     case ACTION_TYPES.SET_CONNECTION_STATES:
       return {
-        ...state,
+        ...newState,
         zones: {
-          ...state.zones,
+          ...newState.zones,
           connectionStates: action.payload
         }
       };
       
     case ACTION_TYPES.SET_LAST_UPDATED:
       return {
-        ...state,
+        ...newState,
         zones: {
-          ...state.zones,
+          ...newState.zones,
           lastUpdated: action.payload
         }
       };
       
     case ACTION_TYPES.SET_ZONES:
       return {
-        ...state,
+        ...newState,
         zones: {
-          ...state.zones,
+          ...newState.zones,
           zones: action.payload
         }
       };
-    
-    // 센서 관련 액션들
-    case ACTION_TYPES.SET_SENSOR_DATA:
-      return {
-        ...state,
-        sensors: {
-          ...state.sensors,
-          data: action.payload,
-          lastUpdated: new Date().toISOString()
-        }
-      };
-      
-    case ACTION_TYPES.SET_SENSOR_LOADING:
-      return {
-        ...state,
-        sensors: {
-          ...state.sensors,
-          loading: action.payload
-        }
-      };
-      
-    case ACTION_TYPES.SET_SENSOR_ERROR:
-      return {
-        ...state,
-        sensors: {
-          ...state.sensors,
-          error: action.payload
-        }
-      };
+
     
     // 알림 관련 액션들
     case ACTION_TYPES.SET_ALARMS:
       return {
-        ...state,
+        ...newState,
         alarms: {
-          ...state.alarms,
+          ...newState.alarms,
           alarms: action.payload
         }
       };
       
     case ACTION_TYPES.SET_ALARM_LOADING:
       return {
-        ...state,
+        ...newState,
         alarms: {
-          ...state.alarms,
+          ...newState.alarms,
           loading: action.payload
         }
       };
       
     case ACTION_TYPES.SET_ALARM_ERROR:
       return {
-        ...state,
+        ...newState,
         alarms: {
-          ...state.alarms,
+          ...newState.alarms,
           error: action.payload
         }
       };
       
     case ACTION_TYPES.SET_ALARM_PAGINATION:
       return {
-        ...state,
+        ...newState,
         alarms: {
-          ...state.alarms,
+          ...newState.alarms,
           currentPage: action.payload.currentPage,
           totalPages: action.payload.totalPages,
           totalElements: action.payload.totalElements
@@ -204,80 +166,24 @@ const globalReducer = (state, action) => {
       
     case ACTION_TYPES.UPDATE_ALARM_STATUS:
       return {
-        ...state,
+        ...newState,
         alarms: {
-          ...state.alarms,
-          alarms: state.alarms.alarms.map(alarm =>
+          ...newState.alarms,
+          alarms: newState.alarms.alarms.map(alarm =>
             alarm.id === action.payload.alarmId
               ? { ...alarm, ...action.payload.updates }
               : alarm
           )
         }
       };
-    
-    // UI 관련 액션들
-    case ACTION_TYPES.SET_UI_LOADING:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          loading: action.payload
-        }
-      };
-      
-    case ACTION_TYPES.SET_UI_ERROR:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          error: action.payload
-        }
-      };
-      
-    case ACTION_TYPES.ADD_NOTIFICATION:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          notifications: [...state.ui.notifications, action.payload]
-        }
-      };
-      
-    case ACTION_TYPES.REMOVE_NOTIFICATION:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          notifications: state.ui.notifications.filter(
-            notification => notification.id !== action.payload
-          )
-        }
-      };
-      
-    case ACTION_TYPES.SET_THEME:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          theme: action.payload
-        }
-      };
-      
-    case ACTION_TYPES.TOGGLE_SIDEBAR:
-      return {
-        ...state,
-        ui: {
-          ...state.ui,
-          sidebarCollapsed: !state.ui.sidebarCollapsed
-        }
-      };
+
     
     // 날씨 관련 액션들
     case ACTION_TYPES.SET_WEATHER_DATA:
       return {
-        ...state,
+        ...newState,
         weather: {
-          ...state.weather,
+          ...newState.weather,
           data: action.payload,
           lastUpdated: new Date().toISOString()
         }
@@ -285,24 +191,24 @@ const globalReducer = (state, action) => {
       
     case ACTION_TYPES.SET_WEATHER_LOADING:
       return {
-        ...state,
+        ...newState,
         weather: {
-          ...state.weather,
+          ...newState.weather,
           loading: action.payload
         }
       };
       
     case ACTION_TYPES.SET_WEATHER_ERROR:
       return {
-        ...state,
+        ...newState,
         weather: {
-          ...state.weather,
+          ...newState.weather,
           error: action.payload
         }
       };
     
     default:
-      return state;
+      return newState;
   }
 };
 
@@ -313,8 +219,14 @@ const GlobalStateContext = createContext(null);
 export const GlobalStateProvider = ({ children }) => {
   const [state, dispatch] = useReducer(globalReducer, initialState);
 
+  // 메모이제이션으로 불필요한 리렌더링 방지
+  const contextValue = useMemo(() => ({ 
+    state, 
+    dispatch 
+  }), [state, dispatch]);
+
   return (
-    <GlobalStateContext.Provider value={{ state, dispatch }}>
+    <GlobalStateContext.Provider value={contextValue}>
       {children}
     </GlobalStateContext.Provider>
   );
@@ -474,5 +386,15 @@ export const actionCreators = {
     payload: error
   })
 };
+
+// 새로운 모듈식 액션 크리에이터들 re-export
+export { authActions } from './auth';
+export { sensorActions } from './sensors';
+export { uiActions } from './ui';
+
+// 타입들 re-export
+export { AuthStatus } from './auth';
+export { SensorStatus, SensorType } from './sensors';
+export { Theme, NotificationType } from './ui';
 
 export default GlobalStateContext;

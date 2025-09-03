@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
-const Text = ({ 
+const Text = memo(({ 
   variant = "body",
   size = "md",
   weight = "normal",
   color = "gray-700",
   className = "",
   children,
+  as: Component = "span",
   ...props 
 }) => {
   const sizeClasses = {
@@ -56,10 +58,22 @@ const Text = ({
   ].filter(Boolean).join(" ");
 
   return (
-    <span className={classes} {...props}>
+    <Component className={classes} {...props}>
       {children}
-    </span>
+    </Component>
   );
+});
+
+Text.displayName = 'Text';
+
+Text.propTypes = {
+  variant: PropTypes.oneOf(['body', 'menu', 'title', 'caption', 'button']),
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl', '2xl', '28px']),
+  weight: PropTypes.oneOf(['light', 'normal', 'medium', 'semibold', 'bold', 'extrabold']),
+  color: PropTypes.oneOf(['gray-700', 'gray-600', 'gray-500', 'gray-800', 'gray-900', 'white', 'black', 'blue-600']),
+  className: PropTypes.string,
+  children: PropTypes.node,
+  as: PropTypes.elementType,
 };
 
 export default Text; 

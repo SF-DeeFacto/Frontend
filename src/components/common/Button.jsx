@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo, forwardRef } from 'react';
+import PropTypes from 'prop-types';
 
-const Button = ({ 
+const Button = memo(forwardRef(({ 
   children, 
   onClick, 
   className = "", 
@@ -10,7 +11,7 @@ const Button = ({
   loading = false,
   icon = null,
   ...props 
-}) => {
+}, ref) => {
   const baseClasses = "inline-flex items-center justify-center gap-2 font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
@@ -33,6 +34,7 @@ const Button = ({
 
   return (
     <button 
+      ref={ref}
       onClick={onClick}
       disabled={disabled || loading}
       className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${className} ${
@@ -47,6 +49,19 @@ const Button = ({
       {children}
     </button>
   );
+}));
+
+Button.displayName = 'Button';
+
+Button.propTypes = {
+  children: PropTypes.node,
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  variant: PropTypes.oneOf(['default', 'primary', 'secondary', 'success', 'warning', 'danger', 'ghost']),
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
+  disabled: PropTypes.bool,
+  loading: PropTypes.bool,
+  icon: PropTypes.node,
 };
 
 export default Button; 

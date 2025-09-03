@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 import { FiClock, FiBookmark, FiCheck, FiCheckCircle } from 'react-icons/fi';
-import Text from '../common/Text';
-import Icon from '../common/Icon';
+import Text from '@components/common/Text';
+import Icon from '@components/common/Icon';
 
 // 유틸리티 함수들
 const getStatusColor = (status) => {
@@ -114,5 +115,21 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
     </div>
   </div>
 ));
+
+AlarmCard.displayName = 'AlarmCard';
+
+AlarmCard.propTypes = {
+  alarm: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    message: PropTypes.string.isRequired,
+    status: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+    timestamp: PropTypes.string.isRequired,
+    favorite: PropTypes.bool,
+  }).isRequired,
+  onMarkAsRead: PropTypes.func.isRequired,
+  onToggleFavorite: PropTypes.func.isRequired,
+};
 
 export default AlarmCard;

@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
-import { CONNECTION_STATE } from '../types/sensor';
-import { handleSSEError } from '../utils/unifiedErrorHandler';
-
-import { connectZoneSSE } from '../services/sse';
+import { groupSensorData, formatTime, SensorDataDebouncer } from '@utils/sensorUtils';
+import { CONNECTION_STATE } from '@types/sensor';
+import { handleSSEError } from '@utils/unifiedErrorHandler';
+import { connectZoneSSE } from '@services/sse';
 
 export const useZoneSensorData = (zoneId) => {
   const [sensorData, setSensorData] = useState({});

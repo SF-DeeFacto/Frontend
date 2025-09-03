@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
-import { notificationApi } from '../services/api/notification_api';
+import { notificationApi } from '@services/api/notification_api';
 
 /**
  * 알림 폴링 커스텀 훅

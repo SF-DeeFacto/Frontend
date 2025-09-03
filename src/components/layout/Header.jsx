@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
-import Icon from '../common/Icon';
-import Text from '../common/Text';
-import { notificationApi } from '../../services/api/notification_api';
-import { weatherApi } from '../../services/api/weather_api';
+import Icon from '@components/common/Icon';
+import Text from '@components/common/Text';
+import { useAuth } from '@hooks/useAuth';
+import { notificationApi } from '@services/api/notification_api';
+import { weatherApi } from '@services/api/weather_api';
 
-const Header = () => {
+const Header = memo(() => {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(null);
+  const { user } = useAuth();
   const [weatherData, setWeatherData] = useState(null);
-  const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
-  const [currentTime, setCurrentTime] = useState(new Date()); // 실시간 시간 상태
+  const [alarmCount, setAlarmCount] = useState(0);
+  const [currentTime, setCurrentTime] = useState(new Date());
   
 
   
@@ -355,7 +357,7 @@ const Header = () => {
           color="secondary-500"
           className="whitespace-nowrap"
         >
-          {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
+          {user?.name ? `${user.name} 사원` : '사용자'}
         </Text>
       </div>
     </nav>
@@ -377,6 +379,8 @@ const Header = () => {
       <UserNavigation />
     </header>
   );
-};
+});
+
+Header.displayName = 'Header';
 
 export default Header; 

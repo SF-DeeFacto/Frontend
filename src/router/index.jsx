@@ -1,151 +1,103 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useParams, Navigate } from 'react-router-dom';
-import MainLayout from '../components/layout/MainLayout';
-import Home from '../pages/Home';
-import Login from '../pages/Login';
-import Graph from '../pages/Graph';
-import Report from '../pages/Report';
-import ChatBot from '../pages/ChatBot';
-import Alarm from '../pages/Alarm';
-import Setting from '../pages/setting/Setting';
-import Zone from '../pages/zone/Zone';
-// import GrafanaDashboard from '../pages/GrafanaDashboard';
-// import GrafanaTest from '../pages/GrafanaTest';
-import NotFound from '../pages/NotFound';
-import DashboardChart from '../pages/GrafanaTest_2';
-import GrafanaIframe from '../pages/GrafanaIframe';
+import LoadingSpinner from '@components/common/LoadingSpinner';
+import { useAuthGuard } from '@hooks/useAuth';
 
-// 인증 상태를 캐시하여 중복 체크 방지
-let authCache = null;
-let lastCheck = 0;
-const CACHE_DURATION = 1000; // 1초 캐시
+// Layout components (keep loaded)
+import MainLayout from '@components/layout/MainLayout';
 
-// 로그인 상태 확인 함수
-const isAuthenticated = () => {
-  const now = Date.now();
-  
-  // 캐시가 유효한 경우 캐시된 결과 반환
-  if (authCache !== null && (now - lastCheck) < CACHE_DURATION) {
-    return authCache;
-  }
-  
-  const token = localStorage.getItem('access_token');
-  const user = localStorage.getItem('user');
-  
-  // 개발 환경에서만 로그 출력
-  // const isDev = import.meta.env.DEV;
-  // if (isDev) {
-  //   console.log('인증 체크:', { token: !!token, user: !!user, cached: false });
-  // }
-  
-  // token과 user가 모두 존재하고 유효한지 확인
-  if (!token || !user) {
-    // if (isDev) {
-    //   console.log('인증 실패: token 또는 user가 없음');
-    // }
-    authCache = false;
-    lastCheck = now;
-    return false;
-  }
-  
-  try {
-    // user가 유효한 JSON인지 확인
-    const userData = JSON.parse(user);
-    if (!userData || typeof userData !== 'object') {
-      // if (isDev) {
-      //   console.log('인증 실패: user 데이터가 유효하지 않음');
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // 실제 저장된 데이터 구조에 맞게 검증
-    if (!userData.employeeId || !userData.name) {
-      // if (isDev) {
-      //   console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // token이 유효한 형식인지 확인 (간단한 검증)
-    if (token.length < 10) {
-      // if (isDev) {
-      //   console.log('인증 실패: token이 너무 짧음');
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // if (isDev) {
-    //   console.log('인증 성공:', userData.name);
-    // }
-    authCache = true;
-    lastCheck = now;
-    return true;
-  } catch (error) {
-    // if (isDev) {
-    //   console.log('인증 실패: user 데이터 파싱 오류', error);
-    // }
-    authCache = false;
-    lastCheck = now;
-    return false;
-  }
-};
+// Lazy load page components for better performance
+const Home = lazy(() => import('@pages/Home'));
+const Login = lazy(() => import('@pages/Login'));
+const Graph = lazy(() => import('@pages/Graph'));
+const Report = lazy(() => import('@pages/Report'));
+const Alarm = lazy(() => import('@pages/Alarm'));
+const Setting = lazy(() => import('@pages/setting/Setting'));
+const Zone = lazy(() => import('@pages/zone/Zone'));
+const NotFound = lazy(() => import('@pages/NotFound'));
 
-// 인증 캐시 무효화 함수 (로그인/로그아웃 시 호출)
-export const clearAuthCache = () => {
-  authCache = null;
-  lastCheck = 0;
-};
+// Optional Grafana pages (remove if not needed)
+const GrafanaTest = lazy(() => import('@pages/GrafanaTest_2'));
+const GrafanaIframe = lazy(() => import('@pages/GrafanaIframe'));
 
-// 보호된 라우트 컴포넌트
+/**
+ * 보호된 라우트 컴포넌트
+ * useAuth 훅을 사용하여 인증 상태 확인
+ */
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated } = useAuthGuard({ redirectOnFail: false });
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  
   return children;
 };
 
-// 동적 Zone 컴포넌트
+/**
+ * 동적 Zone 컴포넌트
+ * URL 파라미터에서 zoneId를 추출하여 Zone 컴포넌트에 전달
+ */
 const DynamicZone = () => {
   const { zoneId } = useParams();
   return <Zone zoneId={zoneId} />;
 };
 
+/**
+ * 페이지 로딩 컴포넌트
+ */
+const PageLoader = () => (
+  <LoadingSpinner 
+    size="lg" 
+    text="페이지를 로딩중입니다..." 
+    fullScreen 
+  />
+);
+
+/**
+ * 메인 라우터 컴포넌트
+ */
 const AppRoutes = () => {
   return (
-    <Routes>
-      {/* 루트 경로를 로그인 페이지로 리다이렉트 */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/login" element={<Login />} />
-      <Route 
-        path="/home" 
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Home />} />
-        <Route path="/home/graph" element={<Graph />} />
-        {/* <Route path="/home/grafana" element={<GrafanaDashboard />} /> */}
-        <Route path="/home/grafana-test2" element={<DashboardChart />} />
-        <Route path="/home/grafana-test3" element={<GrafanaIframe />} />
-        {/* <Route path="/home/grafana-test" element={<GrafanaTest />} /> */}
-        <Route path="/home/report" element={<Report />} />
-        <Route path="/home/chatbot" element={<ChatBot />} />
-        <Route path="/home/alarm" element={<Alarm />} />
-
-        <Route path="/home/setting" element={<Setting />} />
-        <Route path="/home/zone/:zoneId" element={<DynamicZone />} />
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
+        {/* 루트 경로를 로그인 페이지로 리다이렉트 */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        
+        {/* 로그인 페이지 (인증 불필요) */}
+        <Route path="/login" element={<Login />} />
+        
+        {/* 보호된 라우트들 */}
+        <Route 
+          path="/home" 
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          {/* 홈 페이지 */}
+          <Route index element={<Home />} />
+          
+          {/* 주요 기능 페이지들 */}
+          <Route path="graph" element={<Graph />} />
+          <Route path="report" element={<Report />} />
+          <Route path="alarm" element={<Alarm />} />
+          <Route path="setting" element={<Setting />} />
+          
+          {/* 동적 Zone 라우트 */}
+          <Route path="zone/:zoneId" element={<DynamicZone />} />
+          
+          {/* Grafana 관련 라우트들 (선택적) */}
+          <Route path="grafana-test" element={<GrafanaTest />} />
+          <Route path="grafana-iframe" element={<GrafanaIframe />} />
+        </Route>
+        
+        {/* 404 페이지 */}
         <Route path="*" element={<NotFound />} />
-      </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

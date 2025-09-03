@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 import { FiCheckCircle } from 'react-icons/fi';
-import Text from '../common/Text';
-import Icon from '../common/Icon';
+import Text from '@components/common/Text';
+import Icon from '@components/common/Icon';
 
 // 상수 정의
 const ALARM_TYPES = ['전체', '알림', '리포트'];
@@ -109,6 +110,17 @@ const AlarmFilters = ({
       </div>
     </div>
   );
+});
+
+AlarmFilters.displayName = 'AlarmFilters';
+
+AlarmFilters.propTypes = {
+  alarmType: PropTypes.string.isRequired,
+  setAlarmType: PropTypes.func.isRequired,
+  statusFilter: PropTypes.string.isRequired,
+  setStatusFilter: PropTypes.func.isRequired,
+  onMarkAllAsRead: PropTypes.func.isRequired,
+  hasUnreadAlarms: PropTypes.bool.isRequired,
 };
 
 export default AlarmFilters;

@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { notificationApi } from '../services/api/notification_api';
-import { getFilteredAlarms, shouldResetPage } from '../utils/alarmFilters';
-import { useAlarmData } from '../hooks/useAlarmData';
-import { useAlarmPolling } from '../hooks/useAlarmPolling';
-import { handleApiError } from '../utils/unifiedErrorHandler';
-import AlarmFilters from '../components/alarm/AlarmFilters';
-import AlarmCard from '../components/alarm/AlarmCard';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import Text from '../components/common/Text';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
+import { notificationApi } from '@services/api/notification_api';
+import { getFilteredAlarms, shouldResetPage } from '@utils/alarmFilters';
+import { useAlarmData } from '@hooks/useAlarmData';
+import { useAlarmPolling } from '@hooks/useAlarmPolling';
+import { handleApiError } from '@utils/unifiedErrorHandler';
+import AlarmFilters from '@components/alarm/AlarmFilters';
+import AlarmCard from '@components/alarm/AlarmCard';
+import LoadingSpinner from '@components/common/LoadingSpinner';
+import Pagination from '@components/common/Pagination';
+import Text from '@components/common/Text';
 
 // 빈 상태 컴포넌트
 const EmptyState = () => (
@@ -18,93 +19,24 @@ const EmptyState = () => (
   </div>
 );
 
-// 페이지네이션 컴포넌트
-const Pagination = React.memo(({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 0; i < totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 2) {
-        for (let i = 0; i < 4; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages - 1);
-      } else if (currentPage >= totalPages - 3) {
-        pages.push(0);
-        pages.push('...');
-        for (let i = totalPages - 4; i < totalPages; i++) {
-          pages.push(i);
-        }
-      } else {
-        pages.push(0);
-        pages.push('...');
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i);
-        }
-        pages.push('...');
-        pages.push(totalPages - 1);
-      }
-    }
-    
-    return pages;
-  };
-
-  return (
-    <div className="flex items-center justify-center space-x-1 mt-8">
-      {/* 이전 페이지 버튼 */}
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 0}
-        className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-soft hover:shadow-medium ${
-          currentPage === 0
-            ? 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
-            : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 hover:scale-105'
-        }`}
-      >
-        ← 이전
-      </button>
-
-      {/* 페이지 번호들 */}
-      {getPageNumbers().map((page, index) => (
-        <button
-          key={index}
-          onClick={() => typeof page === 'number' && onPageChange(page)}
-          disabled={page === '...'}
-          className={`px-3.5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
-            page === '...'
-              ? 'bg-transparent text-secondary-400 dark:text-neutral-500 cursor-default'
-              : page === currentPage
-              ? 'bg-gradient-to-r from-primary-500 to-primary-600 text-white shadow-soft scale-105'
-              : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 shadow-soft hover:shadow-medium hover:scale-105'
-          }`}
-        >
-          {page === '...' ? '•••' : page + 1}
-        </button>
-      ))}
-
-      {/* 다음 페이지 버튼 */}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages - 1}
-        className={`px-4 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-soft hover:shadow-medium ${
-          currentPage === totalPages - 1
-            ? 'bg-neutral-100 dark:bg-neutral-700 text-neutral-400 dark:text-neutral-500 cursor-not-allowed'
-            : 'bg-white dark:bg-neutral-700 text-secondary-600 dark:text-neutral-200 hover:bg-primary-50 dark:hover:bg-neutral-600 hover:text-primary-600 hover:scale-105'
-        }`}
-      >
-        다음 →
-      </button>
+// 빈 상태 컴포넌트
+const EmptyAlarmState = memo(() => (
+  <div className="modern-card p-12 text-center">
+    <div className="w-16 h-16 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-neutral-700 dark:to-neutral-600 rounded-full flex items-center justify-center mx-auto mb-4">
+      <svg className="w-8 h-8 text-secondary-400 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 7H4l5-5v5zM12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+      </svg>
     </div>
-  );
-});
+    <Text variant="body" size="lg" color="secondary-500" className="font-medium dark:text-neutral-300">
+      해당 조건의 알림이 없습니다
+    </Text>
+    <Text variant="body" size="sm" color="secondary-400" className="mt-2 dark:text-neutral-400">
+      다른 필터 조건을 선택해보세요
+    </Text>
+  </div>
+));
+
+EmptyAlarmState.displayName = 'EmptyAlarmState';
 
 // 메인 알림 컴포넌트
 const Alarm = () => {
@@ -226,39 +158,19 @@ const Alarm = () => {
       </div>
 
       {/* 빈 상태 */}
-      {filteredAlarms.length === 0 && !loading && (
-        <div className="modern-card p-12 text-center">
-          <div className="w-16 h-16 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-neutral-700 dark:to-neutral-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-secondary-400 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 7H4l5-5v5zM12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
-            </svg>
-          </div>
-          <Text variant="body" size="lg" color="secondary-500" className="font-medium dark:text-neutral-300">
-            해당 조건의 알림이 없습니다
-          </Text>
-          <Text variant="body" size="sm" color="secondary-400" className="mt-2 dark:text-neutral-400">
-            다른 필터 조건을 선택해보세요
-          </Text>
-        </div>
-      )}
+      {filteredAlarms.length === 0 && !loading && <EmptyAlarmState />}
 
-      {/* 페이지 정보 및 페이지네이션 */}
+      {/* 페이지네이션 */}
       {filteredAlarms.length > 0 && (
-        <>
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 bg-white/60 dark:bg-neutral-800/60 rounded-xl px-4 py-2 backdrop-blur-sm border border-brand-medium/40 dark:border-neutral-600/40 shadow-soft">
-              <div className="w-2 h-2 bg-brand-main rounded-full"></div>
-              <Text variant="body" size="sm" color="secondary-600" className="font-medium dark:text-neutral-300">
-                총 {totalElements}개 중 {(currentPage * pageSize) + 1}-{Math.min((currentPage + 1) * pageSize, totalElements)}번째 알림
-              </Text>
-            </div>
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={changePage}
-          />
-        </>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={changePage}
+          showInfo={true}
+          pageSize={pageSize}
+          totalElements={totalElements}
+          className="mt-8"
+        />
       )}
     </div>
   );

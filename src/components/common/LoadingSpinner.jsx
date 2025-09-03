@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
-const LoadingSpinner = ({ 
+const LoadingSpinner = memo(({ 
   size = 'md', 
   variant = 'primary',
   text = null,
@@ -50,6 +51,16 @@ const LoadingSpinner = ({
       )}
     </div>
   );
+});
+
+LoadingSpinner.displayName = 'LoadingSpinner';
+
+LoadingSpinner.propTypes = {
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg', 'xl']),
+  variant: PropTypes.oneOf(['primary', 'secondary', 'success', 'warning', 'danger']),
+  text: PropTypes.string,
+  fullScreen: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default LoadingSpinner;

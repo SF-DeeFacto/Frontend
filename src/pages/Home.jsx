@@ -1,39 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, memo } from 'react';
 import { 
   ZoneButtons, 
   ThreeDModelSection 
-} from '../components/3d/zone';
-import { useZoneManager } from '../hooks/useZoneManager';
+} from '@components/3d/zone';
+import { useZoneManager, useAuthGuard } from '@hooks';
 
-const Home = () => {
-  const navigate = useNavigate();
+const Home = memo(() => {
   const [hoveredZone, setHoveredZone] = useState(null);
+  
+  // 인증 가드 적용
+  const { isAuthenticated } = useAuthGuard();
   
   // Zone 상태 관리 훅 사용
   const { zoneStatuses, connectionStates, lastUpdated, zones } = useZoneManager();
 
-  // 인증 체크
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user');
-    
-    if (!token || !user) {
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      const userData = JSON.parse(user);
-      if (!userData.name) {
-        navigate('/login');
-        return;
-      }
-    } catch (error) {
-      navigate('/login');
-      return;
-    }
-  }, [navigate]);
+  // 인증되지 않은 경우 아무것도 렌더링하지 않음
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div>
@@ -54,6 +38,8 @@ const Home = () => {
       />
     </div>
   );
-};
+});
+
+Home.displayName = 'Home';
 
 export default Home; 
