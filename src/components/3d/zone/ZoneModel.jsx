@@ -18,23 +18,37 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
   // 센서 데이터에서 센서 상태를 찾는 함수
   const getSensorStatusFromData = (sensorName) => {
     if (!sensorData || Object.keys(sensorData).length === 0) {
+      console.log('센서 데이터가 없음:', sensorName);
       return 'unknown';
     }
+
+    console.log('센서 상태 찾기:', sensorName, '전체 센서 데이터:', sensorData);
+    console.log('센서 데이터 키들:', Object.keys(sensorData));
+    Object.entries(sensorData).forEach(([type, sensors]) => {
+      console.log(`센서 타입 ${type}:`, sensors);
+    });
 
     // 센서 이름을 기반으로 센서 데이터에서 찾기
     for (const [sensorType, sensors] of Object.entries(sensorData)) {
       if (Array.isArray(sensors)) {
         const foundSensor = sensors.find(sensor => {
-          // 센서 ID나 이름이 매칭되는지 확인
-          return sensor.sensorId === sensorName || 
-                 sensor.sensorName === sensorName ||
-                 sensor.id === sensorName ||
-                 sensor.name === sensorName;
+          // 센서 ID나 이름이 매칭되는지 확인 (대소문자 무시)
+          const sensorId = sensor.sensorId || sensor.id || '';
+          const sensorNameField = sensor.sensorName || sensor.name || '';
+          
+          console.log(`매칭 시도: ${sensorName} vs ${sensorId} (${sensorNameField})`);
+          
+          return sensorId.toLowerCase() === sensorName.toLowerCase() || 
+                 sensorNameField.toLowerCase() === sensorName.toLowerCase() ||
+                 sensorId.includes(sensorName) ||
+                 sensorName.includes(sensorId);
         });
         
         if (foundSensor) {
-          // 센서 상태 반환 (normal, warning, error 등)
-          return foundSensor.status || foundSensor.state || 'normal';
+          // 센서 상태 반환 (sensorStatus 필드 사용)
+          const status = foundSensor.sensorStatus || foundSensor.status || foundSensor.state || 'normal';
+          console.log('찾은 센서:', foundSensor, '상태:', status);
+          return status;
         }
       }
     }
