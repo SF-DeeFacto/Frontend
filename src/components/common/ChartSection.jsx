@@ -14,21 +14,14 @@ const ChartSection = ({
 }) => {
   return (
     <div 
-      style={{
-        backgroundColor: backgroundColor,
-        border: `2px solid ${borderColor}`,
-        borderRadius: '8px',
-        padding: '16px',
-        position: 'relative'
-      }}
-      className={className}
+      className={`bg-blue-50 dark:bg-neutral-800 border-2 border-blue-400 dark:border-neutral-600 rounded-lg p-4 relative transition-colors duration-300 ${className}`}
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-[#001d6c]">{title}</h3>
-        {showZone && <div className="text-sm text-gray-500">{zone}</div>}
+        <h3 className="text-lg font-semibold text-blue-900 dark:text-neutral-100 transition-colors duration-300">{title}</h3>
+        {showZone && <div className="text-sm text-gray-500 dark:text-neutral-400 transition-colors duration-300">{zone}</div>}
       </div>
-      <div className={`${height} ${width} bg-gray-50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300`}>
-        <div className="text-gray-400 text-center">
+      <div className={`${height} ${width} bg-gray-50 dark:bg-neutral-700 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-neutral-600 transition-colors duration-300`}>
+        <div className="text-gray-400 dark:text-neutral-400 text-center transition-colors duration-300">
           <div className="text-4xl mb-2">{icon}</div>
           <div>{description}</div>
         </div>

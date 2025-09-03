@@ -14,9 +14,9 @@ const StatusIndicator = () => {
       {statuses.map(({ status, label }) => (
         <div key={status} className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative -mt-[0.06px] -mb-[0.06px]">
           <div 
-            className={`relative w-[17.54px] h-[17.54px] rounded-[8.77px] ${getStatusColor(status)}`}
+            className={`relative w-[15px] h-[15px] rounded-[8.77px] ${getStatusColor(status)}`}
           />
-          <div className="relative w-fit -mt-[1.95px] font-medium text-black text-[23.4px] tracking-[0] leading-normal">
+          <div className="relative w-fit -mt-[1.95px] font-medium text-black dark:text-neutral-100 text-[15.4px] tracking-[0] leading-normal transition-colors duration-300">
             {label}
           </div>
         </div>

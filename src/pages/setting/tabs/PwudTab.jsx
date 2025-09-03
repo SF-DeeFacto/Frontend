@@ -111,7 +111,7 @@ const PwudTab = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -121,7 +121,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.currentPassword}
               onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.currentPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -138,7 +138,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.newPassword}
               onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.newPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -158,7 +158,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.confirmPassword}
               onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -171,10 +171,10 @@ const PwudTab = () => {
             <button 
               type="submit"
               disabled={isLoading}
-              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 isLoading 
                   ? 'bg-gray-400 text-white cursor-not-allowed' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-[#494FAF] text-white hover:bg-[#494FA2]'
               }`}
             >
               {isLoading ? '변경 중...' : '비밀번호 변경'}
