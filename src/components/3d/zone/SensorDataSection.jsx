@@ -12,7 +12,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
     
     return (
       <div key={type} className="flex flex-col gap-4">
-        <h4 className="text-sm font-medium text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
+        <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
           <span>{icon}</span>
           {name}
           {sensors && sensors.length > 0 && (
@@ -38,7 +38,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
 
   return (
     <aside className="flex-shrink-0 w-[60%] h-full">
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-md p-6 h-full flex flex-col overflow-y-auto overflow-x-hidden transition-colors duration-300">
+      <div className="modern-card p-6 h-full flex flex-col overflow-y-auto overflow-x-hidden">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-100 mb-4 transition-colors duration-300">실시간 센서 데이터</h2>
           <div className="flex items-center gap-2">

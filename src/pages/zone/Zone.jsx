@@ -9,8 +9,7 @@ import ZoneDrawingSection from '../../components/3d/zone/ZoneDrawingSection';
 import SensorDataSection from '../../components/3d/zone/SensorDataSection';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 
-// 스타일
-import '../../styles/zone.css';
+// 스타일은 index.css에서 관리
 
 const Zone = ({ zoneId }) => {
   const params = useParams();

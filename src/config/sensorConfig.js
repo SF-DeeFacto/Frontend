@@ -92,7 +92,6 @@ export const SENSOR_STATUS_TEXT = {
 // 센서 타입 배열 (UI 렌더링용)
 export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, config]) => ({
   type,
-  icon: config.icon,
   name: config.name
 }));
 

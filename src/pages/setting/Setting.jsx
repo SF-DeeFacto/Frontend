@@ -33,7 +33,7 @@ const Setting = () => {
 
   return (
     <div className="p-1">
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow transition-colors duration-300">
+      <div className="modern-card">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
         </div>
         

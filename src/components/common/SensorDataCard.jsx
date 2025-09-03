@@ -39,18 +39,22 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
     }
 
     if (sensorData.sensor_type === 'particle') {
-      // 먼지 센서는 3개 값 (0.1, 0.3, 0.5)
+      // 먼지 센서는 3개 값 (0.1, 0.3, 0.5) - 세로로 나열
       return (
-        <div className="particle-values">
-          <div className="particle-labels">
+        <div className="particle-values-vertical">
+          <div className="particle-item">
             <span className="particle-label">0.1μm</span>
-            <span className="particle-label">0.3μm</span>
-            <span className="particle-label">0.5μm</span>
-          </div>
-          <div className="particle-values-column">
             <span className="particle-value">{sensorData.val_0_1?.toFixed(2) || 0}</span>
+          </div>
+          <div className="particle-item">
+            <span className="particle-label">0.3μm</span>
             <span className="particle-value">{sensorData.val_0_3?.toFixed(2) || 0}</span>
+          </div>
+          <div className="particle-item">
+            <span className="particle-label">0.5μm</span>
             <span className="particle-value">{sensorData.val_0_5?.toFixed(2) || 0}</span>
+          </div>
+          <div className="particle-unit">
             <span className="sensor-unit">{sensorUnit}</span>
           </div>
         </div>
@@ -66,33 +70,30 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
 
   return (
     <div 
-      className={`sensor-card ${sensorData.sensor_type} w-full max-w-[280px]`}
+      className={`sensor-card clickable ${sensorData.sensor_type} w-full max-w-[280px]`}
       onClick={handleCardClick}
-      style={{ cursor: 'pointer' }}
       title="클릭하여 그래프 페이지로 이동"
     >
       <div className="sensor-card-content">
         <div className="sensor-header">
-          <h3 className="sensor-title">
-            {sensorName}
-          </h3>
-          <span className="sensor-id-badge">
-            {sensorData.sensor_id}
-          </span>
+          <div className="flex items-center justify-center gap-2">
+            <span className="sensor-icon text-lg">{sensorIcon}</span>
+            <h3 className="sensor-title">
+              {sensorData.sensor_id}
+            </h3>
+          </div>
         </div>
       
         <div className="sensor-value-section">
           <div className="sensor-value-container">
             <div 
-              className="status-indicator" 
+              className="sensor-status-indicator" 
               style={{ 
-                backgroundColor: statusColor,
-                minWidth: '16px',
-                minHeight: '16px'
+                backgroundColor: statusColor
               }}
               title={`상태: ${sensorData.val || sensorData.val_0_5}`}
             ></div>
-            <div className="sensor-value text-secondary-800 dark:text-neutral-100">
+            <div className="sensor-value">
               {renderSensorValue()}
               {sensorData.sensor_type !== 'particle' && (
                 <span className="sensor-unit">{sensorUnit}</span>

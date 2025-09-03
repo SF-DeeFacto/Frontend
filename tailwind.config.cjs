@@ -9,7 +9,7 @@ module.exports = {
       fontFamily: {
         'sans': ['Pretendard', 'Noto Sans KR', 'sans-serif'],
         'korean': ['Pretendard', 'Noto Sans KR', 'sans-serif'],
-        'english': ['Inter', 'Roboto', 'sans-serif'],
+        'english': ['Pretendard', 'Inter', 'sans-serif'],
       },
       colors: {
         // 브랜드 컬러 시스템 - 커스텀 메인 컬러 적용
