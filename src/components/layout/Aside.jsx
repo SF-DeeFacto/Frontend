@@ -129,8 +129,8 @@ const Aside = () => {
   return (
     <aside
       className={`${
-        isCollapsed ? "w-[80px]" : "w-[290px]"
-      } min-h-[calc(100vh-60px)] flex flex-col px-3.5 pt-5 transition-all duration-300 ease-in-out relative z-40 bg-gradient-to-b from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-lg border-r border-white/20 dark:border-neutral-700/30 shadow-soft`}
+        isCollapsed ? "w-20" : "w-48"
+      } min-h-[calc(100vh-60px)] flex flex-col px-3.5 pt-5 transition-all duration-300 ease-in-out relative z-40 bg-gradient-to-b from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-lg border-r border-white/20 dark:border-neutral-700/30 shadow-soft flex-shrink-0`}
     >
       {/* 메뉴 네비게이션 */}
       <nav className="flex flex-col space-y-2 w-full items-center">
