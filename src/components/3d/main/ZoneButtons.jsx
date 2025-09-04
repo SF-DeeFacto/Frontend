@@ -39,7 +39,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   return (
     <div className="w-full">
       {/* Zone 버튼 그리드 */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 justify-items-center">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
       {zones.map((zone) => {
         const connectionInfo = getZoneConnectionInfo(zone);
         const statusColor = getStatusHexColor(connectionInfo.status);
