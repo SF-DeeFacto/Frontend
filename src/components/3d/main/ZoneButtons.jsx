@@ -55,7 +55,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
             <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
             {/* 컨텐츠 */}
-            <div className="relative z-10 flex items-center gap-4">
+            <div className="relative z-10 flex items-center justify-center gap-4">
               {/* Zone 이름 */}
               <div className="flex-shrink-0">
                 <h3 className="text-lg font-bold text-secondary-800 group-hover:text-primary-600 transition-colors duration-200">
