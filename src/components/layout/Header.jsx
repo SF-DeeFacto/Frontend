@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSettings, FiBell, FiSun, FiMoon } from 'react-icons/fi';
 import { 
-  WiDaySunny, 
-  WiNightClear, 
-  WiDayCloudy, 
-  WiNightCloudy, 
-  WiCloudy, 
-  WiRain, 
-  WiDayRain, 
-  WiNightRain, 
-  WiThunderstorm, 
-  WiSnow, 
-  WiFog 
-} from 'react-icons/wi';
+  FiSettings, 
+  FiBell, 
+  FiSun, 
+  FiMoon, 
+  FiCloud, 
+  FiCloudRain, 
+  FiCloudSnow, 
+  FiZap, 
+  FiEye,
+  FiToggleLeft,
+  FiToggleRight
+} from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
@@ -233,25 +232,25 @@ const Header = () => {
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {weatherData ? (
-            weatherData.icon === '01d' ? <WiDaySunny /> : 
-            weatherData.icon === '01n' ? <WiNightClear /> :
-            weatherData.icon === '02d' ? <WiDayCloudy /> : 
-            weatherData.icon === '02n' ? <WiNightCloudy /> :
-            weatherData.icon === '03d' ? <WiCloudy /> : 
-            weatherData.icon === '03n' ? <WiCloudy /> :
-            weatherData.icon === '04d' ? <WiCloudy /> : 
-            weatherData.icon === '04n' ? <WiCloudy /> :
-            weatherData.icon === '09d' ? <WiRain /> : 
-            weatherData.icon === '09n' ? <WiRain /> :
-            weatherData.icon === '10d' ? <WiDayRain /> : 
-            weatherData.icon === '10n' ? <WiNightRain /> :
-            weatherData.icon === '11d' ? <WiThunderstorm /> : 
-            weatherData.icon === '11n' ? <WiThunderstorm /> :
-            weatherData.icon === '13d' ? <WiSnow /> : 
-            weatherData.icon === '13n' ? <WiSnow /> :
-            weatherData.icon === '50d' ? <WiFog /> : 
-            weatherData.icon === '50n' ? <WiFog /> : <WiDaySunny />
-          ) : <WiDaySunny />}
+            weatherData.icon === '01d' ? <FiSun /> : 
+            weatherData.icon === '01n' ? <FiMoon /> :
+            weatherData.icon === '02d' ? <FiCloud /> : 
+            weatherData.icon === '02n' ? <FiCloud /> :
+            weatherData.icon === '03d' ? <FiCloud /> : 
+            weatherData.icon === '03n' ? <FiCloud /> :
+            weatherData.icon === '04d' ? <FiCloud /> : 
+            weatherData.icon === '04n' ? <FiCloud /> :
+            weatherData.icon === '09d' ? <FiCloudRain /> : 
+            weatherData.icon === '09n' ? <FiCloudRain /> :
+            weatherData.icon === '10d' ? <FiCloudRain /> : 
+            weatherData.icon === '10n' ? <FiCloudRain /> :
+            weatherData.icon === '11d' ? <FiZap /> : 
+            weatherData.icon === '11n' ? <FiZap /> :
+            weatherData.icon === '13d' ? <FiCloudSnow /> : 
+            weatherData.icon === '13n' ? <FiCloudSnow /> :
+            weatherData.icon === '50d' ? <FiEye /> : 
+            weatherData.icon === '50n' ? <FiEye /> : <FiSun />
+          ) : <FiSun />}
         </Icon>
         <Text variant="body" size="sm" weight="normal" color="secondary-500">
           {weatherData ? (
@@ -304,7 +303,8 @@ const Header = () => {
         title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
+          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
+          {theme === 'dark' ? <FiToggleRight /> : <FiToggleLeft />}
         </Icon>
       </button>
       
@@ -333,7 +333,7 @@ const Header = () => {
         title="설정"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiSettings size={20} />
+          <FiSettings />
         </Icon>
       </button>
     </nav>
