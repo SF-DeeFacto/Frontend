@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
@@ -7,6 +8,7 @@ import { weatherApi } from '../../services/api/weather_api';
 import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
+  const navigate = useNavigate();
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
   const [currentTime, setCurrentTime] = useState(new Date()); // 실시간 시간 상태
@@ -37,13 +39,13 @@ const Header = () => {
 
   // 날씨 정보 가져오기
   useEffect(() => {
-              const getWeatherInfo = async () => {
-       const result = await weatherApi.getCurrentWeather();
-       
-       if (result.success) {
-         setWeatherData(result.data.data);
-       }
-     };
+    const getWeatherInfo = async () => {
+      const result = await weatherApi.getCurrentWeather();
+      
+      if (result.success) {
+        setWeatherData(result.data.data);
+      }
+    };
 
     getWeatherInfo();
     // 5분마다 날씨 정보 업데이트
@@ -55,24 +57,19 @@ const Header = () => {
   useEffect(() => {
     const fetchAlarmCount = async () => {
       try {
-        console.log('알림 개수 API 호출 시작...');
         const response = await notificationApi.getUnreadNotificationCount();
-        console.log('알림 개수 API 응답:', response);
         
         if (response?.data !== undefined) {
           // API에서 직접 안읽음 개수 반환 (response.data에 숫자 값)
-          console.log('설정할 알림 개수:', response.data);
           setAlarmCount(response.data);
           // localStorage에도 저장
           localStorage.setItem('unread_alarm_count', response.data.toString());
         } else {
           // API 응답이 없을 경우 0으로 설정
-          console.log('응답 데이터가 없어서 0으로 설정');
           setAlarmCount(0);
           localStorage.setItem('unread_alarm_count', '0');
         }
       } catch (error) {
-        console.error('알림 개수 API 호출 실패:', error);
         // API 실패 시 0으로 설정
         setAlarmCount(0);
         localStorage.setItem('unread_alarm_count', '0');

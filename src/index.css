@@ -276,7 +276,7 @@
   }
 
 
-  /* 먼지 센서 특별 레이아웃 - 세로 나열 */
+  /* 먼지 센서 특별 레이아웃 */
   .particle-values-vertical {
     @apply flex flex-col gap-2 text-center;
   }
@@ -291,10 +291,6 @@
 
   .particle-value {
     @apply text-sm font-bold text-primary-900 dark:text-primary-100;
-  }
-
-  .particle-unit {
-    @apply mt-1;
   }
 
   /* 클릭 가능한 센서 카드 */
