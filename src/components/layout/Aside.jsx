@@ -14,6 +14,7 @@ import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { logout } from '../../services/api/auth';
+import { openChatBotPopup } from '../chatbot/ChatBotPopup';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ const Aside = () => {
     {
       icon: <FiMessageCircle />,
       label: "Chatbot",
-      onClick: () => navigate("/home/chatbot"),
+      onClick: openChatBotPopup,
     },
 
     {
