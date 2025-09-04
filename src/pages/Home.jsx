@@ -1,39 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { 
   ZoneButtons, 
   ThreeDModelSection 
 } from '../components/3d/zone';
 import { useZoneManager } from '../hooks/useZoneManager';
+import { useAuth } from '../hooks/useAuth';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const Home = () => {
-  const navigate = useNavigate();
   const [hoveredZone, setHoveredZone] = useState(null);
+  
+  // 인증 상태 확인
+  const { isAuthenticated, isLoading } = useAuth();
   
   // Zone 상태 관리 훅 사용
   const { zoneStatuses, connectionStates, lastUpdated, zones } = useZoneManager();
 
-  // 인증 체크
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const user = localStorage.getItem('user');
-    
-    if (!token || !user) {
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      const userData = JSON.parse(user);
-      if (!userData.name) {
-        navigate('/login');
-        return;
-      }
-    } catch (error) {
-      navigate('/login');
-      return;
-    }
-  }, [navigate]);
+  // 로딩 중이면 스피너 표시
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  // 인증되지 않은 경우 useAuth에서 자동으로 리다이렉트됨
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div>

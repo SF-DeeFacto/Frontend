@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { USER_MANAGEMENT, SYSTEM_CONFIG } from '../../../config/constants';
 
 const Userset = () => {
   // 실제 API 연결용 상태
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({
     page: 0,
-    size: 10,
+    size: SYSTEM_CONFIG.DEFAULT_PAGE_SIZE,
     totalElements: 0,
     totalPages: 0
   });
@@ -32,25 +33,7 @@ const Userset = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const departments = ['개발팀', '디자인팀', '마케팅팀', '영업팀', '인사팀', '기획팀'];
-  const positions = ['사원', '대리', '과장', '차장', '부장', '이사', '대표'];
-  const roles = [
-    { value: 'USER', label: '일반 사용자' },
-    { value: 'ADMIN', label: '관리자' },
-    // { value: 'ROOT', label: '슈퍼 관리자' }
-  ];
-  
-  const scopes = [
-    { value: 'a,b,c', label: '전체구역' },
-    { value: 'a', label: 'A구역' },
-    { value: 'b', label: 'B구역' },
-    { value: 'c', label: 'C구역' }
-  ];
-  
-  const shifts = [
-    { value: 'DAY', label: '주간(D)' },
-    { value: 'NIGHT', label: '야간(N)' }
-  ];
+  const { DEPARTMENTS: departments, POSITIONS: positions, ROLES: roles, SCOPES: scopes, SHIFTS: shifts } = USER_MANAGEMENT;
 
   // 사용자 목록 로드
   const loadUsers = async (page = 0, searchTerm = '', size = 10) => {

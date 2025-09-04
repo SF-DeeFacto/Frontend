@@ -7,6 +7,7 @@ export { default as Icon } from './Icon';
 export { default as LoadingSpinner } from './LoadingSpinner';
 export { default as ModelCard } from './ModelCard';
 export { default as option } from './option';
+export { default as Pagination } from './Pagination';
 export { default as SensorDataCard } from './SensorDataCard';
 export { default as SensorInfoPanel } from './SensorInfoPanel';
 export { default as Text } from './Text';

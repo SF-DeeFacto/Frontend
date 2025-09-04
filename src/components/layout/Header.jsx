@@ -1,72 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
 import { weatherApi } from '../../services/api/weather_api';
+import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
-  const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
   const [currentTime, setCurrentTime] = useState(new Date()); // 실시간 시간 상태
   
+  // 인증 상태 및 사용자 정보 가져오기
+  const { user: currentUser, logout } = useAuth();
 
-  
-
-  
   // alarmCount 상태 변화 감지 (배포 시 주석 처리)
   // useEffect(() => {
   //   console.log('alarmCount 상태 변경됨:', alarmCount);
   // }, [alarmCount]);
 
-  // 사용자 정보 로드 및 인증 체크
-  useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    const userData = localStorage.getItem('user');
-    
-    if (!token || !userData) {
-      console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      const user = JSON.parse(userData);
-      if (!user.name || !user.employeeId) {
-        console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
-        navigate('/login');
-        return;
-      }
-      setCurrentUser(user);
-    } catch (error) {
-      console.error('사용자 정보 파싱 오류:', error);
-      navigate('/login');
-    }
-  }, [navigate]);
-
-  // localStorage 변화 감지 (다른 탭에서 로그인/로그아웃 시, 알림 카운터 업데이트)
+  // 알림 카운터 변화 감지 (localStorage 변화)
   useEffect(() => {
     const handleStorageChange = (e) => {
-      if (e.key === 'user' || e.key === 'access_token') {
-        const token = localStorage.getItem('access_token');
-        const userData = localStorage.getItem('user');
-        
-        if (!token || !userData) {
-          navigate('/login');
-        } else {
-          try {
-            const user = JSON.parse(userData);
-            setCurrentUser(user);
-          } catch (error) {
-            console.error('사용자 정보 파싱 오류:', error);
-            navigate('/login');
-          }
-        }
-      }
-      
       // 알림 카운터 업데이트 감지
       if (e.key === 'unread_alarm_count') {
         const newCount = parseInt(e.newValue || '0', 10);
@@ -78,7 +33,7 @@ const Header = () => {
     return () => {
       window.removeEventListener('storage', handleStorageChange);
     };
-  }, [navigate]);
+  }, []);
 
   // 날씨 정보 가져오기
   useEffect(() => {

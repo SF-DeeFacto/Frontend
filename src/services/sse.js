@@ -5,6 +5,7 @@
 // EventSourcePolyfill import 추가
 import { EventSourcePolyfill } from 'event-source-polyfill';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
+import { SYSTEM_CONFIG, STORAGE_KEYS } from '../config/constants';
 
 // SSE URL 설정
 export const SSE_URLS = {
@@ -24,7 +25,7 @@ export const SSE_URLS = {
 // SSE 연결 함수
 export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   // 인증 토큰 가져오기
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   
   // 토큰이 없으면 연결하지 않음
   if (!token) {
@@ -35,8 +36,8 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   // 실제 EventSource API 사용
   let eventSource = null;
   let retryCount = 0;
-  const maxRetries = 5; // 재시도 횟수 증가
-  const retryDelay = 3000; // 3초로 증가
+  const maxRetries = SYSTEM_CONFIG.SSE_MAX_RETRIES;
+  const retryDelay = SYSTEM_CONFIG.SSE_RETRY_DELAY;
   
   let lastMessageTime = Date.now(); // 마지막 메시지 수신 시간
   let heartbeatTimer = null; // 하트비트 타이머
@@ -76,11 +77,11 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
           const now = Date.now();
           const timeSinceLastMessage = now - lastMessageTime;
           
-          if (timeSinceLastMessage > 120000) { // 2분 이상 메시지 없음 (타임아웃 시간 증가)
+          if (timeSinceLastMessage > SYSTEM_CONFIG.SSE_HEARTBEAT_TIMEOUT) {
             console.log('⚠️ SSE 하트비트 타임아웃, 재연결 시도');
             reconnect();
           }
-        }, 60000); // 1분마다 체크 (체크 간격 증가)
+        }, SYSTEM_CONFIG.SSE_HEARTBEAT_CHECK_INTERVAL);
         
         onOpen?.(event);
       };
