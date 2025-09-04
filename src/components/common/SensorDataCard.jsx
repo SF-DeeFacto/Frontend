@@ -79,7 +79,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
           <div className="flex items-center justify-center gap-2">
             <span className="sensor-icon text-lg">{sensorIcon}</span>
             <h3 className="sensor-title">
-              {sensorData.sensor_id}
+              {sensorData.sensorId || sensorData.sensor_id || 'Unknown'}
             </h3>
           </div>
         </div>

@@ -82,10 +82,18 @@ export const groupSensorData = (backendData) => {
           
           const sensorData = {
             sensorId: sensor.sensorId,
+            sensor_id: sensor.sensorId,
             sensorType: sensor.sensorType,
+            sensor_type: sensor.sensorType,
             sensorStatus: sensor.sensorStatus,
+            status: sensor.sensorStatus,
             timestamp: sensor.timestamp,
-            values: sensor.values
+            values: sensor.values,
+            // 센서 값들을 직접 속성으로 추가
+            val: sensor.values?.value,
+            val_0_1: sensor.values?.['0.1'],
+            val_0_3: sensor.values?.['0.3'],
+            val_0_5: sensor.values?.['0.5']
           };
           
           sensorMap.set(sensorKey, sensorData);
@@ -153,15 +161,15 @@ export const formatTime = (date) => {
  * 센서 값이 유효한지 확인
  */
 export const isSensorValueValid = (sensorData) => {
-  if (sensorData.sensorType === 'particle') {
+  if (sensorData.sensor_type === 'particle') {
     // 먼지 센서는 3개 값 중 하나라도 존재하면 유효
-    return sensorData.values?.['0.1'] !== undefined && sensorData.values?.['0.1'] !== null ||
-           sensorData.values?.['0.3'] !== undefined && sensorData.values?.['0.3'] !== null ||
-           sensorData.values?.['0.5'] !== undefined && sensorData.values?.['0.5'] !== null;
+    return (sensorData.val_0_1 !== undefined && sensorData.val_0_1 !== null) ||
+           (sensorData.val_0_3 !== undefined && sensorData.val_0_3 !== null) ||
+           (sensorData.val_0_5 !== undefined && sensorData.val_0_5 !== null);
   }
   
   // 다른 센서들은 값이 존재하면 유효 (0도 유효한 값)
-  return sensorData.values?.value !== undefined && sensorData.values?.value !== null;
+  return sensorData.val !== undefined && sensorData.val !== null;
 };
 
 /**
