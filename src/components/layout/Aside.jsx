@@ -148,9 +148,9 @@ const Aside = () => {
             <div className="relative z-10 flex items-center justify-center w-full">
               <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600 w-6 h-6">
                 {isCollapsed ? (
-                  <Icon><FiChevronsRight size={20} /></Icon>
+                  <Icon><FiChevronsRight /></Icon>
                 ) : (
-                  <Icon><FiChevronsLeft size={20} /></Icon>
+                  <Icon><FiChevronsLeft /></Icon>
                 )}
               </div>
             </div>

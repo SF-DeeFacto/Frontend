@@ -224,7 +224,7 @@ const Header = () => {
           onClick={refreshWeatherInfo}
           title="날씨 정보 새로고침"
         >
-          <div className="text-2xl text-brand-main">
+          <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
             {weatherData ? (
               weatherData.icon === '01d' ? <WiDaySunny /> : 
               weatherData.icon === '01n' ? <WiNightClear /> :
@@ -245,7 +245,7 @@ const Header = () => {
               weatherData.icon === '50d' ? <WiFog /> : 
               weatherData.icon === '50n' ? <WiFog /> : <WiDaySunny />
             ) : <WiDaySunny />}
-          </div>
+          </Icon>
           <Text variant="body" size="sm" weight="normal" color="secondary-500">
             {weatherData ? (
               <>
@@ -281,7 +281,7 @@ const Header = () => {
         title="설정"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiSettings size={20} />
+          <FiSettings />
         </Icon>
       </button>
       
@@ -292,7 +292,7 @@ const Header = () => {
         title="알림"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiBell size={20} />
+          <FiBell />
         </Icon>
         
         {/* 알림 개수 뱃지 */}
