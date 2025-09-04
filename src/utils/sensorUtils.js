@@ -82,10 +82,7 @@ export const groupSensorData = (backendData) => {
           
           const sensorData = {
             sensorId: sensor.sensorId,
-            sensor_id: sensor.sensorId,
             sensorType: sensor.sensorType,
-            sensor_type: sensor.sensorType,
-            sensorStatus: sensor.sensorStatus,
             status: sensor.sensorStatus,
             timestamp: sensor.timestamp,
             values: sensor.values,
@@ -161,7 +158,7 @@ export const formatTime = (date) => {
  * 센서 값이 유효한지 확인
  */
 export const isSensorValueValid = (sensorData) => {
-  if (sensorData.sensor_type === 'particle') {
+  if (sensorData.sensorType === 'particle') {
     // 먼지 센서는 3개 값 중 하나라도 존재하면 유효
     return (sensorData.val_0_1 !== undefined && sensorData.val_0_1 !== null) ||
            (sensorData.val_0_3 !== undefined && sensorData.val_0_3 !== null) ||

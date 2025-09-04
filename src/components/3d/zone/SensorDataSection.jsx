@@ -23,7 +23,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
         {sensors && sensors.length > 0 && (
           <div className="space-y-2">
             {sensors.map((sensor, index) => (
-              <div key={`${sensor.sensor_id}-${index}`} className="w-full">
+              <div key={`${sensor.sensorId}-${index}`} className="w-full">
                 <SensorDataCard 
                   sensorData={sensor}
                   zoneId={zoneId}

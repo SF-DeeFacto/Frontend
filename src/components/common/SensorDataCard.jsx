@@ -14,7 +14,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
   };
 
   // 센서 타입 설정 가져오기
-  const sensorConfig = getSensorTypeConfig(sensorData.sensor_type);
+  const sensorConfig = getSensorTypeConfig(sensorData.sensorType);
   
   // 센서 아이콘
   const sensorIcon = sensorConfig?.icon || '📊';
@@ -23,7 +23,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
   const sensorUnit = sensorConfig?.unit || '';
   
   // 센서 이름
-  const sensorName = sensorConfig?.name || sensorData.sensor_type;
+  const sensorName = sensorConfig?.name || sensorData.sensorType;
 
   /**
    * 센서 값 렌더링
@@ -38,7 +38,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
       );
     }
 
-    if (sensorData.sensor_type === 'particle') {
+    if (sensorData.sensorType === 'particle') {
       // 먼지 센서는 3개 값 (0.1, 0.3, 0.5) - 세로로 나열
       return (
         <div className="particle-values-vertical">
@@ -70,7 +70,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
 
   return (
     <div 
-      className={`sensor-card clickable ${sensorData.sensor_type} w-full max-w-[280px]`}
+      className={`sensor-card clickable ${sensorData.sensorType} w-full max-w-[280px]`}
       onClick={handleCardClick}
       title="클릭하여 그래프 페이지로 이동"
     >
@@ -79,7 +79,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
           <div className="flex items-center justify-center gap-2">
             <span className="sensor-icon text-lg">{sensorIcon}</span>
             <h3 className="sensor-title">
-              {sensorData.sensorId || sensorData.sensor_id || 'Unknown'}
+              {sensorData.sensorId || 'Unknown'}
             </h3>
           </div>
         </div>
@@ -95,7 +95,7 @@ const SensorDataCard = ({ sensorData, zoneConfig, zoneId }) => {
             ></div>
             <div className="sensor-value">
               {renderSensorValue()}
-              {sensorData.sensor_type !== 'particle' && (
+              {sensorData.sensorType !== 'particle' && (
                 <span className="sensor-unit">{sensorUnit}</span>
               )}
             </div>
