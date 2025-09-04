@@ -277,37 +277,6 @@ const Header = () => {
       {/* 구분선 */}
       <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
       
-      {/* 사용자 정보 */}
-      <div>
-        <Text 
-          variant="body" 
-          size="base"
-          weight="bold"
-          color="secondary-500 dark:text-neutral-400"
-          className="whitespace-nowrap tracking-wide"
-        >
-          {isAuthenticated && currentUser?.name 
-            ? `${currentUser.name} ${currentUser.position || '사원'}` 
-            : '사용자'
-          }
-        </Text>
-      </div>
-      
-      {/* 구분선 */}
-      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
-      
-      {/* 다크모드 토글 버튼 */}
-      <button
-        onClick={toggleTheme}
-        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
-        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
-      >
-        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
-          {theme === 'dark' ? <FiToggleRight /> : <FiToggleLeft />}
-        </Icon>
-      </button>
-      
       {/* 알림 버튼 */}
       <button
         onClick={() => navigate("/home/alarm")}
@@ -336,6 +305,37 @@ const Header = () => {
           <FiSettings />
         </Icon>
       </button>
+      
+      {/* 다크모드 토글 버튼 */}
+      <button
+        onClick={toggleTheme}
+        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
+      >
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
+          {theme === 'dark' ? <FiToggleRight /> : <FiToggleLeft />}
+        </Icon>
+      </button>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 사용자 정보 */}
+      <div>
+        <Text 
+          variant="body" 
+          size="base"
+          weight="bold"
+          color="secondary-500 dark:text-neutral-400"
+          className="whitespace-nowrap tracking-wide"
+        >
+          {isAuthenticated && currentUser?.name 
+            ? `${currentUser.name} ${currentUser.position || '사원'}` 
+            : '사용자'
+          }
+        </Text>
+      </div>
     </nav>
   );
 
