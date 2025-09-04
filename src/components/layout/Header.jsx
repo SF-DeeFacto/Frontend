@@ -12,7 +12,7 @@ import {
   CloudRain, 
   CloudLightning,
   Snowflake,
-  Fog,
+  CloudFog,
   ToggleLeft,
   ToggleRight
 } from 'lucide-react';
@@ -251,8 +251,8 @@ const Header = () => {
             weatherData.icon === '11n' ? <CloudLightning /> :
             weatherData.icon === '13d' ? <Snowflake /> : 
             weatherData.icon === '13n' ? <Snowflake /> :
-            weatherData.icon === '50d' ? <Fog /> : 
-            weatherData.icon === '50n' ? <Fog /> : <Sun />
+            weatherData.icon === '50d' ? <CloudFog /> : 
+            weatherData.icon === '50n' ? <CloudFog /> : <Sun />
           ) : <Sun />}
         </Icon>
         <Text variant="body" size="sm" weight="normal" color="secondary-500">

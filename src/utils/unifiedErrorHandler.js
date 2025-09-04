@@ -334,14 +334,14 @@ export class UnifiedErrorHandler {
    * 알림 표시
    */
   static showNotification(message, severity) {
-    // 기존 알림 시스템이 있다면 사용, 없다면 기본 alert 사용
+    // 기존 알림 시스템이 있다면 사용, 없다면 콘솔 로그로 대체
     if (window.showToast) {
       window.showToast(message, severity);
     } else if (window.showAlert) {
       window.showAlert(message, severity);
     } else {
-      // 기본 alert 사용
-      alert(message);
+      // 콘솔 로그로 대체 (alert 제거)
+      console.log(`[${severity}] ${message}`);
     }
   }
 
