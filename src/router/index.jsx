@@ -14,106 +14,39 @@ import Zone from '../pages/zone/Zone';
 import NotFound from '../pages/NotFound';
 import DashboardChart from '../pages/GrafanaTest_2';
 import GrafanaIframe from '../pages/GrafanaIframe';
+import { useAuth } from '../hooks/useAuth';
 import { isRoot, isRootOrAdmin } from '../services/api/auth';
 
-// 인증 상태를 캐시하여 중복 체크 방지
-let authCache = null;
-let lastCheck = 0;
-const CACHE_DURATION = 1000; // 1초 캐시
-
-// 로그인 상태 확인 함수
-const isAuthenticated = () => {
-  const now = Date.now();
-  
-  // 캐시가 유효한 경우 캐시된 결과 반환
-  if (authCache !== null && (now - lastCheck) < CACHE_DURATION) {
-    return authCache;
-  }
-  
-  const token = localStorage.getItem('access_token');
-  const user = localStorage.getItem('user');
-  
-  // 개발 환경에서만 로그 출력
-  // const isDev = import.meta.env.DEV;
-  // if (isDev) {
-  //   console.log('인증 체크:', { token: !!token, user: !!user, cached: false });
-  // }
-  
-  // token과 user가 모두 존재하고 유효한지 확인
-  if (!token || !user) {
-    // if (isDev) {
-    //   console.log('인증 실패: token 또는 user가 없음');
-    // }
-    authCache = false;
-    lastCheck = now;
-    return false;
-  }
-  
-  try {
-    // user가 유효한 JSON인지 확인
-    const userData = JSON.parse(user);
-    if (!userData || typeof userData !== 'object') {
-      // if (isDev) {
-      //   console.log('인증 실패: user 데이터가 유효하지 않음');
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // 실제 저장된 데이터 구조에 맞게 검증
-    if (!userData.employeeId || !userData.name) {
-      // if (isDev) {
-      //   console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // token이 유효한 형식인지 확인 (간단한 검증)
-    if (token.length < 10) {
-      // if (isDev) {
-      //   console.log('인증 실패: token이 너무 짧음');
-      // }
-      authCache = false;
-      lastCheck = now;
-      return false;
-    }
-    
-    // if (isDev) {
-    //   console.log('인증 성공:', userData.name);
-    // }
-    authCache = true;
-    lastCheck = now;
-    return true;
-  } catch (error) {
-    // if (isDev) {
-    //   console.log('인증 실패: user 데이터 파싱 오류', error);
-    // }
-    authCache = false;
-    lastCheck = now;
-    return false;
-  }
-};
-
-// 인증 캐시 무효화 함수 (로그인/로그아웃 시 호출)
-export const clearAuthCache = () => {
-  authCache = null;
-  lastCheck = 0;
-};
+// useAuth 훅을 사용한 통일된 인증 관리
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  
   return children;
 };
 
 // 권한별 보호된 라우트 컴포넌트
 const RoleProtectedRoute = ({ children, requiredRole }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 

@@ -37,7 +37,9 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   };
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6 justify-items-center mt-8">
+    <div className="w-full">
+      {/* Zone 버튼 그리드 */}
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 justify-items-center">
       {zones.map((zone) => {
         const connectionInfo = getZoneConnectionInfo(zone);
         const statusColor = getStatusHexColor(connectionInfo.status);
@@ -47,7 +49,6 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
           <div
             key={zone.id}
             onClick={() => navigate(`/home/zone/${zone.id}`)}
-            // 존 버튼 세로 크기 조절 할거면 P-5로 수정
             className="modern-card modern-card-hover group cursor-pointer p-6 min-w-[140px] relative overflow-hidden"
           >
             {/* 배경 그라디언트 */}
@@ -71,15 +72,8 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
                   backgroundColor: statusColor,
                   boxShadow: `0 0 15px ${statusColor}30`
                 }}
-                // title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+                title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>
-              
-              {/* 연결 상태 표시 */}
-              {/* <div 
-                className="w-2 h-2 rounded-full flex-shrink-0"
-                style={{ backgroundColor: connectionColor }}
-                title={`연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
-              ></div> */}
             </div>
             
             {/* 호버 효과 아이콘 */}
@@ -93,6 +87,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
           </div>
         );
       })}
+      </div>
     </div>
   );
 };

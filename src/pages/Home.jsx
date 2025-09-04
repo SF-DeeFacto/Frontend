@@ -11,7 +11,7 @@ const Home = () => {
   const [hoveredZone, setHoveredZone] = useState(null);
   
   // 인증 상태 확인
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
   
   // Zone 상태 관리 훅 사용
   const { zoneStatuses, connectionStates, lastUpdated, zones } = useZoneManager();
@@ -27,22 +27,26 @@ const Home = () => {
   }
 
   return (
-    <div>
-      {/* 전체도면 섹션 (안전 상태 신호등 포함) */}
-      <ThreeDModelSection
-        zoneStatuses={zoneStatuses}
-        hoveredZone={hoveredZone}
-        onHoverZoneChange={setHoveredZone}
-        lastUpdated={lastUpdated}
-      />
+    <div className="h-[calc(100vh-140px)] flex flex-col gap-6">
+      {/* 3D 모델 섹션 - 상단 영역 */}
+      <section className="flex-1 min-h-0">
+        <ThreeDModelSection
+          zoneStatuses={zoneStatuses}
+          hoveredZone={hoveredZone}
+          onHoverZoneChange={setHoveredZone}
+          lastUpdated={lastUpdated}
+        />
+      </section>
 
-      {/* Zone 버튼들 */}
-      <ZoneButtons
-        zones={zones}
-        zoneStatuses={zoneStatuses}
-        connectionStates={connectionStates}
-        lastUpdated={lastUpdated}
-      />
+      {/* Zone 버튼 섹션 - 하단 영역 */}
+      <section className="flex-shrink-0 mb-6">
+        <ZoneButtons
+          zones={zones}
+          zoneStatuses={zoneStatuses}
+          connectionStates={connectionStates}
+          lastUpdated={lastUpdated}
+        />
+      </section>
     </div>
   );
 };

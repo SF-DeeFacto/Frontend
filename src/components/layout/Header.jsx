@@ -37,7 +37,7 @@ const Header = () => {
     updateUser,
     isAdmin,
     isUser 
-  } = useAuth();
+  } = useAuth({ redirectOnFail: false });
 
   // alarmCount 상태 변화 감지 (배포 시 주석 처리)
   // useEffect(() => {
