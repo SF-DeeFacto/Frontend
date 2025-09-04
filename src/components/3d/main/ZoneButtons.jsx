@@ -63,7 +63,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
               
               {/* 상태 인디케이터 */}
               <div 
-                className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 ${
+                className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 flex-shrink-0 ${
                   connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
                 }`}
                 style={{ 
@@ -75,7 +75,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
               
               {/* 연결 상태 표시 */}
               <div 
-                className="w-2 h-2 rounded-full"
+                className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ backgroundColor: connectionColor }}
                 title={`연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>
