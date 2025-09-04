@@ -47,6 +47,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
           <div
             key={zone.id}
             onClick={() => navigate(`/home/zone/${zone.id}`)}
+            // 존 버튼 세로 크기 조절 할거면 P-5로 수정
             className="modern-card modern-card-hover group cursor-pointer p-6 min-w-[140px] relative overflow-hidden"
           >
             {/* 배경 그라디언트 */}
