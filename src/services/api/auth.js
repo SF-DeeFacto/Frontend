@@ -151,3 +151,81 @@ export const getUserInfo = async () => {
     return null;
   }
 };
+
+// ===== 권한 관련 유틸리티 함수들 =====
+
+/**
+ * 현재 로그인한 사용자의 상세 정보를 가져옵니다.
+ * @returns {Object|null} 사용자 정보 또는 null
+ */
+export const getCurrentUserDetail = () => {
+  try {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
+    
+    const user = JSON.parse(userStr);
+    return user;
+  } catch (error) {
+    console.error('사용자 정보 파싱 오류:', error);
+    return null;
+  }
+};
+
+/**
+ * 현재 사용자의 권한을 확인합니다.
+ * @returns {string|null} 사용자 권한 (ROOT, ADMIN, USER 등) 또는 null
+ */
+export const getCurrentUserRole = () => {
+  const user = getCurrentUserDetail();
+  return user?.role || null;
+};
+
+/**
+ * 사용자가 특정 권한을 가지고 있는지 확인합니다.
+ * @param {string|string[]} requiredRoles - 필요한 권한 (문자열 또는 배열)
+ * @returns {boolean} 권한 보유 여부
+ */
+export const hasRole = (requiredRoles) => {
+  const userRole = getCurrentUserRole();
+  if (!userRole) return false;
+  
+  if (Array.isArray(requiredRoles)) {
+    return requiredRoles.includes(userRole);
+  }
+  
+  return userRole === requiredRoles;
+};
+
+/**
+ * ROOT 권한을 가지고 있는지 확인합니다.
+ * @returns {boolean} ROOT 권한 보유 여부
+ */
+export const isRoot = () => {
+  return hasRole('ROOT');
+};
+
+/**
+ * ADMIN 권한을 가지고 있는지 확인합니다.
+ * @returns {boolean} ADMIN 권한 보유 여부
+ */
+export const isAdmin = () => {
+  return hasRole('ADMIN');
+};
+
+/**
+ * ROOT 또는 ADMIN 권한을 가지고 있는지 확인합니다.
+ * @returns {boolean} ROOT 또는 ADMIN 권한 보유 여부
+ */
+export const isRootOrAdmin = () => {
+  return hasRole(['ROOT', 'ADMIN']);
+};
+
+/**
+ * 사용자가 로그인되어 있는지 확인합니다.
+ * @returns {boolean} 로그인 상태
+ */
+export const isAuthenticated = () => {
+  const user = getCurrentUserDetail();
+  const token = localStorage.getItem('access_token');
+  return !!(user && token);
+};
