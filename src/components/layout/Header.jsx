@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiSettings, FiBell, FiSun, FiMoon } from 'react-icons/fi';
+import { 
+  WiDaySunny, 
+  WiNightClear, 
+  WiDayCloudy, 
+  WiNightCloudy, 
+  WiCloudy, 
+  WiRain, 
+  WiDayRain, 
+  WiNightRain, 
+  WiThunderstorm, 
+  WiSnow, 
+  WiFog 
+} from 'react-icons/wi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
@@ -218,28 +231,28 @@ const Header = () => {
         onClick={refreshWeatherInfo}
         title="날씨 정보 새로고침"
       >
-        <span className="text-base">
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {weatherData ? (
-            weatherData.icon === '01d' ? '☀️' : 
-            weatherData.icon === '01n' ? '🌙' :
-            weatherData.icon === '02d' ? '⛅' : 
-            weatherData.icon === '02n' ? '☁️' :
-            weatherData.icon === '03d' ? '☁️' : 
-            weatherData.icon === '03n' ? '☁️' :
-            weatherData.icon === '04d' ? '☁️' : 
-            weatherData.icon === '04n' ? '☁️' :
-            weatherData.icon === '09d' ? '🌧️' : 
-            weatherData.icon === '09n' ? '🌧️' :
-            weatherData.icon === '10d' ? '🌦️' : 
-            weatherData.icon === '10n' ? '🌧️' :
-            weatherData.icon === '11d' ? '⛈️' : 
-            weatherData.icon === '11n' ? '⛈️' :
-            weatherData.icon === '13d' ? '❄️' : 
-            weatherData.icon === '13n' ? '❄️' :
-            weatherData.icon === '50d' ? '🌫️' : 
-            weatherData.icon === '50n' ? '🌫️' : '🌤️'
-          ) : '🌤️'}
-        </span>
+            weatherData.icon === '01d' ? <WiDaySunny /> : 
+            weatherData.icon === '01n' ? <WiNightClear /> :
+            weatherData.icon === '02d' ? <WiDayCloudy /> : 
+            weatherData.icon === '02n' ? <WiNightCloudy /> :
+            weatherData.icon === '03d' ? <WiCloudy /> : 
+            weatherData.icon === '03n' ? <WiCloudy /> :
+            weatherData.icon === '04d' ? <WiCloudy /> : 
+            weatherData.icon === '04n' ? <WiCloudy /> :
+            weatherData.icon === '09d' ? <WiRain /> : 
+            weatherData.icon === '09n' ? <WiRain /> :
+            weatherData.icon === '10d' ? <WiDayRain /> : 
+            weatherData.icon === '10n' ? <WiNightRain /> :
+            weatherData.icon === '11d' ? <WiThunderstorm /> : 
+            weatherData.icon === '11n' ? <WiThunderstorm /> :
+            weatherData.icon === '13d' ? <WiSnow /> : 
+            weatherData.icon === '13n' ? <WiSnow /> :
+            weatherData.icon === '50d' ? <WiFog /> : 
+            weatherData.icon === '50n' ? <WiFog /> : <WiDaySunny />
+          ) : <WiDaySunny />}
+        </Icon>
         <Text variant="body" size="sm" weight="normal" color="secondary-500">
           {weatherData ? (
             <>
