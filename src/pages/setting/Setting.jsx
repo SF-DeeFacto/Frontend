@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import Equipset from './tabs/Equipset';
 import Userset from './tabs/Userset';
 import PwudTab from './tabs/PwudTab';
-import PreferTab from './tabs/PreferTab';
 import ProfileTab from './tabs/ProfileTab';
 import SensorListTab from './tabs/SensorListTab';
 import AIRecommend from './tabs/AIRecommend';
@@ -21,7 +20,6 @@ const Setting = () => {
 
   const tabs = [
     { id: 'profile', name: '프로필', component: ProfileTab },
-    { id: 'prefer', name: '환경설정', component: PreferTab },
     { id: 'pwud', name: '비밀번호 변경', component: PwudTab },
     { id: 'userset', name: '회원정보 관리', component: Userset },
     { id: 'sensorlist', name: '센서 목록', component: SensorListTab },
