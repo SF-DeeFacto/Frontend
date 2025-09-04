@@ -72,7 +72,14 @@ const Aside = () => {
     {
       icon: <FiLayers />,
       label: "Zone",
-      onClick: () => setZoneOpen(!zoneOpen),
+      onClick: () => {
+        // 접힌 상태에서 Zone 클릭 시 사이드바 확장
+        if (isCollapsed) {
+          setIsCollapsed(false);
+          localStorage.setItem('sidebar_collapsed', JSON.stringify(false));
+        }
+        setZoneOpen(!zoneOpen);
+      },
       hasSubMenu: true,
     },
 
@@ -158,7 +165,7 @@ const Aside = () => {
         </div>
         {/* 메인 메뉴 아이템들 */}
         {menuItems.map((item, index) => (
-          <div key={index} className="w-full">
+          <div key={index} className={`w-full ${item.label === "Zone" ? "relative" : ""}`}>
             <MenuItem
               icon={<Icon>{item.icon}</Icon>}
               label={item.label}
@@ -167,16 +174,41 @@ const Aside = () => {
             />
             
             {/* Zone 서브메뉴 - 모든 Zone 표시 */}
-            {item.label === "Zone" && !isCollapsed && (
-              <div 
-                className={`space-y-1 mt-2 overflow-hidden transition-all duration-300 ease-in-out ${
-                  zoneOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-                }`}
-              >
-                {getAllZoneItems().map(zone => 
-                  renderSubMenuItem(zone.label, zone.path, zone.zoneId)
+            {item.label === "Zone" && (
+              <>
+                {/* 확장된 상태에서의 서브메뉴 */}
+                {!isCollapsed && (
+                  <div 
+                    className={`space-y-1 mt-2 overflow-hidden transition-all duration-300 ease-in-out ${
+                      zoneOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    {getAllZoneItems().map(zone => 
+                      renderSubMenuItem(zone.label, zone.path, zone.zoneId)
+                    )}
+                  </div>
                 )}
-              </div>
+                
+                {/* 접힌 상태에서의 드롭다운 메뉴 */}
+                {isCollapsed && zoneOpen && (
+                  <div className="absolute left-full top-0 ml-2 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-gray-200 dark:border-neutral-700 py-2 min-w-[200px] z-50">
+                    {getAllZoneItems().map(zone => (
+                      <div
+                        key={zone.zoneId}
+                        onClick={() => navigate(zone.path)}
+                        className="text-secondary-600 dark:text-neutral-300 cursor-pointer hover:bg-primary-50 dark:hover:bg-neutral-700/50 hover:text-primary-600 px-4 py-2.5 transition-all duration-200 group hover:scale-105"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-secondary-400 dark:bg-neutral-500 group-hover:bg-primary-500 transition-colors duration-200"></div>
+                          <Text variant="menu" size="sm" weight="medium">
+                            {zone.label}
+                          </Text>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}
