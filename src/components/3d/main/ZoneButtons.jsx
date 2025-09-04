@@ -70,15 +70,15 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
                   backgroundColor: statusColor,
                   boxShadow: `0 0 15px ${statusColor}30`
                 }}
-                title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+                // title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>
               
               {/* 연결 상태 표시 */}
-              <div 
+              {/* <div 
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ backgroundColor: connectionColor }}
                 title={`연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
-              ></div>
+              ></div> */}
             </div>
             
             {/* 호버 효과 아이콘 */}
