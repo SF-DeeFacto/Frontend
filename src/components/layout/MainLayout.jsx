@@ -15,7 +15,6 @@ const MainLayout = () => {
     if (path === '/home/graph') return 'Graph';
     if (path === '/home/report') return 'Report';
     if (path === '/home/alarm') return 'Alarm';
-    if (path === '/home/sensors') return 'Sensor List';
     if (path === '/home/setting') return 'Setting';
     if (path.startsWith('/home/zone/')) {
       const zoneId = path.split('/')[3]?.toLowerCase();
