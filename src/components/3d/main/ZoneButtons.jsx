@@ -49,7 +49,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
           <div
             key={zone.id}
             onClick={() => navigate(`/home/zone/${zone.id}`)}
-            className="modern-card modern-card-hover group cursor-pointer p-6 min-w-[140px] relative overflow-hidden"
+            className="modern-card modern-card-hover group cursor-pointer p-4 min-w-[140px] relative overflow-hidden"
           >
             {/* 배경 그라디언트 */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
