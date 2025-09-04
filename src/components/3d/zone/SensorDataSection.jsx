@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import SensorDataCard from '../../common/SensorDataCard';
 import ConnectionIndicator from '../../common/ConnectionIndicator';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
@@ -14,14 +14,14 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
   /**
    * 센서 타입별 센서 목록을 렌더링하는 함수
    */
-  const renderSensorColumn = useCallback(({ type, icon, name }) => {
+  const renderSensorColumn = useCallback(({ type, icon: IconComponent, name }) => {
     const sensors = sensorData[type] || [];
     
     return (
       <div key={type} className="flex flex-col gap-4">
-        {/* 센서 타입 헤더 */}
+        {/* 센서 타입 헤더 - 항상 표시 */}
         <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
-          <span aria-hidden="true">{icon}</span>
+          <IconComponent className="w-4 h-4" />
           {name}
           {sensors.length > 0 && (
             <span className="text-xs text-gray-400 dark:text-neutral-500">
@@ -51,11 +51,6 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
     );
   }, [sensorData, zoneId]);
 
-  // 센서 데이터가 있는지 확인
-  const hasSensorData = useMemo(() => {
-    return Object.values(sensorData || {}).some(sensors => sensors && sensors.length > 0);
-  }, [sensorData]);
-
   return (
     <aside className="flex-shrink-0 w-[60%] h-full">
       <div className="modern-card p-6 h-full flex flex-col overflow-y-auto overflow-x-hidden">
@@ -69,19 +64,10 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
           </div>
         </div>
         
-        {/* 센서 데이터 컨텐츠 */}
-        {hasSensorData ? (
-          <div className="grid grid-cols-5 gap-[15px] flex-1">
-            {SENSOR_TYPES.map(renderSensorColumn)}
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-gray-400 dark:text-neutral-500">
-              <div className="text-lg mb-2">📊</div>
-              <div className="text-sm">센서 데이터를 불러오는 중...</div>
-            </div>
-          </div>
-        )}
+        {/* 센서 데이터 컨텐츠 - 센서 타입 헤더는 항상 표시 */}
+        <div className="grid grid-cols-5 gap-[15px] flex-1">
+          {SENSOR_TYPES.map(renderSensorColumn)}
+        </div>
       </div>
     </aside>
   );

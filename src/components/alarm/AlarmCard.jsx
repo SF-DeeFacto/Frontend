@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiClock, FiBookmark, FiCheck, FiCheckCircle } from 'react-icons/fi';
+import { Clock, Bookmark, Check, CheckCircle } from 'lucide-react';
 import Text from '../common/Text';
 import Icon from '../common/Icon';
 
@@ -67,7 +67,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
         {/* 시간 */}
         <div className="flex items-center gap-2 bg-secondary-50 dark:bg-neutral-700 rounded-xl px-3 py-2 shadow-soft transition-colors duration-300">
           <Icon size="14px" className="text-secondary-500 dark:text-neutral-400">
-            <FiClock />
+            <Clock />
           </Icon>
           <Text variant="caption" size="xs" color="secondary-600" className="font-medium dark:text-neutral-300">
             {alarm.time}
@@ -85,7 +85,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
           title={alarm.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
         >
           <Icon size="16px">
-            <FiBookmark />
+            <Bookmark />
           </Icon>
         </button>
 
@@ -97,7 +97,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
             title="읽음 처리"
           >
             <Icon size="16px">
-              <FiCheck />
+              <Check />
             </Icon>
           </button>
         )}
@@ -106,7 +106,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
         {alarm.isRead && (
           <div className="p-2.5 bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 rounded-xl shadow-soft transition-colors duration-300">
             <Icon size="16px">
-              <FiCheckCircle />
+              <CheckCircle />
             </Icon>
           </div>
         )}

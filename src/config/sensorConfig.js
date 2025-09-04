@@ -1,30 +1,37 @@
 import { SENSOR_STATUS } from '../types/sensor';
+import { 
+  Thermometer, 
+  Droplets, 
+  Zap, 
+  ChartScatter, 
+  Wind 
+} from 'lucide-react';
 
 // 센서 타입별 상세 정보
 export const SENSOR_TYPE_CONFIG = {
   temperature: {
     name: '온도',
-    icon: '🌡️',
+    icon: Thermometer,
     unit: '°C'
   },
   humidity: {
     name: '습도',
-    icon: '💧',
+    icon: Droplets,
     unit: '%'
   },
   electrostatic: {
     name: '정전기',
-    icon: '⚡',
+    icon: Zap,
     unit: 'V'
   },
   particle: {
     name: '먼지',
-    icon: '🌫️',
+    icon: ChartScatter,
     unit: 'μg/m³'
   },
   winddirection: {
     name: '풍향',
-    icon: '🌪️',
+    icon: Wind,
     unit: '°'
   }
 };
@@ -74,7 +81,8 @@ export const SENSOR_STATUS_TEXT = {
 // 센서 타입 배열 (UI 렌더링용)
 export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, config]) => ({
   type,
-  name: config.name
+  name: config.name,
+  icon: config.icon
 }));
 
 // 센서 설정 가져오기

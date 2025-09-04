@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  FiHome,
-  FiLayers,
-  FiBarChart2,
-  FiFileText,
-  FiMessageCircle,
-  FiLogOut,
-  FiChevronsLeft,
-  FiChevronsRight,
-} from "react-icons/fi";
+  Home,
+  Layers,
+  BarChart2,
+  FileText,
+  MessageCircle,
+  LogOut,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
@@ -65,12 +65,12 @@ const Aside = () => {
   // 메뉴 아이템 데이터
   const menuItems = [
     {
-      icon: <FiHome />,
+      icon: <Home />,
       label: "Home",
       onClick: () => navigate("/home"),
     },
     {
-      icon: <FiLayers />,
+      icon: <Layers />,
       label: "Zone",
       onClick: () => {
         // 접힌 상태에서 Zone 클릭 시 사이드바 확장
@@ -84,23 +84,23 @@ const Aside = () => {
     },
 
     {
-      icon: <FiBarChart2 />,
+      icon: <BarChart2 />,
       label: "Graph",
       onClick: () => navigate("/home/graph"),
     },
     {
-      icon: <FiFileText />,
+      icon: <FileText />,
       label: "Report",
       onClick: () => navigate("/home/report"),
     },
     {
-      icon: <FiMessageCircle />,
+      icon: <MessageCircle />,
       label: "Chatbot",
       onClick: openChatBotPopup,
     },
 
     {
-      icon: <FiLogOut />,
+      icon: <LogOut />,
       label: "Logout",
       onClick: async () => {
         try {
@@ -155,9 +155,9 @@ const Aside = () => {
             <div className="relative z-10 flex items-center justify-center w-full">
               <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600 w-6 h-6">
                 {isCollapsed ? (
-                  <Icon><FiChevronsRight /></Icon>
+                  <Icon><ChevronsRight /></Icon>
                 ) : (
-                  <Icon><FiChevronsLeft /></Icon>
+                  <Icon><ChevronsLeft /></Icon>
                 )}
               </div>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiCheckCircle } from 'react-icons/fi';
+import { CheckCircle } from 'lucide-react';
 import Text from '../common/Text';
 import Icon from '../common/Icon';
 
@@ -61,7 +61,7 @@ const MarkAllAsReadButton = ({ onMarkAllAsRead, hasUnreadAlarms }) => (
     disabled={!hasUnreadAlarms}
   >
     <Icon size="16px">
-      <FiCheckCircle />
+      <CheckCircle />
     </Icon>
     <Text variant="body" size="sm" weight="semibold">
       전체 읽음

@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  FiSettings, 
-  FiBell, 
-  FiSun, 
-  FiMoon, 
-  FiCloud, 
-  FiCloudRain, 
-  FiCloudSnow, 
-  FiZap, 
-  FiEye,
-  FiToggleLeft,
-  FiToggleRight
-} from 'react-icons/fi';
+  Settings, 
+  Bell, 
+  Sun, 
+  Moon, 
+  Cloud, 
+  CloudSun,
+  CloudMoon,
+  CloudDrizzle,
+  CloudRain, 
+  CloudLightning,
+  Snowflake,
+  Fog,
+  ToggleLeft,
+  ToggleRight
+} from 'lucide-react';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
@@ -200,7 +203,7 @@ const Header = () => {
       'clear sky': '맑음',
       'few clouds': '구름 조금',
       'scattered clouds': '구름 많음',
-      'broken clouds': '구름 많음',
+      'broken clouds': '흐림',
       'shower rain': '소나기',
       'rain': '비',
       'thunderstorm': '천둥번개',
@@ -232,25 +235,25 @@ const Header = () => {
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {weatherData ? (
-            weatherData.icon === '01d' ? <FiSun /> : 
-            weatherData.icon === '01n' ? <FiMoon /> :
-            weatherData.icon === '02d' ? <FiCloud /> : 
-            weatherData.icon === '02n' ? <FiCloud /> :
-            weatherData.icon === '03d' ? <FiCloud /> : 
-            weatherData.icon === '03n' ? <FiCloud /> :
-            weatherData.icon === '04d' ? <FiCloud /> : 
-            weatherData.icon === '04n' ? <FiCloud /> :
-            weatherData.icon === '09d' ? <FiCloudRain /> : 
-            weatherData.icon === '09n' ? <FiCloudRain /> :
-            weatherData.icon === '10d' ? <FiCloudRain /> : 
-            weatherData.icon === '10n' ? <FiCloudRain /> :
-            weatherData.icon === '11d' ? <FiZap /> : 
-            weatherData.icon === '11n' ? <FiZap /> :
-            weatherData.icon === '13d' ? <FiCloudSnow /> : 
-            weatherData.icon === '13n' ? <FiCloudSnow /> :
-            weatherData.icon === '50d' ? <FiEye /> : 
-            weatherData.icon === '50n' ? <FiEye /> : <FiSun />
-          ) : <FiSun />}
+            weatherData.icon === '01d' ? <Sun /> : 
+            weatherData.icon === '01n' ? <Moon /> :
+            weatherData.icon === '02d' ? <CloudSun /> : 
+            weatherData.icon === '02n' ? <CloudMoon /> :
+            weatherData.icon === '03d' ? <Cloud /> : 
+            weatherData.icon === '03n' ? <Cloud /> :
+            weatherData.icon === '04d' ? <Cloud /> : 
+            weatherData.icon === '04n' ? <Cloud /> :
+            weatherData.icon === '09d' ? <CloudDrizzle /> : 
+            weatherData.icon === '09n' ? <CloudDrizzle /> :
+            weatherData.icon === '10d' ? <CloudRain /> : 
+            weatherData.icon === '10n' ? <CloudRain /> :
+            weatherData.icon === '11d' ? <CloudLightning /> : 
+            weatherData.icon === '11n' ? <CloudLightning /> :
+            weatherData.icon === '13d' ? <Snowflake /> : 
+            weatherData.icon === '13n' ? <Snowflake /> :
+            weatherData.icon === '50d' ? <Fog /> : 
+            weatherData.icon === '50n' ? <Fog /> : <Sun />
+          ) : <Sun />}
         </Icon>
         <Text variant="body" size="sm" weight="normal" color="secondary-500">
           {weatherData ? (
@@ -284,7 +287,7 @@ const Header = () => {
         title="알림"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiBell />
+          <Bell />
         </Icon>
         
         {/* 알림 개수 뱃지 - 알림이 있을 때만 표시 */}
@@ -302,7 +305,7 @@ const Header = () => {
         title="설정"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiSettings />
+          <Settings />
         </Icon>
       </button>
       
@@ -314,7 +317,7 @@ const Header = () => {
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
-          {theme === 'dark' ? <FiToggleRight /> : <FiToggleLeft />}
+          {theme === 'dark' ? <ToggleRight /> : <ToggleLeft />}
         </Icon>
       </button>
       
