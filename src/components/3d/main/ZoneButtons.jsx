@@ -53,41 +53,32 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
             <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             
             {/* 컨텐츠 */}
-            <div className="relative z-10 flex flex-col items-center gap-3">
+            <div className="relative z-10 flex items-center gap-4">
               {/* Zone 이름 */}
-              <div className="text-center">
+              <div className="flex-shrink-0">
                 <h3 className="text-lg font-bold text-secondary-800 group-hover:text-primary-600 transition-colors duration-200">
                   {zone.name}
                 </h3>
               </div>
               
               {/* 상태 인디케이터 */}
-              <div className="flex items-center gap-3">
-                <div 
-                  className={`w-5 h-5 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 ${
-                    connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
-                  }`}
-                  style={{ 
-                    backgroundColor: statusColor,
-                    boxShadow: `0 0 20px ${statusColor}30`
-                  }}
-                  title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
-                ></div>
-                
-                {/* 상태 텍스트 */}
-                <span className="text-xs font-medium text-secondary-600 group-hover:text-primary-600 transition-colors duration-200">
-                  {getStatusText(connectionInfo.status)}
-                </span>
-              </div>
+              <div 
+                className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 ${
+                  connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
+                }`}
+                style={{ 
+                  backgroundColor: statusColor,
+                  boxShadow: `0 0 15px ${statusColor}30`
+                }}
+                title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+              ></div>
               
               {/* 연결 상태 표시 */}
-              <div className="flex items-center gap-1.5 text-2xs text-secondary-500">
-                <div 
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: connectionColor }}
-                ></div>
-                <span>{connectionInfo.dataSource}</span>
-              </div>
+              <div 
+                className="w-2 h-2 rounded-full"
+                style={{ backgroundColor: connectionColor }}
+                title={`연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
+              ></div>
             </div>
             
             {/* 호버 효과 아이콘 */}
