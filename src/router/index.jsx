@@ -14,6 +14,7 @@ import Zone from '../pages/zone/Zone';
 import NotFound from '../pages/NotFound';
 import DashboardChart from '../pages/GrafanaTest_2';
 import GrafanaIframe from '../pages/GrafanaIframe';
+import { isRoot, isRootOrAdmin } from '../services/api/auth';
 
 // 인증 상태를 캐시하여 중복 체크 방지
 let authCache = null;
@@ -110,6 +111,28 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// 권한별 보호된 라우트 컴포넌트
+const RoleProtectedRoute = ({ children, requiredRole }) => {
+  if (!isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+
+  let hasAccess = false;
+  
+  if (requiredRole === 'ROOT') {
+    hasAccess = isRoot();
+  } else if (requiredRole === 'ROOT_OR_ADMIN') {
+    hasAccess = isRootOrAdmin();
+  }
+  
+  if (!hasAccess) {
+    // 권한이 없는 경우 홈으로 리다이렉트
+    return <Navigate to="/home" replace />;
+  }
+  
+  return children;
+};
+
 // 동적 Zone 컴포넌트
 const DynamicZone = () => {
   const { zoneId } = useParams();
@@ -140,7 +163,14 @@ const AppRoutes = () => {
         <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
 
-        <Route path="/home/setting" element={<Setting />} />
+        <Route 
+          path="/home/setting" 
+          element={
+            <ProtectedRoute>
+              <Setting />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/home/zone/:zoneId" element={<DynamicZone />} />
         <Route path="*" element={<NotFound />} />
       </Route>

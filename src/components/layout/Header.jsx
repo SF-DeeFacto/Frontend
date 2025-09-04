@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSettings, FiBell } from 'react-icons/fi';
+import { FiSettings, FiBell, FiSun, FiMoon } from 'react-icons/fi';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { notificationApi } from '../../services/api/notification_api';
 import { weatherApi } from '../../services/api/weather_api';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Header = () => {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const [currentUser, setCurrentUser] = useState(null);
   const [weatherData, setWeatherData] = useState(null);
   const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
@@ -246,118 +248,118 @@ const Header = () => {
     }
   };
 
-  // 시간 정보 컴포넌트 - 심플하고 깔끔한 디자인
-  const TimeInfo = () => {
-    return (
-      <div
-        className="flex items-center gap-6 h-full"
-        style={styles.timeInfo}
-      >
-        {/* 날씨 정보 - 심플한 인라인 스타일 */}
-        <div 
-          className="cursor-pointer hover:opacity-80 transition-opacity duration-200 flex items-center gap-2"
-          onClick={refreshWeatherInfo}
-          title="날씨 정보 새로고침"
-        >
-          <span className="text-base">
-            {weatherData ? (
-              weatherData.icon === '01d' ? '☀️' : 
-              weatherData.icon === '01n' ? '🌙' :
-              weatherData.icon === '02d' ? '⛅' : 
-              weatherData.icon === '02n' ? '☁️' :
-              weatherData.icon === '03d' ? '☁️' : 
-              weatherData.icon === '03n' ? '☁️' :
-              weatherData.icon === '04d' ? '☁️' : 
-              weatherData.icon === '04n' ? '☁️' :
-              weatherData.icon === '09d' ? '🌧️' : 
-              weatherData.icon === '09n' ? '🌧️' :
-              weatherData.icon === '10d' ? '🌦️' : 
-              weatherData.icon === '10n' ? '🌧️' :
-              weatherData.icon === '11d' ? '⛈️' : 
-              weatherData.icon === '11n' ? '⛈️' :
-              weatherData.icon === '13d' ? '❄️' : 
-              weatherData.icon === '13n' ? '❄️' :
-              weatherData.icon === '50d' ? '🌫️' : 
-              weatherData.icon === '50n' ? '🌫️' : '🌤️'
-            ) : '🌤️'}
-          </span>
-          <Text variant="body" size="sm" weight="normal" color="secondary-500">
-            {weatherData ? (
-              <>
-                {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
-                {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
-              </>
-            ) : (
-              <span className="text-secondary-500">로딩중...</span>
-            )}
-          </Text>
-        </div>
-        
-        {/* 구분선 */}
-        <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
-        
-        {/* 시간 정보 - 한 줄로 표현 */}
-        <div>
-          <Text variant="body" size="sm" weight="normal" color="secondary-500">
-            {dateString} {weekdayString} {timeString}
-          </Text>
-        </div>
-      </div>
-    );
-  };
 
   // 사용자 네비게이션 컴포넌트 - 간격 조정된 깔끔한 디자인
   const UserNavigation = () => (
-    <nav className="flex items-center h-full" style={styles.userNav}>
-      {/* 설정 버튼 - 심플한 아이콘 버튼 */}
+    <nav className="flex items-center h-full gap-4" style={styles.userNav}>
+      {/* 날씨 정보 */}
+      <div 
+        className="cursor-pointer hover:opacity-80 transition-opacity duration-200 flex items-center gap-2"
+        onClick={refreshWeatherInfo}
+        title="날씨 정보 새로고침"
+      >
+        <span className="text-base">
+          {weatherData ? (
+            weatherData.icon === '01d' ? '☀️' : 
+            weatherData.icon === '01n' ? '🌙' :
+            weatherData.icon === '02d' ? '⛅' : 
+            weatherData.icon === '02n' ? '☁️' :
+            weatherData.icon === '03d' ? '☁️' : 
+            weatherData.icon === '03n' ? '☁️' :
+            weatherData.icon === '04d' ? '☁️' : 
+            weatherData.icon === '04n' ? '☁️' :
+            weatherData.icon === '09d' ? '🌧️' : 
+            weatherData.icon === '09n' ? '🌧️' :
+            weatherData.icon === '10d' ? '🌦️' : 
+            weatherData.icon === '10n' ? '🌧️' :
+            weatherData.icon === '11d' ? '⛈️' : 
+            weatherData.icon === '11n' ? '⛈️' :
+            weatherData.icon === '13d' ? '❄️' : 
+            weatherData.icon === '13n' ? '❄️' :
+            weatherData.icon === '50d' ? '🌫️' : 
+            weatherData.icon === '50n' ? '🌫️' : '🌤️'
+          ) : '🌤️'}
+        </span>
+        <Text variant="body" size="sm" weight="normal" color="secondary-500">
+          {weatherData ? (
+            <>
+              {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
+              {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
+            </>
+          ) : (
+            <span className="text-secondary-500">로딩중...</span>
+          )}
+        </Text>
+      </div>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 시간 정보 */}
+      <div>
+        <Text variant="body" size="sm" weight="normal" color="secondary-500">
+          {dateString} {weekdayString} {timeString}
+        </Text>
+      </div>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 사용자 정보 */}
+      <div>
+        <Text 
+          variant="body" 
+          size="base"
+          weight="bold"
+          color="secondary-500 dark:text-neutral-400"
+          className="whitespace-nowrap tracking-wide"
+        >
+          {currentUser?.name ? `${currentUser.name} ${currentUser.position || '사원'}` : '사용자'}
+        </Text>
+      </div>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 다크모드 토글 버튼 */}
       <button
-        onClick={() => navigate("/home/setting")}
-        className="p-5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
-        title="설정"
+        onClick={toggleTheme}
+        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          <FiSettings size={20} />
+          {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />}
         </Icon>
       </button>
       
-      {/* 알림 버튼 - 심플한 아이콘 버튼 */}
+      {/* 알림 버튼 */}
       <button
         onClick={() => navigate("/home/alarm")}
-        className="relative p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200 ml-1"
+        className="relative p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
         title="알림"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           <FiBell size={20} />
         </Icon>
         
-        {/* 알림 개수 뱃지 */}
+        {/* 알림 개수 뱃지 - 알림이 있을 때만 표시 */}
         {alarmCount > 0 && (
           <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
             {alarmCount > 99 ? '99+' : alarmCount}
           </span>
         )}
-        
-        {/* 알림 점 (알림이 없을 때) */}
-        {alarmCount === 0 && (
-          <span className="absolute top-1 right-1 w-2 h-2 bg-danger-500 rounded-full" />
-        )}
       </button>
       
-      {/* 구분선 */}
-      <div className="h-6 w-px bg-brand-medium/50 dark:bg-neutral-600/50 mx-4"></div>
-      
-      {/* 사용자 정보 - 텍스트만 */}
-      <div>
-        <Text 
-          variant="body" 
-          size="sm" 
-          weight="normal" 
-          color="secondary-500"
-          className="whitespace-nowrap"
-        >
-          {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
-        </Text>
-      </div>
+      {/* 설정 버튼 */}
+      <button
+        onClick={() => navigate("/home/setting")}
+        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title="설정"
+      >
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          <FiSettings size={20} />
+        </Icon>
+      </button>
     </nav>
   );
 
@@ -371,8 +373,6 @@ const Header = () => {
       
       {/* 중앙 공간 */}
       <div className="flex-1"></div>
-      
-      <TimeInfo />
       
       <UserNavigation />
     </header>
