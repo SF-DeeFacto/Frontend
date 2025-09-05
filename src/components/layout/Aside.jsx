@@ -14,7 +14,7 @@ import MenuItem from "./MenuItem";
 import Icon from '../ui/Icon';
 import Text from '../ui/Text';
 import { logout } from '../../services/api/auth';
-// ZoneUtils는 현재 사용되지 않
+import { ZONE_LIST } from '../../config/zoneConfig';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -50,7 +50,13 @@ const Aside = () => {
 
   // 모든 Zone 서브메뉴 아이템들 - 공통 설정 사용
   const getAllZoneItems = () => {
-    return ZoneUtils.getAllZoneMenuItems();
+    return ZONE_LIST.map(zoneId => ({
+      icon: <Layers />,
+      label: zoneId,
+      path: `/home/zone/${zoneId.toLowerCase()}`,
+      zoneId: zoneId,
+      onClick: () => navigate(`/home/zone/${zoneId.toLowerCase()}`)
+    }));
   };
 
   // 메뉴 아이템 데이터
@@ -169,8 +175,10 @@ const Aside = () => {
                       zoneOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                     }`}
                   >
-                    {getAllZoneItems().map(zone => 
-                      renderSubMenuItem(zone.label, zone.path, zone.zoneId)
+                    {getAllZoneItems().map((zone, index) => 
+                      <div key={zone.path || index}>
+                        {renderSubMenuItem(zone.label, zone.path, zone.zoneId)}
+                      </div>
                     )}
                   </div>
                 )}

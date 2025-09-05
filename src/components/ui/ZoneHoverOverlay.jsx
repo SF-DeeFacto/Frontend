@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../three/main/SimpleModel';
 import { getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
+import { ZONE_POSITIONS, ZONE_MAPPING } from '../../config/zoneConfig';
 import { UI_COLORS } from '../../config/colorConfig';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
@@ -28,7 +29,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   };
 
   // Zone 위치에 따른 오버레이 위치 결정
-  const isLeftZone = ZoneUtils.isLeftZone(hoveredZone.toUpperCase());
+  const isLeftZone = ZONE_POSITIONS.LEFT.includes(hoveredZone.toUpperCase());
   const overlayPosition = isLeftZone ? 'left-4' : 'right-4';
 
   // 현재 존 상태
@@ -100,7 +101,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
         }}>
           {(() => {
             const zoneId = hoveredZone.toUpperCase();
-            const modelPath = ZoneUtils.getZoneModelPath(zoneId);
+            const modelPath = ZONE_MAPPING.ID_TO_MODEL_PATH[zoneId];
             
             if (modelPath) {
               return (

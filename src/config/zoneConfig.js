@@ -87,6 +87,9 @@ export const ZONE_MAPPING = {
   }
 };
 
+// ==================== Zone 위치 정보 ====================
+export const ZONE_POSITIONS = ZONE_CONFIG.ZONE_POSITIONS;
+
 // ==================== 기존 상수와의 호환성 ====================
 // 기존 코드와의 호환성을 위한 export
 export const ZONES = ZONE_CONFIG.ZONES.reduce((acc, zone) => {
