@@ -1,105 +1,97 @@
 import React, { useState, useEffect } from 'react';
+import { aiRecommendService } from '../../../services/api/aiRecommend';
 
 const AIRecommend = () => {
-  // 월별 AI 추천 데이터
+  // 상태 변수들
   const [recommendations, setRecommendations] = useState([]);
   const [filteredRecommendations, setFilteredRecommendations] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState('2025-01');
   const [filterZone, setFilterZone] = useState('all');
   const [filterSensorType, setFilterSensorType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedRecommendation, setSelectedRecommendation] = useState(null);
 
+  // AI 추천 데이터 로드
+  const loadRecommendations = async () => {
+    try {
+      if (!loading) setLoading(true);
+      setError(null);
 
-  // 더미 데이터
-  useEffect(() => {
-    const dummyRecommendations = [
-      {
-        id: 1,
-        zoneId: "a",
-        sensorType: "temperature",
-        warningLow: 18,
-        warningHigh: 25,
-        alertLow: 16,
-        alertHigh: 28,
-        recommendedAt: "2025-01-15T09:00:00",
-        appliedStatus: false,
-        appliedAt: null,
-        currentThresholdId: 1,
-        currentWarningLow: 20,
-        currentWarningHigh: 22,
-        currentAlertLow: 19,
-        currentAlertHigh: 24,
-        reason: "겨울철 온도 변화 패턴을 고려한 조정"
-      },
-      {
-        id: 2,
-        zoneId: "a",
-        sensorType: "humidity",
-        warningLow: 35,
-        warningHigh: 55,
-        alertLow: 30,
-        alertHigh: 60,
-        recommendedAt: "2025-01-15T09:00:00",
-        appliedStatus: false,
-        appliedAt: null,
-        currentThresholdId: 2,
-        currentWarningLow: 40,
-        currentWarningHigh: 50,
-        currentAlertLow: 32,
-        currentAlertHigh: 52,
-        reason: "실내 습도 최적화를 위한 범위 확장"
-      },
-      {
-        id: 3,
-        zoneId: "b",
-        sensorType: "electrostatic",
-        warningLow: null,
-        warningHigh: 80,
-        alertLow: null,
-        alertHigh: 100,
-        recommendedAt: "2025-01-15T09:00:00",
-        appliedStatus: true,
-        appliedAt: "2025-01-16T14:30:00",
-        currentThresholdId: 3,
-        currentWarningLow: null,
-        currentWarningHigh: 75,
-        currentAlertLow: null,
-        currentAlertHigh: 95,
-        reason: "ESD 위험도 증가에 따른 임계치 상향"
-      },
-      {
-        id: 4,
-        zoneId: "c",
-        sensorType: "particle_0_1um",
-        warningLow: null,
-        warningHigh: 1000,
-        alertLow: null,
-        alertHigh: 1100,
-        recommendedAt: "2024-12-15T09:00:00",
-        appliedStatus: false,
-        appliedAt: null,
-        currentThresholdId: 4,
-        currentWarningLow: null,
-        currentWarningHigh: 1100,
-        currentAlertLow: null,
-        currentAlertHigh: 1200,
-        reason: "미세먼지 농도 개선에 따른 기준 강화"
+      let recommendationsArray = [];
+
+      if (filterStatus === 'all') {
+        recommendationsArray = await aiRecommendService.getRecommendations();
+      } else if (filterStatus === 'APPROVED') {
+        recommendationsArray = await aiRecommendService.getApprovedRecommendations();
+      } else if (filterStatus === 'REJECTED') {
+        recommendationsArray = await aiRecommendService.getRejectedRecommendations();
+      } else if (filterStatus === 'PENDING') {
+        recommendationsArray = await aiRecommendService.getRecommendationsByStatus(['PENDING']);
       }
-    ];
-    setRecommendations(dummyRecommendations);
-    setFilteredRecommendations(dummyRecommendations);
-  }, []);
+
+      // 전체 데이터 저장
+      setRecommendations(recommendationsArray);
+      setFilteredRecommendations(recommendationsArray);
+    } catch (err) {
+      console.error('AI 추천 데이터 로드 실패:', err);
+      setError(`API 연결에 실패했습니다: ${err.message}`);
+      setRecommendations([]);
+      setFilteredRecommendations([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 승인 처리
+  const handleApprove = async (id) => {
+    try {
+      console.log('승인 처리 시작:', id);
+      setLoading(true);
+      
+      const result = await aiRecommendService.updateRecommendationStatus(id, 'APPROVE');
+      console.log('승인 API 결과:', result);
+      
+      alert('AI 추천이 승인되어 적용되었습니다.');
+      
+      // 데이터 다시 로드
+      await loadRecommendations();
+      console.log('데이터 재로드 완료');
+      
+    } catch (err) {
+      console.error('승인 처리 실패:', err);
+      alert(`승인 처리에 실패했습니다: ${err.message || '알 수 없는 오류'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 거부 처리
+  const handleReject = async (id) => {
+    try {
+      console.log('거부 처리 시작:', id);
+      setLoading(true);
+      
+      const result = await aiRecommendService.updateRecommendationStatus(id, 'REJECT');
+      console.log('거부 API 결과:', result);
+      
+      alert('AI 추천이 거부되었습니다.');
+      
+      // 데이터 다시 로드
+      await loadRecommendations();
+      console.log('데이터 재로드 완료');
+      
+    } catch (err) {
+      console.error('거부 처리 실패:', err);
+      alert(`거부 처리에 실패했습니다: ${err.message || '알 수 없는 오류'}`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 필터링 로직
   useEffect(() => {
     let filtered = recommendations;
-
-    // 월별 필터 (recommendedAt에서 월 추출)
-    if (selectedMonth !== 'all') {
-      filtered = filtered.filter(rec => {
-        const recMonth = rec.recommendedAt.substring(0, 7); // YYYY-MM 형태로 추출
-        return recMonth === selectedMonth;
-      });
-    }
 
     // 구역 필터
     if (filterZone !== 'all') {
@@ -112,81 +104,26 @@ const AIRecommend = () => {
     }
 
     setFilteredRecommendations(filtered);
-  }, [recommendations, selectedMonth, filterZone, filterSensorType]);
+  }, [recommendations, filterZone, filterSensorType]);
 
-  // 승인 처리
-  const handleApprove = (id) => {
-    setRecommendations(prev => prev.map(rec => 
-      rec.id === id 
-        ? { ...rec, appliedStatus: true, appliedAt: new Date().toISOString() }
-        : rec
-    ));
-    alert('AI 추천이 승인되어 적용되었습니다.');
-  };
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    loadRecommendations();
+  }, [filterStatus]);
 
-  // 거부 처리
-  const handleReject = (id) => {
-    // 거부는 단순히 목록에서 제거 (또는 별도 상태로 관리)
-    setRecommendations(prev => prev.filter(rec => rec.id !== id));
-    alert('AI 추천이 거부되었습니다.');
-  };
-
-  // 일괄 승인
-  const handleBulkApprove = () => {
-    // 미적용된 추천만 필터링
-    const unappliedRecommendations = filteredRecommendations.filter(rec => !rec.appliedStatus);
-    
-    if (unappliedRecommendations.length === 0) {
-      alert('승인할 추천이 없습니다. (이미 적용된 추천은 제외됩니다)');
-      return;
-    }
-
-    // 월별 유효성 검사 - 모든 추천이 같은 월인지 확인
-    const uniqueMonths = [...new Set(unappliedRecommendations.map(rec => rec.recommendedAt.substring(0, 7)))];
-    
-    if (uniqueMonths.length > 1) {
-      alert(`일괄 승인은 동일한 월의 추천만 가능합니다.\n\n현재 선택된 추천의 월: ${uniqueMonths.join(', ')}\n\n월별 필터를 사용하여 특정 월만 선택한 후 다시 시도해주세요.`);
-      return;
-    }
-
-    // 승인할 항목들의 상세 정보 생성
-    const approvalList = unappliedRecommendations.map(rec => {
-      const sensorName = sensorTypeMapping[rec.sensorType] || rec.sensorType;
-      const zoneName = rec.zoneId.toUpperCase();
-      const month = rec.recommendedAt.substring(0, 7);
-      return `• ${month} ${zoneName}구역 ${sensorName} 센서`;
-    }).join('\n');
-
-    const confirmMessage = `다음 ${unappliedRecommendations.length}개의 AI 추천을 일괄 승인하시겠습니까?\n\n${approvalList}\n\n승인 후에는 해당 임계치가 자동으로 적용됩니다.`;
-
-    if (window.confirm(confirmMessage)) {
-      const allIds = unappliedRecommendations.map(rec => rec.id);
-      
-      setRecommendations(prev => prev.map(rec => 
-        allIds.includes(rec.id)
-          ? { ...rec, appliedStatus: true, appliedAt: new Date().toISOString() }
-          : rec
-      ));
-      alert(`${allIds.length}개의 AI 추천이 일괄 승인되어 적용되었습니다.`);
-    }
-  };
-
-  // 센서 타입별 한글 매핑
+  // 센서 타입 매핑
   const sensorTypeMapping = {
-    'electrostatic': 'ESD',
     'temperature': '온도',
     'humidity': '습도',
-    'winddirection': '풍향',
-    'particle_0_1um': '미세먼지 0.1μm',
-    'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_5um': '미세먼지 0.5μm'
+    'particle_0_1': '미세먼지 0.1μm',
+    'particle_0_3': '미세먼지 0.3μm',
+    'particle_0_5': '미세먼지 0.5μm'
   };
 
-
-
-  // 날짜 포맷팅
-  const formatDateTime = (isoString) => {
-    const date = new Date(isoString);
+  // 날짜 포맷팅 함수
+  const formatDateTime = (dateTimeString) => {
+    if (!dateTimeString) return '-';
+    const date = new Date(dateTimeString);
     return date.toLocaleString('ko-KR', {
       year: 'numeric',
       month: '2-digit',
@@ -196,170 +133,182 @@ const AIRecommend = () => {
     });
   };
 
-  // 임계치 값 표시
+  // 임계치 값 포맷팅 함수
   const formatThresholdValue = (value) => {
-    return value !== null ? value.toString() : '-';
+    if (value === null || value === undefined) return '-';
+    return value.toString();
   };
 
-  return (
-    <div className="p-2">
-      {/* 헤더 */}
-      <div className="flex justify-between items-center mb-6">
-        {/* <h4 className="text-lg font-medium text-gray-900">AI 추천 임계치 관리</h4> */}
-        <button
-          onClick={handleBulkApprove}
-          className="px-4 py-2 bg-[#494FA2] text-white rounded-md hover:bg-[#3d4490] transition-colors disabled:bg-gray-400"
-          disabled={filteredRecommendations.filter(rec => !rec.appliedStatus).length === 0}
-        >
-          전체 일괄 승인
-        </button>
+  // 로딩 상태
+  if (loading && recommendations.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#494FA2]"></div>
+        <span className="ml-3 text-gray-600">AI 추천 데이터를 불러오는 중...</span>
       </div>
+    );
+  }
 
-      {/* 필터 영역 */}
-      <div className="bg-gray-50 p-4 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* 월 선택 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              월별 조회
-            </label>
-            <select
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
-            >
-              <option value="all">전체</option>
-              <option value="2025-01">2025년 1월</option>
-              <option value="2024-12">2024년 12월</option>
-              <option value="2024-11">2024년 11월</option>
-            </select>
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div className="flex">
+          <div className="flex-shrink-0">
+            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
           </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-red-800">오류가 발생했습니다</h3>
+            <div className="mt-2 text-sm text-red-700">
+              <p>{error}</p>
+              <button 
+                onClick={() => window.location.reload()}
+                className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm font-medium"
+              >
+                페이지 새로고침
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  console.log('AIRecommend 렌더링:', {
+    recommendationsLength: recommendations.length,
+    filteredRecommendationsLength: filteredRecommendations.length,
+    selectedRecommendation,
+    loading,
+    error
+  });
+
+  return (
+    <div>
+      {/* 필터 영역 */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* 구역 필터 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              구역
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">구역</label>
             <select
               value={filterZone}
               onChange={(e) => setFilterZone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] focus:border-transparent"
             >
               <option value="all">전체</option>
-              <option value="a">Zone A</option>
-              <option value="b">Zone B</option>
-              <option value="c">Zone C</option>
+              <option value="a">A구역</option>
+              <option value="b">B구역</option>
+              <option value="c">C구역</option>
             </select>
           </div>
 
-          {/* 센서 타입 필터 */}
+          {/* 센서 종류 필터 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              센서 종류
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">센서 종류</label>
             <select
               value={filterSensorType}
               onChange={(e) => setFilterSensorType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] focus:border-transparent"
             >
               <option value="all">전체</option>
               <option value="temperature">온도</option>
               <option value="humidity">습도</option>
-              <option value="electrostatic">ESD</option>
-              <option value="winddirection">풍향</option>
-              <option value="particle_0_1um">미세먼지 0.1μm</option>
-              <option value="particle_0_3um">미세먼지 0.3μm</option>
-              <option value="particle_0_5um">미세먼지 0.5μm</option>
+              <option value="particle_0_1">미세먼지 0.1μm</option>
+              <option value="particle_0_3">미세먼지 0.3μm</option>
+              <option value="particle_0_5">미세먼지 0.5μm</option>
             </select>
           </div>
 
-
-        </div>
-
-        {/* 결과 수 */}
-        <div className="mt-4 text-sm text-gray-600">
-          총 {filteredRecommendations.length}개의 AI 추천
+          {/* 처리 상태 필터 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">처리 상태</label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] focus:border-transparent"
+            >
+              <option value="all">전체</option>
+              <option value="PENDING">대기중</option>
+              <option value="APPROVED">승인됨</option>
+              <option value="REJECTED">거부됨</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* AI 추천 목록 테이블 */}
       <div className="bg-white rounded-lg border overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="w-full divide-y divide-gray-200" style={{minWidth: '800px'}}>
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">월</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서타입</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">현재 Warning<br/>Low/High</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">현재 Alert<br/>Low/High</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">추천 Warning<br/>Low/High</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">추천 Alert<br/>Low/High</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">추천 사유</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일시</th>
-                <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">추천일시</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서타입</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">현재 Warning</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">현재 Alert</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">추천 Warning</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">추천 Alert</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredRecommendations.map((rec) => (
-                <tr key={rec.id} className={`hover:bg-gray-50 ${rec.appliedStatus ? 'bg-green-50' : ''}`}>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {rec.recommendedAt.substring(0, 7)}
+                <tr key={rec.id} 
+                    onClick={() => {
+                      console.log('행 클릭됨:', rec);
+                      setSelectedRecommendation(rec);
+                    }}
+                    className={`cursor-pointer hover:bg-gray-50 ${
+                      rec.appliedStatus === 'APPROVED' ? 'bg-green-50' : 
+                      rec.appliedStatus === 'REJECTED' ? 'bg-red-50' : ''
+                    }`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatDateTime(rec.recommendedAt)}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {rec.zoneId.toUpperCase()}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {sensorTypeMapping[rec.sensorType] || rec.sensorType}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className="text-xs">
-                      {formatThresholdValue(rec.currentWarningLow)} / {formatThresholdValue(rec.currentWarningHigh)}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {formatThresholdValue(rec.currentWarningLow)} / {formatThresholdValue(rec.currentWarningHigh)}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className="text-xs">
-                      {formatThresholdValue(rec.currentAlertLow)} / {formatThresholdValue(rec.currentAlertHigh)}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {formatThresholdValue(rec.currentAlertLow)} / {formatThresholdValue(rec.currentAlertHigh)}
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-[#494FA2]'}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <div className={`font-medium ${
+                      rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
+                      rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[#494FA2]'
+                    }`}>
                       {formatThresholdValue(rec.warningLow)} / {formatThresholdValue(rec.warningHigh)}
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-900 text-center">
-                    <div className={`text-xs font-medium ${rec.appliedStatus ? 'text-green-600' : 'text-[#494FA2]'}`}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
+                    <div className={`font-medium ${
+                      rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
+                      rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[#494FA2]'
+                    }`}>
                       {formatThresholdValue(rec.alertLow)} / {formatThresholdValue(rec.alertHigh)}
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-sm text-gray-700 max-w-xs">
-                    <div className="truncate" title={rec.reason}>
-                      {rec.reason}
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDateTime(rec.recommendedAt)}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    {rec.appliedStatus ? (
-                      <span className="text-green-600 text-sm font-medium">
-                        적용됨
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
+                    {rec.appliedStatus === 'APPROVED' ? (
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                        승인됨
+                      </span>
+                    ) : rec.appliedStatus === 'REJECTED' ? (
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                        거부됨
                       </span>
                     ) : (
-                      <div className="space-x-2">
-                        <button
-                          onClick={() => handleApprove(rec.id)}
-                          className="text-green-600 hover:text-green-900 font-medium"
-                        >
-                          승인
-                        </button>
-                        <button
-                          onClick={() => handleReject(rec.id)}
-                          className="text-red-600 hover:text-red-900 font-medium"
-                        >
-                          거부
-                        </button>
-                      </div>
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                        대기중
+                      </span>
                     )}
                   </td>
                 </tr>
@@ -369,10 +318,14 @@ const AIRecommend = () => {
         </div>
 
         {/* 빈 결과 메시지 */}
-        {filteredRecommendations.length === 0 && (
+        {filteredRecommendations.length === 0 && !loading && !error && (
           <div className="text-center py-12">
-            <div className="text-gray-500 text-lg">검색 결과가 없습니다.</div>
-            <div className="text-gray-400 text-sm mt-2">다른 검색 조건을 시도해보세요.</div>
+            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+            </svg>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">AI 추천이 없습니다</h3>
+            <p className="mt-1 text-sm text-gray-500">현재 조건에 맞는 AI 추천 데이터가 없습니다.</p>
+            <p className="mt-1 text-xs text-gray-400">데이터 개수: {recommendations.length}, 필터링된 개수: {filteredRecommendations.length}</p>
           </div>
         )}
       </div>
@@ -381,12 +334,129 @@ const AIRecommend = () => {
       <div className="mt-6 bg-blue-50 p-4 rounded-lg">
         <h5 className="text-sm font-medium text-blue-900 mb-2">AI 추천 임계치 안내</h5>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• AI는 월별로 센서 데이터를 분석하여 최적의 임계치를 추천합니다.</li>
-          <li>• 승인된 추천은 자동으로  센서 임계치에 적용됩니다.</li>
-          <li>• 일괄 승인은 현재 필터링된 모든 추천에 적용됩니다.</li>
-          <li>• 개별 승인/거부도 가능합니다.</li>
+          <li>• AI는 센서 데이터를 분석하여 최적의 임계치를 추천합니다.</li>
+          <li>• 행을 클릭하면 상세 정보와 추천 사유를 확인할 수 있습니다.</li>
+          <li>• 승인된 추천은 자동으로 센서 임계치에 적용됩니다.</li>
         </ul>
+        
       </div>
+
+      
+      {selectedRecommendation && (() => {
+        try {
+          return (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onClick={() => setSelectedRecommendation(null)}>
+              <div className="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" onClick={(e) => e.stopPropagation()}>
+                <div className="mt-3">
+                  {/* 모달 헤더 */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">AI 추천 상세 정보</h3>
+                    <button
+                      onClick={() => setSelectedRecommendation(null)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* 기본 정보 */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">추천일시</label>
+                      <p className="text-sm text-gray-900">{selectedRecommendation.recommendedAt || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">구역</label>
+                      <p className="text-sm text-gray-900">{selectedRecommendation.zoneId || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">센서타입</label>
+                      <p className="text-sm text-gray-900">{selectedRecommendation.sensorType || '-'}</p>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">처리상태</label>
+                      <p className="text-sm text-gray-900">{selectedRecommendation.appliedStatus || '대기중'}</p>
+                    </div>
+                  </div>
+
+                  {/* 추천 사유 */}
+                  <div className="mb-6">
+                    <h4 className="text-md font-medium text-gray-900 mb-3">추천 사유</h4>
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <div className="text-sm text-gray-700">
+                        {selectedRecommendation.reasonContent || selectedRecommendation.reason || '사유 없음'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 액션 버튼 */}
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={async () => {
+                        try {
+                          console.log('승인 클릭:', selectedRecommendation.id);
+                          await handleApprove(selectedRecommendation.id);
+                          setSelectedRecommendation(null);
+                        } catch (error) {
+                          console.error('승인 처리 오류:', error);
+                          alert('승인 처리 중 오류가 발생했습니다.');
+                        }
+                      }}
+                      className="px-4 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-md hover:bg-green-200 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading ? '처리중...' : '승인'}
+                    </button>
+                    <button
+                      onClick={async () => {
+                        try {
+                          console.log('거부 클릭:', selectedRecommendation.id);
+                          await handleReject(selectedRecommendation.id);
+                          setSelectedRecommendation(null);
+                        } catch (error) {
+                          console.error('거부 처리 오류:', error);
+                          alert('거부 처리 중 오류가 발생했습니다.');
+                        }
+                      }}
+                      className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200 disabled:opacity-50"
+                      disabled={loading}
+                    >
+                      {loading ? '처리중...' : '거부'}
+                    </button>
+                    <button
+                      onClick={() => setSelectedRecommendation(null)}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200"
+                    >
+                      닫기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        } catch (error) {
+          console.error('모달 렌더링 오류:', error);
+          return (
+            <div className="fixed inset-0 bg-red-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onClick={() => setSelectedRecommendation(null)}>
+              <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                <div className="text-center">
+                  <h3 className="text-lg font-medium text-red-900">오류 발생</h3>
+                  <p className="mt-2 text-sm text-red-700">모달을 표시하는 중 오류가 발생했습니다.</p>
+                  <p className="mt-1 text-xs text-gray-500">{error.message}</p>
+                  <button
+                    onClick={() => setSelectedRecommendation(null)}
+                    className="mt-4 px-4 py-2 bg-red-100 text-red-700 rounded-md hover:bg-red-200"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        }
+      })()}
     </div>
   );
 };
