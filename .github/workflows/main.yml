@@ -58,6 +58,13 @@ jobs:
             --delete \
             --exclude "index.html" \
             --cache-control "public,max-age=31536000,immutable"
+            
+      - name: Sync hashed assets (keep models/)
+        run: |
+          aws s3 sync "./$BUILD_DIR" "s3://$S3_BUCKET/" \
+            --delete \
+            --exclude "models/*" \
+            --cache-control "public,max-age=31536000,immutable"
 
       # 🎯 3D 모델/관련 에셋의 Content-Type 교정
       # sync는 개별 Content-Type 주기 어렵기 때문에 cp로 다시 덮어쓰기(REPLACE)
