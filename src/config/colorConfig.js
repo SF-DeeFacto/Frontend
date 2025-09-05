@@ -170,8 +170,8 @@ export const ColorUtils = {
   }
 };
 
-// ==================== 기존 호환성 ====================
-// 기존 코드와의 호환성을 위한 export
+// ==================== 기존 호환성 (필요시에만 사용) ====================
+// 기존 코드와의 호환성을 위한 export (점진적 제거 예정)
 export const COLORS = BRAND_COLORS;
 export const CONNECTION_STATUS_HEX_COLORS = CONNECTION_STATUS_COLORS;
 
@@ -184,8 +184,5 @@ export default {
   THREE_JS_COLORS,
   CHART_COLORS,
   GRADIENTS,
-  ColorUtils,
-  // 기존 호환성
-  COLORS,
-  CONNECTION_STATUS_HEX_COLORS
+  ColorUtils
 };

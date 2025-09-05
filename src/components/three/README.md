@@ -17,9 +17,12 @@ src/components/3d/
 ├── index.js                # 컴포넌트 export
 └── README.md               # 사용법 및 구조 설명
 
-src/components/utils/        # 🆕 공용 유틸리티 (루트 레벨)
-├── colors.js              # 센서 상태별 색상 정의
-├── sensorHelpers.js       # 센서 Mesh 탐색 및 좌표 계산
+src/utils/                  # 🆕 공용 유틸리티 (루트 레벨)
+├── sensorUtils.js         # 센서 관련 모든 유틸리티 (Mesh 탐색, 좌표 계산 등)
+├── dateUtils.js           # 날짜/시간 관련 유틸리티
+├── alarmFilters.js        # 알림 필터링 유틸리티
+├── alarmMapper.js         # 알림 데이터 매핑 유틸리티
+├── unifiedErrorHandler.js # 통합 에러 핸들링
 └── index.js               # 유틸리티 export
 ```
 
@@ -69,13 +72,16 @@ src/components/utils/        # 🆕 공용 유틸리티 (루트 레벨)
 - **getStatusColor(status)**: 상태 문자열을 색상 코드로 변환
 - **getStatusDescription(status)**: 상태별 한글 설명 반환
 
-### 2. sensorHelpers.js
+### 2. sensorUtils.js (통합된 센서 유틸리티)
 - **calculateMeshBounds(mesh)**: 메쉬의 AABB 정보 계산
 - **calculateIndicatorPosition(bounds)**: 센서 인디케이터 위치 계산
 - **generateSensorIds()**: S01~S55 센서 ID 배열 생성
 - **findAndCalculateSensorPositions(scene, zoneId)**: GLB 모델에서 센서 위치 계산
 - **findSensorDataByMeshName(meshName, sensorData)**: 센서 데이터 검색
 - **calculateModelBounds(scene)**: 모델 전체 크기 및 중심점 계산
+- **getStatusColor(status)**: 센서 상태별 색상 반환
+- **getStatusText(status)**: 센서 상태별 텍스트 반환
+- **groupSensorData(backendData)**: 백엔드 센서 데이터 그룹화
 
 ## 사용 예시
 
@@ -162,6 +168,6 @@ const sensorData = {
 1. **새로운 Zone 추가**: ZoneModel.jsx의 모델 로딩 경로만 수정
 2. **센서 타입 추가**: SensorIndicator.jsx의 상태 처리 로직 수정
 3. **색상 변경**: utils/colors.js에서 중앙 관리
-4. **센서 로직 수정**: utils/sensorHelpers.js에서 관리
+4. **센서 로직 수정**: utils/sensorUtils.js에서 관리
 5. **UI 변경**: 각 컴포넌트별로 독립적으로 수정 가능
 6. **성능 최적화**: 각 컴포넌트의 useEffect 의존성 배열 최적화

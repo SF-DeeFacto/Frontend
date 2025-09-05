@@ -1,17 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
-
-const formatDateTime = (date) => {
-  const pad = (n) => String(n).padStart(2, '0');
-  const yyyy = date.getFullYear();
-  const MM = pad(date.getMonth() + 1);
-  const dd = pad(date.getDate());
-  const hh = pad(date.getHours());
-  const mm = pad(date.getMinutes());
-  const ss = pad(date.getSeconds());
-  return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
-};
+import { formatDate, formatTime } from '../../../utils/dateUtils';
 
 const Equipset = ({ onTabChange }) => {
   // 선택된 구역
@@ -182,23 +172,13 @@ const Equipset = ({ onTabChange }) => {
     'particle_0_5um': '미세먼지 0.5μm'
   };
 
-  // 날짜 포맷팅 함수 - 날짜와 시간 분리
+  // 날짜 포맷팅 함수 - dateUtils 사용
   const formatDateFromISO = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-    });
+    return formatDate(isoString, 'YYYY-MM-DD');
   };
 
   const formatTimeFromISO = (isoString) => {
-    const date = new Date(isoString);
-    return date.toLocaleTimeString('ko-KR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
+    return formatTime(isoString);
   };
 
   // 임계치 값 표시 함수

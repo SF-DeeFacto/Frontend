@@ -40,6 +40,8 @@ export const TIMEOUTS = {
   CHART_REFRESH: 30000
 };
 
+// SSE 관련 타임아웃은 sseConfig.js에서 관리하므로 여기서 제거
+
 // ==================== 비즈니스 도메인 상수 ====================
 
 // 센서 관련은 sensorConfig.js에서 관리

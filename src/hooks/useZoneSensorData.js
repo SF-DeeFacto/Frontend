@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
+import { groupSensorData, SensorDataDebouncer } from '../utils/sensorUtils';
+import { formatTime } from '../utils/dateUtils';
 import { CONNECTION_STATE } from '../config/sensorConfig';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 

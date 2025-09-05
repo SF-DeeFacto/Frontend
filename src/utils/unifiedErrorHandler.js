@@ -269,7 +269,7 @@ export class UnifiedErrorHandler {
     // 에러 로깅
     this.logError(errorInfo, context);
     
-    // 사용자 피드백
+    // 사용자 피드백 (심각도에 따라)
     this.showUserFeedback(errorInfo, context);
     
     // 특별한 액션 처리

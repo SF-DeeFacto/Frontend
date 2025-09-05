@@ -90,22 +90,19 @@ export const ZONE_MAPPING = {
 // ==================== Zone 위치 정보 ====================
 export const ZONE_POSITIONS = ZONE_CONFIG.ZONE_POSITIONS;
 
-// ==================== 기존 상수와의 호환성 ====================
-// 기존 코드와의 호환성을 위한 export
+// ==================== 기존 상수와의 호환성 (필요시에만 사용) ====================
+// 기존 코드와의 호환성을 위한 export (점진적 제거 예정)
 export const ZONES = ZONE_CONFIG.ZONES.reduce((acc, zone) => {
   acc[zone.id] = zone.displayName;
   return acc;
 }, { ALL: '전체' });
 
 export const ZONE_LIST = ZONE_CONFIG.ZONE_IDS;
-
 export const ZONE_MAPPING_LEGACY = ZONE_MAPPING.LOWER_TO_UPPER;
 
 export default {
   ZONE_CONFIG,
   ZONE_MAPPING,
-  // 기존 호환성
-  ZONES,
-  ZONE_LIST,
-  ZONE_MAPPING_LEGACY
+  ZONE_POSITIONS,
+  ZONE_INFO
 };
