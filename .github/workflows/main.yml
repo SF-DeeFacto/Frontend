@@ -25,14 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
           fetch-depth: 0
 
       # 혹시 모를 누락 방지용(이중 안전장치)
-      - name: Ensure LFS files are downloaded
-        run: |
-          git lfs install
-          git lfs pull
+      # - name: Ensure LFS files are downloaded
+      #   run: |
+      #     git lfs install
+      #     git lfs pull
 
       - uses: actions/setup-node@v4
         with:
