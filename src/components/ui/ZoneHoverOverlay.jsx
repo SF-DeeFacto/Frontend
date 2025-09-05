@@ -62,8 +62,30 @@ function ModelPreview({ zoneId }) {
         // 최소 0.5초는 로딩 스피너를 보여주기 위해 지연
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        const response = await fetch(modelPath, { method: 'HEAD' });
-        setModelExists(response.ok);
+        const response = await fetch(modelPath, { method: 'GET' });
+        
+        if (!response.ok) {
+          setModelExists(false);
+          return;
+        }
+        
+        // Content-Type 확인 (GLB 파일인지 체크)
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('model/gltf-binary') && !contentType.includes('application/octet-stream')) {
+          console.warn('모델 파일이 올바른 GLB 형식이 아닙니다:', contentType);
+          setModelExists(false);
+          return;
+        }
+        
+        // 응답 내용이 HTML인지 확인 (에러 페이지 등)
+        const text = await response.text();
+        if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
+          console.warn('모델 파일 대신 HTML 페이지가 반환되었습니다');
+          setModelExists(false);
+          return;
+        }
+        
+        setModelExists(true);
       } catch (error) {
         console.error('모델 파일 확인 실패:', error);
         setModelExists(false);
