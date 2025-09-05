@@ -15,6 +15,8 @@ import DashboardChart from '../pages/GrafanaTest_2';
 import GrafanaIframe from '../pages/GrafanaIframe';
 import { useAuth } from '../hooks/useAuth';
 import { isRoot, isRootOrAdmin } from '../services/api/auth';
+import { PageLoading } from '../components/ui';
+import { LOADING_TEXTS } from '../config';
 
 // useAuth 훅을 사용한 통일된 인증 관리
 
@@ -23,9 +25,7 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
   
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
-    </div>;
+    return <PageLoading loading={true} loadingText={LOADING_TEXTS.PAGES.GENERAL} fullScreen={true} />;
   }
   
   if (!isAuthenticated) {
@@ -40,9 +40,7 @@ const RoleProtectedRoute = ({ children, requiredRole }) => {
   const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
   
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
-    </div>;
+    return <PageLoading loading={true} loadingText={LOADING_TEXTS.PAGES.GENERAL} fullScreen={true} />;
   }
   
   if (!isAuthenticated) {

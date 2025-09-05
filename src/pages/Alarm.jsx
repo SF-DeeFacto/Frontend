@@ -6,7 +6,9 @@ import { useAlarmPolling } from '../hooks/useAlarmPolling';
 import { handleApiError } from '../utils/unifiedErrorHandler';
 import AlarmFilters from '../components/features/alarm/AlarmFilters';
 import AlarmCard from '../components/features/alarm/AlarmCard';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { SectionLoading } from '../components/ui';
+import { useUnifiedLoading } from '../hooks';
+import { LOADING_TEXTS } from '../config';
 import Pagination from '../components/ui/Pagination';
 import Text from '../components/ui/Text';
 
@@ -91,28 +93,7 @@ const Alarm = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      {/* 로딩 및 에러 상태 표시 */}
-      {loading && (
-        <LoadingSpinner 
-          size="md" 
-          text="알림을 불러오는 중..." 
-          className="py-8"
-        />
-      )}
-      {error && (
-        <div className="modern-card p-4 border-l-4 border-l-danger-500 bg-danger-50/50 dark:bg-danger-900/20">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-danger-500 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">!</span>
-            </div>
-            <Text variant="body" size="sm" color="danger-600" className="font-medium dark:text-danger-400">
-              {error}
-            </Text>
-          </div>
-        </div>
-      )}
-
-      {/* 상단 필터 섹션 */}
+      {/* 상단 필터 섹션 - 항상 표시 */}
       <AlarmFilters
         alarmType={alarmType}
         setAlarmType={(type) => handleFilterChange(type, statusFilter)}
@@ -122,8 +103,16 @@ const Alarm = () => {
         hasUnreadAlarms={hasUnreadAlarms}
       />
 
-      {/* 알림 리스트 */}
-      <div className="space-y-4">
+      {/* 알림 리스트 섹션 - 로딩 상태 적용 */}
+      <SectionLoading 
+        loading={loading}
+        loadingText={LOADING_TEXTS.PAGES.ALARM}
+        error={error}
+        errorText={error}
+        size="md"
+        showHeader={false}
+      >
+        <div className="space-y-4">
         {filteredAlarms.map((alarm, index) => (
           <div 
             key={alarm.id} 
@@ -174,6 +163,7 @@ const Alarm = () => {
           />
         </>
       )}
+      </SectionLoading>
     </div>
   );
 };

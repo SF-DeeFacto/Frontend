@@ -420,6 +420,8 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { SectionLoading } from '../components/ui';
+import { useUnifiedLoading } from '../hooks';
 
 // const API_BASE = 'http://localhost:8085';
 const API_BASE = '/report-api';
@@ -439,16 +441,15 @@ const Report = () => {
   const [endDate, setEndDate] = useState('');
 
   const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, loadingText, error, withLoading, setLoadingError } = useUnifiedLoading({
+    componentName: 'Report'
+  });
 
   const itemsPerPage = 5; // 서버 page size에 맞춰 변경 가능
 
   // 서버에서 리포트 목록 조회
   const fetchReports = async (page = currentPage) => {
-    setLoading(true);
-    setError(null);
-    try {
+    return withLoading(async () => {
       const params = {
         type: reportType !== '전체' ? reportType : undefined,
         // backend expects startDate/endDate as query params if provided
@@ -476,16 +477,7 @@ const Report = () => {
 
       setReports(content || []);
       setTotalItems(total);
-    } catch (err) {
-      console.error('❌ 리포트 조회 실패:', {
-        message: err.message,
-        status: err.response?.status,
-        data: err.response?.data
-      });
-      setError('리포트 목록을 불러오는 중 오류가 발생했습니다.');
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   // 초기 및 필터/페이지 변경 시 조회
@@ -607,10 +599,7 @@ const Report = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {loading && <div className="text-sm text-gray-500 dark:text-neutral-400">로딩 중...</div>}
-      {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
-
-      {/* 기존 필터/검색 UI (생략 가능) */}
+      {/* 필터/검색 UI - 항상 표시 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <div className="relative">
@@ -637,8 +626,15 @@ const Report = () => {
         </div>
       </div>
 
-      {/* 리포트 테이블 */}
-      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
+      {/* 리포트 테이블 섹션 - 로딩 상태 적용 */}
+      <SectionLoading 
+        loading={loading}
+        loadingText={loadingText}
+        error={error}
+        errorText={error}
+        size="md"
+        showHeader={false}
+      >
         <table className="w-full">
           <thead className="bg-gray-50 dark:bg-neutral-700">
             <tr>
@@ -668,9 +664,8 @@ const Report = () => {
             ))}
           </tbody>
         </table>
-      </div>
 
-      {/* 페이지네이션 */}
+        {/* 페이지네이션 */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-2">
@@ -704,6 +699,7 @@ const Report = () => {
           </nav>
         </div>
       )}
+      </SectionLoading>
     </div>
   );
 };

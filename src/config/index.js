@@ -5,3 +5,4 @@ export * from './iconConfig';
 export * from './sensorConfig';
 export * from './zoneConfig';
 export * from './sseConfig';
+export * from './loadingTexts';

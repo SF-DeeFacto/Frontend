@@ -5,7 +5,7 @@ import {
 } from '../components/features/zone';
 import { useZoneManager } from '../hooks/useZoneManager';
 import { useAuth } from '../hooks/useAuth';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { PageLoading } from '../components/ui';
 
 const Home = () => {
   const [hoveredZone, setHoveredZone] = useState(null);
@@ -16,17 +16,17 @@ const Home = () => {
   // Zone 상태 관리 훅 사용
   const { zoneStatuses, connectionStates, lastUpdated, zones } = useZoneManager();
 
-  // 로딩 중이면 스피너 표시
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   // 인증되지 않은 경우 useAuth에서 자동으로 리다이렉트됨
   if (!isAuthenticated) {
     return null;
   }
 
   return (
+    <PageLoading 
+      loading={isLoading}
+      loadingText="홈을 불러오는 중..."
+      fullScreen={true}
+    >
     <div className="h-[calc(100vh-140px)] flex flex-col gap-6">
       {/* 3D 모델 섹션 - 상단 영역 */}
       <section className="flex-1 min-h-0">
@@ -48,6 +48,7 @@ const Home = () => {
         />
       </section>
     </div>
+    </PageLoading>
   );
 };
 

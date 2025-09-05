@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { SmartLoading } from '../ui';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -241,9 +242,11 @@ const GrafanaPanel = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">데이터를 불러오는 중...</div>
-      </div>
+      <SmartLoading
+        loading={true}
+        loadingText={LOADING_TEXTS.DATA.GENERAL}
+        className="h-64"
+      />
     );
   }
 

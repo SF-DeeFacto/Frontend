@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { aiRecommendService } from '../../../services/api/aiRecommend';
+import { SectionLoading, ButtonLoading } from '../../../components/ui';
+import { useUnifiedLoading } from '../../../hooks';
+import { LOADING_TEXTS } from '../../../config';
 
 const AIRecommend = () => {
   // 상태 변수들
@@ -8,8 +11,9 @@ const AIRecommend = () => {
   const [filterZone, setFilterZone] = useState('all');
   const [filterSensorType, setFilterSensorType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { loading, loadingText, error, withLoading, setLoadingError } = useUnifiedLoading({
+    componentName: 'AIRecommend'
+  });
   const [selectedRecommendation, setSelectedRecommendation] = useState(null);
 
   // AI 추천 데이터 로드
@@ -142,10 +146,12 @@ const AIRecommend = () => {
   // 로딩 상태
   if (loading && recommendations.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#494FA2]"></div>
-        <span className="ml-3 text-gray-600">AI 추천 데이터를 불러오는 중...</span>
-      </div>
+      <SectionLoading
+        loading={true}
+        loadingText={loadingText}
+        showHeader={false}
+        className="h-64"
+      />
     );
   }
 
@@ -393,7 +399,9 @@ const AIRecommend = () => {
 
                   {/* 액션 버튼 */}
                   <div className="flex justify-end space-x-3">
-                    <button
+                    <ButtonLoading
+                      loading={loading}
+                      loadingText={LOADING_TEXTS.ACTIONS.APPROVE}
                       onClick={async () => {
                         try {
                           console.log('승인 클릭:', selectedRecommendation.id);
@@ -407,9 +415,11 @@ const AIRecommend = () => {
                       className="px-4 py-2 bg-green-100 text-green-700 text-sm font-medium rounded-md hover:bg-green-200 disabled:opacity-50"
                       disabled={loading}
                     >
-                      {loading ? '처리중...' : '승인'}
-                    </button>
-                    <button
+                      승인
+                    </ButtonLoading>
+                    <ButtonLoading
+                      loading={loading}
+                      loadingText={LOADING_TEXTS.ACTIONS.REJECT}
                       onClick={async () => {
                         try {
                           console.log('거부 클릭:', selectedRecommendation.id);
@@ -423,8 +433,8 @@ const AIRecommend = () => {
                       className="px-4 py-2 bg-red-100 text-red-700 text-sm font-medium rounded-md hover:bg-red-200 disabled:opacity-50"
                       disabled={loading}
                     >
-                      {loading ? '처리중...' : '거부'}
-                    </button>
+                      거부
+                    </ButtonLoading>
                     <button
                       onClick={() => setSelectedRecommendation(null)}
                       className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200"

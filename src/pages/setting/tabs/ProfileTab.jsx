@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SectionLoading } from '../../../components/ui';
+import { useUnifiedLoading } from '../../../hooks';
 
 const ProfileTab = () => {
   const navigate = useNavigate();
@@ -14,13 +16,14 @@ const ProfileTab = () => {
     scope: '',
     shift: ''
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { loading, loadingText, error, withLoading, setLoadingError } = useUnifiedLoading({
+    componentName: 'ProfileTab'
+  });
 
   // 사용자 정보 로드
   useEffect(() => {
-    const loadUserProfile = () => {
-      try {
+    const loadUserProfile = async () => {
+      await withLoading(async () => {
         const token = localStorage.getItem('access_token');
         const userData = localStorage.getItem('user');
         
@@ -45,18 +48,11 @@ const ProfileTab = () => {
           scope: user.scope || '',
           shift: user.shift || user.shiftTime || ''
         });
-        
-        setLoading(false);
-        setError(null);
-      } catch (error) {
-        console.error('사용자 정보 로드 실패:', error);
-        setError('사용자 정보를 불러오는데 실패했습니다.');
-        setLoading(false);
-      }
+      });
     };
 
     loadUserProfile();
-  }, [navigate]);
+  }, [navigate, withLoading]);
 
   // localStorage 변화 감지 (실시간 동기화)
   useEffect(() => {
@@ -107,11 +103,12 @@ const ProfileTab = () => {
   // 로딩 상태
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-center py-8">
-          <div className="text-gray-500 dark:text-neutral-400">사용자 정보를 불러오는 중...</div>
-        </div>
-      </div>
+      <SectionLoading
+        loading={true}
+        loadingText={loadingText}
+        showHeader={false}
+        className="py-8"
+      />
     );
   }
 

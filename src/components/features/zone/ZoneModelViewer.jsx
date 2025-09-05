@@ -1,7 +1,8 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Html } from '@react-three/drei';
 import ZoneModel from './ZoneModel';
+import { LoadingSpinner } from '../../ui';
 
 // 범용 존 뷰어 컴포넌트
 function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }) {
@@ -26,7 +27,14 @@ function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }
           gl.setClearColor(0x000000, 0); // 투명 배경
         }}
       >
-        <Suspense fallback={null}>
+        <Suspense fallback={
+          <Html center>
+            <LoadingSpinner 
+              size="lg" 
+              text={`${zoneId.toUpperCase()} 구역을 불러오는 중...`}
+            />
+          </Html>
+        }>
           <ZoneModel 
             modelPath={modelPath} 
             zoneId={zoneId} 

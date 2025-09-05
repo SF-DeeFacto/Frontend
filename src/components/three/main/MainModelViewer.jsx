@@ -1,9 +1,10 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
+import { LoadingSpinner } from '../../ui';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
   const gltf = useLoader(GLTFLoader, '/models/mainhome.glb');
@@ -101,10 +102,12 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 
 function LoadingFallback() {
   return (
-    <mesh>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="gray" />
-    </mesh>
+    <Html center>
+      <LoadingSpinner 
+        size="lg" 
+        text="메인 홈 모델을 불러오는 중..."
+      />
+    </Html>
   );
 }
 

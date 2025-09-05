@@ -18,6 +18,8 @@ import {
 } from 'lucide-react';
 import Icon from '../ui/Icon';
 import Text from '../ui/Text';
+import { InlineLoading } from '../ui';
+import { LOADING_TEXTS } from '../../config';
 import { notificationApi } from '../../services/api/notification_api';
 import { weatherApi } from '../../services/api/weather_api';
 import { useAuth } from '../../hooks/useAuth';
@@ -261,9 +263,9 @@ const Header = () => {
               {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
               {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
             </>
-          ) : (
-            <span className="text-secondary-500">로딩중...</span>
-          )}
+                      ) : (
+              <InlineLoading loading={true} loadingText={LOADING_TEXTS.DATA.WEATHER} />
+            )}
         </Text>
       </div>
       
@@ -357,8 +359,7 @@ const Header = () => {
         <Logo />
         <div className="flex-1"></div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm text-secondary-500">로딩중...</span>
+          <InlineLoading loading={true} loadingText={LOADING_TEXTS.GENERAL} />
         </div>
       </header>
     );

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { userService } from '../../../services/userService';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { ButtonLoading } from '../../../components/ui';
 
 const PwudTab = () => {
   const [passwords, setPasswords] = useState({
@@ -168,8 +169,10 @@ const PwudTab = () => {
           </div>
           
           <div className="mt-6">
-            <button 
+            <ButtonLoading
               type="submit"
+              loading={isLoading}
+              loadingText="변경 중..."
               disabled={isLoading}
               className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 isLoading 
@@ -177,8 +180,8 @@ const PwudTab = () => {
                   : 'bg-[#494FAF] text-white hover:bg-[#494FA2]'
               }`}
             >
-              {isLoading ? '변경 중...' : '비밀번호 변경'}
-            </button>
+              비밀번호 변경
+            </ButtonLoading>
           </div>
         </form>
       </div>

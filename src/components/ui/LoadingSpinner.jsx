@@ -5,7 +5,8 @@ const LoadingSpinner = ({
   variant = 'primary',
   text = null,
   fullScreen = false,
-  className = ''
+  className = '',
+  inline = false
 }) => {
   const sizes = {
     xs: 'w-4 h-4',
@@ -25,6 +26,8 @@ const LoadingSpinner = ({
 
   const containerClasses = fullScreen 
     ? 'fixed inset-0 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center'
+    : inline 
+    ? 'flex items-center justify-center'
     : 'flex flex-col items-center justify-center py-12';
 
   return (
@@ -44,7 +47,7 @@ const LoadingSpinner = ({
       </div>
       
       {text && (
-        <div className="mt-4 text-center animate-pulse">
+        <div className={`${inline ? 'ml-2' : 'mt-4 text-center'} animate-pulse`}>
           <p className="text-secondary-600 dark:text-neutral-300 font-medium">{text}</p>
         </div>
       )}

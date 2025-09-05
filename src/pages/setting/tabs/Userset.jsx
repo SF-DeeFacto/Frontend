@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { USER_MANAGEMENT, SYSTEM_CONFIG } from '../../../config/constants';
+import { InlineLoading, SectionLoading } from '../../../components/ui';
+import { useUnifiedLoading } from '../../../hooks';
 
 const Userset = () => {
   // 실제 API 연결용 상태
@@ -12,8 +14,9 @@ const Userset = () => {
     totalElements: 0,
     totalPages: 0
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const { loading, loadingText, error, withLoading, setLoadingError } = useUnifiedLoading({
+    componentName: 'Userset'
+  });
 
   const [newUser, setNewUser] = useState({
     employeeId: '',
@@ -412,15 +415,17 @@ const Userset = () => {
               )}
             </h5>
             {loading && (
-              <div className="text-sm text-gray-500">로딩 중...</div>
+              <InlineLoading loading={true} loadingText={loadingText} />
             )}
           </div>
         </div>
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-gray-500">사용자 목록을 불러오는 중...</div>
-            </div>
+            <SectionLoading 
+              loading={true}
+              loadingText={loadingText}
+              showHeader={false}
+            />
           ) : filteredUsers.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-gray-500">
