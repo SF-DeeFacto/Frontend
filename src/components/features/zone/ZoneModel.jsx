@@ -86,8 +86,12 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
       // groupRef.current.rotation.y = Math.PI / 4; // 회전 제거
     }
 
+    // 렌더러 배경 투명 설정 강화
+    gl.setClearColor(0x000000, 0);
+    gl.setClearAlpha(0);
+
     setIsModelReady(true);
-  }, [gltf.scene, camera]);
+  }, [gltf.scene, camera, gl]);
 
   // useFrame으로 모델 안정화 후 센서 위치 계산
   useFrame(() => {

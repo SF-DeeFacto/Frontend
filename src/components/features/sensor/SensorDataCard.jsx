@@ -61,15 +61,6 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
    * 센서 값 렌더링 (메인 함수)
    */
   const renderSensorValue = () => {
-    // 센서 값이 유효하지 않은 경우
-    if (!isSensorValueValid(sensorData)) {
-      return (
-        <div className="text-center text-gray-500 dark:text-neutral-400">
-          <div className="text-sm">데이터 준비 중</div>
-        </div>
-      );
-    }
-
     // 먼지 센서는 특별한 레이아웃
     if (sensorData.sensorType === 'particle') {
       return renderParticleValues();

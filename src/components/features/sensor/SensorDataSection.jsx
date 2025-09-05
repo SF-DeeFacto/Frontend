@@ -23,37 +23,24 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId, isLoading = fa
     
     return (
       <div key={type} className="flex flex-col gap-4">
-        {/* 센서 타입 헤더 - 항상 표시 */}
-        <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
-          <Icon>{React.createElement(IconComponent)}</Icon>
-          {name}
-          {sensors.length > 0 && (
-            <span className="text-xs text-gray-400 dark:text-neutral-500">
-              ({sensors.length}개)
-            </span>
-          )}
-        </h4>
-        
-        {/* 센서 카드 목록 */}
-        {sensors.length > 0 ? (
-          <div className="space-y-2">
-            {sensors.map((sensor, index) => (
-              <div key={`${sensor.sensorId}-${index}`} className="w-full">
-                <SensorDataCard 
-                  sensorData={sensor}
-                  zoneId={zoneId}
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-gray-400 dark:text-neutral-500 py-4">
-            <span className="text-sm">센서 데이터가 없습니다</span>
-          </div>
-        )}
+        {/* 센서 카드 목록만 렌더링 */}
+        <div className="space-y-2">
+          {sensors.map((sensor, index) => (
+            <div key={`${sensor.sensorId}-${index}`} className="w-full">
+              <SensorDataCard 
+                sensorData={sensor}
+                zoneId={zoneId}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }, [sensorData, zoneId]);
+
+  // 센서 데이터가 비어있는지 확인
+  const hasSensorData = Object.values(sensorData).some(sensors => sensors && sensors.length > 0);
+  const isEmpty = !isLoading && !error && !hasSensorData;
 
   return (
     <aside className="flex-shrink-0 w-[60%] h-full">
@@ -69,19 +56,36 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId, isLoading = fa
         </div>
         
         {/* 센서 데이터 컨텐츠 */}
-        <SectionLoading
-          loading={isLoading}
-          loadingText="센서 데이터를 불러오는 중..."
-          error={error}
-          errorText="센서 데이터를 불러올 수 없습니다."
-          showHeader={false}
-          size="lg"
-          className="flex-1"
-        >
-          <div className="grid grid-cols-5 gap-[15px] flex-1">
-            {SENSOR_TYPES.map(renderSensorColumn)}
+        <div className="flex-1">
+          {/* 센서 타입별 헤더 - 고정 */}
+          <div className="grid grid-cols-5 gap-[15px] mb-4">
+            {SENSOR_TYPES.map(({ type, icon: IconComponent, name }) => (
+              <div key={type} className="flex flex-col gap-4">
+                <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
+                  <Icon>{React.createElement(IconComponent)}</Icon>
+                  {name}
+                </h4>
+              </div>
+            ))}
           </div>
-        </SectionLoading>
+          
+          {/* 센서 카드들 - 로딩/에러 처리 적용 */}
+          <SectionLoading
+            loading={isLoading}
+            loadingText="센서 데이터를 불러오는 중..."
+            error={error}
+            errorText="센서 데이터를 불러올 수 없습니다."
+            empty={isEmpty}
+            emptyText="센서 데이터가 없습니다."
+            showHeader={false}
+            size="lg"
+            className="flex-1"
+          >
+            <div className="grid grid-cols-5 gap-[15px] flex-1">
+              {SENSOR_TYPES.map(renderSensorColumn)}
+            </div>
+          </SectionLoading>
+        </div>
       </div>
     </aside>
   );

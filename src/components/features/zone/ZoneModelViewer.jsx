@@ -131,13 +131,21 @@ function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      position: 'relative'
+      position: 'relative',
+      backgroundColor: 'transparent'
     }}>
       <Canvas
         camera={{ position: [10, 10, 10], fov: 75 }}
         style={{ width: '100%', height: '100%', background: 'transparent' }}
-        onCreated={({ gl }) => {
+        gl={{ 
+          alpha: true, 
+          antialias: true,
+          powerPreference: "high-performance"
+        }}
+        onCreated={({ gl, scene }) => {
           gl.setClearColor(0x000000, 0); // 투명 배경
+          gl.setClearAlpha(0); // 알파 채널도 투명하게
+          scene.background = null; // 씬 배경도 null로 설정
         }}
       >
         <ModelErrorBoundary zoneId={zoneId}>

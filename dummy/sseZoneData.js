@@ -5,7 +5,7 @@
 
 // 센서 타입 상수 (실제 API 형식에 맞춤)
 const SENSOR_TYPES = {
-  TEMPERATURE: 'temperature',
+  // TEMPERATURE: 'temperature',
   HUMIDITY: 'humidity', 
   WIND_DIRECTION: 'winddirection',
   STATIC_ELECTRICITY: 'electrostatic',
@@ -30,47 +30,47 @@ const generateSensorData = (sensorType, sensorId, zoneId) => {
   };
 
   switch (sensorType) {
-    case SENSOR_TYPES.TEMPERATURE:
-      return {
-        ...baseData,
-        values: {
-          value: Math.random() * 10 + 20 // 20-30도
-        }
-      };
+    // case SENSOR_TYPES.TEMPERATURE:
+    //   return {
+    //     ...baseData,
+    //     values: {
+    //       value: Math.random() * 10 + 20 // 20-30도
+    //     }
+    //   };
     
-    case SENSOR_TYPES.HUMIDITY:
-      return {
-        ...baseData,
-        values: {
-          value: Math.random() * 20 + 40 // 40-60%
-        }
-      };
+    // case SENSOR_TYPES.HUMIDITY:
+    //   return {
+    //     ...baseData,
+    //     values: {
+    //       value: Math.random() * 20 + 40 // 40-60%
+    //     }
+    //   };
     
-    case SENSOR_TYPES.WIND_DIRECTION:
-      return {
-        ...baseData,
-        values: {
-          value: Math.random() * 360 - 180 // -180 ~ 180도
-        }
-      };
+    // case SENSOR_TYPES.WIND_DIRECTION:
+    //   return {
+    //     ...baseData,
+    //     values: {
+    //       value: Math.random() * 360 - 180 // -180 ~ 180도
+    //     }
+    //   };
     
-    case SENSOR_TYPES.STATIC_ELECTRICITY:
-      return {
-        ...baseData,
-        values: {
-          value: Math.random() * 1000 + 100 // 100-1100V
-        }
-      };
+    // case SENSOR_TYPES.STATIC_ELECTRICITY:
+    //   return {
+    //     ...baseData,
+    //     values: {
+    //       value: Math.random() * 1000 + 100 // 100-1100V
+    //     }
+    //   };
     
-    case SENSOR_TYPES.PARTICLE:
-      return {
-        ...baseData,
-        values: {
-          '0.1': Math.random() * 1000, // 0.1μm 파티클
-          '0.3': Math.random() * 500,  // 0.3μm 파티클
-          '0.5': Math.random() * 100   // 0.5μm 파티클
-        }
-      };
+    // case SENSOR_TYPES.PARTICLE:
+    //   return {
+    //     ...baseData,
+    //     values: {
+    //       '0.1': Math.random() * 1000, // 0.1μm 파티클
+    //       '0.3': Math.random() * 500,  // 0.3μm 파티클
+    //       '0.5': Math.random() * 100   // 0.5μm 파티클
+    //     }
+    //   };
     
     default:
       return {

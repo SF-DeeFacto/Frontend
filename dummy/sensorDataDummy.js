@@ -6,12 +6,12 @@
 // 센서 타입별 기본 설정 (더미 데이터용)
 // 실제 운영에서는 백엔드에서 상태값을 보내주므로 임계값 계산 불필요
 const SENSOR_CONFIGS = {
-  temperature: {
-    name: '온도 센서',
-    unit: '°C',
-    precision: 1,
-    updateInterval: 5000
-  },
+  // temperature: {
+  //   name: '온도 센서',
+  //   unit: '°C',
+  //   precision: 1,
+  //   updateInterval: 5000
+  // },
   humidity: {
     name: '습도 센서',
     unit: '%',
@@ -114,7 +114,7 @@ export const generateSensorData = (sensorType, sensorId, zoneId, customValue = n
 // Zone별 센서 데이터 생성
 export const generateZoneSensorData = (zoneId, sensorCounts = {}) => {
   const defaultCounts = {
-    temperature: 3,
+    // temperature: 3,
     humidity: 2,
     windDirection: 1,
     staticElectricity: 2,
