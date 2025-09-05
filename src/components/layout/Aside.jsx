@@ -9,6 +9,7 @@ import {
   LogOut,
   ChevronsLeft,
   ChevronsRight,
+  ChartColumn,
 } from "lucide-react";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
@@ -84,7 +85,7 @@ const Aside = () => {
     },
 
     {
-      icon: <BarChart2 />,
+      icon: <ChartColumn />,
       label: "Graph",
       onClick: () => navigate("/home/graph"),
     },
