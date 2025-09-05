@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import SensorDataCard from '../../common/SensorDataCard';
 import ConnectionIndicator from '../../common/ConnectionIndicator';
+import Icon from '../../common/Icon';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
 
 /**
@@ -21,7 +22,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
       <div key={type} className="flex flex-col gap-4">
         {/* 센서 타입 헤더 - 항상 표시 */}
         <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
-          <IconComponent className="w-4 h-4" />
+          <Icon><IconComponent /></Icon>
           {name}
           {sensors.length > 0 && (
             <span className="text-xs text-gray-400 dark:text-neutral-500">

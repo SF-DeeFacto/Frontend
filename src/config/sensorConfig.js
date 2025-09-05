@@ -1,7 +1,7 @@
 import { SENSOR_STATUS } from '../types/sensor';
 import { 
   Thermometer, 
-  Droplets, 
+  Droplet, 
   Zap, 
   ChartScatter, 
   Wind 
@@ -16,7 +16,7 @@ export const SENSOR_TYPE_CONFIG = {
   },
   humidity: {
     name: '습도',
-    icon: Droplets,
+    icon: Droplet,
     unit: '%'
   },
   electrostatic: {

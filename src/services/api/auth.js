@@ -1,5 +1,6 @@
 import authApiClient from '../index';
 import { handleApiError } from '../../utils/unifiedErrorHandler';
+import axios from 'axios';
 
 // 로그인
 export const login = async (credentials) => {
@@ -131,6 +132,163 @@ export const logout = async () => {
     
     // console.log('로컬 스토리지 정리 완료');
     return { success: true };
+  }
+};
+
+// JWT 토큰 디코딩 (페이로드만)
+const decodeJWT = (token) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (error) {
+    console.error('JWT 디코딩 실패:', error);
+    return null;
+  }
+};
+
+// 토큰 만료 시간 확인
+export const isTokenExpired = (token) => {
+  if (!token) return true;
+  
+  const payload = decodeJWT(token);
+  if (!payload || !payload.exp) return true;
+  
+  const currentTime = Math.floor(Date.now() / 1000);
+  return payload.exp < currentTime;
+};
+
+// 토큰 만료까지 남은 시간 (초)
+export const getTokenTimeLeft = (token) => {
+  if (!token) return 0;
+  
+  const payload = decodeJWT(token);
+  if (!payload || !payload.exp) return 0;
+  
+  const currentTime = Math.floor(Date.now() / 1000);
+  return Math.max(0, payload.exp - currentTime);
+};
+
+// 토큰 갱신
+export const refreshToken = async () => {
+  try {
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) {
+      throw new Error('리프레시 토큰이 없습니다.');
+    }
+
+    // 리프레시 API 호출 시에는 별도의 axios 인스턴스 사용 (인터셉터 없이)
+    const response = await axios.post('/api/auth/refresh', refreshToken, {
+      headers: {
+        'Content-Type': 'text/plain',
+        'Authorization': `Bearer ${refreshToken}`
+      }
+    });
+
+    const { access } = response.data;
+    const newAccessToken = access.token;
+    const expiresIn = access.expiresIn;
+
+    // 새로운 액세스 토큰 저장
+    localStorage.setItem('access_token', newAccessToken);
+
+    // 개발 환경에서만 로그 출력
+    const isDev = import.meta.env.DEV;
+    if (isDev) {
+      console.log('✅ 토큰 갱신 성공:', { expiresIn });
+    }
+
+    return {
+      success: true,
+      accessToken: newAccessToken,
+      expiresIn: expiresIn
+    };
+  } catch (error) {
+    const errorInfo = handleApiError(error, '토큰 갱신');
+    
+    // 개발 환경에서만 로그 출력
+    const isDev = import.meta.env.DEV;
+    if (isDev) {
+      console.error('❌ 토큰 갱신 실패:', errorInfo.message);
+    }
+    
+    return {
+      success: false,
+      error: errorInfo.userMessage
+    };
+  }
+};
+
+// 토큰 자동 갱신 (만료 5분 전에 갱신)
+export const autoRefreshToken = async () => {
+  const accessToken = localStorage.getItem('access_token');
+  const refreshTokenValue = localStorage.getItem('refresh_token');
+  
+  if (!accessToken || !refreshTokenValue) {
+    return { success: false, error: '토큰이 없습니다.' };
+  }
+
+  // 토큰이 이미 만료된 경우
+  if (isTokenExpired(accessToken)) {
+    console.log('🔐 토큰이 만료되었습니다. 갱신을 시도합니다.');
+    return await refreshToken();
+  }
+
+  // 토큰 만료까지 5분 이하인 경우 갱신
+  const timeLeft = getTokenTimeLeft(accessToken);
+  if (timeLeft <= 300) { // 5분 = 300초
+    console.log(`🔐 토큰이 곧 만료됩니다 (${Math.floor(timeLeft / 60)}분 남음). 갱신을 시도합니다.`);
+    return await refreshToken();
+  }
+
+  return { success: true, message: '토큰이 아직 유효합니다.' };
+};
+
+// 토큰 갱신 실패 시 로그아웃 처리
+export const handleTokenRefreshFailure = () => {
+  console.error('🔐 토큰 갱신에 실패했습니다. 로그아웃 처리합니다.');
+  
+  // 모든 인증 관련 데이터 삭제
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+  localStorage.removeItem('employeeId');
+  localStorage.removeItem('user');
+  localStorage.removeItem('unread_alarm_count');
+  
+  // 로그아웃 이벤트 발생
+  window.dispatchEvent(new StorageEvent('storage', {
+    key: 'access_token',
+    newValue: null
+  }));
+  
+  // 로그인 페이지로 리다이렉트
+  window.location.href = '/login';
+};
+
+// 토큰 상태 확인 및 갱신 (에러 처리 포함)
+export const checkAndRefreshToken = async () => {
+  try {
+    const result = await autoRefreshToken();
+    
+    if (!result.success) {
+      console.error('토큰 갱신 실패:', result.error);
+      
+      // 리프레시 토큰이 만료되었거나 유효하지 않은 경우
+      if (result.error.includes('리프레시') || result.error.includes('만료')) {
+        handleTokenRefreshFailure();
+        return { success: false, shouldLogout: true };
+      }
+      
+      return { success: false, shouldLogout: false };
+    }
+    
+    return { success: true, shouldLogout: false };
+  } catch (error) {
+    console.error('토큰 확인 중 오류 발생:', error);
+    return { success: false, shouldLogout: false };
   }
 };
 

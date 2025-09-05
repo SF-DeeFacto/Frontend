@@ -66,7 +66,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
       <div className="flex items-center gap-2 ml-6">
         {/* 시간 */}
         <div className="flex items-center gap-2 bg-secondary-50 dark:bg-neutral-700 rounded-xl px-3 py-2 shadow-soft transition-colors duration-300">
-          <Icon size="14px" className="text-secondary-500 dark:text-neutral-400">
+          <Icon className="text-secondary-500 dark:text-neutral-400">
             <Clock />
           </Icon>
           <Text variant="caption" size="xs" color="secondary-600" className="font-medium dark:text-neutral-300">
@@ -84,7 +84,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
           }`}
           title={alarm.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
         >
-          <Icon size="16px">
+          <Icon>
             <Bookmark />
           </Icon>
         </button>
@@ -96,7 +96,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
             className="p-2.5 rounded-xl transition-all duration-200 bg-white/80 dark:bg-neutral-700/80 text-secondary-400 dark:text-neutral-400 hover:bg-success-50 dark:hover:bg-success-900/30 hover:text-success-500 shadow-soft hover:shadow-medium hover:scale-105"
             title="읽음 처리"
           >
-            <Icon size="16px">
+            <Icon>
               <Check />
             </Icon>
           </button>
@@ -105,7 +105,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
         {/* 이미 읽은 알림은 체크 표시만 */}
         {alarm.isRead && (
           <div className="p-2.5 bg-success-100 dark:bg-success-900/30 text-success-600 dark:text-success-400 rounded-xl shadow-soft transition-colors duration-300">
-            <Icon size="16px">
+            <Icon>
               <CheckCircle />
             </Icon>
           </div>

@@ -7,9 +7,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Pretendard', 'Noto Sans KR', 'sans-serif'],
-        'korean': ['Pretendard', 'Noto Sans KR', 'sans-serif'],
-        'english': ['Pretendard', 'Inter', 'sans-serif'],
+        'sans': ['NanumSquareRound', 'Pretendard', 'Noto Sans KR'],
+        'korean': ['NanumSquareRound', 'Pretendard', 'Noto Sans KR'],
+        'english': ['NanumSquareRound', 'Pretendard', 'Inter'],
       },
       colors: {
         // 브랜드 컬러 시스템 - 커스텀 메인 컬러 적용

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { checkAndRefreshToken, isTokenExpired } from '../services/api/auth';
 
 /**
  * 인증 상태 관리 커스텀 훅
@@ -24,7 +25,7 @@ export const useAuth = (options = {}) => {
   });
 
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
         const token = localStorage.getItem('access_token');
         const userData = localStorage.getItem('user');
@@ -41,6 +42,31 @@ export const useAuth = (options = {}) => {
             token: null
           });
           return;
+        }
+
+        // 토큰 만료 확인 및 자동 갱신
+        if (isTokenExpired(token)) {
+          console.log('🔐 토큰이 만료되었습니다. 자동 갱신을 시도합니다.');
+          const refreshResult = await checkAndRefreshToken();
+          
+          if (!refreshResult.success) {
+            if (refreshResult.shouldLogout) {
+              // 자동 로그아웃 처리됨
+              return;
+            }
+            
+            console.error('토큰 갱신 실패:', refreshResult.error);
+            if (redirectOnFail) {
+              navigate(redirectPath);
+            }
+            setAuthState({
+              isAuthenticated: false,
+              isLoading: false,
+              user: null,
+              token: null
+            });
+            return;
+          }
         }
 
         // 사용자 데이터 파싱 시도
@@ -81,7 +107,7 @@ export const useAuth = (options = {}) => {
           isAuthenticated: true,
           isLoading: false,
           user,
-          token
+          token: localStorage.getItem('access_token') // 갱신된 토큰 사용
         });
 
       } catch (error) {
@@ -100,6 +126,19 @@ export const useAuth = (options = {}) => {
 
     checkAuth();
 
+    // 주기적으로 토큰 상태 체크 (5분마다)
+    const tokenCheckInterval = setInterval(async () => {
+      const token = localStorage.getItem('access_token');
+      if (token && !isTokenExpired(token)) {
+        // 토큰이 유효한 경우 자동 갱신 시도
+        const result = await checkAndRefreshToken();
+        if (!result.success && result.shouldLogout) {
+          // 자동 로그아웃 처리됨
+          return;
+        }
+      }
+    }, 5 * 60 * 1000); // 5분
+
     // localStorage 변화 감지 (다른 탭에서 로그인/로그아웃 시)
     const handleStorageChange = (e) => {
       if (e.key === 'access_token' || e.key === 'user') {
@@ -110,6 +149,7 @@ export const useAuth = (options = {}) => {
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
+      clearInterval(tokenCheckInterval);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, [navigate, redirectOnFail, redirectPath]);
