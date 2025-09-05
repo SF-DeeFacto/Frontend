@@ -61,28 +61,28 @@ jobs:
 
       # 🎯 3D 모델/관련 에셋의 Content-Type 교정
       # sync는 개별 Content-Type 주기 어렵기 때문에 cp로 다시 덮어쓰기(REPLACE)
-      - name: Fix Content-Type for 3D assets (.glb/.gltf/.bin)
-        run: |
-          # GLB (바이너리)
-          aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
-            --recursive --exclude "*" --include "*.glb" \
-            --content-type "model/gltf-binary" \
-            --metadata-directive REPLACE \
-            --cache-control "public,max-age=31536000,immutable"
+      # - name: Fix Content-Type for 3D assets (.glb/.gltf/.bin)
+      #   run: |
+      #     # GLB (바이너리)
+      #     aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
+      #       --recursive --exclude "*" --include "*.glb" \
+      #       --content-type "model/gltf-binary" \
+      #       --metadata-directive REPLACE \
+      #       --cache-control "public,max-age=31536000,immutable"
 
-          # GLTF (JSON)
-          aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
-            --recursive --exclude "*" --include "*.gltf" \
-            --content-type "model/gltf+json" \
-            --metadata-directive REPLACE \
-            --cache-control "public,max-age=31536000,immutable"
+      #     # GLTF (JSON)
+      #     aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
+      #       --recursive --exclude "*" --include "*.gltf" \
+      #       --content-type "model/gltf+json" \
+      #       --metadata-directive REPLACE \
+      #       --cache-control "public,max-age=31536000,immutable"
 
-          # BIN (버퍼)
-          aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
-            --recursive --exclude "*" --include "*.bin" \
-            --content-type "application/octet-stream" \
-            --metadata-directive REPLACE \
-            --cache-control "public,max-age=31536000,immutable"
+      #     # BIN (버퍼)
+      #     aws s3 cp "./$BUILD_DIR" "s3://$S3_BUCKET/" \
+      #       --recursive --exclude "*" --include "*.bin" \
+      #       --content-type "application/octet-stream" \
+      #       --metadata-directive REPLACE \
+      #       --cache-control "public,max-age=31536000,immutable"
 
       # 🏠 index.html: 즉시 반영을 위해 no-cache
       - name: Upload index.html (no-cache)
