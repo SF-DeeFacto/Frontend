@@ -1,54 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiSettings, FiBell } from 'react-icons/fi';
+import { 
+  Settings, 
+  Bell, 
+  Sun, 
+  Moon, 
+  Cloud, 
+  CloudSun,
+  CloudMoon,
+  CloudDrizzle,
+  CloudRain, 
+  CloudLightning,
+  Snowflake,
+  CloudFog,
+  Lightbulb,
+  LightbulbOff
+} from 'lucide-react';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
-import { fetchWeatherData } from '../../dummy/services/weather';
-import { dashboardApi } from '../../services/api/dashboard_api';
+import { notificationApi } from '../../services/api/notification_api';
+import { weatherApi } from '../../services/api/weather_api';
+import { useAuth } from '../../hooks/useAuth';
+import { useTheme } from '../../contexts/ThemeContext';
 
 const Header = () => {
   const navigate = useNavigate();
-  const [currentUser, setCurrentUser] = useState(null);
+  const { theme, toggleTheme } = useTheme();
   const [weatherData, setWeatherData] = useState(null);
-  const [alarmCount, setAlarmCount] = useState(3); // 기본값을 3으로 설정
+  const [alarmCount, setAlarmCount] = useState(0); // 기본값을 0으로 설정
+  const [currentTime, setCurrentTime] = useState(new Date()); // 실시간 시간 상태
+  
+  // 인증 상태 및 사용자 정보 가져오기
+  const { 
+    user: currentUser, 
+    logout, 
+    isAuthenticated, 
+    isLoading,
+    updateUser,
+    isAdmin,
+    isUser 
+  } = useAuth({ redirectOnFail: false });
 
-  // 현재 로그인한 사용자 정보 가져오기
+  // alarmCount 상태 변화 감지 (배포 시 주석 처리)
+  // useEffect(() => {
+  //   console.log('alarmCount 상태 변경됨:', alarmCount);
+  // }, [alarmCount]);
+
+  // 알림 카운터 변화 감지 (localStorage 변화)
   useEffect(() => {
-    const user = localStorage.getItem('user');
-    const token = localStorage.getItem('access_token');
-    
-    // 토큰이나 사용자 정보가 없으면 로그인 페이지로 리다이렉트
-    if (!token || !user) {
-      console.log('인증 정보가 없습니다. 로그인 페이지로 이동합니다.');
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      const userData = JSON.parse(user);
-      // 사용자 정보에 name이 없으면 로그인 페이지로 리다이렉트
-      if (!userData.name) {
-        console.log('사용자 정보가 불완전합니다. 로그인 페이지로 이동합니다.');
-        navigate('/login');
-        return;
+    const handleStorageChange = (e) => {
+      // 알림 카운터 업데이트 감지
+      if (e.key === 'unread_alarm_count') {
+        const newCount = parseInt(e.newValue || '0', 10);
+        setAlarmCount(newCount);
       }
-      setCurrentUser(userData);
-    } catch (error) {
-      console.error('사용자 정보 파싱 오류:', error);
-      navigate('/login');
-    }
-  }, [navigate]);
+    };
 
-  // 날씨 정보 가져오기 (더미 데이터 사용)
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // 날씨 정보 가져오기
   useEffect(() => {
     const getWeatherInfo = async () => {
-      try {
-        const result = await fetchWeatherData();
-        if (result.success) {
-          setWeatherData(result.data);
-        }
-      } catch (error) {
-        console.error('날씨 정보 가져오기 실패:', error);
+      const result = await weatherApi.getCurrentWeather();
+      
+      if (result.success) {
+        setWeatherData(result.data.data);
       }
     };
 
@@ -62,22 +82,33 @@ const Header = () => {
   useEffect(() => {
     const fetchAlarmCount = async () => {
       try {
-        const response = await dashboardApi.getNotifications();
-        if (response?.data && Array.isArray(response.data)) {
-          // 안읽음 알림 개수만 카운트
-          const unreadCount = response.data.filter(alarm => !alarm.isRead).length;
-          setAlarmCount(unreadCount);
+        const response = await notificationApi.getUnreadNotificationCount();
+        
+        if (response?.data !== undefined) {
+          // API에서 직접 안읽음 개수 반환 (response.data에 숫자 값)
+          setAlarmCount(response.data);
+          // localStorage에도 저장
+          localStorage.setItem('unread_alarm_count', response.data.toString());
         } else {
-          // API 실패 시 더미 데이터로 카운트
-          setAlarmCount(3);
+          // API 응답이 없을 경우 0으로 설정
+          setAlarmCount(0);
+          localStorage.setItem('unread_alarm_count', '0');
         }
       } catch (error) {
-        console.log('알림 개수 API 호출 실패, 더미 데이터 사용:', error);
-        // 더미 데이터로 카운트
-        setAlarmCount(3);
+        // API 실패 시 0으로 설정
+        setAlarmCount(0);
+        localStorage.setItem('unread_alarm_count', '0');
       }
     };
 
+    // 초기 로드 시 localStorage에서 알림 카운터 확인
+    const storedCount = localStorage.getItem('unread_alarm_count');
+    if (storedCount) {
+      const count = parseInt(storedCount, 10);
+      setAlarmCount(count);
+    }
+    
+    // 항상 최신 데이터를 위해 API 호출 (localStorage 값이 있어도)
     fetchAlarmCount();
     
     // 30초마다 알림 개수 업데이트
@@ -85,9 +116,17 @@ const Header = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // 실시간 시간 업데이트
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // 1초마다 업데이트
+    
+    return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
+  }, []);
+
   // 현재 시간 정보 가져오기
   const getCurrentTimeInfo = () => {
-    const currentTime = new Date();
     const dateString = currentTime.toLocaleDateString();
     const weekdayString = `(${currentTime.toLocaleDateString('ko-KR', { weekday: 'short' })})`;
     const timeString = currentTime.toLocaleTimeString([], { 
@@ -98,22 +137,19 @@ const Header = () => {
     return { dateString, weekdayString, timeString };
   };
 
-  // 스타일 객체들
+  // 스타일 객체들 - 브랜드 색상 적용하면서 심플한 디자인
   const styles = {
     header: {
-      backgroundColor: '#F0F0F980',
-      borderColor: '#F0F0F9'
+      background: 'linear-gradient(135deg, rgba(240, 240, 249, 0.95) 0%, rgba(229, 229, 242, 0.95) 100%)',
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid rgba(229, 229, 242, 0.6)',
+      boxShadow: '0 1px 2px rgba(73, 79, 162, 0.1)'
     },
     logo: {
-      marginLeft: '30px',
       height: '100%'
     },
-    timeInfo: {
-      marginRight: '50px'
-    },
-    userNav: {
-      marginRight: '40px'
-    },
+    timeInfo: {},
+    userNav: {},
     logoIcon: {
       fontSize: '24px',
       lineHeight: '24px'
@@ -127,7 +163,6 @@ const Header = () => {
     weatherInfo: {
       marginLeft: '25px'
     },
-
   };
 
   const { dateString, weekdayString, timeString } = getCurrentTimeInfo();
@@ -162,78 +197,181 @@ const Header = () => {
     </div>
   );
 
-  // 시간 정보 컴포넌트
-  const TimeInfo = () => (
-    <div
-      className="flex flex-row items-center justify-center h-full w-auto whitespace-nowrap"
-      style={styles.timeInfo}
-    >
-      <Text variant="body" size="sm" weight="normal">
-        {weatherData ? `${weatherData.weather} ${weatherData.temperature}°C` : '날씨 정보 로딩중...'}
-      </Text>
-      <Text variant="body" size="sm" weight="normal" style={{ marginLeft: '25px' }}>
-        {dateString} {weekdayString} {timeString}
-      </Text>
-    </div>
-  );
+  // 날씨 설명을 한국어로 번역하는 함수
+  const translateWeatherDescription = (description) => {
+    const weatherMap = {
+      'clear sky': '맑음',
+      'few clouds': '구름 조금',
+      'scattered clouds': '구름 많음',
+      'broken clouds': '흐림',
+      'shower rain': '소나기',
+      'rain': '비',
+      'thunderstorm': '천둥번개',
+      'snow': '눈',
+      'mist': '안개',
+      'overcast clouds': '흐림'
+    };
+    
+    return weatherMap[description] || description;
+  };
 
-  // 사용자 네비게이션 컴포넌트
+  // 날씨 정보 새로고침 함수
+  const refreshWeatherInfo = async () => {
+    const result = await weatherApi.refreshWeather();
+    if (result.success) {
+      setWeatherData(result.data.data);
+    }
+  };
+
+
+  // 사용자 네비게이션 컴포넌트 - 간격 조정된 깔끔한 디자인
   const UserNavigation = () => (
-    <nav className="flex items-center justify-center h-full" style={styles.userNav}>
-      <div className="flex items-center justify-center h-full">
-        <Icon className="text-gray-500 cursor-pointer hover:text-gray-700 transition-colors flex items-center justify-center">
-          <FiSettings onClick={() => navigate("/home/setting")} />
+    <nav className="flex items-center h-full gap-4" style={styles.userNav}>
+      {/* 날씨 정보 */}
+      <div 
+        className="cursor-pointer hover:opacity-80 transition-opacity duration-200 flex items-center gap-2"
+        onClick={refreshWeatherInfo}
+        title="날씨 정보 새로고침"
+      >
+        <Icon size="xs" className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          {weatherData ? (
+            weatherData.icon === '01d' ? <Sun /> : 
+            weatherData.icon === '01n' ? <Moon /> :
+            weatherData.icon === '02d' ? <CloudSun /> : 
+            weatherData.icon === '02n' ? <CloudMoon /> :
+            weatherData.icon === '03d' ? <Cloud /> : 
+            weatherData.icon === '03n' ? <Cloud /> :
+            weatherData.icon === '04d' ? <Cloud /> : 
+            weatherData.icon === '04n' ? <Cloud /> :
+            weatherData.icon === '09d' ? <CloudDrizzle /> : 
+            weatherData.icon === '09n' ? <CloudDrizzle /> :
+            weatherData.icon === '10d' ? <CloudRain /> : 
+            weatherData.icon === '10n' ? <CloudRain /> :
+            weatherData.icon === '11d' ? <CloudLightning /> : 
+            weatherData.icon === '11n' ? <CloudLightning /> :
+            weatherData.icon === '13d' ? <Snowflake /> : 
+            weatherData.icon === '13n' ? <Snowflake /> :
+            weatherData.icon === '50d' ? <CloudFog /> : 
+            weatherData.icon === '50n' ? <CloudFog /> : <Sun />
+          ) : <Sun />}
         </Icon>
+        <Text variant="body" size="sm" weight="normal" color="secondary-500">
+          {weatherData ? (
+            <>
+              {weatherData.description ? translateWeatherDescription(weatherData.description) : (weatherData.main || '날씨')}
+              {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
+            </>
+          ) : (
+            <span className="text-secondary-500">로딩중...</span>
+          )}
+        </Text>
       </div>
       
-      <div
-        className="relative cursor-pointer flex items-center justify-center h-full"
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 시간 정보 */}
+      <div>
+        <Text variant="body" size="sm" weight="normal" color="secondary-500">
+          {dateString} {weekdayString} {timeString}
+        </Text>
+      </div>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 다크모드 토글 버튼 */}
+      <button
+        onClick={toggleTheme}
+        className="p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
+      >
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
+          {theme === 'dark' ? <LightbulbOff /> : <Lightbulb />}
+        </Icon>
+      </button>
+
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+
+      {/* 알림 버튼 */}
+      <button
         onClick={() => navigate("/home/alarm")}
-        style={styles.notificationDot}
+        className="relative p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title="알림"
       >
-        <Icon className="text-gray-500 hover:text-gray-700 transition-colors flex items-center justify-center">
-          <FiBell />
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          <Bell />
         </Icon>
         
-        {/* 알림 개수 뱃지 */}
+        {/* 알림 개수 뱃지 - 알림이 있을 때만 표시 */}
         {alarmCount > 0 && (
-          <span className="absolute top-2 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
             {alarmCount > 99 ? '99+' : alarmCount}
-        </span>
+          </span>
         )}
-        
-        {/* 기존 알림 점 (알림이 없을 때만 표시) */}
-        {alarmCount === 0 && (
-          <span className="absolute top-2 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-        )}
-      </div>
+      </button>
       
-      <Text 
-        variant="body" 
-        size="sm" 
-        weight="medium" 
-        color="gray-800"
-        className="whitespace-nowrap flex items-center justify-center h-full"
-        style={styles.userName}
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+
+      {/* 설정 버튼 */}
+      <button
+        onClick={() => navigate("/home/setting")}
+        className="p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title="설정"
       >
-        {currentUser?.name ? `${currentUser.name} 사원` : '사용자'}
-      </Text>
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          <Settings />
+        </Icon>
+      </button>
+      
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+      
+      {/* 사용자 정보 */}
+      <div>
+        <Text 
+          variant="body" 
+          size="sm"
+          weight="bold"
+          color="secondary-500 dark:text-neutral-400"
+          className="whitespace-nowrap tracking-wide"
+        >
+          {isAuthenticated && currentUser?.name 
+            ? `${currentUser.name} ${currentUser.position || '사원'}` 
+            : '사용자'
+          }
+        </Text>
+      </div>
     </nav>
   );
 
 
 
+  // 로딩 중이면 스피너 표시
+  if (isLoading) {
+    return (
+      <header className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft transition-colors duration-300">
+        <Logo />
+        <div className="flex-1"></div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-sm text-secondary-500">로딩중...</span>
+        </div>
+      </header>
+    );
+  }
+
   return (
     <header 
-      className="flex w-full h-[54px] justify-between items-center flex-shrink-0 border-b" 
-      style={styles.header}
+      className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft transition-colors duration-300" 
     >
       <Logo />
       
       {/* 중앙 공간 */}
       <div className="flex-1"></div>
-      
-      <TimeInfo />
       
       <UserNavigation />
     </header>

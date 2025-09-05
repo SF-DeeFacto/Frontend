@@ -1,6 +1,5 @@
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
-// import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
 
 
 // const Report = () => {
@@ -8,8 +7,6 @@
 //   // local redis에 저장된 사원 번호 {123}  `{}` 까지 값으로 되어서 포함시킴
 //   const EMPLOYEE_ID = '{123}';
 
-//   // 더미 테이터 사용하는 state
-//   //const [reports] = useState(dummyReports);
 //   const [reports, setReports] = useState([]);
 //   const [reportType, setReportType] = useState('전체');
 //   const [selectedPeriod, setSelectedPeriod] = useState('전체');
@@ -423,7 +420,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { dummyReports } from '../dummy/data/reports'; // 필요 시 제거
+
 // const API_BASE = 'http://localhost:8085';
 const API_BASE = '/report-api';
 const EMPLOYEE_ID = '1';
@@ -460,7 +457,8 @@ const Report = () => {
         page: Math.max(0, page - 1), // Spring Pageable: 0-based
         size: itemsPerPage,
       };
-      console.log('[REPORTS] GET', `${API_BASE}/reports/list`, params, { 'X-Employee-Id': EMPLOYEE_ID });
+      console.log('🚀 리포트 목록 조회 시작');
+      console.log('📋 요청 파라미터:', params);
 
       const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
@@ -468,7 +466,7 @@ const Report = () => {
           'X-Employee-Id': EMPLOYEE_ID
         },
       });
-      console.log('[REPORTS] response', res.status, res.data);
+      console.log('✅ 리포트 목록 조회 성공:', res.data);
 
       // ApiResponseDto 형태: { code, message, data }
       const payload = res.data?.data ?? res.data;
@@ -479,7 +477,7 @@ const Report = () => {
       setReports(content || []);
       setTotalItems(total);
     } catch (err) {
-      console.error('리포트 조회 실패', {
+      console.error('❌ 리포트 조회 실패:', {
         message: err.message,
         status: err.response?.status,
         data: err.response?.data
@@ -540,7 +538,7 @@ const Report = () => {
   setError(null);
   const url = `${API_BASE}/reports/download/${fileName}`;
   try {
-    console.log('[REPORTS] download', url);
+    // console.log('[REPORTS] download', url);
     const res = await axios.get(url, {
       headers: { 'X-Employee-Id': EMPLOYEE_ID },
       responseType: 'blob',
@@ -552,7 +550,7 @@ const Report = () => {
       const blob = res.data;
       let text = '';
       try { text = await blob.text(); } catch (e) { text = '[cannot parse error body]'; }
-      console.error('[REPORTS] download error', { status: res.status, body: text });
+      // console.error('[REPORTS] download error', { status: res.status, body: text });
       setError(`서버 오류(${res.status}): ${text}`);
       return;
     }
@@ -574,7 +572,7 @@ const Report = () => {
     link.remove();
     URL.revokeObjectURL(link.href);
   } catch (err) {
-    console.error('[REPORTS] download unexpected error', err);
+    // console.error('[REPORTS] download unexpected error', err);
     setError('파일 다운로드 중 네트워크 오류가 발생했습니다.');
     // 폴백: 새 탭으로 열어 서버 에러/로그 확인 (브라우저에서 직접 열어보게 함)
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -609,8 +607,8 @@ const Report = () => {
 
   return (
     <div className="p-6 space-y-6">
-      {loading && <div className="text-sm text-gray-500">로딩 중...</div>}
-      {error && <div className="text-sm text-red-600">{error}</div>}
+      {loading && <div className="text-sm text-gray-500 dark:text-neutral-400">로딩 중...</div>}
+      {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
 
       {/* 기존 필터/검색 UI (생략 가능) */}
       <div className="flex items-center justify-between">
@@ -619,7 +617,7 @@ const Report = () => {
             <select
               value={reportType}
               onChange={(e) => { setReportType(e.target.value); handleFilterChange(); }}
-              className="appearance-none bg-white border border-gray-300 rounded-md px-4 py-2 pr-8 text-sm"
+              className="appearance-none bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
             >
               <option value="전체">리포트 형식</option>
               <option value="정기">정기</option>
@@ -634,34 +632,34 @@ const Report = () => {
             placeholder="리포트명 입력하세요"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm w-64"
+            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
           />
         </div>
       </div>
 
       {/* 리포트 테이블 */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300">
         <table className="w-full">
-          <thead className="bg-gray-50">
+          <thead className="bg-gray-50 dark:bg-neutral-700">
             <tr>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">No</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">정기유무</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">리포트명</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">생성일자</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 border-b border-gray-200">다운로드</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">No</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">정기유무</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">리포트명</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">생성일자</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-700 dark:text-neutral-200 border-b border-gray-200 dark:border-neutral-600">다운로드</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-neutral-600">
             {currentReports.map((report, index) => (
-              <tr key={report.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-900">{startIndex + index + 1}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.type || '정기'}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.fileName || '내용 입력'}</td>
-                <td className="px-6 py-4 text-sm text-gray-900">{report.createdAt ? formatDate(report.createdAt) : '내용 입력'}</td>
+              <tr key={report.id} className="hover:bg-gray-50 dark:hover:bg-neutral-700 transition-colors duration-200">
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{startIndex + index + 1}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.type || '정기'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.fileName || '내용 입력'}</td>
+                <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.createdAt ? formatDate(report.createdAt) : '내용 입력'}</td>
                 <td className="px-6 py-4">
                   <button
                     onClick={() => handleDownload(report.fileName)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-md text-sm transition-colors duration-200"
                   >
                     Download
                   </button>
@@ -676,11 +674,33 @@ const Report = () => {
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-2">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-3 py-2 text-sm rounded-md bg-gray-100">Previous</button>
+            <button 
+              onClick={() => handlePageChange(currentPage - 1)} 
+              disabled={currentPage === 1} 
+              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              Previous
+            </button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <button key={i + 1} onClick={() => handlePageChange(i + 1)} className={`px-3 py-2 text-sm rounded-md ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}>{i + 1}</button>
+              <button 
+                key={i + 1} 
+                onClick={() => handlePageChange(i + 1)} 
+                className={`px-3 py-2 text-sm rounded-md transition-colors duration-200 ${
+                  currentPage === i + 1 
+                    ? 'bg-blue-600 dark:bg-blue-700 text-white' 
+                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600'
+                }`}
+              >
+                {i + 1}
+              </button>
             ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-3 py-2 text-sm rounded-md bg-gray-100">Next</button>
+            <button 
+              onClick={() => handlePageChange(currentPage + 1)} 
+              disabled={currentPage === totalPages} 
+              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+            >
+              Next
+            </button>
           </nav>
         </div>
       )}

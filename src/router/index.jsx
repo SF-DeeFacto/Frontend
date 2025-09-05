@@ -9,58 +9,60 @@ import ChatBot from '../pages/ChatBot';
 import Alarm from '../pages/Alarm';
 import Setting from '../pages/setting/Setting';
 import Zone from '../pages/zone/Zone';
-import GrafanaDashboard from '../pages/GrafanaDashboard';
-import GrafanaTest from '../pages/GrafanaTest';
+// import GrafanaDashboard from '../pages/GrafanaDashboard';
+// import GrafanaTest from '../pages/GrafanaTest';
 import NotFound from '../pages/NotFound';
 import DashboardChart from '../pages/GrafanaTest_2';
 import GrafanaIframe from '../pages/GrafanaIframe';
+import { useAuth } from '../hooks/useAuth';
+import { isRoot, isRootOrAdmin } from '../services/api/auth';
 
-// 로그인 상태 확인 함수
-const isAuthenticated = () => {
-  const token = localStorage.getItem('access_token');
-  const user = localStorage.getItem('user');
-  
-  console.log('인증 체크:', { token: !!token, user: !!user });
-  
-  // token과 user가 모두 존재하고 유효한지 확인
-  if (!token || !user) {
-    console.log('인증 실패: token 또는 user가 없음');
-    return false;
-  }
-  
-  try {
-    // user가 유효한 JSON인지 확인
-    const userData = JSON.parse(user);
-    if (!userData || typeof userData !== 'object') {
-      console.log('인증 실패: user 데이터가 유효하지 않음');
-      return false;
-    }
-    
-    // 실제 저장된 데이터 구조에 맞게 검증
-    if (!userData.employeeId || !userData.name) {
-      console.log('인증 실패: user 데이터에 필수 정보 없음', userData);
-      return false;
-    }
-    
-    // token이 유효한 형식인지 확인 (간단한 검증)
-    if (token.length < 10) {
-      console.log('인증 실패: token이 너무 짧음');
-      return false;
-    }
-    
-    console.log('인증 성공:', userData.name);
-    return true;
-  } catch (error) {
-    console.log('인증 실패: user 데이터 파싱 오류');
-    return false;
-  }
-};
+// useAuth 훅을 사용한 통일된 인증 관리
 
 // 보호된 라우트 컴포넌트
 const ProtectedRoute = ({ children }) => {
-  if (!isAuthenticated()) {
+  const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
+  
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+  
+  return children;
+};
+
+// 권한별 보호된 라우트 컴포넌트
+const RoleProtectedRoute = ({ children, requiredRole }) => {
+  const { isAuthenticated, isLoading } = useAuth({ redirectOnFail: false });
+  
+  if (isLoading) {
+    return <div className="flex items-center justify-center min-h-screen">
+      <div className="w-8 h-8 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
+    </div>;
+  }
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  let hasAccess = false;
+  
+  if (requiredRole === 'ROOT') {
+    hasAccess = isRoot();
+  } else if (requiredRole === 'ROOT_OR_ADMIN') {
+    hasAccess = isRootOrAdmin();
+  }
+  
+  if (!hasAccess) {
+    // 권한이 없는 경우 홈으로 리다이렉트
+    return <Navigate to="/home" replace />;
+  }
+  
   return children;
 };
 
@@ -93,7 +95,15 @@ const AppRoutes = () => {
         <Route path="/home/report" element={<Report />} />
         <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
-        <Route path="/home/setting" element={<Setting />} />
+
+        <Route 
+          path="/home/setting" 
+          element={
+            <ProtectedRoute>
+              <Setting />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="/home/zone/:zoneId" element={<DynamicZone />} />
         <Route path="*" element={<NotFound />} />
       </Route>

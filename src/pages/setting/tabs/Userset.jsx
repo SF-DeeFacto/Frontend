@@ -1,55 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { userService } from '../../../services/userService';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { USER_MANAGEMENT, SYSTEM_CONFIG } from '../../../config/constants';
 
 const Userset = () => {
-  const [users, setUsers] = useState([
-    { 
-      id: 1, 
-      employeeId: 'EMP001',
-      name: '홍길동', 
-      password: '********',
-      email: 'hong@example.com', 
-      gender: 'male',
-      department: '개발팀',
-      position: '개발자',
-      role: 'admin', 
-      status: 'active' 
-    },
-    { 
-      id: 2, 
-      employeeId: 'EMP002',
-      name: '김철수', 
-      password: '********',
-      email: 'kim@example.com', 
-      gender: 'male',
-      department: '디자인팀',
-      position: '디자이너',
-      role: 'user', 
-      status: 'active' 
-    },
-    { 
-      id: 3, 
-      employeeId: 'EMP003',
-      name: '이영희', 
-      password: '********',
-      email: 'lee@example.com', 
-      gender: 'female',
-      department: '마케팅팀',
-      position: '매니저',
-      role: 'user', 
-      status: 'inactive' 
-    }
-  ]);
+  // 실제 API 연결용 상태
+  const [users, setUsers] = useState([]);
+  const [pagination, setPagination] = useState({
+    page: 0,
+    size: SYSTEM_CONFIG.DEFAULT_PAGE_SIZE,
+    totalElements: 0,
+    totalPages: 0
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const [newUser, setNewUser] = useState({
     employeeId: '',
     name: '',
     password: '',
     email: '',
-    gender: 'male',
+    gender: '',
     department: '',
     position: '',
-    role: 'user',
-    status: 'active'
+    role: '',
+    scope: '',
+    shift: ''
   });
 
   const [editingUser, setEditingUser] = useState(null);
@@ -57,13 +33,122 @@ const Userset = () => {
   const [showEditForm, setShowEditForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const departments = ['개발팀', '디자인팀', '마케팅팀', '영업팀', '인사팀', '기획팀'];
-  const positions = ['사원', '대리', '과장', '차장', '부장', '이사', '대표'];
-  const roles = [
-    { value: 'user', label: '일반 사용자' },
-    { value: 'admin', label: '관리자' },
-    { value: 'super_admin', label: '슈퍼 관리자' }
-  ];
+  const { DEPARTMENTS: departments, POSITIONS: positions, ROLES: roles, SCOPES: scopes, SHIFTS: shifts } = USER_MANAGEMENT;
+
+  // 사용자 목록 로드
+  const loadUsers = async (page = 0, searchTerm = '', size = 10) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      let searchResults = [];
+      let totalElements = 0;
+      let totalPages = 0;
+
+      if (searchTerm && searchTerm.trim()) {
+        const trimmedTerm = searchTerm.trim();
+        
+        // 이름 또는 사번 검색 - 두 번의 API 호출로 OR 조건 구현
+        const nameSearchParams = {
+          page,
+          size: size || pagination.size || 10,
+          name: trimmedTerm
+        };
+        
+        const employeeIdSearchParams = {
+          page,
+          size: size || pagination.size || 10,
+          employeeId: trimmedTerm
+        };
+        
+        console.log('이름 검색 파라미터:', nameSearchParams);
+        console.log('사번 검색 파라미터:', employeeIdSearchParams);
+        
+        // 두 검색을 병렬로 실행
+        const [nameResponse, employeeIdResponse] = await Promise.all([
+          userService.searchUsers(nameSearchParams).catch(() => ({ data: { content: [] } })),
+          userService.searchUsers(employeeIdSearchParams).catch(() => ({ data: { content: [] } }))
+        ]);
+        
+        // 결과 합치기 (중복 제거)
+        const nameResults = nameResponse?.data?.data?.content || nameResponse?.data?.content || [];
+        const employeeIdResults = employeeIdResponse?.data?.data?.content || employeeIdResponse?.data?.content || [];
+        
+        // employeeId로 중복 제거
+        const uniqueResults = new Map();
+        [...nameResults, ...employeeIdResults].forEach(user => {
+          uniqueResults.set(user.employeeId, user);
+        });
+        
+        searchResults = Array.from(uniqueResults.values());
+        
+        // 페이징 정보는 검색 결과 기준
+        totalElements = searchResults.length;
+        totalPages = Math.ceil(totalElements / (size || pagination.size || 10));
+      } else {
+        // 검색어가 없으면 전체 조회
+        const searchParams = {
+          page,
+          size: size || pagination.size || 10
+        };
+        
+        console.log('전체 조회 파라미터:', searchParams);
+        const response = await userService.searchUsers(searchParams);
+        
+        if (response && response.data) {
+          const apiData = response.data.data || response.data;
+          searchResults = apiData.content || [];
+          totalElements = apiData.totalElements || 0;
+          totalPages = apiData.totalPages || 0;
+        }
+      }
+      
+      // 백엔드 필드명을 프론트엔드 형식으로 매핑 (active -> isActive, M/F -> male/female)
+      const mappedUsers = searchResults.map(user => ({
+        ...user,
+        isActive: user.active !== undefined ? user.active : true,
+        gender: user.gender === 'M' ? 'male' : (user.gender === 'F' ? 'female' : user.gender)
+      }));
+      
+      setUsers(mappedUsers);
+      setPagination({
+        page: page,
+        size: size || pagination.size || 10,
+        totalElements: totalElements,
+        totalPages: totalPages
+      });
+      
+      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
+      
+    } catch (error) {
+      const errorInfo = handleApiError(error, '사용자 목록 로드');
+      console.error('사용자 목록 로드 실패:', errorInfo.message);
+      setError(errorInfo.userMessage);
+      setUsers([]);
+      setPagination({
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 사용자 목록 로드
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // 검색어 변경 시 사용자 목록 재로드
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      loadUsers(0, searchTerm);
+    }, 300); // 300ms 지연으로 debounce 효과
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm, pagination.size]); // pagination.size 의존성 추가
 
   const handleNewUserChange = (key, value) => {
     setNewUser(prev => ({
@@ -73,41 +158,134 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    setEditingUser(prev => ({
-      ...prev,
-      [key]: value
-    }));
-  };
-
-  const handleAddUser = () => {
-    if (newUser.employeeId && newUser.name && newUser.password && newUser.email && newUser.department && newUser.position) {
-      const user = {
-        id: users.length + 1,
-        ...newUser
+    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
+    setEditingUser(prev => {
+      const updated = {
+        ...prev,
+        [key]: value
       };
-      setUsers(prev => [...prev, user]);
-      setNewUser({ employeeId: '', name: '', password: '', email: '', gender: 'male', department: '', position: '', role: 'user', status: 'active' });
-      setShowAddModal(false);
+      console.log('수정된 사용자 정보:', updated); // 디버깅용
+      return updated;
+    });
+  };
+
+  const handleAddUser = async () => {
+    if (newUser.employeeId && newUser.name && newUser.password && newUser.email && newUser.department && newUser.position) {
+      setLoading(true);
+      
+      try {
+        // 백엔드 API 형식에 맞게 데이터 변환
+        const userData = {
+          employeeId: newUser.employeeId,
+          name: newUser.name,
+          password: newUser.password,
+          email: newUser.email,
+          gender: newUser.gender === 'male' ? 'M' : 'F', // 백엔드에서 M/F 형식 사용
+          department: newUser.department,
+          position: newUser.position,
+          role: newUser.role || 'USER',
+          scope: newUser.scope || 'a,b,c', // @NotBlank이므로 빈 문자열 대신 기본값
+          shift: newUser.shift || 'DAY' // 기본값 설정
+        };
+        
+        console.log('등록 요청 데이터:', userData); // 디버깅용
+        
+        await userService.registerUser(userData);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        // 폼 초기화
+        setNewUser({ 
+          employeeId: '', 
+          name: '', 
+          password: '', 
+          email: '', 
+          gender: '', 
+          department: '', 
+          position: '', 
+          role: '',
+          scope: '',
+          shift: ''
+        });
+        
+        setShowAddModal(false);
+        alert('사용자가 성공적으로 등록되었습니다.');
+        
+      } catch (error) {
+        const errorInfo = handleApiError(error, '사용자 등록');
+        console.error('사용자 등록 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert('모든 필수 항목을 입력해주세요.');
     }
   };
 
-  const handleEditUser = () => {
+  const handleEditUser = async () => {
     if (editingUser.email && editingUser.department && editingUser.position) {
-      setUsers(prev => prev.map(user => 
-        user.id === editingUser.id ? editingUser : user
-      ));
-      setEditingUser(null);
-      setShowEditForm(false);
+      setLoading(true);
+      
+      try {
+        // 백엔드 API 형식에 맞게 데이터 변환
+        const userData = {
+          employeeId: editingUser.employeeId,
+          name: editingUser.name,
+          email: editingUser.email,
+          gender: editingUser.gender === 'male' ? 'M' : (editingUser.gender === 'female' ? 'F' : editingUser.gender), // 백엔드 형식 변환
+          department: editingUser.department,
+          position: editingUser.position,
+          role: editingUser.role,
+          scope: editingUser.scope || 'a,b,c',
+          shift: editingUser.shift || 'DAY',
+          active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
+        };
+        
+        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
+        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
+        
+        await userService.updateUser(userData);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        setEditingUser(null);
+        setShowEditForm(false);
+        alert('사용자 정보가 성공적으로 수정되었습니다.');
+        
+      } catch (error) {
+        const errorInfo = handleApiError(error, '사용자 정보 수정');
+        console.error('사용자 정보 수정 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
+      } finally {
+        setLoading(false);
+      }
     } else {
       alert('모든 필수 항목을 입력해주세요.');
     }
   };
 
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('정말로 이 사용자를 삭제하시겠습니까?')) {
-      setUsers(prev => prev.filter(user => user.id !== userId));
+  const handleDeleteUser = async (employeeId, userName) => {
+    if (window.confirm(`정말로 ${userName} 사용자를 삭제하시겠습니까?`)) {
+      setLoading(true);
+      
+      try {
+        await userService.deleteUser(employeeId);
+        
+        // 성공 시 목록 새로고침
+        await loadUsers(pagination.page, searchTerm);
+        
+        alert('사용자가 성공적으로 삭제되었습니다.');
+        
+      } catch (error) {
+        const errorInfo = handleApiError(error, '사용자 삭제');
+        console.error('사용자 삭제 실패:', errorInfo.message);
+        alert(errorInfo.userMessage);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -117,37 +295,60 @@ const Userset = () => {
     setShowAddModal(false); // 등록 모달 닫기
   };
 
-  const handleStatusChange = (userId, newStatus) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, status: newStatus } : user
-    ));
-  };
-
-  const getGenderLabel = (gender) => {
-    return gender === 'male' ? '남성' : '여성';
-  };
-
   const getRoleLabel = (role) => {
     return roles.find(r => r.value === role)?.label || role;
   };
 
-  // 검색된 사용자 필터링
-  const filteredUsers = users.filter(user =>
-    user.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // 성별 라벨 변환 함수
+  const getGenderLabel = (gender) => {
+    switch(gender) {
+      case 'M': return '남성';
+      case 'F': return '여성';
+      case 'male': return '남성';
+      case 'female': return '여성';
+      default: return gender;
+    }
+  };
+
+  // 구역 라벨 변환 함수
+  const getScopeLabel = (scope) => {
+    switch(scope) {
+      case 'a,b,c': return '전체구역';
+      case 'a': return 'A구역';
+      case 'b': return 'B구역';
+      case 'c': return 'C구역';
+      default: return scope;
+    }
+  };
+
+  // 근무시간 라벨 변환 함수
+  const getShiftLabel = (shift) => {
+    switch(shift) {
+      case 'DAY': return '주간(D)';
+      case 'NIGHT': return '야간(N)';
+      default: return shift;
+    }
+  };
+  
+  // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
+  const filteredUsers = users;
+  
+  // 디버깅: users 상태 확인
+  console.log('현재 users 상태:', users);
+  console.log('filteredUsers:', filteredUsers);
+  console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4> */}
         <button
           onClick={() => {
             setShowAddModal(true);
             setShowEditForm(false); // 수정 모달 닫기
             setEditingUser(null);
           }}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="bg-[#494FA2] text-white px-4 py-2 rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
         >
           사용자 등록
         </button>
@@ -166,7 +367,7 @@ const Userset = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="사번 또는 이름으로 검색하세요"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -186,54 +387,97 @@ const Userset = () => {
         </div>
       </div>
 
+      {/* 에러 메시지 */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <div className="flex">
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
+              <p className="mt-1 text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 사용자 목록 */}
       <div className="bg-white rounded-lg shadow">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h5 className="font-medium text-gray-900">사용자 목록</h5>
+          <div className="flex justify-between items-center">
+            <h5 className="font-medium text-gray-900">
+              사용자 목록 
+              {pagination.totalElements > 0 && (
+                <span className="text-sm text-gray-500 ml-2">
+                  ({pagination.totalElements}명)
+                </span>
+              )}
+            </h5>
+            {loading && (
+              <div className="text-sm text-gray-500">로딩 중...</div>
+            )}
+          </div>
         </div>
         <div className="max-h-96 overflow-y-auto">
-          <ul className="divide-y divide-gray-200">
-            {filteredUsers.map((user) => (
-              <li key={user.id} className="px-6 py-4 hover:bg-gray-50">
+          {loading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">사용자 목록을 불러오는 중...</div>
+            </div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-gray-500">
+                {searchTerm ? '검색 결과가 없습니다.' : '등록된 사용자가 없습니다.'}
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-200">
+              {filteredUsers.map((user) => (
+              <li key={user.employeeId} className="px-6 py-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
                       <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
                         <span className="text-sm font-medium text-gray-700">
-                          {user.name.charAt(0)}
+                          {user.name?.charAt(0) || 'U'}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                      <div className="text-sm font-medium text-gray-900">{user.name || '이름 없음'}</div>
                       <div className="text-sm text-gray-500">{user.employeeId} • {user.email}</div>
-                      <div className="text-sm text-gray-400">{user.department} • {user.position}</div>
+                      <div className="text-sm text-gray-400">
+                        {getGenderLabel(user.gender)} • 
+                        {user.position} • 
+                        {user.department} •
+                        {getScopeLabel(user.scope)} • 
+                        {getShiftLabel(user.shift)}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.role === 'admin' 
-                        ? 'bg-purple-100 text-purple-800' 
-                        : user.role === 'super_admin'
-                        ? 'bg-red-100 text-red-800'
+                      user.role === 'ROOT' 
+                        ? 'bg-red-100 text-red-800' 
+                        : user.role === 'ADMIN'
+                        ? 'bg-purple-100 text-purple-800'
                         : 'bg-blue-100 text-blue-800'
                     }`}>
                       {getRoleLabel(user.role)}
                     </span>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                     }`}>
-                      {user.status === 'active' ? '활성' : '비활성'}
+                      {user.isActive ? '활성' : '비활성'}
                     </span>
                     <button
                       onClick={() => handleEditClick(user)}
-                      className="text-blue-600 hover:text-blue-900 text-sm font-medium"
+                      className="text-[#494FA2] hover:text-[#3d4490] text-sm font-medium"
+                      disabled={loading}
                     >
                       수정
                     </button>
                     <button
-                      onClick={() => handleDeleteUser(user.id)}
+                      onClick={() => handleDeleteUser(user.employeeId, user.name)}
                       className="text-red-600 hover:text-red-900 text-sm font-medium"
+                      disabled={loading}
                     >
                       삭제
                     </button>
@@ -241,8 +485,39 @@ const Userset = () => {
                 </div>
               </li>
             ))}
-          </ul>
+            </ul>
+          )}
         </div>
+        
+        {/* 페이지네이션 */}
+        {pagination.totalPages > 1 && (
+          <div className="px-6 py-3 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-gray-700">
+                총 {pagination.totalElements}명 중 {pagination.page * pagination.size + 1}-{Math.min((pagination.page + 1) * pagination.size, pagination.totalElements)}명 표시
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => loadUsers(pagination.page - 1, searchTerm)}
+                  disabled={pagination.page === 0 || loading}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  이전
+                </button>
+                <span className="text-sm text-gray-600">
+                  {pagination.page + 1} / {pagination.totalPages}
+                </span>
+                <button
+                  onClick={() => loadUsers(pagination.page + 1, searchTerm)}
+                  disabled={pagination.page >= pagination.totalPages - 1 || loading}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                >
+                  다음
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
                      {/* 사용자 등록 모달 */}
@@ -275,7 +550,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.employeeId}
                       onChange={(e) => handleNewUserChange('employeeId', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                       placeholder="사번"
                     />
                   </div>
@@ -287,7 +562,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.name}
                       onChange={(e) => handleNewUserChange('name', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                       placeholder="이름"
                     />
                   </div>
@@ -298,8 +573,9 @@ const Userset = () => {
                     <select
                       value={newUser.gender}
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
+                      <option value="">선택</option>
                       <option value="male">남성</option>
                       <option value="female">여성</option>
                     </select>
@@ -315,7 +591,7 @@ const Userset = () => {
                     <select
                       value={newUser.department}
                       onChange={(e) => handleNewUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -330,7 +606,7 @@ const Userset = () => {
                     <select
                       value={newUser.position}
                       onChange={(e) => handleNewUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -345,8 +621,9 @@ const Userset = () => {
                     <select
                       value={newUser.role}
                       onChange={(e) => handleNewUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
+                      <option value="">선택</option>
                       {roles.map(role => (
                         <option key={role.value} value={role.value}>{role.label}</option>
                       ))}
@@ -363,7 +640,7 @@ const Userset = () => {
                      type="password"
                      value={newUser.password}
                      onChange={(e) => handleNewUserChange('password', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      placeholder="비밀번호를 입력하세요"
                    />
                  </div>
@@ -377,30 +654,51 @@ const Userset = () => {
                      type="email"
                      value={newUser.email}
                      onChange={(e) => handleNewUserChange('email', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                      placeholder="이메일을 입력하세요"
                    />
+                                  </div>
+
+                 {/* 구역범위 - 근무시간 */}
+                 <div className="grid grid-cols-2 gap-2">
+                   <div>
+                     <label className="block text-xs font-medium text-gray-700 mb-1">
+                       구역범위
+                     </label>
+                     <select
+                       value={newUser.scope}
+                       onChange={(e) => handleNewUserChange('scope', e.target.value)}
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                     >
+                       <option value="">선택</option>
+                       {scopes.map(scope => (
+                         <option key={scope.value} value={scope.value}>{scope.label}</option>
+                       ))}
+                     </select>
+                   </div>
+                   <div>
+                     <label className="block text-xs font-medium text-gray-700 mb-1">
+                       근무시간
+                     </label>
+                     <select
+                       value={newUser.shift}
+                       onChange={(e) => handleNewUserChange('shift', e.target.value)}
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                     >
+                       <option value="">선택</option>
+                       {shifts.map(shift => (
+                         <option key={shift.value} value={shift.value}>{shift.label}</option>
+                       ))}
+                     </select>
+                   </div>
                  </div>
 
-                 {/* 활성상태 */}
-                 <div>
-                   <label className="block text-xs font-medium text-gray-700 mb-1">
-                     활성상태
-                   </label>
-                   <select
-                     value={newUser.status}
-                     onChange={(e) => handleNewUserChange('status', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                   >
-                     <option value="active">활성</option>
-                     <option value="inactive">비활성</option>
-                   </select>
-                 </div>
+                                  {/* 신규 사용자는 기본적으로 활성으로 생성되므로 활성상태 필드 제거 */}
 
                  <div className="flex space-x-2 mt-4">
                    <button
                      onClick={handleAddUser}
-                     className="flex-1 bg-blue-600 text-white px-3 py-2 text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                    >
                      등록
                    </button>
@@ -471,7 +769,7 @@ const Userset = () => {
                     <select
                       value={editingUser.gender}
                       onChange={(e) => handleEditUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="male">남성</option>
                       <option value="female">여성</option>
@@ -488,7 +786,7 @@ const Userset = () => {
                     <select
                       value={editingUser.department}
                       onChange={(e) => handleEditUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -503,7 +801,7 @@ const Userset = () => {
                     <select
                       value={editingUser.position}
                       onChange={(e) => handleEditUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -518,7 +816,7 @@ const Userset = () => {
                     <select
                       value={editingUser.role}
                       onChange={(e) => handleEditUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
                       {roles.map(role => (
                         <option key={role.value} value={role.value}>{role.label}</option>
@@ -527,51 +825,42 @@ const Userset = () => {
                   </div>
                 </div>
 
-                {/* 직책 - 권한 */}
+                {/* 구역범위 - 근무시간 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      직책 <span className="text-red-500">*</span>
+                      구역범위
                     </label>
                     <select
-                      value={editingUser.position}
-                      onChange={(e) => handleEditUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={editingUser.scope || 'a,b,c'}
+                      onChange={(e) => {
+                        console.log('구역범위 변경:', e.target.value); // 디버깅용
+                        handleEditUserChange('scope', e.target.value);
+                      }}
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
-                      <option value="">선택</option>
-                      {positions.map(pos => (
-                        <option key={pos} value={pos}>{pos}</option>
+                      {scopes.map(scope => (
+                        <option key={scope.value} value={scope.value}>{scope.label}</option>
                       ))}
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-700 mb-1">
-                      권한
+                      근무시간
                     </label>
                     <select
-                      value={editingUser.role}
-                      onChange={(e) => handleEditUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={editingUser.shift || 'DAY'}
+                      onChange={(e) => handleEditUserChange('shift', e.target.value)}
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                     >
-                      {roles.map(role => (
-                        <option key={role.value} value={role.value}>{role.label}</option>
+                      {shifts.map(shift => (
+                        <option key={shift.value} value={shift.value}>{shift.label}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
-                {/* 비밀번호 */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">
-                    비밀번호
-                  </label>
-                  <input
-                    type="password"
-                    value="********"
-                    disabled
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-gray-100 text-gray-500"
-                  />
-                </div>
+                {/* 비밀번호 필드 숨김 - 보안상 수정 모달에서는 표시하지 않음 */}
 
                 {/* 이메일 */}
                 <div>
@@ -582,7 +871,7 @@ const Userset = () => {
                     type="email"
                     value={editingUser.email}
                     onChange={(e) => handleEditUserChange('email', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   />
                 </div>
 
@@ -592,9 +881,9 @@ const Userset = () => {
                     활성상태
                   </label>
                   <select
-                    value={editingUser.status}
-                    onChange={(e) => handleEditUserChange('status', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    value={editingUser.isActive ? 'active' : 'inactive'}
+                    onChange={(e) => handleEditUserChange('isActive', e.target.value === 'active')}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   >
                     <option value="active">활성</option>
                     <option value="inactive">비활성</option>
@@ -604,7 +893,7 @@ const Userset = () => {
                 <div className="flex space-x-2 mt-4">
                   <button
                     onClick={handleEditUser}
-                    className="flex-1 bg-blue-600 text-white px-3 py-2 text-sm rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
                   >
                     수정
                   </button>

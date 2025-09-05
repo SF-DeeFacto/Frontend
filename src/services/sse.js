@@ -2,6 +2,11 @@
 // 대시보드는 SSE 통신으로 한번 통신을 연결하면 연결 상태를 계속 유지하고 Back에서 데이터를 전송하는 방식으로 동작합니다.
 // 따라서 기존의 axios 방식으로 통신할 수 없어 SSE 연결 방법을 제공합니다.
 
+// EventSourcePolyfill import 추가
+import { EventSourcePolyfill } from 'event-source-polyfill';
+import { handleSSEError } from '../utils/unifiedErrorHandler';
+import { SYSTEM_CONFIG, STORAGE_KEYS } from '../config/constants';
+
 // SSE URL 설정
 export const SSE_URLS = {
   // (개발용) 프록시를 통한 연결 url - Dashboard 백엔드 (포트 8083)
@@ -19,106 +24,175 @@ export const SSE_URLS = {
 
 // SSE 연결 함수
 export const connectSSE = (url, { onMessage, onError, onOpen }) => {
-  console.log('SSE 연결 시작:', url);
-  
   // 인증 토큰 가져오기
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   
-  // 토큰을 쿼리 파라미터로 추가
-  const urlWithToken = token ? `${url}${url.includes('?') ? '&' : '?'}token=${token}` : url;
+  // 토큰이 없으면 연결하지 않음
+  if (!token) {
+    onError(new Error('인증 토큰이 없습니다.'));
+    return () => {}; // 빈 함수 반환
+  }
   
   // 실제 EventSource API 사용
   let eventSource = null;
   let retryCount = 0;
-  const maxRetries = 3;
-  const retryDelay = 2000; // 2초
+  const maxRetries = SYSTEM_CONFIG.SSE_MAX_RETRIES;
+  const retryDelay = SYSTEM_CONFIG.SSE_RETRY_DELAY;
   
+  let lastMessageTime = Date.now(); // 마지막 메시지 수신 시간
+  let heartbeatTimer = null; // 하트비트 타이머
+  let reconnectTimer = null; // 재연결 타이머
+  let isDestroyed = false; // 연결 해제 상태 추적
+
   const createEventSource = () => {
+    if (isDestroyed) return; // 이미 해제된 경우 연결하지 않음
+    
+    console.log('🔌 SSE 연결 시작:', url);
+    
     try {
-      console.log(`SSE 연결 시도 ${retryCount + 1}/${maxRetries + 1}:`, urlWithToken);
+      eventSource = new EventSourcePolyfill(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
       
-      // EventSource 생성
-      eventSource = new EventSource(urlWithToken);
-      
-      // 연결 성공 시
       eventSource.onopen = (event) => {
-        console.log('SSE 연결 성공!', url);
-        retryCount = 0; // 재시도 카운트 리셋
-        if (onOpen) {
-          onOpen(event);
-        }
-      };
-      
-      // 메시지 수신 시
-      eventSource.onmessage = (event) => {
-        console.log('📨 SSE 데이터 수신:', {
-          url: urlWithToken,
-          timestamp: new Date().toLocaleTimeString(),
-          data: event.data
+        if (isDestroyed) return;
+        
+        console.log('✅ SSE 연결 성공:', url);
+        console.log('📊 SSE 연결 상태:', {
+          readyState: eventSource.readyState,
+          url: eventSource.url,
+          timestamp: new Date().toISOString()
         });
         
+        lastMessageTime = Date.now();
+        retryCount = 0; // 연결 성공 시 재시도 카운트 리셋
+        
+        // 하트비트 타이머 시작
+        heartbeatTimer = setInterval(() => {
+          if (isDestroyed) return;
+          
+          const now = Date.now();
+          const timeSinceLastMessage = now - lastMessageTime;
+          
+          if (timeSinceLastMessage > SYSTEM_CONFIG.SSE_HEARTBEAT_TIMEOUT) {
+            console.log('⚠️ SSE 하트비트 타임아웃, 재연결 시도');
+            reconnect();
+          }
+        }, SYSTEM_CONFIG.SSE_HEARTBEAT_CHECK_INTERVAL);
+        
+        onOpen?.(event);
+      };
+      
+      eventSource.onmessage = (event) => {
+        if (isDestroyed) return;
+        
+        lastMessageTime = Date.now();
+        
         try {
-          const data = JSON.parse(event.data);
-          console.log('✅ SSE 데이터 파싱 성공:', {
-            url: urlWithToken,
-            parsedData: data,
-            dataType: typeof data,
-            hasCode: !!data.code,
-            hasData: !!data.data,
-            dataLength: Array.isArray(data.data) ? data.data.length : 'not array'
-          });
-          onMessage(data);
-        } catch (error) {
-          console.error('❌ SSE 데이터 파싱 오류:', {
-            url: urlWithToken,
-            rawData: event.data,
-            error: error.message
-          });
+          const parsedData = JSON.parse(event.data);
+          console.log('📨 SSE 메시지 수신:', parsedData);
+          onMessage(parsedData);
+        } catch (parseError) {
+          console.error('❌ SSE 메시지 파싱 오류:', parseError);
+          onError(parseError);
         }
       };
       
-      // 에러 발생 시
       eventSource.onerror = (error) => {
-        console.error('SSE 연결 오류:', error);
+        if (isDestroyed) return;
         
-        // 재시도 로직
-        if (retryCount < maxRetries) {
+        // 통합 에러 처리
+        const errorInfo = handleSSEError(error, { 
+          url, 
+          retryCount, 
+          maxRetries,
+          context: 'SSE 연결 에러'
+        });
+        
+        console.error('❌ SSE 연결 오류:', error);
+        
+        // 하트비트 타이머 정리
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+        
+        onError(error);
+        
+        // 자동 재연결 시도
+        if (retryCount < maxRetries && errorInfo.retryable) {
           retryCount++;
-          console.log(`SSE 연결 재시도 ${retryCount}/${maxRetries}... (${retryDelay}ms 후)`);
+          const currentRetryDelay = retryDelay * Math.pow(1.5, retryCount - 1); // 지수 백오프
+          console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${currentRetryDelay}ms 후)`);
           
-          // 기존 연결 해제
-          if (eventSource) {
-            eventSource.close();
-          }
-          
-          // 재시도
-          setTimeout(() => {
-            createEventSource();
-          }, retryDelay);
+          reconnectTimer = setTimeout(() => {
+            if (!isDestroyed) {
+              reconnect();
+            }
+          }, currentRetryDelay);
         } else {
-          console.error('SSE 연결 최대 재시도 횟수 초과');
-          onError(error);
+          console.error('❌ SSE 최대 재시도 횟수 초과, 연결 포기');
+          // 최대 재시도 후에도 5분 후에 다시 시도
+          setTimeout(() => {
+            if (!isDestroyed) {
+              console.log('🔄 SSE 장기 재연결 시도');
+              retryCount = 0; // 재시도 카운트 리셋
+              reconnect();
+            }
+          }, 300000); // 5분 후
         }
       };
       
     } catch (error) {
-      console.error('EventSource 생성 오류:', error);
       onError(error);
     }
   };
-  
-  // 초기 연결 시도
-  createEventSource();
-  
-  // 연결 해제 함수 반환
-  return () => {
-    console.log('SSE 연결 해제');
+
+  // 재연결 함수
+  const reconnect = () => {
+    if (isDestroyed) return;
+    
     if (eventSource) {
-      try {
-        eventSource.close();
-      } catch (error) {
-        console.log('SSE 연결 해제 중 오류:', error);
-      }
+      eventSource.close();
+      eventSource = null;
+    }
+    
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+    
+    createEventSource();
+  };
+
+  // 초기 연결 시작
+  createEventSource();
+
+  // 정리 함수 반환
+  return () => {
+    isDestroyed = true; // 연결 해제 상태로 설정
+    
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+    
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
     }
   };
 };

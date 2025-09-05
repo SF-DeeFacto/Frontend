@@ -71,7 +71,7 @@ const ChatBot = () => {
   // URL 파라미터로 새창 여부 확인
   const isNewWindow = new URLSearchParams(window.location.search).get('new') === 'true';
   
-  console.log('ChatBot 컴포넌트 렌더링:', { isNewWindow, url: window.location.href });
+  // console.log('ChatBot 컴포넌트 렌더링:', { isNewWindow, url: window.location.href });
 
   // 새창에서 열린 경우 실제 챗봇 인터페이스 표시
   if (isNewWindow) {
