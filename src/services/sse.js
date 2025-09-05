@@ -13,13 +13,18 @@ export const SSE_URLS = {
   main: "/dashboard-api/home/status",
   zone: (zoneId) => `/dashboard-api/home/zone?zoneId=${zoneId}`,
   
+  // 알림 전용 SSE 엔드포인트 (프록시를 통해 /api로 전달)
+  notification: "/api/noti/sse/subscribe",
+  
   // (개발용) 직접 연결 url (프록시 미사용시)
   // main: "http://localhost:8083/home/status",
   // zone: (zoneId) => `http://localhost:8083/home/zone?zoneId=${zoneId}`,
+  // notification: "http://localhost:8080/noti/sse/subscribe",
   
   // (운영용) gateway 사용시 연결 url
   // main: "http://localhost:8080/home/status",
   // zone: (zoneId) => `http://localhost:8080/home/zone?zoneId=${zoneId}`,
+  // notification: "http://localhost:8080/noti/sse/subscribe",
 };
 
 // SSE 연결 함수
@@ -91,15 +96,36 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         
         lastMessageTime = Date.now();
         
+        console.log('🔍 SSE onmessage 이벤트 발생:', event);
+        console.log('🔍 event.data:', event.data);
+        
         try {
           const parsedData = JSON.parse(event.data);
           console.log('📨 SSE 메시지 수신:', parsedData);
+          console.log('📨 onMessage 콜백 호출 전');
           onMessage(parsedData);
+          console.log('📨 onMessage 콜백 호출 후');
         } catch (parseError) {
           console.error('❌ SSE 메시지 파싱 오류:', parseError);
           onError(parseError);
         }
       };
+
+      // 특정 이벤트 타입별 메시지 처리 (alert 이벤트)
+      eventSource.addEventListener('alert', (event) => {
+        if (isDestroyed) return;
+        
+        lastMessageTime = Date.now();
+        
+        try {
+          const parsedData = JSON.parse(event.data);
+          console.log('🚨 SSE alert 이벤트 수신:', parsedData);
+          onMessage(parsedData);
+        } catch (parseError) {
+          console.error('❌ SSE alert 메시지 파싱 오류:', parseError);
+          onError(parseError);
+        }
+      });
       
       eventSource.onerror = (error) => {
         if (isDestroyed) return;
@@ -205,4 +231,9 @@ export const connectMainSSE = ({ onMessage, onError, onOpen }) => {
 // 특정 존용 SSE 연결
 export const connectZoneSSE = (zoneId, { onMessage, onError, onOpen }) => {
   return connectSSE(SSE_URLS.zone(zoneId), { onMessage, onError, onOpen });
+};
+
+// 알림 전용 SSE 연결
+export const connectNotificationSSE = ({ onMessage, onError, onOpen }) => {
+  return connectSSE(SSE_URLS.notification, { onMessage, onError, onOpen });
 };

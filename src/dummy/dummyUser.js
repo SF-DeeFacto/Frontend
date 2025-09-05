@@ -7,7 +7,7 @@ export const generateDummyUsers = (count = 10) => {
   // 기본 관리자 계정만 생성
   users.push({
     id: 1,
-    employee_id: 'admin',
+    employee_id: 'dummy',
     password: '1234',
     name: '홍길동',
     email: 'hong@deefacto.com',

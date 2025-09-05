@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getSensorTypeConfig } from '../../config/sensorConfig';
-import { isSensorValueValid } from '../../utils/sensorUtils';
+import { isSensorValueValid, getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
+import { CONNECTION_STATE } from '../../types/sensor';
 
 /**
  * 센서 데이터 카드 컴포넌트
@@ -20,10 +21,8 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
 
   // 센서 기본 정보 메모이제이션
   const sensorInfo = useMemo(() => ({
-    icon: sensorConfig?.icon || '📊',
-    unit: sensorConfig?.unit || '',
-    name: sensorConfig?.name || sensorData.sensorType
-  }), [sensorConfig, sensorData.sensorType]);
+    unit: sensorConfig?.unit || ''
+  }), [sensorConfig]);
 
   // 카드 클릭 핸들러
   const handleCardClick = () => {
@@ -99,17 +98,20 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
         {/* 센서 헤더 */}
         <div className="sensor-header">
           <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-2">
-              <span className="sensor-icon text-lg" aria-hidden="true">
-                {sensorInfo.icon}
-              </span>
-              <span className="sensor-type-label text-sm font-medium text-gray-600 dark:text-gray-400">
-                {sensorInfo.name}
-              </span>
-            </div>
             <div className="sensor-id-badge">
               {sensorData.sensorId || 'Unknown'}
             </div>
+            {/* 상태 인디케이터 */}
+            <div 
+              className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 flex-shrink-0 ${
+                sensorData.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
+              }`}
+              style={{ 
+                backgroundColor: getStatusHexColor(sensorData.status || 'CONNECTING'),
+                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || 'CONNECTING')}30`
+              }}
+              title={`상태: ${getStatusText(sensorData.status || 'CONNECTING')} | 연결: ${sensorData.connectionState || 'DISCONNECTED'}`}
+            ></div>
           </div>
         </div>
       
