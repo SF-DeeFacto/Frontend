@@ -132,9 +132,15 @@ const ProfileTab = () => {
         {/* <h4 className="text-lg font-medium text-gray-900 mb-6">프로필 정보</h4> */}
         
         {/* 프로필 레이아웃 */}
-        {/* 기존스타일-> 강사님 피드백
+                {/* 기존스타일-> 강사님 피드백
         <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 p-6 transition-colors duration-300"> */}
         <div className="p-6 transition-colors duration-300">
+        {/* <div 
+          className="bg-white dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700 p-6 transition-colors duration-300"
+          style={{
+            boxShadow: '0px 9px 16px rgba(159, 162, 191, .08), 0px 2px 2px rgba(159, 162, 191, 0.12)'
+          }}
+        > */}
           <div className="flex items-start space-x-12">
             {/* 프로필 사진 영역 */}
             <div className="flex-shrink-0 flex flex-col items-center">
