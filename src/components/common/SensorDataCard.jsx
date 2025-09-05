@@ -20,7 +20,6 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
 
   // 센서 기본 정보 메모이제이션
   const sensorInfo = useMemo(() => ({
-    icon: sensorConfig?.icon || '📊',
     unit: sensorConfig?.unit || '',
     name: sensorConfig?.name || sensorData.sensorType
   }), [sensorConfig, sensorData.sensorType]);
@@ -100,9 +99,6 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
         <div className="sensor-header">
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-2">
-              <span className="sensor-icon text-lg" aria-hidden="true">
-                {sensorInfo.icon}
-              </span>
               <span className="sensor-type-label text-sm font-medium text-gray-600 dark:text-gray-400">
                 {sensorInfo.name}
               </span>
