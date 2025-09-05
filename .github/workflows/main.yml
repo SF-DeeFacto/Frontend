@@ -43,9 +43,9 @@ jobs:
       - run: aws sts get-caller-identity
 
       # 📦 해시된 정적 자산: 1년 캐시 + immutable
-      - name: Sync hashed assets to s3://$S3_BUCKET/app/
+      - name: Sync hashed assets to s3://$S3_BUCKET/
         run: |
-          aws s3 sync "./$BUILD_DIR" "s3://$S3_BUCKET/app/" \
+          aws s3 sync "./$BUILD_DIR" "s3://$S3_BUCKET/" \
             --delete \
             --exclude "index.html" \
             --cache-control "public,max-age=31536000,immutable"
