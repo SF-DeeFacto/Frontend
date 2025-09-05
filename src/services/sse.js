@@ -7,6 +7,18 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 import { SYSTEM_CONFIG, STORAGE_KEYS } from '../config/constants';
 
+// 개발 환경에서 EventSourcePolyfill을 모킹으로 교체
+let MockEventSourcePolyfill = null;
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  // 모킹이 설정되었는지 확인
+  if (window.EventSourcePolyfill && window.EventSourcePolyfill.isMock) {
+    MockEventSourcePolyfill = window.EventSourcePolyfill;
+    console.log('🎭 sse.js: EventSourcePolyfill을 모킹으로 교체');
+  } else {
+    console.log('⚠️ sse.js: 모킹이 아직 로드되지 않음, 실제 EventSourcePolyfill 사용');
+  }
+}
+
 // SSE URL 설정
 export const SSE_URLS = {
   // (개발용) 프록시를 통한 연결 url - Dashboard 백엔드 (포트 8083)
@@ -55,7 +67,25 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
     console.log('🔌 SSE 연결 시작:', url);
     
     try {
-      eventSource = new EventSourcePolyfill(url, {
+      // eventSource = new EventSourcePolyfill(url, {
+        //삭제
+              // 개발 환경에서는 모킹 사용, 운영 환경에서는 실제 EventSourcePolyfill 사용
+      let EventSourceToUse = EventSourcePolyfill;
+      
+      if (import.meta.env.DEV && typeof window !== 'undefined') {
+        // 모킹이 설정되었는지 동적으로 확인
+        if (window.EventSourcePolyfill && window.EventSourcePolyfill.isMock) {
+          EventSourceToUse = window.EventSourcePolyfill;
+          console.log('🔌 사용할 EventSource: 모킹');
+        } else {
+          console.log('🔌 사용할 EventSource: 실제 (모킹 없음)');
+        }
+      } else {
+        console.log('🔌 사용할 EventSource: 실제 (운영 환경)');
+      }
+      
+      eventSource = new EventSourceToUse(url, {
+        //삭제제
         headers: {
           Authorization: `Bearer ${token}`,
         },

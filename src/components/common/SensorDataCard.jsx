@@ -47,7 +47,7 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
           <div key={label} className="particle-item">
             <span className="particle-label">{label}</span>
             <span className="particle-value">
-              {value?.toFixed(2) || 0}
+              {typeof value === 'number' ? value.toFixed(2) : (parseFloat(value) || 0).toFixed(2)}
             </span>
           </div>
         ))}
@@ -77,7 +77,9 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
     }
     
     // 다른 센서들은 단일 값
-    return `${sensorData.val?.toFixed(1) || 0}`;
+    const val = sensorData.val;
+    const numericVal = typeof val === 'number' ? val : (parseFloat(val) || 0);
+    return `${numericVal.toFixed(1)}`;
   };
 
   return (
