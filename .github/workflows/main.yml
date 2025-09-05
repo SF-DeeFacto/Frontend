@@ -48,6 +48,7 @@ jobs:
           aws s3 sync "./$BUILD_DIR" "s3://$S3_BUCKET/" \
             --delete \
             --exclude "index.html" \
+            --exclude "models/*"  \
             --cache-control "public,max-age=31536000,immutable"
 
       # 🏠 index.html: 즉시 반영을 위해 no-cache
