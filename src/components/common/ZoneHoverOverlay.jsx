@@ -2,7 +2,9 @@ import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
-import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
+import { getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
+import { ZoneUtils } from '../../config/zoneConfig';
+import { UI_COLORS } from '../../config/colorConfig';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   if (!hoveredZone) return null;
@@ -26,9 +28,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
     return getStatusText(status);
   };
 
-  // A01, A02, B01, B02는 왼쪽에, 나머지는 오른쪽에 표시
-  const leftZones = ['a01', 'a02', 'b01', 'b02', 'A01', 'A02', 'B01', 'B02'];
-  const isLeftZone = leftZones.includes(hoveredZone);
+  // Zone 위치에 따른 오버레이 위치 결정
+  const isLeftZone = ZoneUtils.isLeftZone(hoveredZone.toUpperCase());
   const overlayPosition = isLeftZone ? 'left-4' : 'right-4';
 
   // 현재 존 상태
@@ -47,7 +48,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           fontSize: '14px',
           fontWeight: 'bold',
           boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-          border: '2px solid #6b7280',
+          border: `2px solid ${UI_COLORS.BORDER.DARK}`,
           width: '320px',
           height: '380px',
           backdropFilter: 'blur(10px)'
@@ -99,19 +100,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {(() => {
-            const zoneId = hoveredZone.toLowerCase();
-            const modelPaths = {
-              'a01': '/models/A01.glb',
-              'a02': '/models/A02.glb',
-              'b01': '/models/B01.glb',
-              'b02': '/models/B02.glb',
-              'b03': '/models/B03.glb',
-              'b04': '/models/B04.glb',
-              'c01': '/models/C01.glb',
-              'c02': '/models/C02.glb'
-            };
-            
-            const modelPath = modelPaths[zoneId];
+            const zoneId = hoveredZone.toUpperCase();
+            const modelPath = ZoneUtils.getZoneModelPath(zoneId);
             
             if (modelPath) {
               return (
@@ -131,7 +121,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                 </Canvas>
               );
             } else {
-              return <div style={{ color: '#666', fontSize: '12px' }}>미리보기 없음</div>;
+              return <div style={{ color: UI_COLORS.TEXT.MUTED, fontSize: '12px' }}>미리보기 없음</div>;
             }
           })()}
         </div>

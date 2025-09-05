@@ -1,23 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../../types/sensor';
+import { CONNECTION_STATE } from '../../../config/sensorConfig';
+import { ColorUtils } from '../../../config/colorConfig';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
 
-  // 연결 상태에 따른 색상 반환
+  // 연결 상태에 따른 색상 반환 - 공통 색상 설정 사용
   const getConnectionColor = (connectionState) => {
-    switch (connectionState) {
-      case CONNECTION_STATE.CONNECTING:
-        return '#3b82f6'; // 파란색 (연결 중)
-      case CONNECTION_STATE.CONNECTED:
-        return '#10b981'; // 초록색 (연결됨)
-      case CONNECTION_STATE.ERROR:
-        return '#ef4444'; // 빨간색 (연결 실패)
-      default:
-        return '#9ca3af'; // 회색 (알 수 없음)
-    }
+    return ColorUtils.getConnectionStatusColor(connectionState);
   };
 
   // 존별 연결 정보 확인

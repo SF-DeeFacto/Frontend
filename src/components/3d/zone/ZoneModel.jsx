@@ -4,7 +4,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
 import SensorIndicator from './SensorIndicator';
-import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
+import { getSensorTypeConfig, getSensorTypeFromName, isValidSensor } from '../../../config/sensorConfig';
+import { getStatusText } from '../../../utils/sensorUtils';
 
 function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const gltf = useLoader(GLTFLoader, modelPath);
@@ -112,40 +113,32 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     const foundSensors = {};
     const clickableObjects = [];
     
-    // 실제 모델에서 센서를 동적으로 찾기 (하드코딩된 센서 이름 제거)
-    const actualSensorNames = [];
-    
-    // 하드코딩된 센서 이름 검색 제거 - traverse로만 센서 찾기
+            // 실제 모델에서 센서를 동적으로 찾기 - 공통 설정 사용
+        const traverseFoundSensors = [];
+        
+        gltf.scene.traverse((child) => {
+          if (child.isMesh && child.name) {
+            // 센서 타입 분류 규칙을 사용하여 센서 확인
+            const sensorType = getSensorTypeFromName(child.name);
+            if (isValidSensor(child.name)) {
+              traverseFoundSensors.push(child.name);
+              
+              // 센서 추가
+              child.userData.clickable = true;
+              child.userData.sensorName = child.name;
+              clickableObjects.push(child);
 
-    // traverse로 센서 동적 검색
-    const traverseFoundSensors = [];
-    
-    gltf.scene.traverse((child) => {
-      if (child.isMesh && child.name) {
-        // 실제 센서 패턴 확인 (LPM, TEMP 사용)
-        if (child.name.includes('ESD') || 
-            child.name.includes('LPM') || 
-            child.name.includes('HUM') || 
-            child.name.includes('WD') ||
-            child.name.includes('TEMP')) {
-          traverseFoundSensors.push(child.name);
-          
-          // 센서 추가
-          child.userData.clickable = true;
-          child.userData.sensorName = child.name;
-          clickableObjects.push(child);
+              const box = new THREE.Box3().setFromObject(child);
+              const center = new THREE.Vector3();
+              box.getCenter(center);
 
-          const box = new THREE.Box3().setFromObject(child);
-          const center = new THREE.Vector3();
-          box.getCenter(center);
-
-          foundSensors[child.name] = {
-            position: [center.x, box.max.y, center.z],
-            mesh: child
-          };
-        }
-      }
-    });
+              foundSensors[child.name] = {
+                position: [center.x, box.max.y, center.z],
+                mesh: child
+              };
+            }
+          }
+        });
 
     clickableObjectsRef.current = clickableObjects;
     setSensorPositions(foundSensors);
@@ -220,15 +213,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
       />
 
       {Object.entries(sensorPositions).map(([meshName, sensorPositionData]) => {
-        // 센서 타입 분류
+        // 센서 타입 분류 - 통합 센서 설정 사용
         const getSensorType = (name) => {
-          if (name.includes('ESD')) return 'ESD';
-          if (name.includes('Handle')) return 'Handle';
-          if (name.includes('HUM')) return 'Humidity';
-          if (name.includes('WD')) return 'WaterDetector';
-          if (name.includes('TEM')) return 'Temperature';
-          if (name.includes('LPM')) return 'Particle';
-          return 'Unknown';
+          return getSensorTypeFromName(name);
         };
 
         // 실제 센서 데이터에서 상태 가져오기

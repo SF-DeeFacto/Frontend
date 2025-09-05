@@ -31,42 +31,13 @@ export const SYSTEM_CONFIG = {
 
 // ==================== 비즈니스 도메인 상수 ====================
 
-// 존(Zone) 관련
-export const ZONES = {
-  ALL: '전체',
-  A01: 'A01',
-  A02: 'A02', 
-  B01: 'B01',
-  B02: 'B02',
-  B03: 'B03',
-  B04: 'B04',
-  C01: 'C01',
-  C02: 'C02'
-};
+// 존(Zone) 관련 - zoneConfig.js에서 가져오기
+import { ZONES, ZONE_LIST, ZONE_MAPPING_LEGACY as ZONE_MAPPING } from './zoneConfig';
 
-export const ZONE_LIST = Object.values(ZONES);
+// 기존 호환성을 위해 re-export
+export { ZONES, ZONE_LIST, ZONE_MAPPING };
 
-export const ZONE_MAPPING = {
-  'a01': 'A01',
-  'a02': 'A02', 
-  'b01': 'B01',
-  'b02': 'B02',
-  'b03': 'B03',
-  'b04': 'B04',
-  'c01': 'C01',
-  'c02': 'C02'
-};
-
-// 센서 관련
-export const SENSORS = {
-  TEMPERATURE: '온도',
-  HUMIDITY: '습도',
-  WIND_DIRECTION: '풍향',
-  STATIC_ELECTRICITY: '정전기',
-  PARTICLE: '파티클'
-};
-
-export const SENSOR_LIST = Object.values(SENSORS);
+// 센서 관련은 sensorConfig.js에서 관리
 
 // 사용자 관리 관련
 export const USER_MANAGEMENT = {
@@ -264,8 +235,6 @@ export default {
   ZONES,
   ZONE_LIST,
   ZONE_MAPPING,
-  SENSORS,
-  SENSOR_LIST,
   USER_MANAGEMENT,
   NOTIFICATION_TYPES,
   NOTIFICATION_TYPE_COLORS,

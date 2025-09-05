@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusEmoji, getStatusText } from '../../utils/sensorUtils';
+import { getStatusColor, getStatusEmoji, getStatusText, getStatusHexColor } from '../../utils/sensorUtils';
 
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;
@@ -17,11 +17,7 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
           <div 
             className={`w-3 h-3 rounded-full ${getStatusColor(selectedObject.status)}`}
             style={{ 
-              backgroundColor: selectedObject.status === 'normal' || selectedObject.status === 'GREEN' ? '#10b981' :
-                              selectedObject.status === 'warning' || selectedObject.status === 'YELLOW' ? '#f59e0b' :
-                              selectedObject.status === 'error' || selectedObject.status === 'RED' ? '#ef4444' :
-                              selectedObject.status === 'unknown' || selectedObject.status === 'DISCONNECTED' ? '#6b7280' :
-                              '#3b82f6' // 기본값 (연결중)
+              backgroundColor: getStatusHexColor(selectedObject.status)
             }}
           ></div>
           <span className="text-sm font-medium text-gray-300">

@@ -3,82 +3,47 @@
  * 온도, 습도, 풍향, 정전기, 파티클 센서의 상세 데이터를 생성
  */
 
-// 센서 타입별 상세 설정
+// 센서 타입별 기본 설정 (더미 데이터용)
+// 실제 운영에서는 백엔드에서 상태값을 보내주므로 임계값 계산 불필요
 const SENSOR_CONFIGS = {
   temperature: {
     name: '온도 센서',
     unit: '°C',
-    normalRange: { min: 20, max: 25 },
-    warningRange: { min: 15, max: 30 },
-    criticalRange: { min: 10, max: 35 },
     precision: 1,
-    updateInterval: 5000 // 5초마다 업데이트
+    updateInterval: 5000
   },
   humidity: {
     name: '습도 센서',
     unit: '%',
-    normalRange: { min: 45, max: 55 },
-    warningRange: { min: 40, max: 60 },
-    criticalRange: { min: 30, max: 70 },
     precision: 1,
     updateInterval: 5000
   },
   windDirection: {
     name: '풍향 센서',
     unit: '°',
-    normalRange: { min: 0, max: 360 },
-    warningRange: { min: 0, max: 360 },
-    criticalRange: { min: 0, max: 360 },
     precision: 0,
     updateInterval: 10000
   },
   staticElectricity: {
     name: '정전기 센서',
     unit: 'V',
-    normalRange: { min: 100, max: 500 },
-    warningRange: { min: 50, max: 800 },
-    criticalRange: { min: 0, max: 1000 },
     precision: 0,
     updateInterval: 3000
   },
   particle: {
     name: '파티클 센서',
     unit: 'count/m³',
-    normalRange: { '0.1': { min: 0, max: 1000 }, '0.3': { min: 0, max: 500 }, '0.5': { min: 0, max: 100 } },
-    warningRange: { '0.1': { min: 0, max: 2000 }, '0.3': { min: 0, max: 1000 }, '0.5': { min: 0, max: 200 } },
-    criticalRange: { '0.1': { min: 0, max: 5000 }, '0.3': { min: 0, max: 2500 }, '0.5': { min: 0, max: 500 } },
     precision: 0,
     updateInterval: 8000
   }
 };
 
-// 센서 상태 결정 함수
+// 센서 상태 결정 함수 (더미 데이터용 - 랜덤 상태 생성)
+// 실제 운영에서는 백엔드에서 상태값을 받아서 사용
 const determineSensorStatus = (sensorType, value) => {
-  const config = SENSOR_CONFIGS[sensorType];
-  
-  if (!config) return 'UNKNOWN';
-  
-  if (sensorType === 'particle') {
-    // 파티클 센서는 여러 값 중 하나라도 임계값을 초과하면 경고
-    for (const [size, range] of Object.entries(value)) {
-      if (value[size] > config.criticalRange[size].max) {
-        return 'CRITICAL';
-      }
-      if (value[size] > config.warningRange[size].max) {
-        return 'WARNING';
-      }
-    }
-    return 'NORMAL';
-  } else {
-    // 단일 값 센서
-    if (value > config.criticalRange.max || value < config.criticalRange.min) {
-      return 'CRITICAL';
-    }
-    if (value > config.warningRange.max || value < config.warningRange.min) {
-      return 'WARNING';
-    }
-    return 'NORMAL';
-  }
+  // 더미 데이터에서는 랜덤하게 상태 결정
+  const statuses = ['GREEN', 'YELLOW', 'RED'];
+  return statuses[Math.floor(Math.random() * statuses.length)];
 };
 
 // 센서 값 생성 함수
@@ -220,7 +185,7 @@ export const generateSensorStats = (zoneId) => {
   return stats;
 };
 
-// 센서 임계값 설정 데이터
+// 센서 임계값 설정 데이터 (더미용 - 실제로는 백엔드에서 관리)
 export const generateThresholdData = (sensorType) => {
   const config = SENSOR_CONFIGS[sensorType];
   
@@ -228,14 +193,10 @@ export const generateThresholdData = (sensorType) => {
   
   return {
     sensorType: sensorType,
-    thresholds: {
-      normal: config.normalRange,
-      warning: config.warningRange,
-      critical: config.criticalRange
-    },
     unit: config.unit,
     precision: config.precision,
-    updateInterval: config.updateInterval
+    updateInterval: config.updateInterval,
+    note: '실제 임계값은 백엔드에서 관리됩니다'
   };
 };
 

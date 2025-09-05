@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Html } from '@react-three/drei';
-import { getStatusHexColor } from '../../../config/sensorConfig';
+import { getStatusHexColor } from '../../../utils/sensorUtils';
 
 // 3D 센서 인디케이터 컴포넌트
 function SensorIndicator({ position, status, onClick, sensorName }) {

@@ -4,11 +4,14 @@
  */
 
 import { initSSEMockServer } from './sseMockServer.js';
+import { initNotificationApiMock } from './notificationApiMock.js';
 
 // 자동으로 모킹 서버 초기화
 if (typeof window !== 'undefined') {
   initSSEMockServer();
+  initNotificationApiMock();
   console.log('🎭 SSE 모킹 서버가 자동으로 활성화되었습니다.');
+  console.log('🔔 알림 API 모킹 서버가 자동으로 활성화되었습니다.');
   console.log('📡 이제 기존 SSE 코드가 모킹 데이터를 사용합니다.');
 }
 

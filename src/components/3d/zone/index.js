@@ -7,4 +7,3 @@ export { default as ZoneButtons } from '../main/ZoneButtons';
 export { default as ZoneModel } from './ZoneModel';
 export { default as ZoneModelViewer } from './ZoneModelViewer';
 export { default as SensorIndicator } from './SensorIndicator';
-export { default as SensorInfoPanel } from '../../common/SensorInfoPanel';

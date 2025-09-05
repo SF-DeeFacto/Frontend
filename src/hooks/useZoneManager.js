@@ -6,7 +6,8 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { connectMainSSE, connectZoneSSE } from '../services/sse';
-import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../types/sensor';
+import { ZONE_INFO } from '../config/zoneConfig';
+import { SENSOR_STATUS, CONNECTION_STATE } from '../config/sensorConfig';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 

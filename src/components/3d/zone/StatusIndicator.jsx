@@ -1,6 +1,6 @@
 import React from 'react';
 import { getStatusColor, getStatusText } from '../../../utils/sensorUtils';
-import { SENSOR_STATUS } from '../../../types/sensor';
+import { SENSOR_STATUS } from '../../../config/sensorConfig';
 
 const StatusIndicator = () => {
   const statuses = [
@@ -10,13 +10,13 @@ const StatusIndicator = () => {
   ];
 
   return (
-    <div className="flex w-[666.36px] h-[31.88px] items-center justify-center gap-[15.59px] relative mb-4">
+    <div className="flex w-full max-w-2xl h-8 items-center justify-center gap-4 relative mb-4">
       {statuses.map(({ status, label }) => (
-        <div key={status} className="flex w-[142.23px] items-center justify-center gap-[15.59px] relative -mt-[0.06px] -mb-[0.06px]">
+        <div key={status} className="flex flex-1 items-center justify-center gap-4 relative">
           <div 
-            className={`relative w-[15px] h-[15px] rounded-[8.77px] ${getStatusColor(status)}`}
+            className={`relative w-4 h-4 rounded-lg ${getStatusColor(status)}`}
           />
-          <div className="relative w-fit -mt-[1.95px] font-medium text-black dark:text-neutral-100 text-[15.4px] tracking-[0] leading-normal transition-colors duration-300">
+          <div className="relative w-fit font-medium text-black dark:text-neutral-100 text-sm tracking-normal leading-normal transition-colors duration-300">
             {label}
           </div>
         </div>

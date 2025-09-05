@@ -1,5 +1,5 @@
 import React from 'react';
-import { CONNECTION_STATE } from '../../types/sensor';
+import { CONNECTION_STATE } from '../../config/sensorConfig';
 
 const ConnectionError = ({ connectionState, onRetry }) => {
   const getErrorMessage = (state) => {

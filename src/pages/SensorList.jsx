@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../services/api/sensor_api';
-import { getStatusColor } from '../config/sensorConfig';
+import { getStatusColor } from '../utils/sensorUtils';
 
 const SensorList = () => {
   const navigate = useNavigate();

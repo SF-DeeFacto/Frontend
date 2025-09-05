@@ -5,7 +5,6 @@ import {
   Layers,
   BarChart2,
   FileText,
-  MessageCircle,
   LogOut,
   ChevronsLeft,
   ChevronsRight,
@@ -15,7 +14,7 @@ import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { logout } from '../../services/api/auth';
-import { openChatBotPopup } from '../chatbot/ChatBotPopup';
+import { ZoneUtils } from '../../config/zoneConfig';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -49,18 +48,9 @@ const Aside = () => {
     </div>
   );
 
-  // 모든 Zone 서브메뉴 아이템들
+  // 모든 Zone 서브메뉴 아이템들 - 공통 설정 사용
   const getAllZoneItems = () => {
-    return [
-      { label: 'A01', path: '/home/zone/a01', zoneId: 'a01' },
-      { label: 'A02', path: '/home/zone/a02', zoneId: 'a02' },
-      { label: 'B01', path: '/home/zone/b01', zoneId: 'b01' },
-      { label: 'B02', path: '/home/zone/b02', zoneId: 'b02' },
-      { label: 'B03', path: '/home/zone/b03', zoneId: 'b03' },
-      { label: 'B04', path: '/home/zone/b04', zoneId: 'b04' },
-      { label: 'C01', path: '/home/zone/c01', zoneId: 'c01' },
-      { label: 'C02', path: '/home/zone/c02', zoneId: 'c02' }
-    ];
+    return ZoneUtils.getAllZoneMenuItems();
   };
 
   // 메뉴 아이템 데이터
@@ -93,11 +83,6 @@ const Aside = () => {
       icon: <FileText />,
       label: "Report",
       onClick: () => navigate("/home/report"),
-    },
-    {
-      icon: <MessageCircle />,
-      label: "Chatbot",
-      onClick: openChatBotPopup,
     },
 
     {
