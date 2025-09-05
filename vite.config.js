@@ -75,6 +75,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/report-api/, ''), // /api 제거
         secure: false,
+      },
+      '/aws-grafana':{
+        target: 'http://ac63b2a0c9ede49f793d3dc81ad44a15-5661160d80c851fb.elb.ap-northeast-2.amazonaws.com/',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/aws-grafana/, ''), // /api 제거
+        secure: false,
       }
 
     }

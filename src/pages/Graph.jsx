@@ -55,7 +55,7 @@ const Graph = () => {
   // 예: ...&var-zone=A-1&var-sensor=온도,습도
   const sensorParam = selectedSensors.join(',');
   // const dev_ip = '192.168.55.180:3000';
-  const dev_ip = 'http://ac63b2a0c9ede49f793d3dc81ad44a15-5661160d80c851fb.elb.ap-northeast-2.amazonaws.com';
+  const dev_ip = '/aws-grafana';
   //const dev_ip = '222.235.142.221:12333';
   // zone index에 따라 dashboardUrl 분기
   const zoneIndex = ZONES.indexOf(selectedZone);
