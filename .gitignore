@@ -131,7 +131,7 @@ node_modules/
 # *.blend
 
 # Model directories
-# public/models/
+ public/models/
 # models/
 
 # 특정 모델 폴더는 포함 (A01, B01, mainhome)
