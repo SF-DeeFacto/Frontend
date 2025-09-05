@@ -13,8 +13,8 @@ import {
   CloudLightning,
   Snowflake,
   CloudFog,
-  ToggleLeft,
-  ToggleRight
+  Lightbulb,
+  LightbulbOff
 } from 'lucide-react';
 import Icon from '../common/Icon';
 import Text from '../common/Text';
@@ -233,7 +233,7 @@ const Header = () => {
         onClick={refreshWeatherInfo}
         title="날씨 정보 새로고침"
       >
-        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+        <Icon size="xs" className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {weatherData ? (
             weatherData.icon === '01d' ? <Sun /> : 
             weatherData.icon === '01n' ? <Moon /> :
@@ -280,10 +280,25 @@ const Header = () => {
       {/* 구분선 */}
       <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
       
+      {/* 다크모드 토글 버튼 */}
+      <button
+        onClick={toggleTheme}
+        className="p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
+      >
+        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
+          {theme === 'dark' ? <LightbulbOff /> : <Lightbulb />}
+        </Icon>
+      </button>
+
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+
       {/* 알림 버튼 */}
       <button
         onClick={() => navigate("/home/alarm")}
-        className="relative p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        className="relative p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
         title="알림"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
@@ -298,26 +313,17 @@ const Header = () => {
         )}
       </button>
       
+      {/* 구분선 */}
+      <div className="h-4 w-px bg-brand-medium/50 dark:bg-neutral-600/50"></div>
+
       {/* 설정 버튼 */}
       <button
         onClick={() => navigate("/home/setting")}
-        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
+        className="p-0 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
         title="설정"
       >
         <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           <Settings />
-        </Icon>
-      </button>
-      
-      {/* 다크모드 토글 버튼 */}
-      <button
-        onClick={toggleTheme}
-        className="p-1.5 hover:bg-brand-light/50 dark:hover:bg-neutral-700/50 rounded-lg transition-all duration-200"
-        title={theme === 'dark' ? '라이트 모드로 변경' : '다크 모드로 변경'}
-      >
-        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
-          {/* {theme === 'dark' ? <FiSun size={20} /> : <FiMoon size={20} />} */}
-          {theme === 'dark' ? <ToggleRight /> : <ToggleLeft />}
         </Icon>
       </button>
       
@@ -328,7 +334,7 @@ const Header = () => {
       <div>
         <Text 
           variant="body" 
-          size="base"
+          size="sm"
           weight="bold"
           color="secondary-500 dark:text-neutral-400"
           className="whitespace-nowrap tracking-wide"
