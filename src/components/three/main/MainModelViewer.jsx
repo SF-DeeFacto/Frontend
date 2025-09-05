@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls, Html } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
-import { LoadingSpinner } from '../../ui';
+import { SectionLoading } from '../../ui';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
   const gltf = useLoader(GLTFLoader, '/models/mainhome.glb');
@@ -103,12 +103,52 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 function LoadingFallback() {
   return (
     <Html center>
-      <LoadingSpinner 
-        size="lg" 
-        text="메인 홈 모델을 불러오는 중..."
-      />
+      <div className="w-80">
+        <SectionLoading 
+          loading={true}
+          loadingText="메인 홈 모델을 불러오는 중..."
+          showHeader={false}
+          size="lg"
+        />
+      </div>
     </Html>
   );
+}
+
+// 메인 모델 에러 바운더리
+class MainModelErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('MainModel 에러:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Html center>
+          <div className="w-80">
+            <SectionLoading 
+              loading={false}
+              error="메인 홈 모델을 불러올 수 없습니다."
+              errorText="서버 연결을 확인해주세요."
+              showHeader={false}
+              size="lg"
+            />
+          </div>
+        </Html>
+      );
+    }
+
+    return this.props.children;
+  }
 }
 
 export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
@@ -126,15 +166,17 @@ export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
   }, []);
 
   return (
-    <Suspense fallback={<LoadingFallback />}>
-      <Model zoneStatuses={zoneStatuses} onHoverZoneChange={onHoverZoneChange} />
-      <OrbitControls 
-        ref={controlsRef}
-        target={[2.096, -3.749, 3.199]}
-        position={[3.989, 7.212, 5.067]}
-        enableDamping={true}
-        dampingFactor={0.05}
-      />
-    </Suspense>
+    <MainModelErrorBoundary>
+      <Suspense fallback={<LoadingFallback />}>
+        <Model zoneStatuses={zoneStatuses} onHoverZoneChange={onHoverZoneChange} />
+        <OrbitControls 
+          ref={controlsRef}
+          target={[2.096, -3.749, 3.199]}
+          position={[3.989, 7.212, 5.067]}
+          enableDamping={true}
+          dampingFactor={0.05}
+        />
+      </Suspense>
+    </MainModelErrorBoundary>
   );
 } 

@@ -52,13 +52,8 @@ export const SectionLoading = ({
   // 에러 상태
   if (error) {
     return (
-      <div className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300 ${className}`}>
-        {showHeader && headerContent && (
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-600">
-            {headerContent}
-          </div>
-        )}
-        <div className="p-4 border-l-4 border-l-danger-500 bg-danger-50/50 dark:bg-danger-900/20">
+      <div className={`flex items-center justify-center ${className}`}>
+        <div className="p-4">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 bg-danger-500 rounded-full flex items-center justify-center">
               <span className="text-white text-xs font-bold">!</span>
@@ -75,13 +70,8 @@ export const SectionLoading = ({
   // 빈 상태
   if (empty) {
     return (
-      <div className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300 ${className}`}>
-        {showHeader && headerContent && (
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-600">
-            {headerContent}
-          </div>
-        )}
-        <div className="p-12 text-center">
+      <div className={`flex items-center justify-center ${className}`}>
+        <div className="p-8 text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-secondary-100 to-secondary-200 dark:from-neutral-700 dark:to-neutral-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-secondary-400 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 7H4l5-5v5zM12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
@@ -98,18 +88,12 @@ export const SectionLoading = ({
   // 로딩 상태
   if (loading) {
     return (
-      <div className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300 ${className}`}>
-        {showHeader && headerContent && (
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-600">
-            {headerContent}
-          </div>
-        )}
-        <div className="p-8">
+      <div className={`flex items-center justify-center ${className}`}>
+        <div className="p-4">
           <LoadingSpinner 
             size={size}
             variant={variant}
             text={loadingText}
-            className="py-8"
           />
         </div>
       </div>
@@ -118,15 +102,8 @@ export const SectionLoading = ({
 
   // 정상 상태
   return (
-    <div className={`bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-gray-200 dark:border-neutral-700 overflow-hidden transition-colors duration-300 ${className}`}>
-      {showHeader && headerContent && (
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-600">
-          {headerContent}
-        </div>
-      )}
-      <div className="p-6">
-        {children}
-      </div>
+    <div className={className}>
+      {children}
     </div>
   );
 };

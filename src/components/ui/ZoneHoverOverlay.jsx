@@ -5,7 +5,7 @@ import SimpleModel from '../three/main/SimpleModel';
 import { getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
 import { ZONE_POSITIONS, ZONE_MAPPING } from '../../config/zoneConfig';
 import { UI_COLORS } from '../../config/colorConfig';
-import LoadingSpinner from './LoadingSpinner';
+import { SectionLoading } from './LoadingSystem';
 
 // 에러 바운더리 컴포넌트
 class SimpleModelErrorBoundary extends React.Component {
@@ -78,28 +78,25 @@ function ModelPreview({ zoneId }) {
   // 모델 확인 중일 때 로딩 표시
   if (isModelChecking) {
     return (
-      <div className="flex flex-col items-center justify-center">
-        <LoadingSpinner 
-          size="sm" 
-          text={`${zoneId.toUpperCase()} 구역을 확인하는 중...`}
-        />
-      </div>
+      <SectionLoading 
+        loading={true}
+        loadingText={`${zoneId.toUpperCase()} 구역을 확인하는 중...`}
+        showHeader={false}
+        size="sm"
+      />
     );
   }
   
   // 모델이 존재하지 않을 때 에러 표시
   if (!modelExists) {
     return (
-      <div className="flex flex-col items-center justify-center p-4">
-        <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-2">
-          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-          </svg>
-        </div>
-        <p className="text-xs text-red-400 font-medium text-center">
-          모델을 불러올 수 없습니다
-        </p>
-      </div>
+      <SectionLoading 
+        loading={false}
+        error="모델을 불러올 수 없습니다"
+        errorText="서버 연결 확인 필요"
+        showHeader={false}
+        size="sm"
+      />
     );
   }
   
@@ -112,10 +109,14 @@ function ModelPreview({ zoneId }) {
       <SimpleModelErrorBoundary>
         <Suspense fallback={
           <Html center>
-            <LoadingSpinner 
-              size="sm" 
-              text={`${zoneId.toUpperCase()} 구역을 불러오는 중...`}
-            />
+            <div className="w-60">
+              <SectionLoading 
+                loading={true}
+                loadingText={`${zoneId.toUpperCase()} 구역을 불러오는 중...`}
+                showHeader={false}
+                size="sm"
+              />
+            </div>
           </Html>
         }>
           <SimpleModel modelPath={modelPath} />
