@@ -44,6 +44,93 @@ class SimpleModelErrorBoundary extends React.Component {
   }
 }
 
+// 모델 미리보기 컴포넌트
+function ModelPreview({ zoneId }) {
+  const [isModelChecking, setIsModelChecking] = React.useState(true);
+  const [modelExists, setModelExists] = React.useState(true);
+  const modelPath = ZONE_MAPPING.ID_TO_MODEL_PATH[zoneId.toUpperCase()];
+  
+  React.useEffect(() => {
+    if (!modelPath) {
+      setIsModelChecking(false);
+      setModelExists(false);
+      return;
+    }
+    
+    const checkModelExists = async () => {
+      try {
+        // 최소 0.5초는 로딩 스피너를 보여주기 위해 지연
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const response = await fetch(modelPath, { method: 'HEAD' });
+        setModelExists(response.ok);
+      } catch (error) {
+        console.error('모델 파일 확인 실패:', error);
+        setModelExists(false);
+      } finally {
+        setIsModelChecking(false);
+      }
+    };
+    
+    checkModelExists();
+  }, [modelPath]);
+  
+  // 모델 확인 중일 때 로딩 표시
+  if (isModelChecking) {
+    return (
+      <div className="flex flex-col items-center justify-center">
+        <LoadingSpinner 
+          size="sm" 
+          text={`${zoneId.toUpperCase()} 구역을 확인하는 중...`}
+        />
+      </div>
+    );
+  }
+  
+  // 모델이 존재하지 않을 때 에러 표시
+  if (!modelExists) {
+    return (
+      <div className="flex flex-col items-center justify-center p-4">
+        <div className="w-8 h-8 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mb-2">
+          <svg className="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+        </div>
+        <p className="text-xs text-red-400 font-medium text-center">
+          모델을 불러올 수 없습니다
+        </p>
+      </div>
+    );
+  }
+  
+  // 모델이 존재할 때 3D 뷰어 표시
+  return (
+    <Canvas
+      camera={{ position: [10, 10, 10], fov: 75 }}
+      style={{ width: '100%', height: '100%' }}
+    >
+      <SimpleModelErrorBoundary>
+        <Suspense fallback={
+          <Html center>
+            <LoadingSpinner 
+              size="sm" 
+              text={`${zoneId.toUpperCase()} 구역을 불러오는 중...`}
+            />
+          </Html>
+        }>
+          <SimpleModel modelPath={modelPath} />
+        </Suspense>
+      </SimpleModelErrorBoundary>
+      <OrbitControls
+        enablePan={false}
+        enableZoom={false}
+        autoRotate={true}
+        autoRotateSpeed={1}
+      />
+    </Canvas>
+  );
+}
+
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   if (!hoveredZone) return null;
 
@@ -137,40 +224,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           justifyContent: 'center',
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
-          {(() => {
-            const zoneId = hoveredZone.toUpperCase();
-            const modelPath = ZONE_MAPPING.ID_TO_MODEL_PATH[zoneId];
-            
-            if (modelPath) {
-              return (
-                <Canvas
-                  camera={{ position: [10, 10, 10], fov: 75 }}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  <SimpleModelErrorBoundary>
-                    <Suspense fallback={
-                      <Html center>
-                        <LoadingSpinner 
-                          size="sm" 
-                          text={`${hoveredZone.toUpperCase()} 구역을 불러오는 중...`}
-                        />
-                      </Html>
-                    }>
-                      <SimpleModel modelPath={modelPath} />
-                    </Suspense>
-                  </SimpleModelErrorBoundary>
-                  <OrbitControls
-                    enablePan={false}
-                    enableZoom={false}
-                    autoRotate={true}
-                    autoRotateSpeed={1}
-                  />
-                </Canvas>
-              );
-            } else {
-              return <div style={{ color: UI_COLORS.TEXT.MUTED, fontSize: '12px' }}>미리보기 없음</div>;
-            }
-          })()}
+          <ModelPreview zoneId={hoveredZone} />
         </div>
       </div>
 
