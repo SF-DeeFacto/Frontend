@@ -2,4 +2,4 @@
 export { default as ZoneModel } from './zone/ZoneModel';
 export { default as ZoneModelViewer } from './zone/ZoneModelViewer';
 export { default as SensorIndicator } from './zone/SensorIndicator';
-export { default as SensorInfoPanel } from '../common/SensorInfoPanel';
+export { default as SensorInfoPanel } from '../features/sensor/SensorInfoPanel';

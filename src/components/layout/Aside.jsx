@@ -11,10 +11,10 @@ import {
   ChartColumn,
 } from "lucide-react";
 import MenuItem from "./MenuItem";
-import Icon from '../common/Icon';
-import Text from '../common/Text';
+import Icon from '../ui/Icon';
+import Text from '../ui/Text';
 import { logout } from '../../services/api/auth';
-import { ZoneUtils } from '../../config/zoneConfig';
+// ZoneUtils는 현재 사용되지 않
 
 const Aside = () => {
   const navigate = useNavigate();

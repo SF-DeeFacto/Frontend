@@ -1,8 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSensorTypeConfig } from '../../config/sensorConfig';
-import { isSensorValueValid, getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../config/sensorConfig';
+import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
+import { CONNECTION_STATE } from '../../../config/sensorConfig';
 
 /**
  * 센서 데이터 카드 컴포넌트

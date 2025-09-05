@@ -1,8 +1,8 @@
 import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import MainModelViewer from '../main/MainModelViewer';
-import ModelCard from '../../common/ModelCard';
-import ZoneHoverOverlay from '../../common/ZoneHoverOverlay';
+import MainModelViewer from '../../three/main/MainModelViewer';
+import ModelCard from '../../ui/ModelCard';
+import ZoneHoverOverlay from '../../ui/ZoneHoverOverlay';
 import StatusIndicator from './StatusIndicator';
 
 const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) => {

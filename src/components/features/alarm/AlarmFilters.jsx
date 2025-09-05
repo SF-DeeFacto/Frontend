@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
-import Text from '../common/Text';
-import Icon from '../common/Icon';
+import Text from '../../ui/Text';
+import Icon from '../../ui/Icon';
 
 // 상수 정의
 const ALARM_TYPES = ['전체', '알림', '리포트'];

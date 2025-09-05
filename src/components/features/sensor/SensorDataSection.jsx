@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import SensorDataCard from '../../common/SensorDataCard';
-import ConnectionIndicator from '../../common/ConnectionIndicator';
-import Icon from '../../common/Icon';
+import SensorDataCard from '../sensor/SensorDataCard';
+import ConnectionIndicator from '../../ui/ConnectionIndicator';
+import Icon from '../../ui/Icon';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
 
 /**

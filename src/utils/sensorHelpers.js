@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SENSOR_STATUS_COLORS, SENSOR_STATUS_3D_COLORS } from '../config/colorConfig';
 
 /**
  * 센서 Mesh의 AABB 정보 계산

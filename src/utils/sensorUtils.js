@@ -1,5 +1,5 @@
-import { SENSOR_STATUS, SENSOR_STATUS_TEXT } from '../config/sensorConfig';
-import { SENSOR_STATUS_COLORS } from '../config/colorConfig';
+import { SENSOR_STATUS, SENSOR_STATUS_TEXT, SENSOR_TYPE_CONFIG } from '../config/sensorConfig';
+import { SENSOR_STATUS_COLORS, SENSOR_STATUS_3D_COLORS } from '../config/colorConfig';
 
 // 센서 상태 HEX 색상 가져오기
 export const getStatusHexColor = (status) => {
@@ -237,3 +237,46 @@ export class SensorDataDebouncer {
     this.callback = null;
   }
 }
+
+// ==================== 센서 설정 관련 함수들 ====================
+
+// 센서 설정 가져오기
+export const getSensorTypeConfig = (type) => {
+  return SENSOR_TYPE_CONFIG[type] || null;
+};
+
+// 센서 이름으로 센서 타입 분류 (3D 모델용)
+export const getSensorTypeFromName = (sensorName) => {
+  for (const [type, config] of Object.entries(SENSOR_TYPE_CONFIG)) {
+    if (config.patterns) {
+      for (const pattern of config.patterns) {
+        if (sensorName.includes(pattern)) {
+          return type;
+        }
+      }
+    }
+  }
+  return 'unknown';
+};
+
+// 센서 타입으로 표시명 가져오기 (UI용)
+export const getSensorTypeDisplayName = (sensorType) => {
+  const config = SENSOR_TYPE_CONFIG[sensorType];
+  return config ? config.name : '알 수 없음';
+};
+
+// 센서 이름으로 센서 타입 표시명 가져오기 (3D 모델용)
+export const getSensorTypeDisplayNameFromName = (sensorName) => {
+  const sensorType = getSensorTypeFromName(sensorName);
+  return getSensorTypeDisplayName(sensorType);
+};
+
+// 센서가 유효한 센서인지 확인 (3D 모델용)
+export const isValidSensor = (sensorName) => {
+  return getSensorTypeFromName(sensorName) !== 'unknown';
+};
+
+// 센서 상태 3D 색상 가져오기 (Three.js용)
+export const getStatus3DColor = (status) => {
+  return SENSOR_STATUS_3D_COLORS[status] || SENSOR_STATUS_3D_COLORS.default;
+};

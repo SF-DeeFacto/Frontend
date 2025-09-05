@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/common/Button';
-import Text from '../components/common/Text';
+import Button from '../components/ui/Button';
+import Text from '../components/ui/Text';
 import { login } from '../services/api/auth';
 // ===== 개발용 더미 로그인 기능 시작 =====
 import { dummyUsers } from '../dummy/dummyUser';

@@ -16,8 +16,8 @@ import {
   Lightbulb,
   LightbulbOff
 } from 'lucide-react';
-import Icon from '../common/Icon';
-import Text from '../common/Text';
+import Icon from '../ui/Icon';
+import Text from '../ui/Text';
 import { notificationApi } from '../../services/api/notification_api';
 import { weatherApi } from '../../services/api/weather_api';
 import { useAuth } from '../../hooks/useAuth';
@@ -180,7 +180,7 @@ const Header = () => {
         }}
       />
       <span 
-        className="flex items-center justify-center w-[50px] h-[50px] text-4xl hidden"
+        className="items-center justify-center w-[50px] h-[50px] text-4xl hidden"
         style={{ ...styles.logoIcon, display: 'none' }}
       >
         🧊

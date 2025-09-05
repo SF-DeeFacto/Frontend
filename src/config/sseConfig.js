@@ -32,7 +32,7 @@ export const SSE_CONFIG = {
   RETRY_DELAY: 2000,
   RECONNECT_DELAY: 5000,
   
-  // 하트비트 설정
+  // 하트비트 설정 (constants.js의 TIMEOUTS 사용)
   HEARTBEAT_INTERVAL: 30000, // 30초
   CONNECTION_TIMEOUT: 60000, // 1분
   

@@ -29,13 +29,18 @@ export const SYSTEM_CONFIG = {
   CHART_DEFAULT_HEIGHT: 400,
 };
 
+// ==================== 타임아웃 상수 (통합) ====================
+export const TIMEOUTS = {
+  API: 30000,
+  SSE_RETRY: 3000,
+  SSE_HEARTBEAT: 120000,
+  SSE_HEARTBEAT_CHECK: 60000,
+  ALARM_POLLING: 30000,
+  WEATHER_UPDATE: 300000,
+  CHART_REFRESH: 30000
+};
+
 // ==================== 비즈니스 도메인 상수 ====================
-
-// 존(Zone) 관련 - zoneConfig.js에서 가져오기
-import { ZONES, ZONE_LIST, ZONE_MAPPING_LEGACY as ZONE_MAPPING } from './zoneConfig';
-
-// 기존 호환성을 위해 re-export
-export { ZONES, ZONE_LIST, ZONE_MAPPING };
 
 // 센서 관련은 sensorConfig.js에서 관리
 
@@ -99,24 +104,7 @@ export const REPORT_PERIODS = {
 };
 
 // ==================== UI 상수 ====================
-
-// 색상 관련
-export const COLORS = {
-  PRIMARY: '#494FA2',
-  SECONDARY: '#6B7280',
-  SUCCESS: '#10B981',
-  WARNING: '#F59E0B',
-  DANGER: '#EF4444',
-  INFO: '#3B82F6'
-};
-
-// 그라데이션
-export const GRADIENTS = {
-  PRIMARY: 'bg-gradient-to-r from-primary-500 to-primary-600',
-  SUCCESS: 'bg-gradient-to-r from-success-500 to-success-600',
-  WARNING: 'bg-gradient-to-r from-warning-500 to-warning-600',
-  DANGER: 'bg-gradient-to-r from-danger-500 to-danger-600'
-};
+// 색상 관련은 colorConfig.js에서 관리
 
 // 애니메이션 지속시간
 export const ANIMATION_DURATION = {
@@ -190,16 +178,7 @@ export const CHART_TYPES = {
   PIE: 'pie'
 };
 
-export const CHART_COLORS = [
-  '#494FA2',
-  '#10B981', 
-  '#F59E0B',
-  '#EF4444',
-  '#3B82F6',
-  '#8B5CF6',
-  '#06B6D4',
-  '#84CC16'
-];
+// 차트 색상은 colorConfig.js에서 관리
 
 // ==================== 파일 관련 ====================
 export const FILE_EXTENSIONS = {
@@ -232,22 +211,17 @@ export const DATE_FORMATS = {
 
 export default {
   SYSTEM_CONFIG,
-  ZONES,
-  ZONE_LIST,
-  ZONE_MAPPING,
+  TIMEOUTS,
   USER_MANAGEMENT,
   NOTIFICATION_TYPES,
   NOTIFICATION_TYPE_COLORS,
   REPORT_TYPES,
   REPORT_PERIODS,
-  COLORS,
-  GRADIENTS,
   ANIMATION_DURATION,
   STORAGE_KEYS,
   API_ENDPOINTS,
   HTTP_STATUS,
   CHART_TYPES,
-  CHART_COLORS,
   FILE_EXTENSIONS,
   MAX_FILE_SIZE,
   REGEX_PATTERNS,

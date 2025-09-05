@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusEmoji, getStatusText, getStatusHexColor } from '../../utils/sensorUtils';
+import { getStatusColor, getStatusEmoji, getStatusText, getStatusHexColor } from '../../../utils/sensorUtils';
 
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;

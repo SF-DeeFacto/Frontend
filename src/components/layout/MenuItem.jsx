@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import Text from "../common/Text";
+import Text from "../ui/Text";
 
 const MenuItem = ({ icon, label, onClick, collapsed, rightIcon, href }) => {
   const location = useLocation();

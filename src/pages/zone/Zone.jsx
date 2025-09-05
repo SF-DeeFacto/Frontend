@@ -5,9 +5,9 @@ import { useParams } from 'react-router-dom';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 
 // 컴포넌트
-import ZoneDrawingSection from '../../components/3d/zone/ZoneDrawingSection';
-import SensorDataSection from '../../components/3d/zone/SensorDataSection';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+import ZoneDrawingSection from '../../components/features/zone/ZoneDrawingSection';
+import SensorDataSection from '../../components/features/sensor/SensorDataSection';
+import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 // 스타일은 index.css에서 관리
 

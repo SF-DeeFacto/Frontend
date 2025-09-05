@@ -5,7 +5,6 @@ import {
   ChartScatter, 
   Wind 
 } from 'lucide-react';
-import { SENSOR_STATUS_COLORS, THREE_JS_COLORS } from './colorConfig';
 
 // 센서 상태 타입
 export const SENSOR_STATUS = {
@@ -69,20 +68,6 @@ export const SENSOR_TYPE_CONFIG = {
 
 // 센서 상태별 색상은 colorConfig.js에서 관리
 
-// 센서 상태별 3D 색상 (Three.js용) - colorConfig에서 가져오기
-export const SENSOR_STATUS_3D_COLORS = {
-  [SENSOR_STATUS.GREEN]: THREE_JS_COLORS.GREEN,
-  [SENSOR_STATUS.YELLOW]: THREE_JS_COLORS.YELLOW,
-  [SENSOR_STATUS.RED]: THREE_JS_COLORS.RED,
-  [SENSOR_STATUS.CONNECTING]: THREE_JS_COLORS.GRAY,
-  [SENSOR_STATUS.DISCONNECTED]: THREE_JS_COLORS.GRAY,
-  normal: THREE_JS_COLORS.GREEN,
-  warning: THREE_JS_COLORS.YELLOW,
-  error: THREE_JS_COLORS.RED,
-  unknown: THREE_JS_COLORS.GRAY,
-  default: THREE_JS_COLORS.GRAY
-};
-
 // 센서 상태별 텍스트
 export const SENSOR_STATUS_TEXT = {
   [SENSOR_STATUS.GREEN]: '정상',
@@ -104,43 +89,4 @@ export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, confi
   icon: config.icon
 }));
 
-// 센서 설정 가져오기
-export const getSensorTypeConfig = (type) => {
-  return SENSOR_TYPE_CONFIG[type] || null;
-};
-
-// 센서 이름으로 센서 타입 분류 (3D 모델용)
-export const getSensorTypeFromName = (sensorName) => {
-  for (const [type, config] of Object.entries(SENSOR_TYPE_CONFIG)) {
-    if (config.patterns) {
-      for (const pattern of config.patterns) {
-        if (sensorName.includes(pattern)) {
-          return type;
-        }
-      }
-    }
-  }
-  return 'unknown';
-};
-
-// 센서 타입으로 표시명 가져오기 (UI용)
-export const getSensorTypeDisplayName = (sensorType) => {
-  const config = SENSOR_TYPE_CONFIG[sensorType];
-  return config ? config.name : '알 수 없음';
-};
-
-// 센서 이름으로 센서 타입 표시명 가져오기 (3D 모델용)
-export const getSensorTypeDisplayNameFromName = (sensorName) => {
-  const sensorType = getSensorTypeFromName(sensorName);
-  return getSensorTypeDisplayName(sensorType);
-};
-
-// 센서가 유효한 센서인지 확인 (3D 모델용)
-export const isValidSensor = (sensorName) => {
-  return getSensorTypeFromName(sensorName) !== 'unknown';
-};
-
-// 센서 상태 3D 색상 가져오기 (Three.js용)
-export const getStatus3DColor = (status) => {
-  return SENSOR_STATUS_3D_COLORS[status] || SENSOR_STATUS_3D_COLORS.default;
-};
+// 센서 관련 함수들은 sensorUtils.js로 이동

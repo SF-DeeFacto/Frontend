@@ -3,7 +3,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Aside from './Aside';
-import AlertPopup from '../alarm/AlertPopup';
+import AlertPopup from '../features/alarm/AlertPopup';
 
 const MainLayout = () => {
   const location = useLocation();

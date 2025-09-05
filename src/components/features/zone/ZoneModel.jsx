@@ -3,9 +3,8 @@ import { useLoader, useThree, useFrame } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
-import SensorIndicator from './SensorIndicator';
-import { getSensorTypeConfig, getSensorTypeFromName, isValidSensor } from '../../../config/sensorConfig';
-import { getStatusText } from '../../../utils/sensorUtils';
+import SensorIndicator from '../sensor/SensorIndicator';
+import { getSensorTypeConfig, getSensorTypeFromName, isValidSensor, getStatusText } from '../../../utils/sensorUtils';
 
 function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const gltf = useLoader(GLTFLoader, modelPath);

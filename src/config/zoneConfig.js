@@ -87,58 +87,6 @@ export const ZONE_MAPPING = {
   }
 };
 
-// ==================== Zone 유틸리티 함수 ====================
-export const ZoneUtils = {
-  // Zone ID로 Zone 정보 찾기
-  getZoneById: (zoneId) => {
-    return ZONE_CONFIG.ZONES.find(zone => zone.id === zoneId);
-  },
-
-  // Zone ID로 Zone 이름 가져오기
-  getZoneName: (zoneId) => {
-    return ZONE_MAPPING.ID_TO_NAME[zoneId] || `Zone ${zoneId}`;
-  },
-
-  // Zone ID로 Zone 상태 키 가져오기
-  getZoneStatusKey: (zoneId) => {
-    return ZONE_MAPPING.ID_TO_STATUS_KEY[zoneId];
-  },
-
-  // Zone ID로 모델 경로 가져오기
-  getZoneModelPath: (zoneId) => {
-    return ZONE_MAPPING.ID_TO_MODEL_PATH[zoneId];
-  },
-
-  // Zone이 왼쪽에 위치하는지 확인
-  isLeftZone: (zoneId) => {
-    return ZONE_CONFIG.ZONE_POSITIONS.LEFT.includes(zoneId);
-  },
-
-  // Zone이 오른쪽에 위치하는지 확인
-  isRightZone: (zoneId) => {
-    return ZONE_CONFIG.ZONE_POSITIONS.RIGHT.includes(zoneId);
-  },
-
-  // Zone 그룹 가져오기
-  getZoneGroup: (zoneId) => {
-    for (const [group, zones] of Object.entries(ZONE_CONFIG.ZONE_GROUPS)) {
-      if (zones.includes(zoneId)) {
-        return group;
-      }
-    }
-    return null;
-  },
-
-  // 모든 Zone 메뉴 아이템 생성
-  getAllZoneMenuItems: () => {
-    return ZONE_CONFIG.ZONES.map(zone => ({
-      label: zone.displayName,
-      path: `/home/zone/${zone.id.toLowerCase()}`,
-      zoneId: zone.id.toLowerCase()
-    }));
-  }
-};
-
 // ==================== 기존 상수와의 호환성 ====================
 // 기존 코드와의 호환성을 위한 export
 export const ZONES = ZONE_CONFIG.ZONES.reduce((acc, zone) => {
@@ -153,7 +101,6 @@ export const ZONE_MAPPING_LEGACY = ZONE_MAPPING.LOWER_TO_UPPER;
 export default {
   ZONE_CONFIG,
   ZONE_MAPPING,
-  ZoneUtils,
   // 기존 호환성
   ZONES,
   ZONE_LIST,

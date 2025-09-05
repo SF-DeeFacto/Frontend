@@ -4,11 +4,11 @@ import { getFilteredAlarms, shouldResetPage } from '../utils/alarmFilters';
 import { useAlarmData } from '../hooks/useAlarmData';
 import { useAlarmPolling } from '../hooks/useAlarmPolling';
 import { handleApiError } from '../utils/unifiedErrorHandler';
-import AlarmFilters from '../components/alarm/AlarmFilters';
-import AlarmCard from '../components/alarm/AlarmCard';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import Pagination from '../components/common/Pagination';
-import Text from '../components/common/Text';
+import AlarmFilters from '../components/features/alarm/AlarmFilters';
+import AlarmCard from '../components/features/alarm/AlarmCard';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import Pagination from '../components/ui/Pagination';
+import Text from '../components/ui/Text';
 
 // 빈 상태 컴포넌트
 const EmptyState = () => (

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { connectNotificationSSE } from '../../services/sse';
+import { connectNotificationSSE } from '../../../services/sse';
 
 /**
  * 실시간 경고 알림 (alert만 사용)

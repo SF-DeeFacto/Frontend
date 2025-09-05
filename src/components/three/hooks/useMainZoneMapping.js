@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { ZONE_MAPPING, ZoneUtils } from '../../../config/zoneConfig';
+import { ZONE_MAPPING } from '../../../config/zoneConfig';
 
 export const useMainZoneMapping = () => {
   // 오브젝트와 Zone 이름 매핑 (소문자만 - 신호등용)

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import ZoneModelViewer from './ZoneModelViewer';
-import SensorInfoPanel from '../../common/SensorInfoPanel';
+import SensorInfoPanel from '../sensor/SensorInfoPanel';
 
 const ZoneDrawingSection = ({ 
   zoneId, 

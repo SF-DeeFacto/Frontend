@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import * as THREE from 'three';
-import { getStatus3DColor } from '../../../config/sensorConfig';
+import { getStatus3DColor } from '../../../utils/sensorUtils';
 
 export const useMainModelMaterials = () => {
   // Zone 상태 키 매핑 (API 응답 형식에 맞게 수정)

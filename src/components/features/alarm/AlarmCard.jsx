@@ -1,7 +1,7 @@
 import React from 'react';
 import { Clock, Bookmark, Check, CheckCircle } from 'lucide-react';
-import Text from '../common/Text';
-import Icon from '../common/Icon';
+import Text from '../../ui/Text';
+import Icon from '../../ui/Icon';
 
 // 유틸리티 함수들
 const getStatusColor = (status) => {

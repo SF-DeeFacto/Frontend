@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { 
   ZoneButtons, 
   ThreeDModelSection 
-} from '../components/3d/zone';
+} from '../components/features/zone';
 import { useZoneManager } from '../hooks/useZoneManager';
 import { useAuth } from '../hooks/useAuth';
-import LoadingSpinner from '../components/common/LoadingSpinner';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 const Home = () => {
   const [hoveredZone, setHoveredZone] = useState(null);

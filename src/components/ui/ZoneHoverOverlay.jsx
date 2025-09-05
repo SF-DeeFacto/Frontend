@@ -1,9 +1,8 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import SimpleModel from '../3d/main/SimpleModel';
+import SimpleModel from '../three/main/SimpleModel';
 import { getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
-import { ZoneUtils } from '../../config/zoneConfig';
 import { UI_COLORS } from '../../config/colorConfig';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
