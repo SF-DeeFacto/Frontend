@@ -1,13 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as THREE from 'three';
+import { Html } from '@react-three/drei';
+import { LoadingSpinner } from '../../ui';
 
 // 호버 오버레이용 간단한 3D 모델
 function SimpleModel({ modelPath }) {
   const gltf = useLoader(GLTFLoader, modelPath);
-  
-
   
   // 모델을 중심으로 위치 조정
   useEffect(() => {
