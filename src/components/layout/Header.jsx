@@ -233,7 +233,7 @@ const Header = () => {
         onClick={refreshWeatherInfo}
         title="날씨 정보 새로고침"
       >
-        <Icon className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
+        <Icon size="xs" className="text-secondary-500 dark:text-neutral-300 hover:text-brand-main transition-colors">
           {weatherData ? (
             weatherData.icon === '01d' ? <Sun /> : 
             weatherData.icon === '01n' ? <Moon /> :
