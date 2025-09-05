@@ -153,7 +153,7 @@ const Aside = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-primary-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl"></div>
             
             <div className="relative z-10 flex items-center justify-center w-full">
-              <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600 w-6 h-6">
+              <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600">
                 {isCollapsed ? (
                   <Icon><ChevronsRight /></Icon>
                 ) : (

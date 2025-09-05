@@ -60,7 +60,7 @@ const MarkAllAsReadButton = ({ onMarkAllAsRead, hasUnreadAlarms }) => (
     }`}
     disabled={!hasUnreadAlarms}
   >
-    <Icon size="16px">
+    <Icon>
       <CheckCircle />
     </Icon>
     <Text variant="body" size="sm" weight="semibold">

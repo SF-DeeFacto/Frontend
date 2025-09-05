@@ -74,39 +74,47 @@ const createAuthApiClient = () => {
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
         
-        // console.log('🔐 토큰 만료, 로그인 페이지로 이동...');
+        console.log('🔐 토큰 만료, 자동 갱신 시도...');
         
-        // refresh 엔드포인트가 없으므로 바로 로그인 페이지로 이동
+        try {
+          // 리프레시 토큰으로 새로운 액세스 토큰 요청
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (refreshToken) {
+            console.log('토큰 만료, 자동 갱신 시도...');
+            
+            const response = await axios.post('/api/auth/refresh', refreshToken, {
+              headers: {
+                'Content-Type': 'text/plain',
+                'Authorization': `Bearer ${refreshToken}`
+              }
+            });
+            
+            const newAccessToken = response.data.access.token;
+            localStorage.setItem('access_token', newAccessToken);
+            
+            // 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          console.error('토큰 갱신 실패:', refreshError);
+          
+          // 리프레시 토큰도 만료된 경우 로그아웃 처리
+          if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
+            console.log('리프레시 토큰도 만료되었습니다. 로그아웃 처리합니다.');
+            localStorage.clear();
+            window.location.href = '/login';
+            return Promise.reject(refreshError);
+          }
+          
+          // 네트워크 오류 등 기타 오류의 경우 원래 에러 반환
+          return Promise.reject(error);
+        }
+        
+        // 리프레시 토큰이 없는 경우 로그인 페이지로 이동
         localStorage.clear();
         window.location.href = '/login';
         return Promise.reject(error);
-        
-        // TODO: 백엔드에 refresh 엔드포인트가 구현되면 아래 주석을 해제하세요
-        
-        // try {
-        //   // 리프레시 토큰으로 새로운 액세스 토큰 요청
-        //   const refreshToken = localStorage.getItem('refresh_token');
-        //   if (refreshToken) {
-        //     console.log('토큰 만료, 자동 갱신 시도...');
-        //     
-        //     const response = await axios.post('/api/auth/refresh', {
-        //       refreshToken: refreshToken
-        //     });
-        //     
-        //     const newAccessToken = response.data.data.access.token;
-        //     localStorage.setItem('access_token', newAccessToken);
-        //     
-        //     // 원래 요청 재시도
-        //     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        //     return apiClient(originalRequest);
-        //   }
-        // } catch (refreshError) {
-        //   console.error('토큰 갱신 실패:', refreshError);
-        //   // 토큰 갱신 실패 시 로그인 페이지로 이동
-        //   localStorage.clear();
-        //   window.location.href = '/login';
-        //   return Promise.reject(refreshError);
-        // }
       }
       
       return Promise.reject(error);
@@ -165,7 +173,7 @@ const createDashboardApiClient = () => {
       
       return response;
     },
-    (error) => {
+    async (error) => {
       // 응답 시간 계산 (에러인 경우에도)
       const endTime = new Date();
       const startTime = error.config?.metadata?.startTime;
@@ -181,6 +189,55 @@ const createDashboardApiClient = () => {
         timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
         networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
       });
+      
+      const originalRequest = error.config;
+      
+      // 401 에러이고 재시도하지 않은 요청인 경우
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        console.log('🔐 Dashboard API 토큰 만료, 자동 갱신 시도...');
+        
+        try {
+          // 리프레시 토큰으로 새로운 액세스 토큰 요청
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (refreshToken) {
+            console.log('Dashboard API 토큰 만료, 자동 갱신 시도...');
+            
+            const response = await axios.post('/api/auth/refresh', refreshToken, {
+              headers: {
+                'Content-Type': 'text/plain',
+                'Authorization': `Bearer ${refreshToken}`
+              }
+            });
+            
+            const newAccessToken = response.data.access.token;
+            localStorage.setItem('access_token', newAccessToken);
+            
+            // 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            return apiClient(originalRequest);
+          }
+        } catch (refreshError) {
+          console.error('Dashboard API 토큰 갱신 실패:', refreshError);
+          
+          // 리프레시 토큰도 만료된 경우 로그아웃 처리
+          if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
+            console.log('리프레시 토큰도 만료되었습니다. 로그아웃 처리합니다.');
+            localStorage.clear();
+            window.location.href = '/login';
+            return Promise.reject(refreshError);
+          }
+          
+          // 네트워크 오류 등 기타 오류의 경우 원래 에러 반환
+          return Promise.reject(error);
+        }
+        
+        // 리프레시 토큰이 없는 경우 로그인 페이지로 이동
+        localStorage.clear();
+        window.location.href = '/login';
+        return Promise.reject(error);
+      }
       
       return Promise.reject(error);
     }
