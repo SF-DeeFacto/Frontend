@@ -14,9 +14,6 @@ const AlertPopup = () => {
       console.log('데이터 타입:', typeof data);
       console.log('notiType:', data?.notiType);
       
-      // 모든 메시지를 alert로 표시 (테스트용)
-      alert(`SSE 메시지 수신!\n\n데이터: ${JSON.stringify(data, null, 2)}`);
-      
       if (data && data.notiType === 'ALERT') {
         // 간단한 alert만 사용
         alert(`경고 알림\n\n${data.title}\nZone: ${data.zoneId.toUpperCase()}`);

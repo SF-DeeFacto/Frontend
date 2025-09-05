@@ -307,7 +307,7 @@ const Header = () => {
         
         {/* 알림 개수 뱃지 - 알림이 있을 때만 표시 */}
         {alarmCount > 0 && (
-          <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-danger-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1">
+          <span className="absolute -top-2 -right-2 min-w-[18px] h-[14px] bg-danger-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
             {alarmCount > 99 ? '99+' : alarmCount}
           </span>
         )}
