@@ -96,12 +96,13 @@ export const notificationUtils = {
     return colorMap[type] || 'bg-gray-100 text-gray-600';
   },
 
-  // 알림 시간 포맷팅
+  // 알림 시간 포맷팅 (UTC+9 한국 시간으로 변환)
   formatNotificationTime: (createdAt) => {
     if (!createdAt) return '';
     
     const now = new Date();
-    const notificationTime = new Date(createdAt);
+    // UTC 시간에 9시간(9 * 60 * 60 * 1000ms)을 더해서 한국 시간으로 변환
+    const notificationTime = new Date(new Date(createdAt).getTime() + (9 * 60 * 60 * 1000));
     const diffInMinutes = Math.floor((now - notificationTime) / (1000 * 60));
     
     if (diffInMinutes < 1) return '방금 전';
