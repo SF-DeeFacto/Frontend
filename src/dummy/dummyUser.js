@@ -14,7 +14,7 @@ export const generateDummyUsers = (count = 10) => {
     gender: '남',
     department: '관리팀',
     position: '관리자',
-    role: 'admin',
+    role: 'ADMIN',
     created_at: '2024-01-01 09:00:00',
     updated_at: '2024-01-01 09:00:00',
     shift: null

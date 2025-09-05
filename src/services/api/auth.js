@@ -138,7 +138,20 @@ export const logout = async () => {
 // JWT 토큰 디코딩 (페이로드만)
 const decodeJWT = (token) => {
   try {
-    const base64Url = token.split('.')[1];
+    // 더미 토큰인 경우 처리 (삭제)
+    if (token && token.startsWith('dummy_token_')) {
+      // 더미 토큰은 항상 유효한 것으로 처리 (24시간 후 만료)
+      const now = Math.floor(Date.now() / 1000);
+      const expiresAt = now + (24 * 60 * 60); // 24시간 후
+      return {
+        exp: expiresAt,
+        iat: now,
+        sub: 'dummy_user',
+        type: 'dummy'
+      };
+    }
+    //삭제끝끝
+        const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
@@ -178,6 +191,27 @@ export const refreshToken = async () => {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
       throw new Error('리프레시 토큰이 없습니다.');
+    }
+
+    // 더미 토큰인 경우 처리
+    if (refreshToken.startsWith('dummy_refresh_token_')) {
+      // 더미 토큰은 새로운 더미 토큰으로 갱신
+      const newDummyToken = 'dummy_token_' + Date.now();
+      const newDummyRefreshToken = 'dummy_refresh_token_' + Date.now();
+      
+      localStorage.setItem('access_token', newDummyToken);
+      localStorage.setItem('refresh_token', newDummyRefreshToken);
+      
+      const isDev = import.meta.env.DEV;
+      if (isDev) {
+        console.log('✅ 더미 토큰 갱신 성공');
+      }
+      
+      return {
+        success: true,
+        accessToken: newDummyToken,
+        expiresIn: 24 * 60 * 60 // 24시간
+      };
     }
 
     // 리프레시 API 호출 시에는 별도의 axios 인스턴스 사용 (인터셉터 없이)
