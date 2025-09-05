@@ -30,8 +30,8 @@ export const mapNotificationToAlarm = (notification) => ({
   id: notification.notiId,
   type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
   status: notification.readStatus ? '읽음' : '안읽음',
-  isFavorite: notification.flagStatus,
-  isRead: notification.readStatus,
+  isFavorite: notification.flagStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
+  isRead: notification.readStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
   message: convertMessageTime(notification.title, notification.timestamp),
   time: notificationUtils.formatNotificationTime(notification.timestamp),
   zone: notification.zoneId.toUpperCase()

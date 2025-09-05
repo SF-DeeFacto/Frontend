@@ -3,6 +3,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Aside from './Aside';
+import AlertPopup from '../alarm/AlertPopup';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -61,6 +62,9 @@ const MainLayout = () => {
           </div>
         </div>
       </div>
+      
+      {/* 실시간 알림 팝업 */}
+      <AlertPopup />
     </div>
   );
 };
