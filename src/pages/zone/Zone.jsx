@@ -7,7 +7,6 @@ import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 // 컴포넌트
 import ZoneDrawingSection from '../../components/features/zone/ZoneDrawingSection';
 import SensorDataSection from '../../components/features/sensor/SensorDataSection';
-import LoadingSpinner from '../../components/ui/LoadingSpinner';
 
 // 스타일은 index.css에서 관리
 
@@ -35,11 +34,6 @@ const Zone = ({ zoneId }) => {
     setSelectedObject(null);
   }, []);
 
-  // 로딩 상태 표시
-  if (isLoading) {
-    return <LoadingSpinner />;
-  }
-
   return (
     <main className="flex items-start gap-[15px] relative w-full pb-[30px] h-[calc(100vh-156px)]">
       {/* Zone 도면 영역 */}
@@ -56,6 +50,8 @@ const Zone = ({ zoneId }) => {
         sensorData={sensorData}
         connectionState={connectionState}
         zoneId={currentZoneId}
+        isLoading={isLoading}
+        error={connectionState === 'ERROR' ? '센서 데이터 연결에 실패했습니다.' : null}
       />
     </main>
   );

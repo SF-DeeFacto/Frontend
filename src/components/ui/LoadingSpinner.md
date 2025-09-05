@@ -171,44 +171,6 @@ const MyComponent = () => {
 };
 ```
 
-### useSimpleLoading
-```jsx
-import { useSimpleLoading } from '../hooks';
-
-const SimpleComponent = () => {
-  const { loading, startLoading, stopLoading } = useSimpleLoading();
-  
-  return (
-    <div>
-      {loading && <LoadingSpinner />}
-      <button onClick={startLoading}>로딩 시작</button>
-    </div>
-  );
-};
-```
-
-### useButtonLoading
-```jsx
-import { useButtonLoading } from '../hooks';
-
-const MultiButtonComponent = () => {
-  const { isButtonLoading, withButtonLoading } = useButtonLoading();
-  
-  const handleSave = async () => {
-    await withButtonLoading('save', async () => {
-      await saveData();
-    });
-  };
-  
-  return (
-    <div>
-      <button disabled={isButtonLoading('save')}>
-        {isButtonLoading('save') ? '저장 중...' : '저장'}
-      </button>
-    </div>
-  );
-};
-```
 
 ## 📊 컴포넌트 비교
 
@@ -229,9 +191,8 @@ const MultiButtonComponent = () => {
 // ❌ 기존 방식
 import LoadingSpinner from '../ui/LoadingSpinner';
 import { LoadingWrapper } from '../ui';
-import { useSmartLoading } from '../hooks';
 
-const { loading, loadingText } = useSmartLoading();
+const [loading, setLoading] = useState(false);
 <LoadingWrapper loading={loading}>
   <Content />
 </LoadingWrapper>
@@ -242,7 +203,7 @@ const { loading, loadingText } = useSmartLoading();
 // ✅ 새로운 방식
 import { SectionLoading, useUnifiedLoading } from '../ui';
 
-const { loading, loadingText } = useUnifiedLoading();
+const { loading, loadingText } = useUnifiedLoading({ componentName: 'MyComponent' });
 <SectionLoading loading={loading} loadingText={loadingText}>
   <Content />
 </SectionLoading>

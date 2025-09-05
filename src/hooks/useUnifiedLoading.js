@@ -1,5 +1,4 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
 import { LOADING_TEXTS } from '../config';
 
 /**
@@ -15,13 +14,12 @@ export const useUnifiedLoading = ({
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState(initialError);
   const [customLoadingText, setCustomLoadingText] = useState('');
-  const location = useLocation();
 
-  // 자동 로딩 텍스트 감지
+  // 자동 로딩 텍스트 감지 (단순화)
   const getAutoLoadingText = useCallback(() => {
     if (customLoadingText) return customLoadingText;
 
-    // 1. Component Name 기반
+    // Component Name 기반
     if (componentName) {
       switch (componentName) {
         case 'Home': return LOADING_TEXTS.PAGES.HOME;
@@ -38,18 +36,8 @@ export const useUnifiedLoading = ({
       }
     }
 
-    // 2. Page Path 기반
-    const path = location.pathname;
-    if (path.includes('/home/alarm')) return LOADING_TEXTS.PAGES.ALARM;
-    if (path.includes('/home/report')) return LOADING_TEXTS.PAGES.REPORT;
-    if (path.includes('/home/graph')) return LOADING_TEXTS.PAGES.GRAPH;
-    if (path.includes('/home/zone')) return LOADING_TEXTS.PAGES.ZONE;
-    if (path.includes('/home/setting')) return LOADING_TEXTS.PAGES.SETTING;
-    if (path.includes('/login')) return LOADING_TEXTS.PAGES.LOGIN;
-    if (path === '/home') return LOADING_TEXTS.PAGES.HOME;
-
     return defaultLoadingText;
-  }, [customLoadingText, componentName, location.pathname, defaultLoadingText]);
+  }, [customLoadingText, componentName, defaultLoadingText]);
 
   const loadingText = useMemo(() => getAutoLoadingText(), [getAutoLoadingText]);
 
@@ -123,58 +111,5 @@ export const useUnifiedLoading = ({
   };
 };
 
-/**
- * 간단한 로딩 훅 (기본적인 로딩 상태만 필요할 때)
- */
-export const useSimpleLoading = (initialLoading = false) => {
-  const [loading, setLoading] = useState(initialLoading);
-  
-  const startLoading = useCallback(() => setLoading(true), []);
-  const stopLoading = useCallback(() => setLoading(false), []);
-  
-  return {
-    loading,
-    startLoading,
-    stopLoading,
-    setLoading: setLoading
-  };
-};
-
-/**
- * 버튼 로딩 훅 (버튼에 특화된 로딩 상태)
- */
-export const useButtonLoading = () => {
-  const [buttonLoading, setButtonLoading] = useState({});
-  
-  const startButtonLoading = useCallback((buttonId) => {
-    setButtonLoading(prev => ({ ...prev, [buttonId]: true }));
-  }, []);
-  
-  const stopButtonLoading = useCallback((buttonId) => {
-    setButtonLoading(prev => ({ ...prev, [buttonId]: false }));
-  }, []);
-  
-  const isButtonLoading = useCallback((buttonId) => {
-    return buttonLoading[buttonId] || false;
-  }, [buttonLoading]);
-  
-  const withButtonLoading = useCallback(async (buttonId, asyncFn) => {
-    startButtonLoading(buttonId);
-    try {
-      const result = await asyncFn();
-      return result;
-    } finally {
-      stopButtonLoading(buttonId);
-    }
-  }, [startButtonLoading, stopButtonLoading]);
-  
-  return {
-    buttonLoading,
-    startButtonLoading,
-    stopButtonLoading,
-    isButtonLoading,
-    withButtonLoading
-  };
-};
 
 export default useUnifiedLoading;

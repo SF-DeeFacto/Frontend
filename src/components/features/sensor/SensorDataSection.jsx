@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import SensorDataCard from '../sensor/SensorDataCard';
 import ConnectionIndicator from '../../ui/ConnectionIndicator';
 import Icon from '../../ui/Icon';
+import { SectionLoading } from '../../ui';
 import { SENSOR_TYPES } from '../../../config/sensorConfig';
 
 /**
@@ -10,8 +11,10 @@ import { SENSOR_TYPES } from '../../../config/sensorConfig';
  * @param {Object} props.sensorData - 센서 데이터 객체
  * @param {string} props.connectionState - 연결 상태
  * @param {string} props.zoneId - Zone ID
+ * @param {boolean} props.isLoading - 로딩 상태
+ * @param {string} props.error - 에러 메시지
  */
-const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
+const SensorDataSection = ({ sensorData, connectionState, zoneId, isLoading = false, error = null }) => {
   /**
    * 센서 타입별 센서 목록을 렌더링하는 함수
    */
@@ -65,10 +68,20 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
           </div>
         </div>
         
-        {/* 센서 데이터 컨텐츠 - 센서 타입 헤더는 항상 표시 */}
-        <div className="grid grid-cols-5 gap-[15px] flex-1">
-          {SENSOR_TYPES.map(renderSensorColumn)}
-        </div>
+        {/* 센서 데이터 컨텐츠 */}
+        <SectionLoading
+          loading={isLoading}
+          loadingText="센서 데이터를 불러오는 중..."
+          error={error}
+          errorText="센서 데이터를 불러올 수 없습니다."
+          showHeader={false}
+          size="lg"
+          className="flex-1"
+        >
+          <div className="grid grid-cols-5 gap-[15px] flex-1">
+            {SENSOR_TYPES.map(renderSensorColumn)}
+          </div>
+        </SectionLoading>
       </div>
     </aside>
   );
