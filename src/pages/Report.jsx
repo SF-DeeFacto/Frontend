@@ -421,7 +421,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { authApiClient } from '../services';
-// import axios from 'axios';
+ import axios from 'axios';
 
 // const API_BASE = 'http://localhost:8085';
  const API_BASE = '/report-api';
@@ -430,7 +430,7 @@ import { authApiClient } from '../services';
 
 const Report = () => {
   // 공통 인증 로직 사용
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user, token } = useAuth();
   // TODO: 실제로는 로그인 정보에서 employeeId를 가져오도록 변경하세요
   
 
@@ -448,6 +448,8 @@ const Report = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const[tocken,setToken]=useState("");
+
   const itemsPerPage = 5; // 서버 page size에 맞춰 변경 가능
 
   // 서버에서 리포트 목록 조회
@@ -457,7 +459,7 @@ const Report = () => {
       console.log('인증되지 않은 사용자입니다.');
       return;
     }
-
+    const EMPLOYEE_ID = localStorage.getItem('employeeId');
     setLoading(true);
     setError(null);
     try {
@@ -472,22 +474,24 @@ const Report = () => {
       console.log('🚀 리포트 목록 조회 시작');
       console.log('📋 요청 파라미터:', params);
       console.log('👤 사용자 정보:', user.employeeId);
+      console.log("tocken : "+token);
 
       // 기존 axios 방식 (주석 처리)
-      // const res = await axios.get(`${API_BASE}/reports/list`, {
-      //   params,
-      //   headers: {
-      //     'X-Employee-Id': EMPLOYEE_ID
-      //   },
-      // });
-
-      // 새로운 authApiClient 방식
-      const res = await authApiClient.get(`${API_BASE}/reports/list`, {
+      const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
         headers: {
-          'X-Employee-Id': user.employeeId
+          
+          'Authorization': `Bearer ${token}`
         },
       });
+      
+      // 새로운 authApiClient 방식
+      // const res = await authApiClient.get(`${API_BASE}/reports/list`, {
+      //   params,
+      //   headers: {
+      //     'X-Employee-Id': user.employeeId
+      //   },
+      // });
       console.log('✅ 리포트 목록 조회 성공:', res.data);
 
       // ApiResponseDto 형태: { code, message, data }
@@ -512,6 +516,7 @@ const Report = () => {
 
   // 초기 및 필터/페이지 변경 시 조회
   useEffect(() => {
+    setToken(localStorage.getItem('access_Token'));
     if (isAuthenticated && user?.employeeId) {
       setCurrentPage(1);
       fetchReports(1);
