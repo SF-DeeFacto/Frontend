@@ -1,13 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-const ZONES = ['전체','A01', 'A02', 'B01', 'B02', 'B03', 'B04', 'C01', 'C02'];
 const SENSORS = ['온도', '습도', '풍향', '정전기', '파티클'];
 
 const Graph = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const zoneFromUrl = searchParams.get('zone');
   
+  // 사용자 scope에 따른 구역 목록 필터링
+  const getAllowedZones = () => {
+    const allZones = [
+      { value: '전체', scope: null },
+      { value: 'A01', scope: 'a' },
+      { value: 'A02', scope: 'a' },
+      { value: 'B01', scope: 'b' },
+      { value: 'B02', scope: 'b' },
+      { value: 'B03', scope: 'b' },
+      { value: 'B04', scope: 'b' },
+      { value: 'C01', scope: 'c' },
+      { value: 'C02', scope: 'c' }
+    ];
+
+    // 사용자 scope가 없으면 모든 구역 표시
+    if (!user?.scope) {
+      return allZones.map(zone => zone.value);
+    }
+
+    // 사용자 scope에 따라 필터링
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return allZones
+      .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
+      .map(zone => zone.value);
+  };
+
+  const ZONES = getAllowedZones();
+
   // URL에서 zone 파라미터가 있으면 해당 Zone을 선택, 없으면 기본값
   const getInitialZone = () => {
     if (zoneFromUrl) {
@@ -22,7 +51,11 @@ const Graph = () => {
         'c01': 'C01',
         'c02': 'C02'
       };
-      return zoneMapping[zoneFromUrl.toLowerCase()] || ZONES[0];
+      const mappedZone = zoneMapping[zoneFromUrl.toLowerCase()];
+      // 사용자가 접근 가능한 구역인지 확인
+      if (mappedZone && ZONES.includes(mappedZone)) {
+        return mappedZone;
+      }
     }
     return ZONES[0];
   };

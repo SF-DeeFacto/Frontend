@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Info } from 'lucide-react';
 import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { useAuth } from '../../../hooks/useAuth';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -15,8 +16,18 @@ const formatDateTime = (date) => {
 };
 
 const Equipset = ({ onTabChange }) => {
+  const { user } = useAuth();
+  
+  // 사용자 scope에 따른 초기 구역 설정
+  const getInitialZones = () => {
+    if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
+    
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
+  };
+  
   // 선택된 구역들 (다중 선택)
-  const [selectedZones, setSelectedZones] = useState(['a', 'b', 'c']); // 기본적으로 모든 구역 선택
+  const [selectedZones, setSelectedZones] = useState(getInitialZones());
   
   // API에서 가져온 임계치 상태 (구역별 배열 매핑)
   const [sensorThresholds, setSensorThresholds] = useState({});
@@ -199,8 +210,15 @@ const Equipset = ({ onTabChange }) => {
 
 
 
-  // 구역 목록
-  const zones = ['a', 'b', 'c'];
+  // 사용자 scope에 따른 구역 목록 필터링
+  const getAllowedZones = () => {
+    if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
+    
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
+  };
+  
+  const zones = getAllowedZones();
 
   // 구역 토글 핸들러
   const toggleZone = (zone) => {
