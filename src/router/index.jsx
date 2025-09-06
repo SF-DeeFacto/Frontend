@@ -5,7 +5,6 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Graph from '../pages/Graph';
 import Report from '../pages/Report';
-import ChatBot from '../pages/ChatBot';
 import Alarm from '../pages/Alarm';
 import Setting from '../pages/setting/Setting';
 import Zone from '../pages/zone/Zone';
@@ -93,7 +92,6 @@ const AppRoutes = () => {
         <Route path="/home/grafana-test3" element={<GrafanaIframe />} />
         {/* <Route path="/home/grafana-test" element={<GrafanaTest />} /> */}
         <Route path="/home/report" element={<Report />} />
-        <Route path="/home/chatbot" element={<ChatBot />} />
         <Route path="/home/alarm" element={<Alarm />} />
 
         <Route 
