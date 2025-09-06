@@ -5,7 +5,6 @@ import {
   Layers,
   BarChart2,
   FileText,
-  MessageCircle,
   LogOut,
   ChevronsLeft,
   ChevronsRight,
@@ -15,7 +14,6 @@ import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
 import Text from '../common/Text';
 import { logout } from '../../services/api/auth';
-import { openChatBotPopup } from '../chatbot/ChatBotPopup';
 
 const Aside = () => {
   const navigate = useNavigate();
@@ -93,11 +91,6 @@ const Aside = () => {
       icon: <FileText />,
       label: "Report",
       onClick: () => navigate("/home/report"),
-    },
-    {
-      icon: <MessageCircle />,
-      label: "Chatbot",
-      onClick: openChatBotPopup,
     },
 
     {
