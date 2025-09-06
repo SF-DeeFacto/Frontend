@@ -102,7 +102,20 @@ const createAuthApiClient = () => {
               }
             });
             
-            const newAccessToken = response.data.access.token;
+            // 응답 구조 확인 및 안전한 토큰 추출
+            console.log('리프레시 토큰 응답:', response.data);
+            
+            let newAccessToken;
+            if (response.data.access && response.data.access.token) {
+              newAccessToken = response.data.access.token;
+            } else if (response.data.token) {
+              newAccessToken = response.data.token;
+            } else if (response.data.data && response.data.data.access && response.data.data.access.token) {
+              newAccessToken = response.data.data.access.token;
+            } else {
+              throw new Error('응답에서 액세스 토큰을 찾을 수 없습니다.');
+            }
+            
             localStorage.setItem('access_token', newAccessToken);
             
             // 원래 요청 재시도

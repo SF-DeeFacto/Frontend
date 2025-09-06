@@ -233,9 +233,22 @@ export const refreshToken = async () => {
       }
     });
 
-    const { access } = response.data;
-    const newAccessToken = access.token;
-    const expiresIn = access.expiresIn;
+    // 응답 구조 확인 및 안전한 토큰 추출
+    console.log('리프레시 토큰 응답:', response.data);
+    
+    let newAccessToken, expiresIn;
+    if (response.data.access && response.data.access.token) {
+      newAccessToken = response.data.access.token;
+      expiresIn = response.data.access.expiresIn;
+    } else if (response.data.token) {
+      newAccessToken = response.data.token;
+      expiresIn = response.data.expiresIn;
+    } else if (response.data.data && response.data.data.access && response.data.data.access.token) {
+      newAccessToken = response.data.data.access.token;
+      expiresIn = response.data.data.access.expiresIn;
+    } else {
+      throw new Error('응답에서 액세스 토큰을 찾을 수 없습니다.');
+    }
 
     // 새로운 액세스 토큰 저장
     localStorage.setItem('access_token', newAccessToken);
