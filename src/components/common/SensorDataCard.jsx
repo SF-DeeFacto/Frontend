@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import { getSensorTypeConfig } from '../../config/sensorConfig';
 import { isSensorValueValid, getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
 import { CONNECTION_STATE } from '../../types/sensor';
@@ -12,6 +13,15 @@ import { CONNECTION_STATE } from '../../types/sensor';
  */
 const SensorDataCard = ({ sensorData, zoneId }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const canAccessZone = (zoneId) => {
+    if (!zoneId) return false;
+    if (!user?.scope) return true;
+    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const zoneScope = zoneId[0]?.toLowerCase();
+    return scopes.includes(zoneScope);
+  };
 
   // 센서 설정 정보 메모이제이션
   const sensorConfig = useMemo(() => 
@@ -26,9 +36,12 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
 
   // 카드 클릭 핸들러
   const handleCardClick = () => {
-    if (zoneId) {
-      navigate(`/home/graph?zone=${zoneId}`);
+    if (!zoneId) return;
+    if (!canAccessZone(zoneId)) {
+      window.alert('해당 구역에 대한 접근 권한이 없습니다.');
+      return;
     }
+    navigate(`/home/graph?zone=${zoneId}`);
   };
 
   /**

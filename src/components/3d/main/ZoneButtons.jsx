@@ -1,10 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
 import { CONNECTION_STATE } from '../../../types/sensor';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const canAccessZone = (zoneId) => {
+    // scope 정보가 없으면 전체 접근 허용
+    if (!user?.scope) return true;
+    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const zoneScope = (zoneId || '')[0]?.toLowerCase(); // 'a01' -> 'a'
+    return scopes.includes(zoneScope);
+  };
 
   // 연결 상태에 따른 색상 반환
   const getConnectionColor = (connectionState) => {
@@ -48,7 +58,13 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
         return (
           <div
             key={zone.id}
-            onClick={() => navigate(`/home/zone/${zone.id}`)}
+            onClick={() => {
+              if (!canAccessZone(zone.id)) {
+                window.alert('해당 구역에 대한 접근 권한이 없습니다.');
+                return;
+              }
+              navigate(`/home/zone/${zone.id}`);
+            }}
             className="modern-card modern-card-hover group cursor-pointer p-4 min-w-[140px] relative overflow-hidden"
           >
             {/* 배경 그라디언트 */}
