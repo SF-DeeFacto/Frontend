@@ -7,6 +7,67 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 import { SYSTEM_CONFIG, STORAGE_KEYS } from '../config/constants';
 
+// 전역 SSE 연결 관리자
+class SSEConnectionManager {
+  constructor() {
+    this.connections = new Map(); // 연결 ID -> disconnect 함수 매핑
+    this.connectionId = 0;
+  }
+
+  // SSE 연결 등록
+  registerConnection(disconnectFn) {
+    const id = ++this.connectionId;
+    this.connections.set(id, disconnectFn);
+    console.log(`🔌 SSE 연결 등록됨 (ID: ${id}), 총 연결 수: ${this.connections.size}`);
+    return id;
+  }
+
+  // 특정 연결 해제
+  disconnectConnection(id) {
+    const disconnectFn = this.connections.get(id);
+    if (disconnectFn) {
+      console.log(`🔌 SSE 연결 해제 중 (ID: ${id})`);
+      disconnectFn();
+      this.connections.delete(id);
+      console.log(`✅ SSE 연결 해제 완료 (ID: ${id}), 남은 연결 수: ${this.connections.size}`);
+    } else {
+      console.warn(`⚠️ SSE 연결을 찾을 수 없음 (ID: ${id})`);
+    }
+  }
+
+  // 모든 SSE 연결 해제 (로그아웃 시 사용)
+  disconnectAllConnections() {
+    const connectionCount = this.connections.size;
+    console.log(`🔌 모든 SSE 연결 해제 시작... (총 ${connectionCount}개 연결)`);
+    
+    if (connectionCount === 0) {
+      console.log('ℹ️ 해제할 SSE 연결이 없습니다.');
+      return;
+    }
+    
+    this.connections.forEach((disconnectFn, id) => {
+      try {
+        console.log(`🔌 SSE 연결 해제 중 (ID: ${id})`);
+        disconnectFn();
+        console.log(`✅ SSE 연결 해제 완료 (ID: ${id})`);
+      } catch (error) {
+        console.error(`❌ SSE 연결 해제 실패 (ID: ${id}):`, error);
+      }
+    });
+    
+    this.connections.clear();
+    console.log(`🎉 모든 SSE 연결 해제 완료! (${connectionCount}개 연결 해제됨)`);
+  }
+
+  // 연결 상태 확인
+  getConnectionCount() {
+    return this.connections.size;
+  }
+}
+
+// 전역 SSE 연결 관리자 인스턴스
+export const sseConnectionManager = new SSEConnectionManager();
+
 // SSE URL 설정
 export const SSE_URLS = {
   // (개발용) 프록시를 통한 연결 url - Dashboard 백엔드 (포트 8083)
@@ -53,6 +114,12 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
     if (isDestroyed) return; // 이미 해제된 경우 연결하지 않음
     
     console.log('🔌 SSE 연결 시작:', url);
+    console.log('🔍 SSE 연결 설정:', {
+      url,
+      token: token ? `${token.substring(0, 10)}...` : '없음',
+      maxRetries,
+      retryDelay
+    });
     
     try {
       eventSource = new EventSourcePolyfill(url, {
@@ -69,7 +136,8 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
         console.log('📊 SSE 연결 상태:', {
           readyState: eventSource.readyState,
           url: eventSource.url,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          connectionId: '등록 예정'
         });
         
         lastMessageTime = Date.now();
@@ -202,24 +270,39 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   // 초기 연결 시작
   createEventSource();
 
-  // 정리 함수 반환
-  return () => {
+  // 정리 함수 생성
+  const disconnectFn = () => {
+    console.log('🔌 SSE 연결 해제 함수 실행:', url);
     isDestroyed = true; // 연결 해제 상태로 설정
     
     if (reconnectTimer) {
+      console.log('⏰ 재연결 타이머 정리');
       clearTimeout(reconnectTimer);
       reconnectTimer = null;
     }
     
     if (heartbeatTimer) {
+      console.log('💓 하트비트 타이머 정리');
       clearInterval(heartbeatTimer);
       heartbeatTimer = null;
     }
     
     if (eventSource) {
+      console.log('🔌 EventSource 연결 종료');
       eventSource.close();
       eventSource = null;
     }
+    
+    console.log('✅ SSE 연결 해제 완료:', url);
+  };
+
+  // 전역 연결 관리자에 등록
+  const connectionId = sseConnectionManager.registerConnection(disconnectFn);
+
+  // 정리 함수 반환 (등록된 연결 ID도 함께 반환)
+  return () => {
+    disconnectFn();
+    sseConnectionManager.disconnectConnection(connectionId);
   };
 };
 
@@ -391,23 +474,38 @@ export const connectNotificationSSE = ({ onMessage, onError, onOpen }) => {
   // 초기 연결 시작
   createEventSource();
 
-  // 정리 함수 반환
-  return () => {
+  // 정리 함수 생성
+  const disconnectFn = () => {
+    console.log('🔔 알림 SSE 연결 해제 함수 실행');
     isDestroyed = true;
     
     if (reconnectTimer) {
+      console.log('⏰ 알림 SSE 재연결 타이머 정리');
       clearTimeout(reconnectTimer);
       reconnectTimer = null;
     }
     
     if (heartbeatTimer) {
+      console.log('💓 알림 SSE 하트비트 타이머 정리');
       clearInterval(heartbeatTimer);
       heartbeatTimer = null;
     }
     
     if (eventSource) {
+      console.log('🔔 알림 EventSource 연결 종료');
       eventSource.close();
       eventSource = null;
     }
+    
+    console.log('✅ 알림 SSE 연결 해제 완료');
+  };
+
+  // 전역 연결 관리자에 등록
+  const connectionId = sseConnectionManager.registerConnection(disconnectFn);
+
+  // 정리 함수 반환 (등록된 연결 ID도 함께 반환)
+  return () => {
+    disconnectFn();
+    sseConnectionManager.disconnectConnection(connectionId);
   };
 };

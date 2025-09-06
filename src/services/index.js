@@ -74,7 +74,7 @@ const createAuthApiClient = () => {
       if (error.response?.status === 401 && !originalRequest._retry) {
         // 에러 코드 확인 (토큰 만료인지 구분)
         const errorCode = error.response?.data?.code;
-        const isTokenExpired = errorCode === 'TOKEN_EXPIRED_401' || errorCode === 'INVALID_TOKEN_401';
+        const isTokenExpired = errorCode === 'TOKEN_EXPIRED_401';
         
         if (!isTokenExpired) {
           // 토큰 만료가 아닌 다른 401 에러인 경우 바로 로그아웃
