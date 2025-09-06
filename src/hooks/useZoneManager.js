@@ -40,7 +40,7 @@ export const useZoneManager = () => {
       return connectMainSSE({
         onMessage: (data) => {
           try {
-            if (data?.code === 'OK' && Array.isArray(data.data)) {
+            if (data?.code === 'SUCCESS' && Array.isArray(data.data)) {
               const updateTime = new Date().toLocaleTimeString();
               
               data.data.forEach(zone => {

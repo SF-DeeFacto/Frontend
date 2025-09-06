@@ -1,15 +1,38 @@
 import { notificationUtils } from '../services/api/notification_api';
 
 /**
+ * 메시지 안의 시간을 한국 시간으로 변환
+ */
+const convertMessageTime = (message, timestamp) => {
+  if (!message || !timestamp) return message;
+  
+  // UTC 시간을 한국 시간으로 변환
+  const utcDate = new Date(timestamp);
+  const koreaTime = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000));
+  
+  // [YYYY-MM-DD HH:MM:SS] 형식의 시간을 찾아서 변환
+  const timePattern = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/;
+  const match = message.match(timePattern);
+  
+  if (match) {
+    const originalTime = match[1];
+    const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
+    return message.replace(timePattern, `[${koreaTimeString}]`);
+  }
+  
+  return message;
+};
+
+/**
  * 개별 알림을 프론트엔드 형식으로 변환
  */
 export const mapNotificationToAlarm = (notification) => ({
   id: notification.notiId,
   type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
   status: notification.readStatus ? '읽음' : '안읽음',
-  isFavorite: notification.flagStatus,
-  isRead: notification.readStatus,
-  message: notification.title,
+  isFavorite: notification.flagStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
+  isRead: notification.readStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
+  message: convertMessageTime(notification.title, notification.timestamp),
   time: notificationUtils.formatNotificationTime(notification.timestamp),
   zone: notification.zoneId.toUpperCase()
 });

@@ -71,9 +71,15 @@ export default defineConfig({
         // }
       },
       '/report-api': {                         // <-- 추가: 모든 /api 요청을 백엔드(8085)로 프록시
-        target: 'http://localhost:8085',
+        target: 'http://k8s-api-apigatew-9a1423437c-d700af6b954e5d10.elb.ap-northeast-2.amazonaws.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/report-api/, ''), // /api 제거
+        secure: false,
+      },
+      '/aws-grafana':{
+        target: 'http://ac63b2a0c9ede49f793d3dc81ad44a15-5661160d80c851fb.elb.ap-northeast-2.amazonaws.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/aws-grafana/, ''), // /api 제거
         secure: false,
       }
 

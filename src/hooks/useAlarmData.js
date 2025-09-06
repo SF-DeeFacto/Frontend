@@ -94,6 +94,21 @@ export const useAlarmData = (pageSize = 7) => {
         )
       );
       
+      // 즉시 카운터 업데이트
+      try {
+        const response = await notificationApi.getUnreadNotificationCount();
+        if (response && response.data !== undefined) {
+          localStorage.setItem('unread_alarm_count', response.data.toString());
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: 'unread_alarm_count',
+            newValue: response.data.toString(),
+            oldValue: localStorage.getItem('unread_alarm_count')
+          }));
+        }
+      } catch (countError) {
+        console.warn('카운터 업데이트 실패:', countError);
+      }
+      
       // console.log(`알림 ${alarmId} 읽음 처리 완료`);
       return true;
     } catch (error) {
@@ -141,6 +156,18 @@ export const useAlarmData = (pageSize = 7) => {
             : { ...alarm, isRead: true, status: '읽음' }
         )
       );
+      
+      // 즉시 카운터 업데이트 (0으로 설정)
+      try {
+        localStorage.setItem('unread_alarm_count', '0');
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'unread_alarm_count',
+          newValue: '0',
+          oldValue: localStorage.getItem('unread_alarm_count')
+        }));
+      } catch (countError) {
+        console.warn('카운터 업데이트 실패:', countError);
+      }
       
       // console.log('모든 알림을 전체 읽음 처리 완료');
       return true;
