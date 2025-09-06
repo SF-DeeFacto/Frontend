@@ -4,11 +4,24 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
+import { useAuth } from '../../../hooks/useAuth';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
   const gltf = useLoader(GLTFLoader, '/models/mainhome.glb');
   const navigate = useNavigate();
   const [object38Position, setObject38Position] = useState(null);
+  const { user } = useAuth();
+
+  const canAccessPath = (path) => {
+    if (!path) return false;
+    // /home/zone/a01 형태에서 a01 추출
+    const parts = String(path).split('/');
+    const last = parts[parts.length - 1] || '';
+    const zoneScope = last[0]?.toLowerCase();
+    if (!user?.scope) return true;
+    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    return scopes.includes(zoneScope);
+  };
 
   const [modelInfo, setModelInfo] = useState({
     position: [0, -18, 0],
@@ -54,6 +67,10 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
       if (zoneName) {
         // 바로 페이지 이동
         if (targetPath) {
+          if (!canAccessPath(targetPath)) {
+            window.alert('해당 구역에 대한 접근 권한이 없습니다.');
+            return;
+          }
           navigate(targetPath);
         }
       }

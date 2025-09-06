@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Info } from 'lucide-react';
 import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { useAuth } from '../../../hooks/useAuth';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -14,8 +16,18 @@ const formatDateTime = (date) => {
 };
 
 const Equipset = ({ onTabChange }) => {
-  // 선택된 구역
-  const [selectedZone, setSelectedZone] = useState('all');
+  const { user } = useAuth();
+  
+  // 사용자 scope에 따른 초기 구역 설정
+  const getInitialZones = () => {
+    if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
+    
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
+  };
+  
+  // 선택된 구역들 (다중 선택)
+  const [selectedZones, setSelectedZones] = useState(getInitialZones());
   
   // API에서 가져온 임계치 상태 (구역별 배열 매핑)
   const [sensorThresholds, setSensorThresholds] = useState({});
@@ -47,12 +59,14 @@ const Equipset = ({ onTabChange }) => {
     };
     loadThresholds();
     return () => { isMounted = false; };
-  }, [selectedZone]);
+  }, [selectedZones]);
 
-  // 현재 선택된 구역의 센서 데이터
-  const currentSensors = selectedZone === 'all' 
-    ? Object.values(sensorThresholds).flat() 
-    : sensorThresholds[selectedZone] || [];
+  // 현재 선택된 구역들의 센서 데이터
+  const currentSensors = selectedZones.length === 0 
+    ? [] // 아무 구역도 선택되지 않으면 빈 배열
+    : selectedZones.length === 3 
+      ? Object.values(sensorThresholds).flat() 
+      : selectedZones.flatMap(zone => sensorThresholds[zone] || []);
 
   // 인라인 수정 상태 - 센서 타입 기준으로 변경
   const [editingType, setEditingType] = useState(null);
@@ -118,8 +132,13 @@ const Equipset = ({ onTabChange }) => {
       return;
     }
 
-    if (selectedZone === 'all') {
-      alert('전체 보기에서는 수정할 수 없습니다. 특정 구역을 선택해주세요.');
+    if (selectedZones.length === 0) {
+      alert('수정하려면 구역을 선택해주세요.');
+      return;
+    }
+    
+    if (selectedZones.length !== 1) {
+      alert('수정하려면 하나의 구역만 선택해주세요.');
       return;
     }
 
@@ -127,7 +146,7 @@ const Equipset = ({ onTabChange }) => {
     
     // API로 전송할 데이터 구성
     const updatedSensor = {
-      zoneId: selectedZone,
+      zoneId: selectedZones[0], // 선택된 구역이 하나일 때만 수정 가능
       sensorType: editingType,
       warningLow: v.warningLow,
       warningHigh: v.warningHigh,
@@ -136,6 +155,26 @@ const Equipset = ({ onTabChange }) => {
       updatedUserId: 'current_user', // 실제 로그인 사용자로 교체 필요
       updatedAt: now.toISOString()
     };
+
+    // 원본 데이터 찾기
+    const originalSensor = currentSensors.find(s => s.sensorType === editingType);
+    
+    // 변경된 값 확인 함수
+    const isChanged = (newValue, originalValue) => {
+      return newValue !== originalValue;
+    };
+    
+    const formatValue = (newValue, originalValue) => {
+      const displayValue = newValue !== null ? newValue : '-';
+      return isChanged(newValue, originalValue) ? displayValue : `${displayValue} (변경없음)`;
+    };
+    
+    // 수정 내용 확인창
+    const confirmMessage = `다음 내용으로 수정하시겠습니까?\n\n구역: ${selectedZones[0].toUpperCase()}구역\n센서 유형: ${sensorTypeMapping[editingType] || editingType}\n\n경고 Low: ${formatValue(v.warningLow, originalSensor?.warningLow)}\n경고 High: ${formatValue(v.warningHigh, originalSensor?.warningHigh)}\n알림 Low: ${formatValue(v.alertLow, originalSensor?.alertLow)}\n알림 High: ${formatValue(v.alertHigh, originalSensor?.alertHigh)}`;
+    
+    if (!window.confirm(confirmMessage)) {
+      return; // 사용자가 취소한 경우
+    }
 
     try {
       const result = await thresholdApi.updateThreshold(updatedSensor);
@@ -170,6 +209,41 @@ const Equipset = ({ onTabChange }) => {
   };
 
 
+
+  // 사용자 scope에 따른 구역 목록 필터링
+  const getAllowedZones = () => {
+    if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
+    
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
+  };
+  
+  const zones = getAllowedZones();
+
+  // 구역 토글 핸들러
+  const toggleZone = (zone) => {
+    setSelectedZones(prev => {
+      if (prev.includes(zone)) {
+        // 구역이 선택되어 있으면 제거
+        const newZones = prev.filter(z => z !== zone);
+        return newZones; // 빈 배열도 허용
+      } else {
+        // 구역이 선택되어 있지 않으면 추가
+        return [...prev, zone];
+      }
+    });
+  };
+
+  // 전체 구역 선택/해제
+  const toggleAllZones = () => {
+    if (selectedZones.length === zones.length) {
+      // 모든 구역이 선택되어 있으면 전체 해제 (빈 배열)
+      setSelectedZones([]);
+    } else {
+      // 모든 구역 선택
+      setSelectedZones([...zones]);
+    }
+  };
 
   // 센서 타입별 한글 매핑
   const sensorTypeMapping = {
@@ -207,28 +281,67 @@ const Equipset = ({ onTabChange }) => {
   };
 
   return (
-    <div className="p-2">
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex items-center space-x-4">
-          {/* <h4 className="text-lg font-medium text-gray-900">센서 임계치 설정</h4> */}
-          <div className="flex items-center space-x-2">
-            <label className="text-sm font-medium text-gray-700">구역 선택:</label>
-            <select
-              value={selectedZone}
-              onChange={(e) => {
-                setSelectedZone(e.target.value);
-                setEditingType(null); // 구역 변경 시 편집 상태 초기화
-              }}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
-            >
-              <option value="all">전체</option>
-              <option value="a">A구역</option>
-              <option value="b">B구역</option>
-              <option value="c">C구역</option>
-            </select>
+    <div>
+      {/* 필터 및 구역 선택 영역 */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-6">
+        <div className="space-y-4">
+          {/* 구역 선택 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              구역 선택
+            </label>
+            <div className="flex flex-wrap items-center gap-4">
+              {/* 토글 버튼들을 한 줄로 나열 */}
+              <div className="flex flex-wrap gap-2">
+                {/* 전체 선택/해제 버튼 */}
+                <button
+                  onClick={() => {
+                    toggleAllZones();
+                    setEditingType(null); // 구역 변경 시 편집 상태 초기화
+                  }}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    selectedZones.length === zones.length
+                      ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                      : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                  }`}
+                >
+                  {selectedZones.length === zones.length ? '전체 해제' : '전체 선택'}
+                </button>
+                
+                {/* 개별 구역 토글 버튼들 */}
+                {zones.map(zone => (
+                  <button
+                    key={zone}
+                    onClick={() => {
+                      toggleZone(zone);
+                      setEditingType(null); // 구역 변경 시 편집 상태 초기화
+                    }}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      selectedZones.includes(zone)
+                        ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                        : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                    }`}
+                  >
+                    {zone.toUpperCase()}구역
+                  </button>
+                ))}
+              </div>
+              
+              {/* 결과 수 - 버튼들과 가깝게 배치 */}
+              <div className="text-sm text-gray-600">
+                총 {currentSensors.length}개의 센서
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
+      {/* 안내 문구 */}
+      <div className="mb-3 flex items-start space-x-2">
+        <Info className="w-4 h-4 text-primary-500 mt-0.5 flex-shrink-0" />
+        <p className="text-sm text-gray-500 tracking-wide">
+          각 구역별로 Warning(경고) 및 Alert(알림) 임계치만 수정 가능합니다. 저장 시 수정일자와 수정인이 자동 갱신됩니다.
+        </p>
       </div>
 
       <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
@@ -248,8 +361,8 @@ const Equipset = ({ onTabChange }) => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {currentSensors.map((s, index) => {
-              const isEditing = editingType === s.sensorType && selectedZone !== 'all';
-              const uniqueKey = selectedZone === 'all' ? `${s.zoneId}-${s.sensorType}` : s.sensorType;
+              const isEditing = editingType === s.sensorType && selectedZones.length === 1;
+              const uniqueKey = selectedZones.length > 1 ? `${s.zoneId}-${s.sensorType}` : s.sensorType;
               return (
                 <tr key={uniqueKey} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">{s.zoneId.toUpperCase()}</td>
@@ -327,28 +440,28 @@ const Equipset = ({ onTabChange }) => {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-700">{s.updatedUserId}</td>
 
-                  <td className="px-4 py-3 text-sm text-right space-x-2">
+                  <td className="px-4 py-3 text-sm text-right">
                     {isEditing ? (
-                      <>
+                      <div className="flex justify-end space-x-1">
                         <button
                           onClick={onSave}
-                          className="inline-flex items-center px-3 py-1.5 rounded bg-[#494FA2] text-white hover:bg-[#3d4490]"
+                          className="inline-flex items-center px-2 py-1 text-xs rounded bg-[#494FA2] text-white hover:bg-[#3d4490]"
                         >
                           저장
                         </button>
                         <button
                           onClick={onCancel}
-                          className="inline-flex items-center px-3 py-1.5 rounded bg-gray-200 text-gray-800 hover:bg-gray-300"
+                          className="inline-flex items-center px-2 py-1 text-xs rounded bg-gray-400 text-white hover:bg-gray-500"
                         >
                           취소
                         </button>
-                      </>
+                      </div>
                     ) : (
                       <button
                         onClick={() => onEditClick(s)}
-                        className="inline-flex items-center px-3 py-1.5 rounded bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                        disabled={editingType !== null || selectedZone === 'all'}
-                        title={selectedZone === 'all' ? '전체 보기에서는 수정할 수 없습니다' : editingType !== null ? '다른 행 수정 중' : '수정'}
+                        className="inline-flex items-center px-2 py-1 text-xs rounded bg-[#494FA2] text-white hover:bg-[#3d4490] disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        disabled={editingType !== null || selectedZones.length === 0 || selectedZones.length !== 1}
+                        title={selectedZones.length === 0 ? '구역을 선택해주세요' : selectedZones.length !== 1 ? '수정하려면 하나의 구역만 선택해주세요' : editingType !== null ? '다른 행 수정 중' : '수정'}
                       >
                         수정
                       </button>
@@ -360,18 +473,13 @@ const Equipset = ({ onTabChange }) => {
             {currentSensors.length === 0 && (
               <tr>
                 <td className="px-4 py-6 text-center text-sm text-gray-500" colSpan={9}>
-                  데이터가 없습니다.
+                  {selectedZones.length === 0 ? '구역을 선택해주세요.' : '데이터가 없습니다.'}
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-
-      {/* 안내 문구 */}
-      <p className="mt-3 text-sm text-gray-500">
-        각 Zone(존)별로 Warning(경고)Low/High, alert(알림)Low/High만 수정할 수 있습니다. 저장 시 수정일자와 수정인이 갱신됩니다.
-      </p>
     </div>
   );
 };

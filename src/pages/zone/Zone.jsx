@@ -1,5 +1,6 @@
-import React, { useState, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useCallback, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 
 // 커스텀 훅
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
@@ -13,7 +14,21 @@ import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const Zone = ({ zoneId }) => {
   const params = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const currentZoneId = zoneId || params.zoneId;
+  
+  // 접근 권한 체크 (직접 URL 접근 대비)
+  useEffect(() => {
+    if (!currentZoneId) return;
+    if (!user?.scope) return; // scope 미설정이면 모든 구역 접근 허용
+    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const zoneScope = String(currentZoneId)[0]?.toLowerCase();
+    if (!scopes.includes(zoneScope)) {
+      window.alert('해당 구역에 대한 접근 권한이 없습니다.');
+      navigate('/home');
+    }
+  }, [currentZoneId, user?.scope, navigate]);
   
   // 센서 데이터 관리 훅 사용
   const { sensorData, isLoading, connectionState } = useZoneSensorData(currentZoneId);

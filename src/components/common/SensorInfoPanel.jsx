@@ -77,14 +77,7 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
         </div>
       </div>
       
-      {/* 액션 버튼 */}
-      {selectedObject.isSensor && (
-        <div className="p-4 border-t border-gray-700">
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors text-sm font-medium">
-            상세 데이터 보기
-          </button>
-        </div>
-      )}
+      {/* 액션 버튼 제거됨: 상세 데이터 보기 기능 미사용 */}
     </div>
   );
 };

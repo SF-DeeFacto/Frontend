@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { aiRecommendService } from '../../../services/api/aiRecommend';
+import { useAuth } from '../../../hooks/useAuth';
 
 const AIRecommend = () => {
+  const { user } = useAuth();
+  
   // 상태 변수들
   const [recommendations, setRecommendations] = useState([]);
   const [filteredRecommendations, setFilteredRecommendations] = useState([]);
@@ -336,9 +339,27 @@ const AIRecommend = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] focus:border-transparent"
             >
               <option value="all">전체</option>
-              <option value="a">A구역</option>
-              <option value="b">B구역</option>
-              <option value="c">C구역</option>
+              {(() => {
+                // 사용자 scope에 따른 구역 옵션 필터링
+                if (!user?.scope) {
+                  return (
+                    <>
+                      <option value="a">A구역</option>
+                      <option value="b">B구역</option>
+                      <option value="c">C구역</option>
+                    </>
+                  );
+                }
+                
+                const userScopes = user.scope.split(',').map(s => s.trim());
+                const allowedZones = [];
+                
+                if (userScopes.includes('a')) allowedZones.push(<option key="a" value="a">A구역</option>);
+                if (userScopes.includes('b')) allowedZones.push(<option key="b" value="b">B구역</option>);
+                if (userScopes.includes('c')) allowedZones.push(<option key="c" value="c">C구역</option>);
+                
+                return allowedZones;
+              })()}
             </select>
           </div>
 

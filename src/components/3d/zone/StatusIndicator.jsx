@@ -4,7 +4,7 @@ import { SENSOR_STATUS } from '../../../types/sensor';
 
 const StatusIndicator = () => {
   const statuses = [
-    { status: SENSOR_STATUS.GREEN, label: '안전' },
+    { status: SENSOR_STATUS.GREEN, label: '정상' },
     { status: SENSOR_STATUS.YELLOW, label: '경고' },
     { status: SENSOR_STATUS.RED, label: '위험' }
   ];
