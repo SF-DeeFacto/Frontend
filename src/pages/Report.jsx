@@ -419,14 +419,18 @@
 // export default Report; 
 
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { SectionLoading } from '../components/ui';
-import { useUnifiedLoading } from '../hooks';
+import { useAuth } from '../hooks/useAuth';
+import { authApiClient } from '../services';
+// import axios from 'axios';
 
 // const API_BASE = 'http://localhost:8085';
-const API_BASE = '/report-api';
-const EMPLOYEE_ID = '1';
+// const API_BASE = '/report-api';
+const API_BASE = import.meta.env.VITE_REPORT_API_BASE_URL || '/report-api';
+// const EMPLOYEE_ID = '1';
+
 const Report = () => {
+  // 공통 인증 로직 사용
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
   // TODO: 실제로는 로그인 정보에서 employeeId를 가져오도록 변경하세요
   
 
@@ -449,7 +453,15 @@ const Report = () => {
 
   // 서버에서 리포트 목록 조회
   const fetchReports = async (page = currentPage) => {
-    return withLoading(async () => {
+    // 인증되지 않은 경우 조회하지 않음
+    if (!isAuthenticated || !user?.employeeId) {
+      console.log('인증되지 않은 사용자입니다.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
       const params = {
         type: reportType !== '전체' ? reportType : undefined,
         // backend expects startDate/endDate as query params if provided
@@ -460,11 +472,21 @@ const Report = () => {
       };
       console.log('🚀 리포트 목록 조회 시작');
       console.log('📋 요청 파라미터:', params);
+      console.log('👤 사용자 정보:', user.employeeId);
 
-      const res = await axios.get(`${API_BASE}/reports/list`, {
+      // 기존 axios 방식 (주석 처리)
+      // const res = await axios.get(`${API_BASE}/reports/list`, {
+      //   params,
+      //   headers: {
+      //     'X-Employee-Id': EMPLOYEE_ID
+      //   },
+      // });
+
+      // 새로운 authApiClient 방식
+      const res = await authApiClient.get(`${API_BASE}/reports/list`, {
         params,
         headers: {
-          'X-Employee-Id': EMPLOYEE_ID
+          'X-Employee-Id': user.employeeId
         },
       });
       console.log('✅ 리포트 목록 조회 성공:', res.data);
@@ -482,15 +504,19 @@ const Report = () => {
 
   // 초기 및 필터/페이지 변경 시 조회
   useEffect(() => {
-    setCurrentPage(1);
-    fetchReports(1);
+    if (isAuthenticated && user?.employeeId) {
+      setCurrentPage(1);
+      fetchReports(1);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reportType, selectedPeriod, startDate, endDate, searchQuery]);
+  }, [reportType, selectedPeriod, startDate, endDate, searchQuery, isAuthenticated, user?.employeeId]);
 
   useEffect(() => {
-    fetchReports(currentPage);
+    if (isAuthenticated && user?.employeeId) {
+      fetchReports(currentPage);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage]);
+  }, [currentPage, isAuthenticated, user?.employeeId]);
 
   // 다운로드 처리
   // const handleDownload = async (fileName) => {
@@ -527,15 +553,31 @@ const Report = () => {
   //   }
   // };
   async function handleDownload(fileName) {
-  setError(null);
-  const url = `${API_BASE}/reports/download/${fileName}`;
-  try {
-    // console.log('[REPORTS] download', url);
-    const res = await axios.get(url, {
-      headers: { 'X-Employee-Id': EMPLOYEE_ID },
-      responseType: 'blob',
-      validateStatus: (s) => true, // always let us inspect the response
-    });
+    // 인증되지 않은 경우 다운로드하지 않음
+    if (!isAuthenticated || !user?.employeeId) {
+      console.log('인증되지 않은 사용자입니다.');
+      setError('인증이 필요합니다.');
+      return;
+    }
+
+    setError(null);
+    const url = `${API_BASE}/reports/download/${fileName}`;
+    try {
+      console.log('[REPORTS] download', url);
+      
+      // 기존 axios 방식 (주석 처리)
+      // const res = await axios.get(url, {
+      //   headers: { 'X-Employee-Id': EMPLOYEE_ID },
+      //   responseType: 'blob',
+      //   validateStatus: (s) => true, // always let us inspect the response
+      // });
+
+      // 새로운 authApiClient 방식
+      const res = await authApiClient.get(url, {
+        headers: { 'X-Employee-Id': user.employeeId },
+        responseType: 'blob',
+        validateStatus: (s) => true, // always let us inspect the response
+      });
 
     // 서버가 에러를 JSON/text로 반환했을 수 있음 -> blob을 텍스트로 읽어 검사
     if (res.status !== 200) {
@@ -596,6 +638,23 @@ const Report = () => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}. ${month}. ${day}`;
   };
+
+  // 인증 로딩 중이거나 인증되지 않은 경우
+  if (authLoading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="text-sm text-gray-500 dark:text-neutral-400">인증 확인 중...</div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="text-sm text-red-600 dark:text-red-400">로그인이 필요합니다.</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
