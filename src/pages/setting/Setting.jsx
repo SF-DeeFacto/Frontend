@@ -19,7 +19,7 @@ const Setting = () => {
     { id: 'userset', name: '회원정보 관리', component: Userset, requiredRole: 'ROOT' }, // ROOT만 접근 가능
     { id: 'sensorlist', name: '센서 목록', component: SensorListTab, requiredRole: 'ROOT_OR_ADMIN' }, // ROOT, ADMIN만 접근 가능
     { id: 'equipset', name: '센서 관리', component: Equipset, requiredRole: 'ROOT_OR_ADMIN' }, // ROOT, ADMIN만 접근 가능
-    { id: 'airecommendation', name: 'AI 추천 관리', component: AIRecommend, requiredRole: 'ROOT_OR_ADMIN' } // ROOT, ADMIN만 접근 가능
+    { id: 'airecommendation', name: '임계치 추천 관리', component: AIRecommend, requiredRole: 'ROOT_OR_ADMIN' } // ROOT, ADMIN만 접근 가능
   ];
 
   // 사용자 권한에 따라 접근 가능한 탭만 필터링

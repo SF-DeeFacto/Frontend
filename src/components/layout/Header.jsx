@@ -73,8 +73,8 @@ const Header = () => {
     };
 
     getWeatherInfo();
-    // 5분마다 날씨 정보 업데이트
-    const interval = setInterval(getWeatherInfo, 5 * 60 * 1000);
+    // 1시간마다 날씨 정보 업데이트
+    const interval = setInterval(getWeatherInfo, 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 

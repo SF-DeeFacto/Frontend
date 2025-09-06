@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { checkAndRefreshToken, isTokenExpired } from '../services/api/auth';
+import { sseConnectionManager } from '../services/sse';
 
 /**
  * 인증 상태 관리 커스텀 훅
@@ -158,11 +159,20 @@ export const useAuth = (options = {}) => {
    * 로그아웃 함수
    */
   const logout = () => {
+    console.log('🚪 로그아웃 시작...');
+    
+    // 모든 SSE 연결 해제
+    console.log('🔌 SSE 연결 해제 중...');
+    sseConnectionManager.disconnectAllConnections();
+    
+    // 로컬 스토리지 정리
+    console.log('🗑️ 로컬 스토리지 정리 중...');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('employeeId');
     localStorage.removeItem('user');
     localStorage.removeItem('unread_alarm_count');
+    console.log('✅ 로컬 스토리지 정리 완료');
     
     // 로그아웃 이벤트 발생
     window.dispatchEvent(new StorageEvent('storage', {
@@ -178,6 +188,8 @@ export const useAuth = (options = {}) => {
       token: null
     });
 
+    console.log('🎉 로그아웃 완료!');
+    
     if (redirectOnFail) {
       navigate(redirectPath);
     }

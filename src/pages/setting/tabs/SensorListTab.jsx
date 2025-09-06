@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { useAuth } from '../../../hooks/useAuth';
 
 const SensorListTab = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [sensors, setSensors] = useState([]);
   const [filteredSensors, setFilteredSensors] = useState([]);
   const [filterType, setFilterType] = useState('all');
@@ -84,7 +86,22 @@ const SensorListTab = () => {
 
   // 센서 타입 목록
   const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_5um', 'windDirection'];
-  const zones = ['all', 'a', 'b', 'c'];
+  
+  // 사용자 scope에 따른 구역 목록 필터링
+  const getAllowedZones = () => {
+    if (!user?.scope) return ['all', 'a', 'b', 'c']; // scope가 없으면 전체 구역
+    
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    const allowedZones = ['all']; // '전체' 옵션은 항상 포함
+    
+    if (userScopes.includes('a')) allowedZones.push('a');
+    if (userScopes.includes('b')) allowedZones.push('b');
+    if (userScopes.includes('c')) allowedZones.push('c');
+    
+    return allowedZones;
+  };
+  
+  const zones = getAllowedZones();
 
   // 날짜 포맷팅 함수
   const formatDateTime = (isoString) => {

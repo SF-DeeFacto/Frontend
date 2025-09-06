@@ -1,13 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
-const ZONES = ['전체','A01', 'A02', 'B01', 'B02', 'B03', 'B04', 'C01', 'C02'];
 const SENSORS = ['온도', '습도', '풍향', '정전기', '파티클'];
 
 const Graph = () => {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const zoneFromUrl = searchParams.get('zone');
   
+  // 스코프 접근 여부 확인
+  const canAccessZoneValue = (zoneValue) => {
+    if (!zoneValue) return false;
+    if (zoneValue === '전체') return true;
+    if (!user?.scope) return true;
+    const scopes = user.scope.split(',').map(s => s.trim().toLowerCase());
+    const zoneScope = String(zoneValue)[0]?.toLowerCase();
+    return scopes.includes(zoneScope);
+  };
+  
+  // 고정된 구역 순서 (대시보드 매핑용)
+  const ZONE_ORDER = ['전체', 'A01', 'A02', 'B01', 'B02', 'B03', 'B04', 'C01', 'C02'];
+
+  // 사용자 scope에 따른 구역 목록 필터링
+  const getAllowedZones = () => {
+    const allZones = [
+      { value: '전체', scope: null },
+      { value: 'A01', scope: 'a' },
+      { value: 'A02', scope: 'a' },
+      { value: 'B01', scope: 'b' },
+      { value: 'B02', scope: 'b' },
+      { value: 'B03', scope: 'b' },
+      { value: 'B04', scope: 'b' },
+      { value: 'C01', scope: 'c' },
+      { value: 'C02', scope: 'c' }
+    ];
+
+    // 사용자 scope가 없으면 모든 구역 표시
+    if (!user?.scope) {
+      return allZones.map(zone => zone.value);
+    }
+
+    // 사용자 scope에 따라 필터링
+    const userScopes = user.scope.split(',').map(s => s.trim());
+    return allZones
+      .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
+      .map(zone => zone.value);
+  };
+
+  const ZONES = getAllowedZones();
+
   // URL에서 zone 파라미터가 있으면 해당 Zone을 선택, 없으면 기본값
   const getInitialZone = () => {
     if (zoneFromUrl) {
@@ -22,17 +64,21 @@ const Graph = () => {
         'c01': 'C01',
         'c02': 'C02'
       };
-      return zoneMapping[zoneFromUrl.toLowerCase()] || ZONES[0];
+      const mappedZone = zoneMapping[zoneFromUrl.toLowerCase()];
+      // 사용자가 접근 가능한 구역인지 확인
+      if (mappedZone && ZONES.includes(mappedZone)) {
+        return mappedZone;
+      }
     }
     return ZONES[0];
   };
 
   const [selectedZone, setSelectedZone] = useState(getInitialZone());
   const [selectedSensors, setSelectedSensors] = useState([SENSORS[0]]);
-  // 실시간/과거 선택 state
+  // 실시간/요약 선택 state
   const [timeMode, setTimeMode] = useState('실시간');
 
-  // 실시간/과거 select가 외부 값에 의해 바뀌어야 할 때 자동으로 timeMode를 변경
+  // 실시간/요약 select가 외부 값에 의해 바뀌어야 할 때 자동으로 timeMode를 변경
   // 예시: 특정 조건(zone, sensor 등)에 따라 timeMode를 자동 변경하고 싶을 때
   
 
@@ -49,13 +95,20 @@ const Graph = () => {
         'c01': 'C01',
         'c02': 'C02'
       };
-      const newZone = zoneMapping[zoneFromUrl.toLowerCase()];
-      if (newZone && newZone !== selectedZone) {
-        setSelectedZone(newZone);
+      const newZone = zoneMapping[String(zoneFromUrl).toLowerCase()];
+      if (newZone) {
+        if (!canAccessZoneValue(newZone)) {
+          window.alert('해당 구역에 대한 접근 권한이 없습니다.');
+          // 접근 가능한 첫 번째 존으로 설정
+          if (ZONES && ZONES.length > 0) {
+            setSelectedZone(ZONES[0]);
+          }
+        } else if (newZone !== selectedZone) {
+          setSelectedZone(newZone);
+        }
       }
     }
-    //console.log('시간' + timeMode);
-  }, [zoneFromUrl, selectedZone,timeMode]);
+  }, [zoneFromUrl, selectedZone, ZONES]);
   //const dashboardUrl = `http://222.235.142.221:12333/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512?refresh=auto&from=now-5m&to=now&timezone=browser&theme=light&var-zone=${encodeURIComponent(selectedZone)}&var-sensor=${encodeURIComponent(sensorParam)}`;
   const dashboardUrl_temp=`http://192.168.55.180:3000/public-dashboards/d5f7a75286564bc196d5de9d1eaeb512?refresh=auto&from=now-5m&to=now&timezone=browser&theme=light&var-zone=${encodeURIComponent(selectedZone)}}`;
   // 센서 여러 개 선택 시 쿼리 파라미터 예시 (실제 Grafana 대시보드에서 지원해야 적용됨)
@@ -63,15 +116,16 @@ const Graph = () => {
   const sensorParam = selectedSensors.join(',');
   // const dev_ip = '192.168.55.180:3000';
 
-  const dev_ip = 'https://ac63b2a0c9ede49f793d3dc81ad44a15-5661160d80c851fb.elb.ap-northeast-2.amazonaws.com';
+  // const dev_ip = 'https://ac63b2a0c9ede49f793d3dc81ad44a15-5661160d80c851fb.elb.ap-northeast-2.amazonaws.com';
+  const dev_ip = 'https://grafana.deefacto.click';
 
   //const dev_ip = '222.235.142.221:12333';
-  // zone index에 따라 dashboardUrl 분기
-  const zoneIndex = ZONES.indexOf(selectedZone);
+  // zone index에 따라 dashboardUrl 분기 (필터링에 영향받지 않도록 고정 순서 사용)
+  const zoneIndex = Math.max(0, ZONE_ORDER.indexOf(selectedZone));
   let search_time =0;
   if(timeMode==='실시간'){
     search_time=0;
-  }else{//과거
+  }else{//요약
     search_time=1;
   }
   let dashboardUrl = '';
@@ -140,41 +194,64 @@ const Graph = () => {
   
   return (
     <>
-      
-      
-      {/* 상단 실시간/과거, Zone 선택 UI */}
-      <div className="flex flex-row gap-6 items-center mb-6 flex-wrap">
-        {/* 실시간/과거 선택 */}
-        <label className="flex items-center gap-2">
-          <span className="font-bold text-secondary-800 dark:text-neutral-100">조회</span>
-          <select
-            value={timeMode}
-            onChange={e => setTimeMode(e.target.value)}
-            className="px-3 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
-          >
-            <option value="실시간">실시간</option>
-            <option value="과거">과거</option>
-          </select>
-        </label>
-        {/* Zone 선택 */}
-        <label className="flex items-center gap-2">
-          <span className="font-bold text-secondary-800 dark:text-neutral-100">Zone</span>
-          <select
-            value={selectedZone}
-            onChange={e => {
-              setSelectedZone(e.target.value);
-              setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
-            }}
-            className="px-3 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
-          >
-            {ZONES.map(zone => (
-              <option key={zone} value={zone}>{zone}</option>
-            ))}
-          </select>
-        </label>
+      {/* 상단 필터/조회 영역 - Equipset 스타일과 통일 */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-6">
+        <div className="flex flex-wrap items-start gap-6">
+          {/* 그래프 종류 토글 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">그래프 종류</label>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setTimeMode('실시간')}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  timeMode === '실시간'
+                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                }`}
+              >
+                실시간
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeMode('요약')}
+                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                  timeMode === '요약'
+                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                }`}
+              >
+                요약
+              </button>
+            </div>
+          </div>
+
+          {/* Zone 선택 (토글 버튼) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Zone</label>
+            <div className="flex flex-wrap gap-2">
+              {ZONES.map(zone => (
+                <button
+                  type="button"
+                  key={zone}
+                  onClick={() => {
+                    setSelectedZone(zone);
+                    setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
+                  }}
+                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    selectedZone === zone
+                      ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                      : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                  }`}
+                >
+                  {zone}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-      
-      
+
       {/* 기존 그래프 영역 */}
       <div className="w-full h-[190vh] bg-gray-100 dark:bg-neutral-800 rounded-lg overflow-hidden transition-colors duration-300">
         <iframe
