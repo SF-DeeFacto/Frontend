@@ -424,8 +424,8 @@ import { authApiClient } from '../services';
 // import axios from 'axios';
 
 // const API_BASE = 'http://localhost:8085';
-// const API_BASE = '/report-api';
-const API_BASE = import.meta.env.VITE_REPORT_API_BASE_URL || '/report-api';
+ const API_BASE = '/report-api';
+//const API_BASE = import.meta.env.VITE_REPORT_API_BASE_URL || '/report-api';
 // const EMPLOYEE_ID = '1';
 
 const Report = () => {
