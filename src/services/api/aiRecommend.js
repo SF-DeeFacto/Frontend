@@ -14,12 +14,18 @@ export const aiRecommendService = {
       queryParams.append('appliedStatus', 'REJECTED');
       queryParams.append('appliedStatus', 'PENDING');
       
-      // 필터 파라미터 추가 (월별 조건 제외 - 프론트에서 처리)
+      // 필터 파라미터 추가
       if (params.zoneId) {
         queryParams.append('zoneId', params.zoneId);
       }
       if (params.sensorType) {
         queryParams.append('sensorType', params.sensorType);
+      }
+      if (params.year) {
+        queryParams.append('year', params.year);
+      }
+      if (params.month) {
+        queryParams.append('month', params.month);
       }
 
       const url = `/home/setting/sensor/threshold/recommend?${queryParams.toString()}`;
@@ -47,12 +53,18 @@ export const aiRecommendService = {
         queryParams.append('appliedStatus', status);
       });
       
-      // 필터 파라미터 추가 (월별 조건 제외 - 프론트에서 처리)
+      // 필터 파라미터 추가
       if (params.zoneId) {
         queryParams.append('zoneId', params.zoneId);
       }
       if (params.sensorType) {
         queryParams.append('sensorType', params.sensorType);
+      }
+      if (params.year) {
+        queryParams.append('year', params.year);
+      }
+      if (params.month) {
+        queryParams.append('month', params.month);
       }
 
       const url = `/home/setting/sensor/threshold/recommend?${queryParams.toString()}`;
@@ -76,12 +88,18 @@ export const aiRecommendService = {
       const queryParams = new URLSearchParams();
       queryParams.append('appliedStatus', 'APPROVED');
       
-      // 필터 파라미터 추가 (월별 조건 제외 - 프론트에서 처리)
+      // 필터 파라미터 추가
       if (params.zoneId) {
         queryParams.append('zoneId', params.zoneId);
       }
       if (params.sensorType) {
         queryParams.append('sensorType', params.sensorType);
+      }
+      if (params.year) {
+        queryParams.append('year', params.year);
+      }
+      if (params.month) {
+        queryParams.append('month', params.month);
       }
 
       const url = `/home/setting/sensor/threshold/recommend?${queryParams.toString()}`;
@@ -105,12 +123,18 @@ export const aiRecommendService = {
       const queryParams = new URLSearchParams();
       queryParams.append('appliedStatus', 'REJECTED');
       
-      // 필터 파라미터 추가 (월별 조건 제외 - 프론트에서 처리)
+      // 필터 파라미터 추가
       if (params.zoneId) {
         queryParams.append('zoneId', params.zoneId);
       }
       if (params.sensorType) {
         queryParams.append('sensorType', params.sensorType);
+      }
+      if (params.year) {
+        queryParams.append('year', params.year);
+      }
+      if (params.month) {
+        queryParams.append('month', params.month);
       }
 
       const url = `/home/setting/sensor/threshold/recommend?${queryParams.toString()}`;
