@@ -22,12 +22,12 @@ const createAuthApiClient = () => {
       
       // 요청 시작 시간 기록
       config.metadata = { startTime: new Date() };
-      // console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
-      // console.log(`📊 요청 설정:`, {
-      //   baseURL: config.baseURL,
-      //   timeout: config.timeout,
-      //   headers: config.headers
-      // });
+      console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`📊 요청 설정:`, {
+        baseURL: config.baseURL,
+        timeout: config.timeout,
+        headers: config.headers
+      });
       
       return config;
     },
@@ -45,9 +45,9 @@ const createAuthApiClient = () => {
       const startTime = response.config.metadata?.startTime;
       const duration = startTime ? endTime - startTime : '알 수 없음';
       
-      // console.log(`✅ API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
-      // console.log(`⏱️ 응답 시간: ${duration}ms`);
-      // console.log(`📊 응답 상태: ${response.status} ${response.statusText}`);
+      console.log(`✅ API 응답 성공: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+      console.log(`⏱️ 응답 시간: ${duration}ms`);
+      console.log(`📊 응답 상태: ${response.status} ${response.statusText}`);
       
       return response;
     },
@@ -57,21 +57,33 @@ const createAuthApiClient = () => {
       const startTime = error.config?.metadata?.startTime;
       const duration = startTime ? endTime - startTime : '알 수 없음';
       
-      // console.error(`❌ API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
-      // console.error(`⏱️ 요청 지속 시간: ${duration}ms`);
-      // console.error(`🔍 에러 상세 정보:`, {
-      //   message: error.message,
-      //   code: error.code,
-      //   status: error.response?.status,
-      //   statusText: error.response?.statusText,
-      //   timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
-      //   networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
-      // });
+      console.error(`❌ API 응답 실패: ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+      console.error(`⏱️ 요청 지속 시간: ${duration}ms`);
+      console.error(`🔍 에러 상세 정보:`, {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        timeout: error.code === 'ECONNABORTED' ? '타임아웃 발생' : '타임아웃 아님',
+        networkError: error.code === 'ERR_NETWORK' ? '네트워크 오류' : '네트워크 정상'
+      });
       
       const originalRequest = error.config;
       
       // 401 에러이고 재시도하지 않은 요청인 경우
       if (error.response?.status === 401 && !originalRequest._retry) {
+        // 에러 코드 확인 (토큰 만료인지 구분)
+        const errorCode = error.response?.data?.code;
+        const isTokenExpired = errorCode === 'TOKEN_EXPIRED_401' || errorCode === 'INVALID_TOKEN_401';
+        
+        if (!isTokenExpired) {
+          // 토큰 만료가 아닌 다른 401 에러인 경우 바로 로그아웃
+          console.log('🔐 인증 오류 (토큰 만료 아님). 로그아웃 처리합니다.');
+          localStorage.clear();
+          window.location.href = '/login';
+          return Promise.reject(error);
+        }
+        
         originalRequest._retry = true;
         
         console.log('🔐 토큰 만료, 자동 갱신 시도...');
@@ -82,10 +94,11 @@ const createAuthApiClient = () => {
           if (refreshToken) {
             console.log('토큰 만료, 자동 갱신 시도...');
             
-            const response = await axios.post('/api/auth/refresh', refreshToken, {
+            const response = await axios.post('/api/auth/refresh', {
+              refreshToken: refreshToken
+            }, {
               headers: {
-                'Content-Type': 'text/plain',
-                'Authorization': `Bearer ${refreshToken}`
+                'Content-Type': 'application/json',
               }
             });
             
@@ -101,6 +114,8 @@ const createAuthApiClient = () => {
           
           // 리프레시 토큰도 만료된 경우 로그아웃 처리
           if (refreshError.response?.status === 401 || refreshError.response?.status === 403) {
+            const refreshErrorCode = refreshError.response?.data?.code;
+            console.log('리프레시 토큰 갱신 실패:', refreshErrorCode || '알 수 없는 오류');
             console.log('리프레시 토큰도 만료되었습니다. 로그아웃 처리합니다.');
             localStorage.clear();
             window.location.href = '/login';

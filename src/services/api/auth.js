@@ -215,9 +215,11 @@ export const refreshToken = async () => {
     }
 
     // 리프레시 API 호출 시에는 별도의 axios 인스턴스 사용 (인터셉터 없이)
-    const response = await axios.post('/api/auth/refresh', refreshToken, {
+    const response = await axios.post('/api/auth/refresh', {
+      refreshToken: refreshToken
+    }, {
       headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${refreshToken}`
       }
     });
