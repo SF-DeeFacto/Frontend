@@ -233,7 +233,181 @@ export const connectZoneSSE = (zoneId, { onMessage, onError, onOpen }) => {
   return connectSSE(SSE_URLS.zone(zoneId), { onMessage, onError, onOpen });
 };
 
-// 알림 전용 SSE 연결
+// 알림 전용 SSE 연결 (데이터가 없어도 연결 유지)
 export const connectNotificationSSE = ({ onMessage, onError, onOpen }) => {
-  return connectSSE(SSE_URLS.notification, { onMessage, onError, onOpen });
+  // 인증 토큰 가져오기
+  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
+  
+  // 토큰이 없으면 연결하지 않음
+  if (!token) {
+    onError(new Error('인증 토큰이 없습니다.'));
+    return () => {}; // 빈 함수 반환
+  }
+  
+  // 알림 SSE 전용 설정
+  let eventSource = null;
+  let retryCount = 0;
+  const maxRetries = SYSTEM_CONFIG.SSE_MAX_RETRIES;
+  const retryDelay = SYSTEM_CONFIG.SSE_RETRY_DELAY;
+  
+  let lastMessageTime = Date.now();
+  let heartbeatTimer = null;
+  let reconnectTimer = null;
+  let isDestroyed = false;
+
+  const createEventSource = () => {
+    if (isDestroyed) return;
+    
+    console.log('🔔 알림 SSE 연결 시작:', SSE_URLS.notification);
+    
+    try {
+      eventSource = new EventSourcePolyfill(SSE_URLS.notification, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+        // 알림 SSE 전용 타임아웃 설정 (더 길게)
+        heartbeatTimeout: SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_TIMEOUT,
+      });
+      
+      eventSource.onopen = (event) => {
+        if (isDestroyed) return;
+        
+        console.log('✅ 알림 SSE 연결 성공');
+        lastMessageTime = Date.now();
+        retryCount = 0;
+        
+        // 알림 SSE 전용 하트비트 타이머 (더 긴 간격)
+        heartbeatTimer = setInterval(() => {
+          if (isDestroyed) return;
+          
+          const now = Date.now();
+          const timeSinceLastMessage = now - lastMessageTime;
+          
+          if (timeSinceLastMessage > SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_TIMEOUT) {
+            console.log('⚠️ 알림 SSE 하트비트 타임아웃, 재연결 시도');
+            reconnect();
+          }
+        }, SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_CHECK_INTERVAL);
+        
+        onOpen?.(event);
+      };
+      
+      eventSource.onmessage = (event) => {
+        if (isDestroyed) return;
+        
+        lastMessageTime = Date.now();
+        
+        try {
+          const parsedData = JSON.parse(event.data);
+          console.log('🔔 알림 SSE 메시지 수신:', parsedData);
+          onMessage(parsedData);
+        } catch (parseError) {
+          console.error('❌ 알림 SSE 메시지 파싱 오류:', parseError);
+          onError(parseError);
+        }
+      };
+
+      // alert 이벤트 처리
+      eventSource.addEventListener('alert', (event) => {
+        if (isDestroyed) return;
+        
+        lastMessageTime = Date.now();
+        
+        try {
+          const parsedData = JSON.parse(event.data);
+          console.log('🚨 알림 SSE alert 이벤트 수신:', parsedData);
+          onMessage(parsedData);
+        } catch (parseError) {
+          console.error('❌ 알림 SSE alert 메시지 파싱 오류:', parseError);
+          onError(parseError);
+        }
+      });
+      
+      eventSource.onerror = (error) => {
+        if (isDestroyed) return;
+        
+        console.error('❌ 알림 SSE 연결 오류:', error);
+        
+        // 하트비트 타이머 정리
+        if (heartbeatTimer) {
+          clearInterval(heartbeatTimer);
+          heartbeatTimer = null;
+        }
+        
+        onError(error);
+        
+        // 자동 재연결 시도
+        if (retryCount < maxRetries) {
+          retryCount++;
+          const currentRetryDelay = retryDelay * Math.pow(1.5, retryCount - 1);
+          console.log(`🔄 알림 SSE 재연결 시도 ${retryCount}/${maxRetries} (${currentRetryDelay}ms 후)`);
+          
+          reconnectTimer = setTimeout(() => {
+            if (!isDestroyed) {
+              reconnect();
+            }
+          }, currentRetryDelay);
+        } else {
+          console.error('❌ 알림 SSE 최대 재시도 횟수 초과, 연결 포기');
+          // 최대 재시도 후에도 10분 후에 다시 시도
+          setTimeout(() => {
+            if (!isDestroyed) {
+              console.log('🔄 알림 SSE 장기 재연결 시도');
+              retryCount = 0;
+              reconnect();
+            }
+          }, 600000); // 10분 후
+        }
+      };
+      
+    } catch (error) {
+      onError(error);
+    }
+  };
+
+  // 재연결 함수
+  const reconnect = () => {
+    if (isDestroyed) return;
+    
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+    
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+    
+    createEventSource();
+  };
+
+  // 초기 연결 시작
+  createEventSource();
+
+  // 정리 함수 반환
+  return () => {
+    isDestroyed = true;
+    
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+    
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
+    
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+  };
 };
