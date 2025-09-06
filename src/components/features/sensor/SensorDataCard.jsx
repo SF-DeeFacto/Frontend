@@ -72,9 +72,14 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
     return `${numericVal.toFixed(1)}`;
   };
 
+  // 레드 상태인지 확인
+  const isRedStatus = sensorData.status === 'RED' || sensorData.status === 'error';
+
   return (
     <div 
-      className={`sensor-card clickable ${sensorData.sensorType} w-full max-w-[280px]`}
+      className={`sensor-card clickable ${sensorData.sensorType} w-full max-w-[280px] ${
+        isRedStatus ? 'sensor-card-red-alert' : ''
+      }`}
       onClick={handleCardClick}
       title="클릭하여 그래프 페이지로 이동"
       role="button"
@@ -97,10 +102,14 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
             <div 
               className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 flex-shrink-0 ${
                 sensorData.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
+              } ${
+                isRedStatus ? 'sensor-status-red-glow' : ''
               }`}
               style={{ 
                 backgroundColor: getStatusHexColor(sensorData.status || 'CONNECTING'),
-                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || 'CONNECTING')}30`
+                boxShadow: isRedStatus 
+                  ? `0 0 20px ${getStatusHexColor(sensorData.status || 'CONNECTING')}50`
+                  : `0 0 15px ${getStatusHexColor(sensorData.status || 'CONNECTING')}30`
               }}
               title={`상태: ${getStatusText(sensorData.status || 'CONNECTING')} | 연결: ${sensorData.connectionState || 'DISCONNECTED'}`}
             ></div>

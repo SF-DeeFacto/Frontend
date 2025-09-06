@@ -318,6 +318,54 @@
     @apply animate-pulse border-l-red-500 bg-gradient-to-r from-red-50/70 to-primary-50/40 dark:from-red-900/30 dark:to-primary-900/20;
   }
 
+  /* 레드 상태 애니메이션 효과 */
+  .sensor-status-red {
+    @apply animate-pulse;
+    animation: redPulse 1.5s ease-in-out infinite;
+  }
+
+  .sensor-status-red-glow {
+    @apply animate-pulse;
+    animation: redGlow 2s ease-in-out infinite;
+  }
+
+  .sensor-card-red-alert {
+    @apply border-l-red-500 bg-gradient-to-r from-red-50/70 to-primary-50/40 dark:from-red-900/30 dark:to-primary-900/20;
+    animation: redCardPulse 2s ease-in-out infinite;
+  }
+
+  /* 레드 상태 애니메이션 키프레임 */
+  @keyframes redPulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+    50% {
+      transform: scale(1.1);
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+    }
+  }
+
+  @keyframes redGlow {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.8), 0 0 40px rgba(239, 68, 68, 0.4);
+    }
+  }
+
+  @keyframes redCardPulse {
+    0%, 100% {
+      border-left-color: #ef4444;
+      background: linear-gradient(to right, rgba(239, 68, 68, 0.1), rgba(59, 130, 246, 0.1));
+    }
+    50% {
+      border-left-color: #dc2626;
+      background: linear-gradient(to right, rgba(239, 68, 68, 0.2), rgba(59, 130, 246, 0.1));
+    }
+  }
+
   /* 반응형 디자인 */
   /* Tablet: ~1023px */
   @media (max-width: 1023px) {
