@@ -51,12 +51,18 @@ const Login = () => {
         email: dummyUser.email,
         department: dummyUser.department,
         position: dummyUser.position,
-        role: dummyUser.role
+        role: dummyUser.role,
+        gender: dummyUser.gender,
+        scope: ['A', 'B', 'C'], // 기본 권한 추가
+        shift: dummyUser.shift,
+        active: true,
+        createdAt: dummyUser.created_at,
+        updatedAt: dummyUser.updated_at
       }));
       
       console.log('더미 데이터로 로그인 성공:', dummyUser);
-      navigate('/home');
       setIsLoading(false);
+      navigate('/home');
       return;
     }
     // ===== 개발용 더미 로그인 기능 끝 =====

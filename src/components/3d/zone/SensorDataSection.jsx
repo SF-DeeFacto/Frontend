@@ -22,7 +22,7 @@ const SensorDataSection = ({ sensorData, connectionState, zoneId }) => {
       <div key={type} className="flex flex-col gap-4">
         {/* 센서 타입 헤더 - 항상 표시 */}
         <h4 className="text-base font-semibold text-gray-600 dark:text-neutral-300 flex items-center gap-2 mb-2 transition-colors duration-300">
-          <Icon><IconComponent /></Icon>
+          <Icon>{React.createElement(IconComponent)}</Icon>
           {name}
           {sensors.length > 0 && (
             <span className="text-xs text-gray-400 dark:text-neutral-500">
