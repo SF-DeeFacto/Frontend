@@ -3,7 +3,6 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Aside from './Aside';
-import Text from '../common/Text';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -28,29 +27,37 @@ const MainLayout = () => {
   const title = getTitle();
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-brand-light to-brand-medium dark:from-neutral-900 dark:to-neutral-800 transition-colors duration-300">
       <Header />
-      <div className="flex flex-1">
+      <div className="flex flex-1 min-h-[calc(100vh-60px)]">
         <Aside />
-        <div className="flex-1 bg-gray-50">
+        <div className="flex-1 relative">
+          {/* 배경 패턴 */}
+          <div className="absolute inset-0 opacity-30">
+            <div className="absolute inset-0" style={{
+              backgroundImage: `radial-gradient(circle at 25px 25px, rgba(73, 79, 162, 0.1) 2px, transparent 0), 
+                               radial-gradient(circle at 75px 75px, rgba(73, 79, 162, 0.08) 2px, transparent 0)`,
+              backgroundSize: '100px 100px'
+            }}></div>
+          </div>
+          
           {title && (
-            <div className="flex flex-col w-full items-start flex-shrink-0" style={{ paddingTop: '20px', paddingBottom: '11px' }}>
-              <div className="w-full h-[35px] flex items-center px-[30px]">
-                <span
-                  style={{
-                    fontSize: "28px",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    lineHeight: "35px"
-                  }}
-                >
-                  {title}
-                </span>
+            <div className="relative z-10 flex flex-col w-full items-start flex-shrink-0 pt-8 pb-4">
+              <div className="w-full flex items-center px-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-1 h-8 bg-gradient-to-b from-brand-main to-primary-700 rounded-full shadow-soft"></div>
+                  <h1 className="text-3xl font-bold text-secondary-800 dark:text-neutral-100 tracking-tight transition-colors duration-300">
+                    {title}
+                  </h1>
+                </div>
               </div>
             </div>
           )}
-          <div className="px-[30px] py-[12px]">
-            <Outlet />
+          
+          <div className="relative z-10 px-8 pb-8">
+            <div className="animate-fade-in">
+              <Outlet />
+            </div>
           </div>
         </div>
       </div>

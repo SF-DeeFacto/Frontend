@@ -4,6 +4,13 @@
 /* Pretendard 폰트 import (한국어 최적화 폰트) */
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 
+@font-face {
+  font-family: 'NanumSquareRound';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_two@1.0/NanumSquareRound.woff') format('woff');
+  font-weight: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,10 +18,350 @@
 /* 기본 폰트 설정 */
 @layer base {
   html {
-    font-family: 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+    font-family: 'NanumSquareRound', 'Nanum Gothic', 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
   
   body {
     font-family: inherit;
+    @apply bg-gradient-to-br from-brand-light to-brand-medium dark:from-neutral-900 dark:to-neutral-800 transition-colors duration-300;
+  }
+
+  /* 스크롤바 스타일링 */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100 dark:bg-neutral-800 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 dark:bg-neutral-600 rounded-full hover:bg-neutral-400 dark:hover:bg-neutral-500;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400 dark:bg-neutral-500;
+  }
+}
+
+@layer components {
+  /* 모던 카드 스타일 */
+  .modern-card {
+    @apply bg-primary-50/70 dark:bg-neutral-800/80 backdrop-blur-sm border border-white/20 dark:border-neutral-700/30 shadow-soft hover:shadow-medium transition-all duration-300 rounded-2xl;
+  }
+
+  .modern-card-hover {
+    @apply hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  /* 글래스모피즘 효과 */
+  .glass-card {
+    @apply bg-white/70 dark:bg-neutral-800/70 backdrop-blur-md border border-white/30 dark:border-neutral-700/30 shadow-soft;
+  }
+
+  /* 그라디언트 버튼 - 브랜드 색상 적용 */
+  .gradient-button {
+    @apply bg-gradient-to-r from-brand-main to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-medium px-6 py-2.5 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 transform hover:scale-105;
+  }
+
+  /* 상태 인디케이터 */
+  .status-indicator {
+    @apply inline-flex items-center justify-center w-3 h-3 rounded-full border-2 border-white shadow-sm;
+  }
+
+  .status-indicator.success {
+    @apply bg-success-500 shadow-success-500/30;
+  }
+
+  .status-indicator.warning {
+    @apply bg-warning-500 shadow-warning-500/30;
+  }
+
+  .status-indicator.danger {
+    @apply bg-danger-500 shadow-danger-500/30;
+  }
+
+  .status-indicator.connecting {
+    @apply bg-brand-main shadow-primary-500/30 animate-pulse-soft;
+  }
+
+  /* 입력 필드 스타일 - 브랜드 색상 적용 */
+  .modern-input {
+    @apply bg-white/50 dark:bg-neutral-700/50 border border-neutral-200 dark:border-neutral-600 rounded-xl px-4 py-3 text-secondary-700 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-brand-main/20 focus:border-brand-main transition-all duration-200;
+  }
+
+  /* 네비게이션 아이템 - 브랜드 색상 적용 */
+  .nav-item {
+    @apply flex items-center px-4 py-3 text-secondary-600 dark:text-neutral-300 hover:text-brand-main hover:bg-brand-light dark:hover:bg-neutral-700 rounded-xl transition-all duration-200 cursor-pointer;
+  }
+
+  .nav-item.active {
+    @apply text-brand-main bg-brand-light dark:bg-neutral-700 font-medium;
+  }
+
+  /* 섹션 헤더 */
+  .section-header {
+    @apply text-2xl font-bold text-secondary-800 dark:text-neutral-100 mb-6 flex items-center gap-3;
+  }
+
+  /* 메트릭 카드 */
+  .metric-card {
+    @apply modern-card p-6 text-center space-y-2;
+  }
+
+  .metric-value {
+    @apply text-3xl font-bold text-secondary-800 dark:text-neutral-100;
+  }
+
+  .metric-label {
+    @apply text-sm font-medium text-secondary-500 dark:text-neutral-400 uppercase tracking-wide;
+  }
+
+  /* 알림 카드 */
+  .notification-card {
+    @apply modern-card p-4 border-l-4 hover:shadow-medium transition-all duration-200;
+  }
+
+  .notification-card.unread {
+    @apply border-l-brand-main bg-brand-light/50 dark:bg-neutral-700/50;
+  }
+
+  .notification-card.read {
+    @apply border-l-neutral-300 dark:border-neutral-600;
+  }
+
+  /* 추가 애니메이션 */
+  .bounce-in {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  /* 스크롤 애니메이션 */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease-out;
+  }
+
+  .scroll-reveal.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  /* 커스텀 애니메이션 키프레임 */
+  @keyframes bounceIn {
+    0% {
+      opacity: 0;
+      transform: scale(0.3) translateY(-50px);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.05) translateY(-10px);
+    }
+    70% {
+      transform: scale(0.9) translateY(0);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 20px rgba(73, 79, 162, 0.5);
+    }
+    to {
+      box-shadow: 0 0 30px rgba(73, 79, 162, 0.8), 0 0 40px rgba(73, 79, 162, 0.3);
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(5px);
+    }
+  }
+
+  /* 호버 효과 유틸리티 */
+  .hover-lift {
+    @apply transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-strong;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow;
+  }
+
+  .hover-rotate {
+    @apply transition-transform duration-300 hover:rotate-3;
+  }
+
+  /* 포커스 효과 - 브랜드 색상 적용 */
+  .focus-ring-primary {
+    @apply focus:outline-none focus:ring-2 focus:ring-brand-main focus:ring-offset-2 dark:focus:ring-offset-neutral-800;
+  }
+
+  .focus-ring-secondary {
+    @apply focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 dark:focus:ring-offset-neutral-800;
+  }
+
+  /* 센서 카드 컴포넌트 - 브랜드 색상과 어울리는 모던 디자인 */
+  .sensor-card {
+    @apply bg-primary-50/90 dark:bg-neutral-800/90 backdrop-blur-md border border-primary-200/30 dark:border-neutral-700/30 shadow-soft hover:shadow-medium transition-all duration-300 rounded-2xl overflow-hidden relative;
+  }
+
+  .sensor-card:hover {
+    @apply transform -translate-y-1 scale-[1.02];
+  }
+
+  .sensor-card-content {
+    @apply p-4;
+  }
+
+  .sensor-header {
+    @apply flex items-center justify-between mb-4;
+  }
+
+  .sensor-icon {
+    @apply flex-shrink-0;
+  }
+
+  .sensor-title {
+    @apply text-sm font-bold text-primary-800 dark:text-primary-200 capitalize tracking-wide;
+  }
+
+  .sensor-id-badge {
+    @apply bg-primary-100/80 dark:bg-primary-900/50 text-primary-700 dark:text-primary-300 px-2 py-1 rounded-lg text-xs font-medium border border-primary-200/50 dark:border-primary-700/50;
+  }
+
+  .sensor-value-section {
+    @apply text-center mb-2;
+  }
+
+  .sensor-value-container {
+    @apply flex items-center justify-center;
+  }
+
+  .sensor-status-indicator {
+    @apply w-4 h-4 rounded-full border-2 border-white/50 dark:border-neutral-600/50 shadow-sm flex-shrink-0;
+  }
+
+  .sensor-value {
+    @apply text-xl font-bold text-primary-900 dark:text-primary-100 tracking-tight;
+  }
+
+  .sensor-unit {
+    @apply text-xs text-primary-600 dark:text-primary-400 ml-1 opacity-80;
+  }
+
+
+  /* 먼지 센서 특별 레이아웃 */
+  .particle-values-vertical {
+    @apply flex flex-col gap-2 text-center;
+  }
+
+  .particle-item {
+    @apply flex justify-between items-center px-2 py-1 bg-white/50 dark:bg-neutral-700/50 rounded-lg border border-primary-200/30 dark:border-neutral-600/30;
+  }
+
+  .particle-label {
+    @apply text-xs text-primary-600 dark:text-primary-400 font-medium;
+  }
+
+  .particle-value {
+    @apply text-sm font-bold text-primary-900 dark:text-primary-100;
+  }
+
+  /* 클릭 가능한 센서 카드 */
+  .sensor-card.clickable {
+    @apply cursor-pointer;
+  }
+
+  .sensor-card.clickable:hover {
+    @apply transform -translate-y-2 scale-[1.03] shadow-strong;
+  }
+
+  .sensor-card.clickable:active {
+    @apply transform -translate-y-1 scale-[1.01] shadow-medium;
+  }
+
+  /* 알림 상태 센서 카드 */
+  .sensor-card.alert {
+    @apply animate-pulse border-l-red-500 bg-gradient-to-r from-red-50/70 to-primary-50/40 dark:from-red-900/30 dark:to-primary-900/20;
+  }
+
+  /* 반응형 디자인 */
+  /* Tablet: ~1023px */
+  @media (max-width: 1023px) {
+    .sensor-card-content {
+      @apply p-3;
+    }
+    
+    .sensor-value {
+      @apply text-lg;
+    }
+    
+    .sensor-status-indicator {
+      @apply w-3 h-3;
+    }
+    
+    .sensor-title {
+      @apply text-xs;
+    }
+    
+    .sensor-id-badge {
+      @apply text-xs px-1.5 py-0.5;
+    }
+  }
+
+  /* PC: 1024px~ */
+  @media (min-width: 1024px) {
+    .sensor-card-content {
+      @apply p-4;
+    }
+    
+    .sensor-value {
+      @apply text-xl;
+    }
+    
+    .sensor-status-indicator {
+      @apply w-4 h-4;
+    }
+    
+    .sensor-title {
+      @apply text-sm;
+    }
+    
+    .sensor-id-badge {
+      @apply text-xs px-2 py-1;
+    }
   }
 } 

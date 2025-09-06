@@ -117,3 +117,43 @@ cursor-talk-to-figma-mcp/
 # playwright-report/
 # playwright/.cache/
 node_modules/
+
+# 3D Model files (GLB, GLTF) - Too large for Git
+# *.glb
+# *.gltf
+# *.obj
+# *.fbx
+# *.dae
+# *.stl
+# *.ply
+# *.3ds
+# *.max
+# *.blend
+
+# Model directories
+ public/models/
+# models/
+
+# 특정 모델 폴더는 포함 (A01, B01, mainhome)
+# !public/models/A01/
+# !public/models/B01/
+# !public/models/mainhome/
+# !models/A01/
+# !models/B01/
+# !models/mainhome/
+
+# 특정 폴더 안의 모델링 파일들은 포함
+# !public/models/A01/**
+# !public/models/B01/**
+# !public/models/mainhome/**
+# !models/A01/**
+# !models/B01/**
+# !models/mainhome/**
+
+# 특정 모델링 파일들은 포함
+# !public/models/A01.glb
+# !public/models/B01.glb
+# !public/models/mainhome.glb
+# !models/A01.glb
+# !models/B01.glb
+# !models/mainhome.glb

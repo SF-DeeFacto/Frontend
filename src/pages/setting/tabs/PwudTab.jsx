@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { userService } from '../../../services/userService';
+import { handleApiError } from '../../../utils/unifiedErrorHandler';
 
 const PwudTab = () => {
   const [passwords, setPasswords] = useState({
@@ -8,6 +10,7 @@ const PwudTab = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePasswordChange = (key, value) => {
     setPasswords(prev => ({
@@ -33,8 +36,8 @@ const PwudTab = () => {
 
     if (!passwords.newPassword) {
       newErrors.newPassword = '새 비밀번호를 입력해주세요.';
-    } else if (passwords.newPassword.length < 8) {
-      newErrors.newPassword = '비밀번호는 8자 이상이어야 합니다.';
+    } else if (passwords.newPassword.length < 4) {
+      newErrors.newPassword = '비밀번호는 4자 이상이어야 합니다.';
     }
 
     if (!passwords.confirmPassword) {
@@ -47,27 +50,68 @@ const PwudTab = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (validatePasswords()) {
-      // 비밀번호 변경 로직 구현
-      console.log('비밀번호 변경:', passwords);
-      alert('비밀번호가 성공적으로 변경되었습니다.');
+      setIsLoading(true);
       
-      // 폼 초기화
-      setPasswords({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
-      });
+      try {
+        // 현재 로그인된 사용자 정보 가져오기
+        const employeeId = localStorage.getItem('employeeId');
+        // const token = localStorage.getItem('access_token');
+        
+        // console.log('비밀번호 변경 시도:', {
+        //   employeeId,
+        //   hasToken: !!token,
+        //   currentPassword: passwords.currentPassword ? '***' : '비어있음',
+        //   newPassword: passwords.newPassword ? '***' : '비어있음'
+        // });
+        
+        // 비밀번호 변경 API 호출
+        const passwordData = {
+          employeeId: employeeId, // 사용자 ID 추가
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword
+        };
+        
+        await userService.changePassword(passwordData);
+        
+        // 성공 시 처리
+        alert('비밀번호가 성공적으로 변경되었습니다.');
+        
+        // 폼 초기화
+        setPasswords({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        
+        // 에러 메시지 초기화
+        setErrors({});
+        
+      } catch (error) {
+        const errorInfo = handleApiError(error, '비밀번호 변경');
+        console.error('비밀번호 변경 실패:', errorInfo.message);
+        
+        // 에러 메시지 설정
+        if (error.response?.status === 400) {
+          setErrors({ currentPassword: '현재 비밀번호가 올바르지 않습니다.' });
+        } else if (error.response?.status === 422) {
+          setErrors({ newPassword: '새 비밀번호 형식이 올바르지 않습니다.' });
+        } else {
+          alert(errorInfo.userMessage);
+        }
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4>
+        {/* <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -77,7 +121,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.currentPassword}
               onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.currentPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -94,7 +138,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.newPassword}
               onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.newPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -102,7 +146,7 @@ const PwudTab = () => {
               <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
             )}
             <p className="mt-1 text-sm text-gray-500">
-              비밀번호는 8자 이상이어야 하며, 영문, 숫자, 특수문자를 포함해야 합니다.
+              비밀번호는 4자 이상 설정해주세요.
             </p>
           </div>
           
@@ -114,7 +158,7 @@ const PwudTab = () => {
               type="password"
               value={passwords.confirmPassword}
               onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -126,9 +170,14 @@ const PwudTab = () => {
           <div className="mt-6">
             <button 
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={isLoading}
+              className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
+                isLoading 
+                  ? 'bg-gray-400 text-white cursor-not-allowed' 
+                  : 'bg-[#494FAF] text-white hover:bg-[#494FA2]'
+              }`}
             >
-              비밀번호 변경
+              {isLoading ? '변경 중...' : '비밀번호 변경'}
             </button>
           </div>
         </form>

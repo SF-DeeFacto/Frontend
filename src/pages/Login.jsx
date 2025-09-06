@@ -4,7 +4,7 @@ import Button from '../components/common/Button';
 import Text from '../components/common/Text';
 import { login } from '../services/api/auth';
 // ===== 개발용 더미 로그인 기능 시작 =====
-import { dummyUsers } from '../dummy/data/users';
+import { dummyUsers } from '../dummy/dummyUser';
 // ===== 개발용 더미 로그인 기능 끝 =====
 
 const Login = () => {
