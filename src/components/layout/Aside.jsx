@@ -62,8 +62,8 @@ const Aside = () => {
       { label: 'C02', path: '/home/zone/c02', zoneId: 'c02', scope: 'c' }
     ];
 
-    // 사용자 scope가 없으면 모든 구역 표시
-    if (!user?.scope) {
+    // 사용자 scope가 없거나 문자열이 아니면 모든 구역 표시
+    if (!user?.scope || typeof user.scope !== 'string') {
       return allZones.map(({ scope, ...zone }) => zone);
     }
 

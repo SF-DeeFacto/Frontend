@@ -15,6 +15,7 @@ export const generateDummyUsers = (count = 10) => {
     department: '관리팀',
     position: '관리자',
     role: 'ADMIN',
+    scope: 'a,b,c', // 모든 구역에 접근 가능
     created_at: '2024-01-01 09:00:00',
     updated_at: '2024-01-01 09:00:00',
     shift: null
@@ -60,7 +61,8 @@ export const handleDummyLogin = (credentials) => {
       email: user.email,
       department: user.department,
       position: user.position,
-      role: user.role
+      role: user.role,
+      scope: user.scope
     }));
 
     console.log('더미 로그인 성공:', user.name);

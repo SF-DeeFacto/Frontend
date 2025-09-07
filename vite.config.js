@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5173,
-    strictPort: true, // 포트 고정
+    strictPort: false, // 포트 고정
     hmr: false, // HMR 완전 비활성화
     host: 'localhost',
     watch: {
