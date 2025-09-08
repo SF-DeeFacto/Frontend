@@ -22,6 +22,13 @@ const Zone = ({ zoneId }) => {
   useEffect(() => {
     if (!currentZoneId) return;
     if (!user?.scope) return; // scope 미설정이면 모든 구역 접근 허용
+    
+    // scope가 문자열인지 확인
+    if (typeof user.scope !== 'string') {
+      console.warn('user.scope is not a string:', user.scope);
+      return;
+    }
+    
     const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
     const zoneScope = String(currentZoneId)[0]?.toLowerCase();
     if (!scopes.includes(zoneScope)) {

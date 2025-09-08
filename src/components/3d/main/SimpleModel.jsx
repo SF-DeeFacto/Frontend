@@ -1,27 +1,26 @@
 import React, { useEffect } from 'react';
-import { useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 // 호버 오버레이용 간단한 3D 모델
 function SimpleModel({ modelPath }) {
-  const gltf = useLoader(GLTFLoader, modelPath);
+  const { scene } = useGLTF(modelPath);
   
 
   
   // 모델을 중심으로 위치 조정
   useEffect(() => {
-    if (gltf.scene) {
-      const box = new THREE.Box3().setFromObject(gltf.scene);
+    if (scene) {
+      const box = new THREE.Box3().setFromObject(scene);
       const center = box.getCenter(new THREE.Vector3());
-      gltf.scene.position.sub(center);
+      scene.position.sub(center);
     }
-  }, [gltf]);
+  }, [scene]);
 
   return (
     <group>
       <primitive 
-        object={gltf.scene} 
+        object={scene} 
         scale={[0.002, 0.002, 0.002]}
         position={[0, 0, 0]}
       />
