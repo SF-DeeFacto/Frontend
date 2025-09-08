@@ -48,6 +48,7 @@ export const notificationApi = {
     }
   },
 
+
   // 알림 일괄 읽음 처리
   markAllNotificationsAsRead: async () => {
     try {
@@ -75,12 +76,12 @@ export const notificationApi = {
 export const notificationUtils = {
   // 알림 상태 확인
   isNotificationRead: (notification) => {
-    return notification?.isRead === true;
+    return notification?.readStatus === true;
   },
 
   // 즐겨찾기 상태 확인
   isNotificationFlagged: (notification) => {
-    return notification?.isFlagged === true;
+    return notification?.flagStatus === true;
   },
 
   // 알림 타입별 색상 반환
@@ -96,25 +97,11 @@ export const notificationUtils = {
     return colorMap[type] || 'bg-gray-100 text-gray-600';
   },
 
-  // 알림 시간 포맷팅 (UTC+9 한국 시간으로 변환)
-  formatNotificationTime: (createdAt) => {
-    if (!createdAt) return '';
-    
-    const now = new Date();
-    // UTC 시간에 9시간(9 * 60 * 60 * 1000ms)을 더해서 한국 시간으로 변환
-    const notificationTime = new Date(new Date(createdAt).getTime() + (9 * 60 * 60 * 1000));
-    const diffInMinutes = Math.floor((now - notificationTime) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return '방금 전';
-    if (diffInMinutes < 60) return `${diffInMinutes}분 전`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours}시간 전`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays}일 전`;
-    
-    return notificationTime.toLocaleDateString('ko-KR');
+  // 알림 시간 포맷팅 (UTC+9 한국 시간으로 변환) - notificationUtils 사용
+  formatNotificationTime: (timestamp) => {
+    // notificationUtils의 getRelativeTime 함수를 사용
+    const { getRelativeTime } = require('../../utils/notificationUtils');
+    return getRelativeTime(timestamp);
   },
 
   // 알림 필터링
@@ -123,17 +110,17 @@ export const notificationUtils = {
     
     // 읽음 상태 필터
     if (filters.isRead !== null && filters.isRead !== undefined) {
-      filtered = filtered.filter(notification => notification.isRead === filters.isRead);
+      filtered = filtered.filter(notification => notification.readStatus === filters.isRead);
     }
     
     // 즐겨찾기 상태 필터
     if (filters.isFlagged !== null && filters.isFlagged !== undefined) {
-      filtered = filtered.filter(notification => notification.isFlagged === filters.isFlagged);
+      filtered = filtered.filter(notification => notification.flagStatus === filters.isFlagged);
     }
     
     // 타입 필터
     if (filters.type && filters.type !== '전체') {
-      filtered = filtered.filter(notification => notification.type === filters.type);
+      filtered = filtered.filter(notification => notification.notiType === filters.type);
     }
     
     // 검색어 필터
