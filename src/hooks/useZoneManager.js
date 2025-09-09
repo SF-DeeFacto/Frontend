@@ -11,16 +11,13 @@ import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 
 export const useZoneManager = () => {
-  const [zoneStatuses, setZoneStatuses] = useState({
-    A01: SENSOR_STATUS.CONNECTING,
-    A02: SENSOR_STATUS.CONNECTING,
-    B01: SENSOR_STATUS.CONNECTING,
-    B02: SENSOR_STATUS.CONNECTING,
-    B03: SENSOR_STATUS.CONNECTING,
-    B04: SENSOR_STATUS.CONNECTING,
-    C01: SENSOR_STATUS.CONNECTING,
-    C02: SENSOR_STATUS.CONNECTING
-  });
+  // ZONE_INFO에서 동적으로 초기 상태 생성
+  const initialZoneStatuses = Object.keys(ZONE_INFO).reduce((acc, zoneId) => {
+    acc[zoneId] = SENSOR_STATUS.CONNECTING;
+    return acc;
+  }, {});
+  
+  const [zoneStatuses, setZoneStatuses] = useState(initialZoneStatuses);
 
   const [connectionStates, setConnectionStates] = useState({
     mainSSE: CONNECTION_STATE.DISCONNECTED,

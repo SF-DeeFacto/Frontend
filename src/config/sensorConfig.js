@@ -145,7 +145,7 @@ export const SENSOR_TYPE_PATTERNS = {
   ESD: ['ESD'],
   HUMIDITY: ['HUM'], 
   WIND: ['WD'],
-  TEMPERATURE: ['TEM', 'TEMP'],
+  TEMPERATURE: ['TEMP'],
   PARTICLE: ['LPM'],
   HANDLE: ['Handle']
 };
@@ -164,7 +164,7 @@ export const getSensorTypeFromName = (name) => {
 
 // 센서 타입 매핑 (한글명)
 export const SENSOR_TYPE_MAPPING = {
-  'electrostatic': 'ESD',
+  'electrostatic': '정전기',
   'temperature': '온도',
   'humidity': '습도', 
   'particle': '먼지',
@@ -175,6 +175,18 @@ export const SENSOR_TYPE_MAPPING = {
 export const getSensorTypeMapping = (type) => {
   return SENSOR_TYPE_MAPPING[type] || type;
 };
+
+// 센서 타입 목록 (UI 필터용)
+export const SENSOR_TYPES_FOR_FILTER = [
+  'all',
+  'temperature', 
+  'humidity', 
+  'electrostatic', 
+  'particle_0_1um', 
+  'particle_0_3um', 
+  'particle_0_5um', 
+  'winddirection'
+];
 
 // ==================== 센서 ID 생성 통합 ====================
 

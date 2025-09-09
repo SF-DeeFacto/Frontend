@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
 import { useAuth } from '../../../hooks/useAuth';
 
 const SensorListTab = () => {
@@ -60,32 +61,35 @@ const SensorListTab = () => {
       return;
     }
     
-    const filtered = sensors.filter(sensor => 
-      sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = sensors.filter(sensor => {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // 기본 필드 검색
+      const basicMatch = 
+        sensor.sensorId.toLowerCase().includes(searchLower) ||
+        sensor.sensorType.toLowerCase().includes(searchLower) ||
+        sensor.zoneId.toLowerCase().includes(searchLower);
+      
+      // 한글 센서 타입명 검색
+      const koreanTypeName = sensorTypeMapping[sensor.sensorType];
+      const koreanMatch = koreanTypeName && koreanTypeName.includes(searchTerm);
+      
+      return basicMatch || koreanMatch;
+    });
     
     setFilteredSensors(filtered);
-  }, [sensors, searchTerm]);
+  }, [sensors, searchTerm, sensorTypeMapping]);
 
-  // 센서 타입별 한글 매핑
+  // 센서 타입별 한글 매핑 (config에서 가져와서 확장)
   const sensorTypeMapping = {
-    'electrostatic': '정전기',
-    'Electrostatic': '정전기',
-    'temperature': '온도',
-    'Temperature': '온도',
-    'humidity': '습도',
-    'Humidity': '습도',
+    ...SENSOR_TYPE_MAPPING,
     'particle_0_1um': '미세먼지 0.1μm',
     'particle_0_3um': '미세먼지 0.3μm',
     'particle_0_5um': '미세먼지 0.5μm',
-    'windDirection': '풍향',
-    'WindDirection': '풍향'
   };
 
-  // 센서 타입 목록
-  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_5um', 'windDirection'];
+  // 센서 타입 목록 (config에서 가져옴)
+  const sensorTypes = SENSOR_TYPES_FOR_FILTER;
   
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
