@@ -61,11 +61,11 @@ export const useZoneSensorData = (zoneId) => {
     setIsLoading(true);
     setConnectionState(CONNECTION_STATE.CONNECTING);
     
-    // 디바운서 초기화 (300ms 지연으로 단축)
+    // 디바운서 초기화 (150ms 지연으로 단축)
     if (debouncerRef.current) {
       debouncerRef.current.destroy();
     }
-    debouncerRef.current = new SensorDataDebouncer(300);
+    debouncerRef.current = new SensorDataDebouncer(150);
     
     // 디바운싱된 데이터 업데이트 콜백 등록
     debouncerRef.current.addCallback((newData) => {

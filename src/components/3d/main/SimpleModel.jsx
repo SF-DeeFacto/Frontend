@@ -19,27 +19,29 @@ function SimpleModel({ modelPath, onLoad, sensorData, zoneId }) {
   // 모델을 중심으로 위치 조정 및 센서 위치 찾기
   useEffect(() => {
     if (gltf.scene) {
+      // 모델 중심화
       const box = new THREE.Box3().setFromObject(gltf.scene);
       const center = box.getCenter(new THREE.Vector3());
       gltf.scene.position.sub(center);
       
-      // 센서 위치 찾기
+      // 센서 위치 찾기 (최적화된 방식)
       const foundSensors = {};
+      const sensorPatterns = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
+      
       gltf.scene.traverse((child) => {
         if (child.isMesh && child.name) {
-          // 센서 패턴 확인
-          if (child.name.includes('ESD') || 
-              child.name.includes('LPM') || 
-              child.name.includes('HUM') || 
-              child.name.includes('WD') ||
-              child.name.includes('TEMP')) {
-            
-            const box = new THREE.Box3().setFromObject(child);
-            const center = new THREE.Vector3();
-            box.getCenter(center);
+          // 센서 패턴 확인 (더 효율적인 방식)
+          const isSensor = sensorPatterns.some(pattern => 
+            child.name.includes(pattern)
+          );
+          
+          if (isSensor) {
+            const childBox = new THREE.Box3().setFromObject(child);
+            const childCenter = new THREE.Vector3();
+            childBox.getCenter(childCenter);
             
             foundSensors[child.name] = {
-              position: [center.x, box.max.y, center.z],
+              position: [childCenter.x, childBox.max.y, childCenter.z],
               mesh: child
             };
           }
@@ -52,21 +54,22 @@ function SimpleModel({ modelPath, onLoad, sensorData, zoneId }) {
     }
   }, [gltf.scene, onLoad]);
 
-  // 센서 상태를 가져오는 함수
+  // 센서 상태를 가져오는 함수 (최적화)
   const getSensorStatus = (sensorName) => {
     if (!sensorData || Object.keys(sensorData).length === 0) {
       return 'unknown';
     }
 
-    for (const [sensorType, sensors] of Object.entries(sensorData)) {
+    const lowerSensorName = sensorName.toLowerCase();
+    
+    // 센서 데이터를 한 번만 순회
+    for (const sensors of Object.values(sensorData)) {
       if (Array.isArray(sensors)) {
-        const foundSensor = sensors.find(sensor => {
-          const sensorId = sensor.sensorId || sensor.id || '';
-          return sensorId.toLowerCase() === sensorName.toLowerCase();
-        });
-        
-        if (foundSensor) {
-          return foundSensor.sensorStatus || foundSensor.status || foundSensor.state || 'normal';
+        for (const sensor of sensors) {
+          const sensorId = (sensor.sensorId || sensor.id || '').toLowerCase();
+          if (sensorId === lowerSensorName) {
+            return sensor.sensorStatus || sensor.status || sensor.state || 'normal';
+          }
         }
       }
     }
