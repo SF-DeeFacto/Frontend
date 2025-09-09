@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
 
 // 호버 오버레이용 간단한 3D 모델
-function SimpleModel({ modelPath }) {
+function SimpleModel({ modelPath, onLoad }) {
+  const [isLoaded, setIsLoaded] = useState(false);
+  
   const gltf = useLoader(GLTFLoader, modelPath, (loader) => {
     loader.setMeshoptDecoder(MeshoptDecoder);
   });
@@ -18,8 +20,10 @@ function SimpleModel({ modelPath }) {
       const box = new THREE.Box3().setFromObject(gltf.scene);
       const center = box.getCenter(new THREE.Vector3());
       gltf.scene.position.sub(center);
+      setIsLoaded(true);
+      if (onLoad) onLoad();
     }
-  }, [gltf.scene]);
+  }, [gltf.scene, onLoad]);
 
   return (
     <group>
@@ -29,9 +33,17 @@ function SimpleModel({ modelPath }) {
         position={[0, 0, 0]}
       />
       
-      {/* 기본적인 광원 추가 */}
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-      <ambientLight intensity={0.5} />
+      {/* 향상된 조명 설정 */}
+      <ambientLight intensity={0.4} />
+      <directionalLight 
+        position={[5, 10, 5]} 
+        intensity={1.2}
+        castShadow
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
+      />
+      <pointLight position={[-5, 5, -5]} intensity={0.3} color="#4f46e5" />
+      <pointLight position={[5, -5, 5]} intensity={0.2} color="#06b6d4" />
     </group>
   );
 }

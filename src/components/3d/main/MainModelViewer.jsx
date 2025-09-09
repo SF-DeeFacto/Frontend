@@ -4,6 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { OrbitControls } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
+import * as THREE from 'three';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
 import { useAuth } from '../../../hooks/useAuth';
 
@@ -87,6 +88,10 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
       
       document.body.style.cursor = 'pointer';
       
+      // 호버 효과를 위한 메쉬 하이라이트
+      event.object.material.emissive = new THREE.Color(0x444444);
+      event.object.material.emissiveIntensity = 0.3;
+      
       // 호버된 존 정보를 부모 컴포넌트로 전달
       onHoverZoneChange(zoneId);
     }
@@ -94,6 +99,10 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 
   const handlePointerOut = (event) => {
     if (event.object.userData && event.object.userData.isClickable) {
+      // 호버 효과 제거
+      event.object.material.emissive = new THREE.Color(0x000000);
+      event.object.material.emissiveIntensity = 0;
+      
       onHoverZoneChange(null);
       document.body.style.cursor = 'default';
     }
