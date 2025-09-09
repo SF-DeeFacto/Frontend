@@ -2,11 +2,16 @@ import React, { Suspense, useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
+import SensorIndicator from '../3d/zone/SensorIndicator';
 import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
 import { getMeshoptModelPath } from '../../utils';
+import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  
+  // 센서 데이터 가져오기
+  const { sensorData, isLoading: isSensorLoading } = useZoneSensorData(hoveredZone);
   
   // 호버된 존이 변경될 때 로딩 상태 리셋
   useEffect(() => {
@@ -102,9 +107,14 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-400/3 to-pink-400/5"></div>
           
           {/* 로딩 인디케이터 - Canvas 외부 */}
-          {!isModelLoaded && (
+          {(!isModelLoaded || isSensorLoading) && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                {isSensorLoading && (
+                  <div className="text-white/70 text-xs">센서 데이터 로딩 중...</div>
+                )}
+              </div>
             </div>
           )}
           
@@ -122,6 +132,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                   <SimpleModel 
                     modelPath={modelPath} 
                     onLoad={() => setIsModelLoaded(true)}
+                    sensorData={sensorData}
+                    zoneId={hoveredZone}
                   />
                 </Suspense>
                 <OrbitControls
