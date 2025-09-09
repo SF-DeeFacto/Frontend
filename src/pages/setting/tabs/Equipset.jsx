@@ -255,13 +255,8 @@ const Equipset = ({ onTabChange }) => {
     }
   };
 
-  // 센서 타입별 한글 매핑 (config에서 가져와서 확장)
-  const sensorTypeMapping = {
-    ...SENSOR_TYPE_MAPPING,
-    'particle_0_1um': '미세먼지 0.1μm',
-    'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_5um': '미세먼지 0.5μm'
-  };
+  // 센서 타입별 한글 매핑 (config에서 가져옴)
+  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
 
   // 날짜 포맷팅 함수 - 날짜와 시간 분리
   const formatDateFromISO = (isoString) => {

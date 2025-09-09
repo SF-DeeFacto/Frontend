@@ -168,6 +168,9 @@ export const SENSOR_TYPE_MAPPING = {
   'temperature': '온도',
   'humidity': '습도', 
   'particle': '먼지',
+  'particle_0_1um': '미세먼지 0.1μm',
+  'particle_0_3um': '미세먼지 0.3μm',
+  'particle_0_5um': '미세먼지 0.5μm',
   'winddirection': '풍향'
 };
 
@@ -187,6 +190,20 @@ export const SENSOR_TYPES_FOR_FILTER = [
   'particle_0_5um', 
   'winddirection'
 ];
+
+// Particle 센서 타입 상세 배열 (UI에서 사용)
+export const PARTICLE_SENSOR_TYPES = [
+  'particle_0_1um',
+  'particle_0_3um', 
+  'particle_0_5um'
+];
+
+// Particle 센서 타입별 한글 매핑 (UI에서 사용)
+export const PARTICLE_SENSOR_MAPPING = {
+  'particle_0_1um': '미세먼지 0.1μm',
+  'particle_0_3um': '미세먼지 0.3μm',
+  'particle_0_5um': '미세먼지 0.5μm'
+};
 
 // ==================== 센서 ID 생성 통합 ====================
 

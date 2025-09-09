@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { aiRecommendService } from '../../../services/api/aiRecommend';
 import { useAuth } from '../../../hooks/useAuth';
 import { COLORS } from '../../../config/constants';
-import { SENSOR_TYPE_MAPPING } from '../../../config/sensorConfig';
+import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
 
 const AIRecommend = () => {
   const { user } = useAuth();
@@ -158,13 +158,8 @@ const AIRecommend = () => {
     };
   }, [showDatePicker]);
 
-  // 센서 타입 매핑 (config에서 가져와서 확장)
-  const sensorTypeMapping = {
-    ...SENSOR_TYPE_MAPPING,
-    'particle_0_1um': '0.1μm 파티클',
-    'particle_0_3um': '0.3μm 파티클',
-    'particle_0_5um': '0.5μm 파티클'
-  };
+  // 센서 타입 매핑 (config에서 가져옴)
+  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
 
   // 날짜 포맷팅 함수
   const formatDateTime = (dateTimeString) => {
@@ -373,13 +368,12 @@ const AIRecommend = () => {
               onChange={(e) => setFilterSensorType(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] focus:border-transparent"
             >
-              {/* TODO: 여기왜 정전기가 없나용?? */}
               <option value="all">전체</option>
-              <option value="temperature">온도</option>
-              <option value="humidity">습도</option>
-              <option value="particle_0_1">미세먼지 0.1μm</option>
-              <option value="particle_0_3">미세먼지 0.3μm</option>
-              <option value="particle_0_5">미세먼지 0.5μm</option>
+              {SENSOR_TYPES_FOR_FILTER.filter(type => type !== 'all').map(type => (
+                <option key={type} value={type}>
+                  {sensorTypeMapping[type] || type}
+                </option>
+              ))}
             </select>
           </div>
 

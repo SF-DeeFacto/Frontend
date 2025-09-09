@@ -54,6 +54,9 @@ const SensorListTab = () => {
     return () => { isMounted = false; };
   }, [filterType, filterZone]);
 
+  // 센서 타입별 한글 매핑 (config에서 가져옴)
+  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
+
   // 검색어 필터링 (클라이언트 사이드)
   useEffect(() => {
     if (!searchTerm) {
@@ -79,14 +82,6 @@ const SensorListTab = () => {
     
     setFilteredSensors(filtered);
   }, [sensors, searchTerm, sensorTypeMapping]);
-
-  // 센서 타입별 한글 매핑 (config에서 가져와서 확장)
-  const sensorTypeMapping = {
-    ...SENSOR_TYPE_MAPPING,
-    'particle_0_1um': '미세먼지 0.1μm',
-    'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_5um': '미세먼지 0.5μm',
-  };
 
   // 센서 타입 목록 (config에서 가져옴)
   const sensorTypes = SENSOR_TYPES_FOR_FILTER;
