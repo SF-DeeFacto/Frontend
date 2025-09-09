@@ -1,5 +1,6 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import { COLORS } from '../../config/constants';
 
 // 상수 정의
 const ALARM_TYPES = ['전체', '알림', '리포트'];
@@ -30,9 +31,14 @@ const AlarmFilters = ({
                 onClick={() => setAlarmType(type)}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                   alarmType === type
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                    ? 'text-white hover:bg-white'
+                    : 'bg-white text-gray-700 hover:text-white'
                 }`}
+                style={{
+                  backgroundColor: alarmType === type ? COLORS.PRIMARY : undefined,
+                  '--hover-bg': COLORS.PRIMARY,
+                  '--hover-text': 'white'
+                }}
               >
                 {type}
               </button>
@@ -50,9 +56,14 @@ const AlarmFilters = ({
                 onClick={() => setStatusFilter(status)}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                   statusFilter === status
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                    ? 'text-white hover:bg-white'
+                    : 'bg-white text-gray-700 hover:text-white'
                 }`}
+                style={{
+                  backgroundColor: statusFilter === status ? COLORS.PRIMARY : undefined,
+                  '--hover-bg': COLORS.PRIMARY,
+                  '--hover-text': 'white'
+                }}
               >
                 {status}
               </button>
@@ -70,9 +81,14 @@ const AlarmFilters = ({
                 onClick={() => setReadStatusFilter(status)}
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
                   readStatusFilter === status
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                    ? 'text-white hover:bg-white'
+                    : 'bg-white text-gray-700 hover:text-white'
                 }`}
+                style={{
+                  backgroundColor: readStatusFilter === status ? COLORS.PRIMARY : undefined,
+                  '--hover-bg': COLORS.PRIMARY,
+                  '--hover-text': 'white'
+                }}
               >
                 {status}
               </button>
@@ -87,9 +103,13 @@ const AlarmFilters = ({
             onClick={onMarkAllAsRead}
             className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
               hasUnreadAlarms 
-                ? 'bg-[#494FA2] text-white hover:bg-[#3a3f8a]' 
+                ? 'text-white' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
+            style={{
+              backgroundColor: hasUnreadAlarms ? COLORS.PRIMARY : undefined,
+              '--hover-bg': hasUnreadAlarms ? '#3a3f8a' : undefined
+            }}
             disabled={!hasUnreadAlarms}
           >
             <CheckCircle className="w-4 h-4" />

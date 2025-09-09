@@ -1,4 +1,5 @@
 import React from 'react';
+import { COLORS } from '../../../config/constants';
 
 // 기본 조명 설정
 export const BasicLighting = ({ intensity = 1 }) => (
@@ -21,8 +22,8 @@ export const SoftLighting = ({ intensity = 1 }) => (
       intensity={0.8 * intensity}
       castShadow={false}
     />
-    <pointLight position={[-5, 5, -5]} intensity={0.15 * intensity} color="#4f46e5" />
-    <pointLight position={[5, -5, 5]} intensity={0.1 * intensity} color="#06b6d4" />
+    <pointLight position={[-5, 5, -5]} intensity={0.15 * intensity} color={COLORS.PRIMARY} />
+    <pointLight position={[5, -5, 5]} intensity={0.1 * intensity} color={COLORS.INFO} />
   </>
 );
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { COLORS } from '../../config/constants';
 
 const ChartSection = ({ 
   title, 
@@ -8,7 +9,7 @@ const ChartSection = ({
   height = 'h-96', // 기본값 h-96 (384px)
   width = 'w-full', // 기본값 w-full
   backgroundColor = '#f0f8ff',
-  borderColor = '#4a90e2',
+  borderColor = COLORS.INFO,
   showZone = false, // zone 표시 여부
   className = '' // 추가 클래스
 }) => {

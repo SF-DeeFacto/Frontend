@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
 import { CONNECTION_STATE } from '../../../types/sensor';
+import { COLORS } from '../../../config/constants';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
@@ -20,13 +21,13 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   const getConnectionColor = (connectionState) => {
     switch (connectionState) {
       case CONNECTION_STATE.CONNECTING:
-        return '#3b82f6'; // 파란색 (연결 중)
+        return COLORS.INFO; // 파란색 (연결 중)
       case CONNECTION_STATE.CONNECTED:
-        return '#10b981'; // 초록색 (연결됨)
+        return COLORS.SUCCESS; // 초록색 (연결됨)
       case CONNECTION_STATE.ERROR:
-        return '#ef4444'; // 빨간색 (연결 실패)
+        return COLORS.DANGER; // 빨간색 (연결 실패)
       default:
-        return '#9ca3af'; // 회색 (알 수 없음)
+        return COLORS.SECONDARY; // 회색 (알 수 없음)
     }
   };
 
