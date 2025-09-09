@@ -571,7 +571,11 @@ const Report = () => {
       console.log('인증되지 않은 사용자입니다.');
       setError('인증이 필요합니다.');
       return;
+
     }
+    console.log('다운로드 요청:', fileName);
+    console.log('👤 사용자 정보:', user.employeeId);
+    console.log("token : " + token);
 
     setError(null);
     const url = `${API_BASE}/reports/download/${fileName}`;
@@ -579,18 +583,16 @@ const Report = () => {
       console.log('[REPORTS] download', url);
       
       // 기존 axios 방식 (주석 처리)
-      // const res = await axios.get(url, {
-      //   headers: { 'X-Employee-Id': EMPLOYEE_ID },
-      //   responseType: 'blob',
-      //   validateStatus: (s) => true, // always let us inspect the response
-      // });
-
-      // 새로운 authApiClient 방식
-      const res = await authApiClient.get(url, {
-        headers: { 'X-Employee-Id': user.employeeId },
+      const res = await axios.get(url, {
+        headers: {
+          'X-Employee-Id': user.employeeId,
+          'Authorization': `Bearer ${token}`
+        },
         responseType: 'blob',
         validateStatus: (s) => true, // always let us inspect the response
       });
+
+      
 
     // 서버가 에러를 JSON/text로 반환했을 수 있음 -> blob을 텍스트로 읽어 검사
     if (res.status !== 200) {
