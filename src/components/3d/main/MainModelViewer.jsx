@@ -1,15 +1,12 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { useLoader } from '@react-three/fiber';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { OrbitControls } from '@react-three/drei';
+import { useGLTF, OrbitControls } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
 import { useAuth } from '../../../hooks/useAuth';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
-  const gltf = useLoader(GLTFLoader, '/models/mainhome.glb');
+  const { scene } = useGLTF('/models/mainhome.glb');
   const navigate = useNavigate();
-  const [object38Position, setObject38Position] = useState(null);
   const { user } = useAuth();
 
   const canAccessPath = (path) => {
@@ -19,6 +16,13 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
     const last = parts[parts.length - 1] || '';
     const zoneScope = last[0]?.toLowerCase();
     if (!user?.scope) return true;
+    
+    // scope가 문자열인지 확인
+    if (typeof user.scope !== 'string') {
+      console.warn('user.scope is not a string:', user.scope);
+      return true; // 안전하게 접근 허용
+    }
+    
     const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
     return scopes.includes(zoneScope);
   };
@@ -37,25 +41,18 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 
   // 모델 로딩 후 초기 설정
   useEffect(() => {
-    if (gltf.scene) {
+    if (scene) {
       // Zone 매핑 설정
-      setupZoneMapping(gltf.scene, navigate);
-      
-      // B01 오브젝트 위치 저장
-      gltf.scene.traverse((child) => {
-        if (child.isMesh && (child.name === 'b01' || child.name === 'B01')) {
-          setObject38Position(child.position.clone());
-        }
-      });
+      setupZoneMapping(scene, navigate);
     }
-  }, [gltf, setupZoneMapping, navigate]);
+  }, [scene, setupZoneMapping, navigate]);
 
   // Zone 상태 변경 시 재질 업데이트
   useEffect(() => {
-    if (gltf.scene && zoneStatuses) {
-      updateZoneMaterials(gltf.scene, zoneStatuses);
+    if (scene && zoneStatuses) {
+      updateZoneMaterials(scene, zoneStatuses);
     }
-  }, [zoneStatuses, gltf, updateZoneMaterials]);
+  }, [zoneStatuses, scene, updateZoneMaterials]);
 
   // 클릭 이벤트 핸들러
   const handleClick = (event) => {
@@ -100,7 +97,7 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
   return (
     <group>
       <primitive 
-        object={gltf.scene} 
+        object={scene} 
         scale={modelInfo.scale}
         position={modelInfo.position}
         rotation={modelInfo.rotation}

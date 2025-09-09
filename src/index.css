@@ -46,6 +46,37 @@
 }
 
 @layer components {
+  /* 토스트 알림 애니메이션 */
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-out-right {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  .animate-slide-out-right {
+    animation: slide-out-right 0.3s ease-in forwards;
+  }
+
   /* 모던 카드 스타일 */
   .modern-card {
     @apply bg-primary-50/70 dark:bg-neutral-800/80 backdrop-blur-sm border border-white/20 dark:border-neutral-700/30 shadow-soft hover:shadow-medium transition-all duration-300 rounded-2xl;
@@ -118,17 +149,26 @@
     @apply text-sm font-medium text-secondary-500 dark:text-neutral-400 uppercase tracking-wide;
   }
 
-  /* 알림 카드 */
+  /* 알림 카드 - 밝은 브랜드 색상 계열 적용 */
   .notification-card {
-    @apply modern-card p-4 border-l-4 hover:shadow-medium transition-all duration-200;
+    @apply bg-white dark:bg-neutral-800 px-4 py-3 hover:shadow-medium transition-all duration-200 rounded-xl;
   }
 
   .notification-card.unread {
-    @apply border-l-brand-main bg-brand-light/50 dark:bg-neutral-700/50;
+    @apply bg-primary-50/70 dark:bg-neutral-800/80;
   }
 
   .notification-card.read {
-    @apply border-l-neutral-300 dark:border-neutral-600;
+    @apply bg-gray-50 dark:bg-neutral-700;
+  }
+
+  /* 알림 카드가 센서 카드 스타일을 사용할 때의 특별 스타일 */
+  .sensor-card.unread {
+    @apply bg-gradient-to-r from-orange-50/70 to-primary-50/40 dark:from-orange-900/30 dark:to-primary-900/20;
+  }
+
+  .sensor-card.read {
+    @apply bg-gradient-to-r from-green-50/70 to-primary-50/40 dark:from-green-900/30 dark:to-primary-900/20;
   }
 
   /* 추가 애니메이션 */

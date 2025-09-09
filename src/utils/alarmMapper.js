@@ -1,41 +1,41 @@
-import { notificationUtils } from '../services/api/notification_api';
-
-/**
- * 메시지 안의 시간을 한국 시간으로 변환
- */
-const convertMessageTime = (message, timestamp) => {
-  if (!message || !timestamp) return message;
-  
-  // UTC 시간을 한국 시간으로 변환
-  const utcDate = new Date(timestamp);
-  const koreaTime = new Date(utcDate.getTime() + (9 * 60 * 60 * 1000));
-  
-  // [YYYY-MM-DD HH:MM:SS] 형식의 시간을 찾아서 변환
-  const timePattern = /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\]/;
-  const match = message.match(timePattern);
-  
-  if (match) {
-    const originalTime = match[1];
-    const koreaTimeString = koreaTime.toISOString().replace('T', ' ').substring(0, 19);
-    return message.replace(timePattern, `[${koreaTimeString}]`);
-  }
-  
-  return message;
-};
+import { 
+  transformNotificationData, 
+  stripHtmlTags,
+  getRelativeTime,
+  removeTimeAndSensorFromTitle,
+  extractZoneName
+} from './notificationUtils';
 
 /**
  * 개별 알림을 프론트엔드 형식으로 변환
  */
-export const mapNotificationToAlarm = (notification) => ({
-  id: notification.notiId,
-  type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
-  status: notification.readStatus ? '읽음' : '안읽음',
-  isFavorite: notification.flagStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
-  isRead: notification.readStatus || false, // SSE 데이터에는 없을 수 있으므로 기본값 설정
-  message: convertMessageTime(notification.title, notification.timestamp),
-  time: notificationUtils.formatNotificationTime(notification.timestamp),
-  zone: notification.zoneId.toUpperCase()
-});
+export const mapNotificationToAlarm = (notification) => {
+  // 새로운 유틸리티 함수로 데이터 변환
+  const transformed = transformNotificationData(notification);
+  
+  return {
+    id: notification.notiId,
+    type: notification.notiType === 'ALERT' ? '알림' : notification.notiType,
+    status: notification.readStatus ? '읽음' : '안읽음',
+    isFavorite: notification.flagStatus || false,
+    isRead: notification.readStatus || false,
+    readStatus: notification.readStatus || false, // readStatus 필드 추가
+    flagStatus: notification.flagStatus || false, // flagStatus 필드 추가
+    notiType: notification.notiType, // notiType 필드 추가
+    message: transformed.cleanTitle, // 시간 제거된 제목
+    time: transformed.relativeTime, // 한국 시간 기준 상대 시간
+    zone: transformed.zoneName.toUpperCase(), // 추출된 구역명
+    // 새로운 필드들 추가
+    title: transformed.cleanTitle,
+    content: transformed.contentAfterBr,
+    timestamp: notification.timestamp,
+    zoneId: transformed.zoneName.toLowerCase(),
+    readTime: notification.readTime,
+    // 추가 변환된 데이터
+    sensorName: transformed.sensorName,
+    koreaTime: transformed.koreaTime
+  };
+};
 
 /**
  * 알림 목록 API 응답을 프론트엔드 형식으로 변환
@@ -62,7 +62,7 @@ export const mapAlarmList = (response) => {
 export const updateAlarmReadStatus = (alarms, alarmId, isRead) => {
   return alarms.map(alarm => 
     alarm.id === alarmId 
-      ? { ...alarm, isRead, status: isRead ? '읽음' : '안읽음' }
+      ? { ...alarm, isRead, status: isRead ? '읽음' : '안읽음', readStatus: isRead }
       : alarm
   );
 };
@@ -73,7 +73,7 @@ export const updateAlarmReadStatus = (alarms, alarmId, isRead) => {
 export const updateAlarmFavoriteStatus = (alarms, alarmId, isFavorite) => {
   return alarms.map(alarm => 
     alarm.id === alarmId 
-      ? { ...alarm, isFavorite }
+      ? { ...alarm, isFavorite, flagStatus: isFavorite }
       : alarm
   );
 };
@@ -85,6 +85,6 @@ export const updateAllAlarmsAsRead = (alarms) => {
   return alarms.map(alarm => 
     alarm.isRead 
       ? alarm 
-      : { ...alarm, isRead: true, status: '읽음' }
+      : { ...alarm, isRead: true, status: '읽음', readStatus: true }
   );
 };
