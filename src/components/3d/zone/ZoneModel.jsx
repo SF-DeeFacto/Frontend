@@ -69,7 +69,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
 
   // 모델 초기 설정 (중심 이동, 그룹 위치/회전)
   useEffect(() => {
-    if (!scene) return;
+    if (!gltf.scene) return;
     
     // 여기서만 모델링 위치 조정해야합니다.!!!!!!!!!!!!!!!!!!
     // 카메라 설정 - 모델을 더 작게 보이게 하기
@@ -77,9 +77,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     camera.lookAt(0, 0, 0);
 
     // 모델 중심 정렬
-    const box = new THREE.Box3().setFromObject(scene);
+    const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
-    scene.position.sub(center);
+    gltf.scene.position.sub(center);
 
     // 그룹 위치 및 회전
     if (groupRef.current) {
@@ -88,11 +88,11 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     }
 
     setIsModelReady(true);
-  }, [scene, camera]);
+  }, [gltf.scene, camera]);
 
   // useFrame으로 모델 안정화 후 센서 위치 계산
   useFrame(() => {
-    if (!isModelReady || !scene || frameCountRef.current > 10) return;
+    if (!isModelReady || !gltf.scene || frameCountRef.current > 10) return;
     frameCountRef.current++;
 
     // 몇 프레임 기다린 후 센서 위치 계산
@@ -104,7 +104,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
 
 
   const calculateSensorPositions = () => {
-    if (!scene) return;
+    if (!gltf.scene) return;
 
     // 모든 메쉬 이름 확인
     console.log("All meshes in scene:");
@@ -113,7 +113,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     });
 
     // 월드 매트릭스 업데이트
-    scene.updateWorldMatrix(true, true);
+    gltf.scene.updateWorldMatrix(true, true);
 
     const foundSensors = {};
     const clickableObjects = [];
@@ -126,7 +126,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     // traverse로 센서 동적 검색
     const traverseFoundSensors = [];
     
-    scene.traverse((child) => {
+    gltf.scene.traverse((child) => {
       if (child.isMesh && child.name) {
         // 실제 센서 패턴 확인 (LPM, TEMP 사용)
         if (child.name.includes('ESD') || 
@@ -220,7 +220,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
   return (
     <group ref={groupRef}>
       <primitive 
-        object={scene} 
+        object={gltf.scene} 
         scale={[0.002, 0.002, 0.002]} 
         onPointerDown={handleClick}
       />

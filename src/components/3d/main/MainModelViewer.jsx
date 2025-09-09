@@ -46,18 +46,18 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 
   // 모델 로딩 후 초기 설정
   useEffect(() => {
-    if (scene) {
+    if (gltf.scene) {
       // Zone 매핑 설정
-      setupZoneMapping(scene, navigate);
+      setupZoneMapping(gltf.scene, navigate);
     }
-  }, [scene, setupZoneMapping, navigate]);
+  }, [gltf.scene, setupZoneMapping, navigate]);
 
   // Zone 상태 변경 시 재질 업데이트
   useEffect(() => {
-    if (scene && zoneStatuses) {
-      updateZoneMaterials(scene, zoneStatuses);
+    if (gltf.scene && zoneStatuses) {
+      updateZoneMaterials(gltf.scene, zoneStatuses);
     }
-  }, [zoneStatuses, scene, updateZoneMaterials]);
+  }, [zoneStatuses, gltf.scene, updateZoneMaterials]);
 
   // 클릭 이벤트 핸들러
   const handleClick = (event) => {
@@ -102,7 +102,7 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
   return (
     <group>
       <primitive 
-        object={scene} 
+        object={gltf.scene} 
         scale={modelInfo.scale}
         position={modelInfo.position}
         rotation={modelInfo.rotation}
