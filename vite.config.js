@@ -6,6 +6,9 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+    include: ['three/examples/jsm/libs/meshopt_decoder.module.js']
+  },
   server: {
     port: 5173,
     strictPort: false, // 포트 고정

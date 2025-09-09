@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLoader, useThree, useFrame } from '@react-three/fiber';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
 import { Html } from '@react-three/drei';
 import SensorIndicator from './SensorIndicator';
 import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
 
 function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
-  const gltf = useLoader(GLTFLoader, modelPath);
+  const gltf = useLoader(GLTFLoader, modelPath, (loader) => {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  });
   const groupRef = useRef();
   const { camera, raycaster, gl } = useThree();
   const [sensorPositions, setSensorPositions] = useState({});

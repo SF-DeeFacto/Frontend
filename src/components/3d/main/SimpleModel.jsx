@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
 
 // 호버 오버레이용 간단한 3D 모델
 function SimpleModel({ modelPath }) {
-  const gltf = useLoader(GLTFLoader, modelPath);
+  const gltf = useLoader(GLTFLoader, modelPath, (loader) => {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  });
   
 
   

@@ -1,13 +1,16 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { OrbitControls } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
 import { useAuth } from '../../../hooks/useAuth';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
-  const gltf = useLoader(GLTFLoader, '/models/mainhome.glb');
+  const gltf = useLoader(GLTFLoader, '/models/mainhome-meshopt.glb', (loader) => {
+    loader.setMeshoptDecoder(MeshoptDecoder);
+  });
   const navigate = useNavigate();
   const [object38Position, setObject38Position] = useState(null);
   const { user } = useAuth();

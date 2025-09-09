@@ -5,7 +5,7 @@ import ZoneModel from './ZoneModel';
 
 // 범용 존 뷰어 컴포넌트
 function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }) {
-  const modelPath = `/models/${zoneId.toUpperCase()}.glb`;
+  const modelPath = `/models/${zoneId.toUpperCase()}-meshopt.glb`;
   
   return (
     <div style={{ 
