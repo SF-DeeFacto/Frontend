@@ -49,17 +49,17 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
       <div
         className="modern-card relative overflow-hidden group"
         style={{
-          background: 'rgba(0, 0, 0, 0.95)',
+          background: 'rgba(0, 0, 0, 0.85)',
           color: 'white',
           padding: '20px',
           borderRadius: '16px',
           fontSize: '14px',
           fontWeight: 'bold',
-          boxShadow: '0 20px 40px rgba(0,0,0,0.6)',
-          border: `2px solid ${statusColor}40`,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          border: `1px solid ${statusColor}30`,
           width: '340px',
           height: '400px',
-          backdropFilter: 'blur(15px)',
+          backdropFilter: 'blur(12px)',
           transform: 'translateY(0)',
           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
@@ -67,7 +67,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
         {/* 헤더 */}
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/20">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400/80 to-purple-500/80 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">
                 {hoveredZone.toUpperCase().charAt(0)}
               </span>
@@ -79,12 +79,12 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
               <p className="text-xs text-gray-300">3D 모델 미리보기</p>
             </div>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}20` }}>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}15` }}>
             <div 
               className="w-3 h-3 rounded-full animate-pulse"
               style={{ 
                 backgroundColor: statusColor,
-                boxShadow: `0 0 8px ${statusColor}60`
+                boxShadow: `0 0 4px ${statusColor}40`
               }} 
             />
             <span 
@@ -97,9 +97,9 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
         </div>
         
         {/* 3D 모델 미리보기 */}
-        <div className="relative w-full h-72 bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-xl overflow-hidden border border-white/10 group">
+        <div className="relative w-full h-72 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 rounded-xl overflow-hidden border border-white/5 group">
           {/* 배경 그라디언트 효과 */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/5 to-pink-500/10"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-400/3 to-pink-400/5"></div>
           
           {/* 로딩 인디케이터 - Canvas 외부 */}
           {!isModelLoaded && (

@@ -33,17 +33,15 @@ function SimpleModel({ modelPath, onLoad }) {
         position={[0, 0, 0]}
       />
       
-      {/* 향상된 조명 설정 */}
-      <ambientLight intensity={0.4} />
+      {/* 부드러운 조명 설정 */}
+      <ambientLight intensity={0.6} />
       <directionalLight 
         position={[5, 10, 5]} 
-        intensity={1.2}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        intensity={0.8}
+        castShadow={false}
       />
-      <pointLight position={[-5, 5, -5]} intensity={0.3} color="#4f46e5" />
-      <pointLight position={[5, -5, 5]} intensity={0.2} color="#06b6d4" />
+      <pointLight position={[-5, 5, -5]} intensity={0.15} color="#4f46e5" />
+      <pointLight position={[5, -5, 5]} intensity={0.1} color="#06b6d4" />
     </group>
   );
 }
