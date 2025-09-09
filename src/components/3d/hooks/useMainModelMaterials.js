@@ -1,31 +1,19 @@
 import { useCallback } from 'react';
 import * as THREE from 'three';
-import { getStatus3DColor } from '../../../config/sensorConfig';
+import { getStatus3DColor, ZONE_MAPPING } from '../../../config/sensorConfig';
 
 export const useMainModelMaterials = () => {
   // Zone 상태 키 매핑 (API 응답 형식에 맞게 수정)
   const getZoneStatusKey = useCallback((meshName) => {
-    const zoneMapping = {
-      // 소문자 메쉬
-      'a01': 'A01',
-      'a02': 'A02',
-      'b01': 'B01',
-      'b02': 'B02',
-      'b03': 'B03',
-      'b04': 'B04',
-      'c01': 'C01',
-      'c02': 'C02',
-      // 대문자 메쉬
-      'A01': 'A01',
-      'A02': 'A02',
-      'B01': 'B01',
-      'B02': 'B02',
-      'B03': 'B03',
-      'B04': 'B04',
-      'C01': 'C01',
-      'C02': 'C02'
-    };
-    return zoneMapping[meshName];
+    // ZONE_MAPPING을 사용하되, 대소문자 모두 지원
+    const lowerCaseMapping = Object.fromEntries(
+      Object.entries(ZONE_MAPPING).map(([key, value]) => [key.toLowerCase(), value])
+    );
+    const upperCaseMapping = Object.fromEntries(
+      Object.entries(ZONE_MAPPING).map(([key, value]) => [key.toUpperCase(), value])
+    );
+    
+    return lowerCaseMapping[meshName] || upperCaseMapping[meshName] || ZONE_MAPPING[meshName];
   }, []);
 
   // Zone 상태에 따른 재질 업데이트

@@ -35,31 +35,8 @@ export const SYSTEM_CONFIG = {
 
 // ==================== 비즈니스 도메인 상수 ====================
 
-// 존(Zone) 관련
-export const ZONES = {
-  ALL: '전체',
-  A01: 'A01',
-  A02: 'A02', 
-  B01: 'B01',
-  B02: 'B02',
-  B03: 'B03',
-  B04: 'B04',
-  C01: 'C01',
-  C02: 'C02'
-};
-
-export const ZONE_LIST = Object.values(ZONES);
-
-export const ZONE_MAPPING = {
-  'a01': 'A01',
-  'a02': 'A02', 
-  'b01': 'B01',
-  'b02': 'B02',
-  'b03': 'B03',
-  'b04': 'B04',
-  'c01': 'C01',
-  'c02': 'C02'
-};
+// 존(Zone) 관련 - sensorConfig.js에서 import
+// ZONE_INFO, ZONE_MAPPING은 sensorConfig.js에서 관리
 
 // 센서 관련
 export const SENSORS = {
@@ -265,9 +242,6 @@ export const DATE_FORMATS = {
 
 export default {
   SYSTEM_CONFIG,
-  ZONES,
-  ZONE_LIST,
-  ZONE_MAPPING,
   SENSORS,
   SENSOR_LIST,
   USER_MANAGEMENT,

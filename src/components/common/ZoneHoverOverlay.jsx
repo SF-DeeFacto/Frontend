@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HoverCanvas } from '../3d/common/CanvasWrapper';
 import { BaseModel } from '../3d/common/BaseModel';
 import SensorIndicator from '../3d/zone/SensorIndicator';
-import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
+import { getStatusHexColor, getStatusText, ZONE_INFO } from '../../config/sensorConfig';
 import { getMeshoptModelPath } from '../../utils';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 
@@ -38,9 +38,9 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
     return getStatusText(status);
   };
 
-  // A01, A02, B01, B02는 왼쪽에, 나머지는 오른쪽에 표시
-  const leftZones = ['a01', 'a02', 'b01', 'b02', 'A01', 'A02', 'B01', 'B02'];
-  const isLeftZone = leftZones.includes(hoveredZone);
+  // A구역, B구역은 왼쪽에, C구역은 오른쪽에 표시
+  const leftZones = Object.keys(ZONE_INFO).filter(zone => zone.startsWith('A') || zone.startsWith('B'));
+  const isLeftZone = leftZones.includes(hoveredZone) || leftZones.includes(hoveredZone?.toUpperCase());
   const overlayPosition = isLeftZone ? 'left-4' : 'right-4';
 
   // 현재 존 상태
