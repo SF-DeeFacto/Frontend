@@ -1,5 +1,5 @@
 import React from 'react';
-import { Canvas } from '@react-three/fiber';
+import { MainCanvas } from '../common/CanvasWrapper';
 import MainModelViewer from '../main/MainModelViewer';
 import ModelCard from '../../common/ModelCard';
 import ZoneHoverOverlay from '../../common/ZoneHoverOverlay';
@@ -21,19 +21,12 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
         <div className="relative z-10 p-6 flex-1 flex flex-col">
           {/* 3D 모델 영역 */}
           <div className="flex-1 relative rounded-2xl overflow-hidden min-h-0">
-            <Canvas
-              camera={{ position: [5, 7, 5], fov: 45 }}
-              style={{ background: 'transparent' }}
-              onCreated={({ gl }) => {
-                gl.setClearColor(0x000000, 0); // 투명 배경
-              }}
-              shadows
-            >
+            <MainCanvas>
               <MainModelViewer 
                 zoneStatuses={zoneStatuses} 
                 onHoverZoneChange={onHoverZoneChange}
               />
-            </Canvas>
+            </MainCanvas>
             
             {/* 호버 오버레이 */}
             {hoveredZone && (

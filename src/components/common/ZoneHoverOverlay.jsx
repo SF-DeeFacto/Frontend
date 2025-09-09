@@ -1,7 +1,6 @@
-import React, { Suspense, useState, useEffect } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import SimpleModel from '../3d/main/SimpleModel';
+import React, { useState, useEffect } from 'react';
+import { HoverCanvas } from '../3d/common/CanvasWrapper';
+import { BaseModel } from '../3d/common/BaseModel';
 import SensorIndicator from '../3d/zone/SensorIndicator';
 import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
 import { getMeshoptModelPath } from '../../utils';
@@ -123,28 +122,18 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
             const modelPath = getMeshoptModelPath(zoneId);
             
             return (
-              <Canvas
-                camera={{ position: [10, 10, 10], fov: 75 }}
-                style={{ width: '100%', height: '100%' }}
+              <HoverCanvas
                 className="opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               >
-                <Suspense fallback={null}>
-                  <SimpleModel 
-                    modelPath={modelPath} 
-                    onLoad={() => setIsModelLoaded(true)}
-                    sensorData={sensorData}
-                    zoneId={hoveredZone}
-                  />
-                </Suspense>
-                <OrbitControls
-                  enablePan={false}
-                  enableZoom={false}
-                  autoRotate={true}
-                  autoRotateSpeed={0.8}
-                  enableDamping={true}
-                  dampingFactor={0.05}
+                <BaseModel 
+                  modelPath={modelPath} 
+                  onLoad={() => setIsModelLoaded(true)}
+                  sensorData={sensorData}
+                  zoneId={hoveredZone}
+                  lighting="soft"
+                  scale={[0.002, 0.002, 0.002]}
                 />
-              </Canvas>
+              </HoverCanvas>
             );
           })()}
         </div>
