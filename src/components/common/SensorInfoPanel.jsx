@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusEmoji, getStatusText } from '../../utils/sensorUtils';
+import { getStatusColor, getStatusEmoji, getStatusText, getSensorTypeFromName, getSensorTypeMapping } from '../../config/sensorConfig';
 import { COLORS } from '../../config/constants';
 
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
@@ -50,12 +50,7 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
             <div className="space-y-2">
               {/* 센서 타입 한글 이름 */}
               <h3 className="text-lg font-semibold text-white mb-2">
-                {selectedObject.name?.includes('TEMP') ? '온도센서' :
-                 selectedObject.name?.includes('HUM') ? '습도센서' :
-                 selectedObject.name?.includes('ESD') ? '정전기센서' :
-                 selectedObject.name?.includes('LPM') ? '먼지센서' :
-                 selectedObject.name?.includes('WD') ? '풍향센서' :
-                 '센서'}
+                {getSensorTypeMapping(getSensorTypeFromName(selectedObject.name))}센서
               </h3>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-400">센서 ID:</span>

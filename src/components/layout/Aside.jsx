@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import MenuItem from "./MenuItem";
 import Icon from '../common/Icon';
+import { ZONE_INFO } from '../../config/sensorConfig';
 import Text from '../common/Text';
 import { logout } from '../../services/api/auth';
 import { useAuth } from '../../hooks/useAuth';
@@ -51,16 +52,12 @@ const Aside = () => {
 
   // 사용자 scope에 따른 Zone 서브메뉴 아이템들 필터링
   const getAllZoneItems = () => {
-    const allZones = [
-      { label: 'A01', path: '/home/zone/a01', zoneId: 'a01', scope: 'a' },
-      { label: 'A02', path: '/home/zone/a02', zoneId: 'a02', scope: 'a' },
-      { label: 'B01', path: '/home/zone/b01', zoneId: 'b01', scope: 'b' },
-      { label: 'B02', path: '/home/zone/b02', zoneId: 'b02', scope: 'b' },
-      { label: 'B03', path: '/home/zone/b03', zoneId: 'b03', scope: 'b' },
-      { label: 'B04', path: '/home/zone/b04', zoneId: 'b04', scope: 'b' },
-      { label: 'C01', path: '/home/zone/c01', zoneId: 'c01', scope: 'c' },
-      { label: 'C02', path: '/home/zone/c02', zoneId: 'c02', scope: 'c' }
-    ];
+    const allZones = Object.entries(ZONE_INFO).map(([key, value]) => ({
+      label: key,
+      path: `/home/zone/${value.id}`,
+      zoneId: value.id,
+      scope: value.id[0] // 'a01' -> 'a'
+    }));
 
     // 사용자 scope가 없거나 문자열이 아니면 모든 구역 표시
     if (!user?.scope || typeof user.scope !== 'string') {
@@ -68,7 +65,10 @@ const Aside = () => {
     }
 
     // 사용자 scope에 따라 필터링
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
+    
     return allZones
       .filter(zone => userScopes.includes(zone.scope))
       .map(({ scope, ...zone }) => zone);

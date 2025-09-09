@@ -1,6 +1,5 @@
 import React from 'react';
-import { getStatusHexColor } from '../../config/sensorConfig';
-import { CONNECTION_STATE } from '../../types/sensor';
+import { getStatusHexColor, CONNECTION_STATE } from '../../config/sensorConfig';
 
 const ConnectionIndicator = ({ connectionState }) => {
   const getConnectionColor = (state) => {

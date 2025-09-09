@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
-import { CONNECTION_STATE } from '../types/sensor';
+import { groupSensorData, formatTime, SensorDataDebouncer, CONNECTION_STATE } from '../config/sensorConfig';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 import { connectZoneSSE } from '../services/sse';

@@ -22,7 +22,11 @@ const Equipset = ({ onTabChange }) => {
   const getInitialZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    // scope가 배열인지 문자열인지 확인
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
+    
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
   
@@ -214,7 +218,11 @@ const Equipset = ({ onTabChange }) => {
   const getAllowedZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    // scope가 배열인지 문자열인지 확인
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
+    
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
   

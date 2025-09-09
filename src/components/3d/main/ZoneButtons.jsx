@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../../types/sensor';
+import { getStatusHexColor, getStatusText, CONNECTION_STATE } from '../../../config/sensorConfig';
 import { COLORS } from '../../../config/constants';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
@@ -12,7 +11,11 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   const canAccessZone = (zoneId) => {
     // scope 정보가 없으면 전체 접근 허용
     if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     const zoneScope = (zoneId || '')[0]?.toLowerCase(); // 'a01' -> 'a'
     return scopes.includes(zoneScope);
   };

@@ -3,6 +3,7 @@ import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
+import { calculateMeshBounds, calculateIndicatorPosition, SENSOR_PATTERNS } from '../config/sensorConfig';
 
 // 공통 모델 로더 훅
 export const useModelLoader = (modelPath, options = {}) => {
@@ -23,11 +24,10 @@ export const useModelLoader = (modelPath, options = {}) => {
   // 센서 위치 찾기 함수
   const findSensorPositions = useCallback((scene) => {
     const foundSensors = {};
-    const sensorPatterns = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
     
     scene.traverse((child) => {
       if (child.isMesh && child.name) {
-        const isSensor = sensorPatterns.some(pattern => 
+        const isSensor = SENSOR_PATTERNS.some(pattern => 
           child.name.includes(pattern)
         );
         

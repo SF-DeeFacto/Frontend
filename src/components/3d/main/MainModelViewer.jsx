@@ -25,7 +25,10 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
       return true; // 안전하게 접근 허용
     }
     
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     return scopes.includes(zoneScope);
   };
 

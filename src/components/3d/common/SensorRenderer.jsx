@@ -1,6 +1,7 @@
 import React from 'react';
 import SensorIndicator from '../zone/SensorIndicator';
 import { getSensorStatus, getSensorInfo } from '../../../hooks/useModelLoader';
+import { getSensorTypeFromName } from '../../../config/sensorConfig';
 
 // 센서 렌더링 컴포넌트
 export const SensorRenderer = ({ 
@@ -33,7 +34,7 @@ export const SensorRenderer = ({
                   position: sensorPositionData.position,
                   status,
                   id: sensorName,
-                  type: getSensorType(sensorName),
+                  type: getSensorTypeFromName(sensorName),
                   sensorInfo
                 });
               }
@@ -45,13 +46,3 @@ export const SensorRenderer = ({
   );
 };
 
-// 센서 타입 분류 함수
-const getSensorType = (name) => {
-  if (name.includes('ESD')) return 'ESD';
-  if (name.includes('Handle')) return 'Handle';
-  if (name.includes('HUM')) return 'Humidity';
-  if (name.includes('WD')) return 'WaterDetector';
-  if (name.includes('TEM')) return 'Temperature';
-  if (name.includes('LPM')) return 'Particle';
-  return 'Unknown';
-};

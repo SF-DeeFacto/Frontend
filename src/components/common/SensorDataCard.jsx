@@ -1,9 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { getSensorTypeConfig } from '../../config/sensorConfig';
-import { isSensorValueValid, getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../types/sensor';
+import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText, CONNECTION_STATE } from '../../config/sensorConfig';
 
 /**
  * 센서 데이터 카드 컴포넌트
@@ -18,7 +16,11 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
   const canAccessZone = (zoneId) => {
     if (!zoneId) return false;
     if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     const zoneScope = zoneId[0]?.toLowerCase();
     return scopes.includes(zoneScope);
   };

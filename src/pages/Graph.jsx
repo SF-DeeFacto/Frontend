@@ -14,7 +14,10 @@ const Graph = () => {
     if (!zoneValue) return false;
     if (zoneValue === '전체') return true;
     if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map(s => s.trim().toLowerCase());
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map(s => s.trim().toLowerCase());
+    
     const zoneScope = String(zoneValue)[0]?.toLowerCase();
     return scopes.includes(zoneScope);
   };
@@ -42,7 +45,10 @@ const Graph = () => {
     }
 
     // 사용자 scope에 따라 필터링
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
+    
     return allZones
       .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
       .map(zone => zone.value);

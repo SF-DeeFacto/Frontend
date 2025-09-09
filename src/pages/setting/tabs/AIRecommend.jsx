@@ -351,7 +351,10 @@ const AIRecommend = () => {
                   );
                 }
                 
-                const userScopes = user.scope.split(',').map(s => s.trim());
+                const userScopes = Array.isArray(user.scope) 
+                  ? user.scope 
+                  : user.scope.split(',').map(s => s.trim());
+                
                 const allowedZones = [];
                 
                 if (userScopes.includes('a')) allowedZones.push(<option key="a" value="a">A구역</option>);
