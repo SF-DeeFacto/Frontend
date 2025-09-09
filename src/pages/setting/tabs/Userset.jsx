@@ -61,8 +61,6 @@ const Userset = () => {
           employeeId: trimmedTerm
         };
         
-        console.log('이름 검색 파라미터:', nameSearchParams);
-        console.log('사번 검색 파라미터:', employeeIdSearchParams);
         
         // 두 검색을 병렬로 실행
         const [nameResponse, employeeIdResponse] = await Promise.all([
@@ -92,7 +90,6 @@ const Userset = () => {
           size: size || pagination.size || 10
         };
         
-        console.log('전체 조회 파라미터:', searchParams);
         const response = await userService.searchUsers(searchParams);
         
         if (response && response.data) {
@@ -118,7 +115,6 @@ const Userset = () => {
         totalPages: totalPages
       });
       
-      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
       const errorInfo = handleApiError(error, '사용자 목록 로드');
@@ -158,13 +154,11 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
     setEditingUser(prev => {
       const updated = {
         ...prev,
         [key]: value
       };
-      console.log('수정된 사용자 정보:', updated); // 디버깅용
       return updated;
     });
   };
@@ -188,7 +182,6 @@ const Userset = () => {
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
-        console.log('등록 요청 데이터:', userData); // 디버깅용
         
         await userService.registerUser(userData);
         
@@ -243,8 +236,6 @@ const Userset = () => {
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
         
-        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
-        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
         
         await userService.updateUser(userData);
         
@@ -333,10 +324,6 @@ const Userset = () => {
   // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
   const filteredUsers = users;
   
-  // 디버깅: users 상태 확인
-  console.log('현재 users 상태:', users);
-  console.log('filteredUsers:', filteredUsers);
-  console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">
@@ -834,7 +821,6 @@ const Userset = () => {
                     <select
                       value={editingUser.scope || 'a,b,c'}
                       onChange={(e) => {
-                        console.log('구역범위 변경:', e.target.value); // 디버깅용
                         handleEditUserChange('scope', e.target.value);
                       }}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"

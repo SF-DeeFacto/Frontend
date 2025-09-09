@@ -66,8 +66,6 @@ export const useUserSearch = () => {
     const trimmedTerm = searchTerm.trim();
     const searchParams = { page, size: size || pagination.size };
     
-    console.log('이름 검색 파라미터:', { ...searchParams, name: trimmedTerm });
-    console.log('사번 검색 파라미터:', { ...searchParams, employeeId: trimmedTerm });
     
     // 두 검색을 병렬로 실행
     const [nameResponse, employeeIdResponse] = await Promise.all([
@@ -104,7 +102,6 @@ export const useUserSearch = () => {
   const searchAllUsers = async (page, size) => {
     const searchParams = { page, size: size || pagination.size };
     
-    console.log('전체 조회 파라미터:', searchParams);
     const response = await userService.searchUsers(searchParams);
     
     return extractUserData(response);
@@ -139,7 +136,6 @@ export const useUserSearch = () => {
         totalPages: searchResults.totalPages
       });
       
-      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
       const errorInfo = handleApiError(error, '사용자 목록 로드');

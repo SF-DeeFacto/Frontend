@@ -6,10 +6,6 @@ import { SENSOR_STATUS } from '../../config/sensorConfig';
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;
 
-  // 디버깅: 센서 상태 확인
-  console.log('SensorInfoPanel - selectedObject:', selectedObject);
-  console.log('SensorInfoPanel - status:', selectedObject.status);
-  console.log('SensorInfoPanel - statusColor:', getStatusColor(selectedObject.status));
 
   return (
     <div className="absolute top-4 right-4 bg-gray-900 bg-opacity-95 text-white rounded-lg shadow-2xl z-50 min-w-80 max-w-96 backdrop-blur-sm border border-gray-700">

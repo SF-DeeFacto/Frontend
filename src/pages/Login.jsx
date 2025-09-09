@@ -75,7 +75,6 @@ const Login = () => {
         setError(result.error);
       }
     } catch (e) {
-      console.log('백엔드 연동 실패');
       setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);

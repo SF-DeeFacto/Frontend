@@ -29,13 +29,10 @@ const SensorListTab = () => {
         size: 100 // 충분히 큰 크기로 설정
       };
       
-      console.log('🚀 센서 목록 조회 시작');
-      console.log('📋 요청 파라미터:', params);
       
       const result = await sensorApi.getSensors(params);
       if (!isMounted) return;
       
-      console.log('✅ 센서 목록 조회 성공:', result);
       
       if (result.success) {
         const payload = result.data;

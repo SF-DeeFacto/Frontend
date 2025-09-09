@@ -60,17 +60,14 @@ const AIRecommend = () => {
   // 승인 처리
   const handleApprove = async (id) => {
     try {
-      console.log('승인 처리 시작:', id);
       setLoading(true);
       
       const result = await aiRecommendService.updateRecommendationStatus(id, 'APPROVE');
-      console.log('승인 API 결과:', result);
       
       alert('임계치 추천이 승인되어 적용되었습니다.');
       
       // 데이터 다시 로드
       await loadRecommendations();
-      console.log('데이터 재로드 완료');
       
     } catch (err) {
       console.error('승인 처리 실패:', err);
@@ -89,17 +86,14 @@ const AIRecommend = () => {
     }
 
     try {
-      console.log('거부 처리 시작:', id);
       setLoading(true);
       
       const result = await aiRecommendService.updateRecommendationStatus(id, 'REJECT');
-      console.log('거부 API 결과:', result);
       
       alert('임계치 추천이 거부되었습니다.');
       
       // 데이터 다시 로드
       await loadRecommendations();
-      console.log('데이터 재로드 완료');
       
     } catch (err) {
       console.error('거부 처리 실패:', err);
@@ -232,8 +226,6 @@ const AIRecommend = () => {
     );
   }
 
-  console.log('임계치 추천 렌더링:', {
-    recommendationsLength: recommendations.length,
     filteredRecommendationsLength: filteredRecommendations.length,
     selectedRecommendation,
     loading,
@@ -426,7 +418,6 @@ const AIRecommend = () => {
               {filteredRecommendations.map((rec) => (
                 <tr key={rec.id} 
                     onClick={() => {
-                      console.log('행 클릭됨:', rec);
                       setSelectedRecommendation(rec);
                     }}
                     className={`cursor-pointer hover:bg-gray-50 ${
@@ -492,7 +483,6 @@ const AIRecommend = () => {
           <div
             key={rec.id}
             onClick={() => {
-              console.log('카드 클릭됨:', rec);
               setSelectedRecommendation(rec);
             }}
             className={`bg-white rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow ${
@@ -723,7 +713,6 @@ const AIRecommend = () => {
                         <button
                           onClick={async () => {
                             try {
-                              console.log('승인 클릭:', selectedRecommendation.id);
                               await handleApprove(selectedRecommendation.id);
                               setSelectedRecommendation(null);
                             } catch (error) {
@@ -739,7 +728,6 @@ const AIRecommend = () => {
                         <button
                           onClick={async () => {
                             try {
-                              console.log('거부 클릭:', selectedRecommendation.id);
                               await handleReject(selectedRecommendation.id);
                               setSelectedRecommendation(null);
                             } catch (error) {
