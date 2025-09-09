@@ -21,7 +21,7 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
         <div className="relative z-10 p-6 flex-1 flex flex-col">
           {/* 3D 모델 영역 */}
           <div className="flex-1 relative rounded-2xl overflow-hidden min-h-0">
-            <MainCanvas>
+            <MainCanvas orbitControls={false}>
               <MainModelViewer 
                 zoneStatuses={zoneStatuses} 
                 onHoverZoneChange={onHoverZoneChange}

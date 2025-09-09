@@ -73,6 +73,7 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
       onPointerOut={handlePointerOut}
       zoneStatuses={zoneStatuses}
       updateZoneMaterials={updateZoneMaterials}
+      autoCenter={false}
     />
   );
 }

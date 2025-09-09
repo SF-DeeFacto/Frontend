@@ -17,9 +17,11 @@ export const BaseModel = ({
   children,
   zoneStatuses,
   updateZoneMaterials,
+  autoCenter = true,
   ...props 
 }) => {
   const { gltf, isLoaded, sensorPositions } = useModelLoader(modelPath, {
+    autoCenter,
     onLoad: (loadedGltf) => {
       if (onLoad) onLoad(loadedGltf);
     }
