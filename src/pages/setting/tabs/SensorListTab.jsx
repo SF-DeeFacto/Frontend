@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
-import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
+import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER, ZONE_INFO } from '../../../config/sensorConfig';
 import { useAuth } from '../../../hooks/useAuth';
 
 const SensorListTab = () => {
@@ -24,7 +24,7 @@ const SensorListTab = () => {
       
       const params = {
         sensorType: filterType !== 'all' ? filterType : undefined,
-        zoneId: filterZone !== 'all' ? filterZone : undefined,
+        zoneId: filterZone !== 'all' ? filterZone.toLowerCase() : undefined,
         page: 0,
         size: 100 // 충분히 큰 크기로 설정
       };
@@ -88,20 +88,31 @@ const SensorListTab = () => {
   
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
-    if (!user?.scope) return ['all', 'a', 'b', 'c']; // scope가 없으면 전체 구역
+    // ZONE_INFO에서 동적으로 구역 목록 생성
+    const allZones = Object.keys(ZONE_INFO).map(zoneId => ({
+      value: zoneId,
+      scope: zoneId[0].toLowerCase() // A01 -> 'a', B01 -> 'b', C01 -> 'c'
+    }));
     
-    // scope가 배열인지 문자열인지 확인
+    // '전체' 옵션 추가
+    allZones.unshift({ value: 'all', scope: null });
+
+
+    // 사용자 scope가 없으면 모든 구역 표시
+    if (!user?.scope) {
+      return allZones.map(zone => zone.value);
+    }
+
+    // 사용자 scope에 따라 필터링 (배열과 문자열 모두 처리)
     const userScopes = Array.isArray(user.scope) 
-      ? user.scope 
-      : user.scope.split(',').map(s => s.trim());
+      ? user.scope.map(s => s.trim().toLowerCase()) // 이미 배열이면 소문자 변환
+      : user.scope.split(',').map(s => s.trim().toLowerCase()); // 문자열이면 split 후 소문자 변환
     
-    const allowedZones = ['all']; // '전체' 옵션은 항상 포함
+    const filteredZones = allZones
+      .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
+      .map(zone => zone.value);
     
-    if (userScopes.includes('a')) allowedZones.push('a');
-    if (userScopes.includes('b')) allowedZones.push('b');
-    if (userScopes.includes('c')) allowedZones.push('c');
-    
-    return allowedZones;
+    return filteredZones;
   };
   
   const zones = getAllowedZones();
@@ -173,7 +184,7 @@ const SensorListTab = () => {
             >
               {zones.map(zone => (
                 <option key={zone} value={zone}>
-                  {zone === 'all' ? '전체' : `${zone.toUpperCase()}구역`}
+                  {zone === 'all' ? '전체' : zone}
                 </option>
               ))}
             </select>

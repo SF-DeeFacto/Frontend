@@ -53,7 +53,7 @@ const Login = () => {
         position: dummyUser.position,
         role: dummyUser.role,
         gender: dummyUser.gender,
-        scope: ['A', 'B', 'C'], // 기본 권한 추가
+        scope: dummyUser.scope.split(',').map(s => s.trim().toLowerCase()), // 더미 사용자 scope 사용
         shift: dummyUser.shift,
         active: true,
         createdAt: dummyUser.created_at,
