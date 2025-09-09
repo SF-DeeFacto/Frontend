@@ -14,17 +14,17 @@ function SimpleModel({ modelPath }) {
   
   // 모델을 중심으로 위치 조정
   useEffect(() => {
-    if (gltf.scene) {
-      const box = new THREE.Box3().setFromObject(gltf.scene);
+    if (scene) {
+      const box = new THREE.Box3().setFromObject(scene);
       const center = box.getCenter(new THREE.Vector3());
-      gltf.scene.position.sub(center);
+      scene.position.sub(center);
     }
-  }, [gltf]);
+  }, [scene]);
 
   return (
     <group>
       <primitive 
-        object={gltf.scene} 
+        object={scene} 
         scale={[0.002, 0.002, 0.002]}
         position={[0, 0, 0]}
       />

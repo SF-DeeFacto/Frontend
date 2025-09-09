@@ -17,12 +17,15 @@ export const useAlarmData = (pageSize = 7) => {
   /**
    * 알림 목록 가져오기
    */
-  const fetchAlarms = useCallback(async (page = 0) => {
+  const fetchAlarms = useCallback(async (page = 0, filters = {}) => {
     try {
       setLoading(true);
       setError(null);
       
-      const response = await notificationApi.getNotifications(page, pageSize);
+      // 필터 파라미터 설정
+      const { isRead = null, isFlagged = null } = filters;
+      
+      const response = await notificationApi.getNotifications(page, pageSize, isRead, isFlagged);
       const { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements } = mapAlarmList(response);
       
       setAlarms(newAlarms);
@@ -30,7 +33,7 @@ export const useAlarmData = (pageSize = 7) => {
       setTotalElements(newTotalElements);
       setCurrentPage(page);
       
-      // console.log(`알림 ${newAlarms.length}개 로드됨 (총 ${newTotalElements}개)`);
+      console.log(`알림 ${newAlarms.length}개 로드됨 (총 ${newTotalElements}개)`, { filters, page });
       
       return { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements };
     } catch (error) {
@@ -89,7 +92,7 @@ export const useAlarmData = (pageSize = 7) => {
       setAlarms(prev => 
         prev.map(alarm => 
           alarm.id === alarmId 
-            ? { ...alarm, isRead: true, status: '읽음' }
+            ? { ...alarm, isRead: true, status: '읽음', readStatus: true }
             : alarm
         )
       );
@@ -128,7 +131,7 @@ export const useAlarmData = (pageSize = 7) => {
       setAlarms(prev => 
         prev.map(alarm => 
           alarm.id === alarmId 
-            ? { ...alarm, isFavorite: !alarm.isFavorite }
+            ? { ...alarm, isFavorite: !alarm.isFavorite, flagStatus: !alarm.flagStatus }
             : alarm
         )
       );
@@ -153,7 +156,7 @@ export const useAlarmData = (pageSize = 7) => {
         prev.map(alarm => 
           alarm.isRead 
             ? alarm 
-            : { ...alarm, isRead: true, status: '읽음' }
+            : { ...alarm, isRead: true, status: '읽음', readStatus: true }
         )
       );
       

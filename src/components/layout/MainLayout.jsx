@@ -55,7 +55,7 @@ const MainLayout = () => {
           )}
           
           <div className="relative z-10 px-8 pb-8">
-            <div className="animate-fade-in">
+            <div className="transition-opacity duration-200 ease-in-out">
               <Outlet />
             </div>
           </div>

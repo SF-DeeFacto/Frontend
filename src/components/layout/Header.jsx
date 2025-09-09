@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Settings, 
@@ -22,6 +22,76 @@ import { notificationApi } from '../../services/api/notification_api';
 import { weatherApi } from '../../services/api/weather_api';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../contexts/ThemeContext';
+
+// 전역 로고 상태 관리 - 페이지 이동 시에도 상태 유지
+let globalLogoLoaded = false;
+let globalLogoError = false;
+
+// 로고 컴포넌트 - Header 외부에서 정의하여 리렌더링 방지
+const Logo = memo(() => {
+  const [logoImageLoaded, setLogoImageLoaded] = useState(globalLogoLoaded);
+  const [logoImageError, setLogoImageError] = useState(globalLogoError);
+
+  // 전역 상태와 동기화
+  useEffect(() => {
+    setLogoImageLoaded(globalLogoLoaded);
+    setLogoImageError(globalLogoError);
+  }, []);
+
+  const handleLogoLoad = () => {
+    globalLogoLoaded = true;
+    setLogoImageLoaded(true);
+  };
+
+  const handleLogoError = () => {
+    globalLogoError = true;
+    globalLogoLoaded = false;
+    setLogoImageError(true);
+    setLogoImageLoaded(false);
+  };
+
+  const styles = {
+    logo: {
+      display: 'flex',
+      alignItems: 'center',
+      cursor: 'pointer',
+      transition: 'transform 0.2s ease',
+      userSelect: 'none'
+    },
+    logoIcon: {
+      fontSize: '48px',
+      filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.1))'
+    }
+  };
+
+  return (
+    <div className="flex items-center" style={styles.logo}>
+      {!logoImageError && (
+        <img 
+          src="/logo2.png" 
+          alt="DeeFacto Logo" 
+          className="w-[47px] h-[40px] opacity-100"
+          onLoad={handleLogoLoad}
+          onError={handleLogoError}
+          style={{ 
+            display: logoImageError ? 'none' : 'block',
+            minWidth: '47px',
+            minHeight: '40px',
+            objectFit: 'contain'
+          }}
+        />
+      )}
+      {logoImageError && (
+        <span 
+          className="flex items-center justify-center w-[50px] h-[50px] text-4xl"
+          style={styles.logoIcon}
+        >
+          🧊
+        </span>
+      )}
+    </div>
+  );
+});
 
 const Header = () => {
   const navigate = useNavigate();
@@ -125,8 +195,8 @@ const Header = () => {
     return () => clearInterval(timer); // 컴포넌트 언마운트 시 타이머 정리
   }, []);
 
-  // 현재 시간 정보 가져오기
-  const getCurrentTimeInfo = () => {
+  // 현재 시간 정보 가져오기 - 메모이제이션으로 최적화
+  const getCurrentTimeInfo = useCallback(() => {
     const dateString = currentTime.toLocaleDateString();
     const weekdayString = `(${currentTime.toLocaleDateString('ko-KR', { weekday: 'short' })})`;
     const timeString = currentTime.toLocaleTimeString([], { 
@@ -135,7 +205,7 @@ const Header = () => {
     });
     
     return { dateString, weekdayString, timeString };
-  };
+  }, [currentTime]);
 
   // 스타일 객체들 - 브랜드 색상 적용하면서 심플한 디자인
   const styles = {
@@ -165,37 +235,10 @@ const Header = () => {
     },
   };
 
-  const { dateString, weekdayString, timeString } = getCurrentTimeInfo();
+  // 시간 정보 메모이제이션
+  const timeInfo = useMemo(() => getCurrentTimeInfo(), [getCurrentTimeInfo]);
+  const { dateString, weekdayString, timeString } = timeInfo;
 
-  // 로고 컴포넌트
-  const Logo = () => (
-    <div className="flex items-center" style={styles.logo}>
-      <img 
-        src="/logo2.png" 
-        alt="DeeFacto Logo" 
-        className="w-[47px] h-[40px]"
-        onError={(e) => {
-          e.target.style.display = 'none';
-          e.target.nextSibling.style.display = 'flex';
-        }}
-      />
-      <span 
-        className="flex items-center justify-center w-[50px] h-[50px] text-4xl hidden"
-        style={{ ...styles.logoIcon, display: 'none' }}
-      >
-        🧊
-      </span>
-      {/* <Text
-        variant="title"
-        size="xl"
-        weight="extrabold"
-        color="blue-600"
-        className="ml-3"
-      >
-        Deefacto
-      </Text> */}
-    </div>
-  );
 
   // 날씨 설명을 한국어로 번역하는 함수
   const translateWeatherDescription = (description) => {
@@ -353,7 +396,13 @@ const Header = () => {
   // 로딩 중이면 스피너 표시
   if (isLoading) {
     return (
-      <header className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft transition-colors duration-300">
+      <header 
+        className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft"
+        style={{ 
+          transition: 'background-color 0.2s ease, border-color 0.2s ease',
+          willChange: 'auto'
+        }}
+      >
         <Logo />
         <div className="flex-1"></div>
         <div className="flex items-center gap-2">
@@ -366,7 +415,11 @@ const Header = () => {
 
   return (
     <header 
-      className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft transition-colors duration-300" 
+      className="flex w-full h-[60px] justify-between items-center flex-shrink-0 relative z-50 px-6 bg-gradient-to-r from-brand-light/95 to-brand-medium/95 dark:from-neutral-800/95 dark:to-neutral-700/95 backdrop-blur-md border-b border-white/20 dark:border-neutral-700/30 shadow-soft" 
+      style={{ 
+        transition: 'background-color 0.2s ease, border-color 0.2s ease',
+        willChange: 'auto'
+      }}
     >
       <Logo />
       

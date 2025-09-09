@@ -22,8 +22,9 @@ const EmptyState = () => (
 
 // 메인 알림 컴포넌트
 const Alarm = () => {
-  const [alarmType, setAlarmType] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
+  const [alarmType, setAlarmType] = useState('전체');
+  const [statusFilter, setStatusFilter] = useState('전체');
+  const [readStatusFilter, setReadStatusFilter] = useState('전체');
   const pageSize = 7;
 
   // 커스텀 훅 사용
@@ -70,27 +71,59 @@ const Alarm = () => {
     30000
   );
 
-  // 초기 데이터 로드
+  // 필터에 따른 데이터 로드
   useEffect(() => {
-    fetchAlarms(currentPage);
-  }, [fetchAlarms, currentPage]);
+    const filters = {};
+    
+    // 읽음 상태 필터 설정
+    if (readStatusFilter === '읽음') {
+      filters.isRead = true;
+    } else if (readStatusFilter === '안읽음') {
+      filters.isRead = false;
+    }
+    
+    // 즐겨찾기 필터 설정
+    if (statusFilter === '즐겨찾기') {
+      filters.isFlagged = true;
+    }
+    
+    console.log('필터 변경으로 인한 데이터 재로드:', { filters, currentPage });
+    fetchAlarms(currentPage, filters);
+  }, [fetchAlarms, currentPage, readStatusFilter, statusFilter]);
 
-  // 필터링된 알림 목록 (메모이제이션)
+  // 서버에서 필터링된 알림 목록 (클라이언트 사이드 필터링 제거)
   const filteredAlarms = useMemo(() => {
-    return getFilteredAlarms(alarms, alarmType, statusFilter);
-  }, [alarms, alarmType, statusFilter]);
+    // 알림 타입만 클라이언트에서 필터링 (서버에서 지원하지 않을 수 있음)
+    let filtered = alarms;
+    
+    if (alarmType && alarmType !== '전체') {
+      filtered = alarms.filter(alarm => {
+        const alarmNotiType = alarm.notiType || alarm.type;
+        return alarmNotiType === alarmType || (alarmType === '알림' && alarmNotiType === 'ALERT');
+      });
+    }
+    
+    console.log('클라이언트 필터링 결과:', { 
+      alarmType, 
+      totalAlarms: alarms.length, 
+      filteredCount: filtered.length 
+    });
+    
+    return filtered;
+  }, [alarms, alarmType]);
 
   // 필터 변경 핸들러
-  const handleFilterChange = useCallback((newType, newStatus) => {
-    if (shouldResetPage(alarmType, statusFilter, newType, newStatus)) {
+  const handleFilterChange = useCallback((newType, newStatus, newReadStatus) => {
+    if (shouldResetPage(alarmType, statusFilter, readStatusFilter, newType, newStatus, newReadStatus)) {
       changePage(0);
     }
     setAlarmType(newType);
     setStatusFilter(newStatus);
-  }, [alarmType, statusFilter, changePage]);
+    setReadStatusFilter(newReadStatus);
+  }, [alarmType, statusFilter, readStatusFilter, changePage]);
 
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8">
       {/* 로딩 및 에러 상태 표시 */}
       {loading && (
         <LoadingSpinner 
@@ -115,9 +148,11 @@ const Alarm = () => {
       {/* 상단 필터 섹션 */}
       <AlarmFilters
         alarmType={alarmType}
-        setAlarmType={(type) => handleFilterChange(type, statusFilter)}
+        setAlarmType={(type) => handleFilterChange(type, statusFilter, readStatusFilter)}
         statusFilter={statusFilter}
-        setStatusFilter={(status) => handleFilterChange(alarmType, status)}
+        setStatusFilter={(status) => handleFilterChange(alarmType, status, readStatusFilter)}
+        readStatusFilter={readStatusFilter}
+        setReadStatusFilter={(readStatus) => handleFilterChange(alarmType, statusFilter, readStatus)}
         onMarkAllAsRead={markAllAsRead}
         hasUnreadAlarms={hasUnreadAlarms}
       />
@@ -127,8 +162,12 @@ const Alarm = () => {
         {filteredAlarms.map((alarm, index) => (
           <div 
             key={alarm.id} 
-            className="animate-slide-up"
-            style={{ animationDelay: `${index * 50}ms` }}
+            className="transition-all duration-200 ease-in-out"
+            style={{ 
+              opacity: 1,
+              transform: 'translateY(0)',
+              transitionDelay: `${index * 20}ms`
+            }}
           >
             <AlarmCard
               alarm={alarm}

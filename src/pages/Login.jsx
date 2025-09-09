@@ -60,7 +60,6 @@ const Login = () => {
         updatedAt: dummyUser.updated_at
       }));
       
-      console.log('더미 데이터로 로그인 성공:', dummyUser);
       setIsLoading(false);
       navigate('/home');
       return;
