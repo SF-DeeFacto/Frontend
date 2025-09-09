@@ -1,6 +1,7 @@
 import React from 'react';
 import { getStatusColor, getStatusEmoji, getStatusText, getSensorTypeFromName, getSensorTypeMapping } from '../../config/sensorConfig';
 import { COLORS } from '../../config/constants';
+import { SENSOR_STATUS } from '../../config/sensorConfig';
 
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;
@@ -18,10 +19,10 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
           <div 
             className={`w-3 h-3 rounded-full ${getStatusColor(selectedObject.status)}`}
             style={{ 
-              backgroundColor: selectedObject.status === 'normal' || selectedObject.status === 'GREEN' ? COLORS.SUCCESS :
-                              selectedObject.status === 'warning' || selectedObject.status === 'YELLOW' ? COLORS.WARNING :
-                              selectedObject.status === 'error' || selectedObject.status === 'RED' ? COLORS.DANGER :
-                              selectedObject.status === 'unknown' || selectedObject.status === 'DISCONNECTED' ? COLORS.SECONDARY :
+              backgroundColor: selectedObject.status === 'normal' || selectedObject.status === SENSOR_STATUS.GREEN ? COLORS.SUCCESS :
+                              selectedObject.status === 'warning' || selectedObject.status === SENSOR_STATUS.YELLOW ? COLORS.WARNING :
+                              selectedObject.status === 'error' || selectedObject.status === SENSOR_STATUS.RED ? COLORS.DANGER :
+                              selectedObject.status === 'unknown' || selectedObject.status === SENSOR_STATUS.DISCONNECTED ? COLORS.SECONDARY :
                               COLORS.INFO // 기본값 (연결중)
             }}
           ></div>

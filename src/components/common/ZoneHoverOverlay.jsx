@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { HoverCanvas } from '../3d/common/CanvasWrapper';
 import { BaseModel } from '../3d/common/BaseModel';
 import SensorIndicator from '../3d/zone/SensorIndicator';
-import { getStatusHexColor, getStatusText, ZONE_INFO } from '../../config/sensorConfig';
+import { getStatusHexColor, getStatusText, ZONE_INFO, SENSOR_STATUS } from '../../config/sensorConfig';
 import { getModelPath } from '../../config/sensorConfig';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 
@@ -23,7 +23,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const getZoneStatus = (hoveredZone) => {
     // 대문자로 변환하여 zoneStatuses에서 찾기
     const zoneKey = hoveredZone.toUpperCase();
-    return zoneStatuses?.[zoneKey] || 'CONNECTING';
+    return zoneStatuses?.[zoneKey] || SENSOR_STATUS.CONNECTING;
   };
 
   // 호버된 존의 상태 색상을 가져오는 함수
@@ -80,7 +80,6 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
               <h3 className="text-lg font-bold text-white">
                 Zone {hoveredZone.toUpperCase()}
               </h3>
-              <p className="text-xs text-gray-300">3D 모델 미리보기</p>
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}15` }}>

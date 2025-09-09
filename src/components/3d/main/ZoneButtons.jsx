@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { getStatusHexColor, getStatusText, CONNECTION_STATE } from '../../../config/sensorConfig';
+import { getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../../config/sensorConfig';
 import { COLORS } from '../../../config/constants';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
@@ -42,7 +42,7 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
     const lastUpdate = lastUpdated[zoneName];
     
     return {
-      status: status || 'CONNECTING',
+      status: status || SENSOR_STATUS.CONNECTING,
       isRealtime: connectionStates.mainSSE === CONNECTION_STATE.CONNECTED,
       connectionState: connectionStates.mainSSE || CONNECTION_STATE.DISCONNECTED,
       lastUpdate,
@@ -83,14 +83,12 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
                 </h3>
               </div>
               
-              {/* 상태 인디케이터 */}
+              {/*TODO: 상태 인디케이터 */}
               <div 
-                className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 flex-shrink-0 ${
-                  connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
-                }`}
+                className="w-4 h-4 rounded-full animate-pulse"
                 style={{ 
                   backgroundColor: statusColor,
-                  boxShadow: `0 0 15px ${statusColor}30`
+                  boxShadow: `0 0 6px ${statusColor}40`
                 }}
                 title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>

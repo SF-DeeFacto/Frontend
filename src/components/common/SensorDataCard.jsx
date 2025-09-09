@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText, CONNECTION_STATE } from '../../config/sensorConfig';
+import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../config/sensorConfig';
 
 /**
  * 센서 데이터 카드 컴포넌트
@@ -122,10 +122,10 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
                 sensorData.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
               }`}
               style={{ 
-                backgroundColor: getStatusHexColor(sensorData.status || 'CONNECTING'),
-                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || 'CONNECTING')}30`
+                backgroundColor: getStatusHexColor(sensorData.status || SENSOR_STATUS.CONNECTING),
+                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || SENSOR_STATUS.CONNECTING)}30`
               }}
-              title={`상태: ${getStatusText(sensorData.status || 'CONNECTING')} | 연결: ${sensorData.connectionState || 'DISCONNECTED'}`}
+              title={`상태: ${getStatusText(sensorData.status || SENSOR_STATUS.CONNECTING)} | 연결: ${sensorData.connectionState || CONNECTION_STATE.DISCONNECTED}`}
             ></div>
           </div>
         </div>

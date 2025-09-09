@@ -25,6 +25,7 @@ function SensorIndicator({ position, status, onClick, sensorName, sensorData }) 
   };
 
   // 상태별 애니메이션 프로파일
+  // TODO: 자열 비교를 사용하고 있으므로 상수로 변경하기 어렵
   const animationProfile = useMemo(() => {
     const base = { breathSpeed: 0.6, breathAmp: 0.08, rippleSpeed: 1.2, rippleDuration: 1.2 };
     switch ((status || '').toString().toUpperCase()) {

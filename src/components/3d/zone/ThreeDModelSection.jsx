@@ -36,7 +36,7 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
               />
             )}
             
-            {/* 호버 힌트 */}
+            {/* TODO: 호버 힌트 - 주석 처리됨
             {!hoveredZone && (
               <div className="absolute top-4 left-4 bg-black/60 text-white px-4 py-2 rounded-xl text-sm font-medium backdrop-blur-sm">
                 <div className="flex items-center gap-2">
@@ -45,6 +45,7 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
                 </div>
               </div>
             )}
+            */}
             
             {/* 컨트롤 힌트 */}
             <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-2 rounded-xl text-xs font-medium backdrop-blur-sm">
