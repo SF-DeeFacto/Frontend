@@ -226,11 +226,6 @@ const AIRecommend = () => {
     );
   }
 
-    filteredRecommendationsLength: filteredRecommendations.length,
-    selectedRecommendation,
-    loading,
-    error
-  });
 
   return (
     <div>

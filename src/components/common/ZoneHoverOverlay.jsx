@@ -130,7 +130,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                   sensorData={sensorData}
                   zoneId={hoveredZone}
                   lighting="soft"
-                  scale={[0.002, 0.002, 0.002]}
+                  scale={[0.0018, 0.0018, 0.0018]}
+                  position={[0, 0, 0]}
                 />
               </HoverCanvas>
             );
