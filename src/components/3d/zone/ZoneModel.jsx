@@ -107,7 +107,11 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
   const calculateSensorPositions = () => {
     if (!gltf.scene) return;
 
-
+    // 모든 메쉬 이름 확인
+    console.log("All meshes in scene:");
+    gltf.scene.traverse(obj => {
+      if (obj.isMesh) console.log(obj.name);
+    });
 
     // 월드 매트릭스 업데이트
     gltf.scene.updateWorldMatrix(true, true);
