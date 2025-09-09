@@ -247,6 +247,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
             position={sensorPositionData.position}
             status={actualStatus} // 실제 센서 상태 사용
             sensorName={meshName} // 실제 센서 이름 사용
+            sensorData={sensorData} // 센서 데이터 전달
             onClick={() => handleSensorClick({ 
               name: meshName, 
               position: sensorPositionData.position, 
