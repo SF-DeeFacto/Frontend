@@ -3,7 +3,7 @@ import { HoverCanvas } from '../3d/common/CanvasWrapper';
 import { BaseModel } from '../3d/common/BaseModel';
 import SensorIndicator from '../3d/zone/SensorIndicator';
 import { getStatusHexColor, getStatusText, ZONE_INFO } from '../../config/sensorConfig';
-import { getMeshoptModelPath } from '../../utils';
+import { getModelPath } from '../../config/sensorConfig';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
@@ -119,7 +119,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           
           {(() => {
             const zoneId = hoveredZone.toUpperCase();
-            const modelPath = getMeshoptModelPath(zoneId);
+            const modelPath = getModelPath(zoneId);
             
             return (
               <HoverCanvas
