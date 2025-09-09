@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
 import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
+import { getMeshoptModelPath } from '../../utils';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   if (!hoveredZone) return null;
@@ -99,40 +100,25 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           border: '1px solid rgba(255,255,255,0.1)'
         }}>
           {(() => {
-            const zoneId = hoveredZone.toLowerCase();
-            const modelPaths = {
-              'a01': '/models/A01.glb',
-              'a02': '/models/A02.glb',
-              'b01': '/models/B01.glb',
-              'b02': '/models/B02.glb',
-              'b03': '/models/B03.glb',
-              'b04': '/models/B04.glb',
-              'c01': '/models/C01.glb',
-              'c02': '/models/C02.glb'
-            };
+            const zoneId = hoveredZone.toUpperCase();
+            const modelPath = getMeshoptModelPath(zoneId);
             
-            const modelPath = modelPaths[zoneId];
-            
-            if (modelPath) {
-              return (
-                <Canvas
-                  camera={{ position: [10, 10, 10], fov: 75 }}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  <Suspense fallback={null}>
-                    <SimpleModel modelPath={modelPath} />
-                  </Suspense>
-                  <OrbitControls
-                    enablePan={false}
-                    enableZoom={false}
-                    autoRotate={true}
-                    autoRotateSpeed={1}
-                  />
-                </Canvas>
-              );
-            } else {
-              return <div style={{ color: '#666', fontSize: '12px' }}>미리보기 없음</div>;
-            }
+            return (
+              <Canvas
+                camera={{ position: [10, 10, 10], fov: 75 }}
+                style={{ width: '100%', height: '100%' }}
+              >
+                <Suspense fallback={null}>
+                  <SimpleModel modelPath={modelPath} />
+                </Suspense>
+                <OrbitControls
+                  enablePan={false}
+                  enableZoom={false}
+                  autoRotate={true}
+                  autoRotateSpeed={1}
+                />
+              </Canvas>
+            );
           })()}
         </div>
       </div>
