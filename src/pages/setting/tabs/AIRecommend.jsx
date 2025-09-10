@@ -3,6 +3,7 @@ import { aiRecommendService } from '../../../services/api/aiRecommend';
 import { useAuth } from '../../../hooks/useAuth';
 import { COLORS } from '../../../config/constants';
 import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
+import SearchFilterSection from '../../../components/common/SearchFilterSection';
 
 const AIRecommend = () => {
   const { user } = useAuth();
@@ -230,106 +231,106 @@ const AIRecommend = () => {
   return (
     <div>
       {/* 필터 영역 */}
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
-          {/* 년월 선택기 */}
-          <div className="relative date-picker-container">
-            <label className="block text-sm font-medium text-gray-700 mb-2">조회 기간</label>
-            <button
-              type="button"
-              onClick={() => setShowDatePicker(!showDatePicker)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] focus:border-transparent text-left flex items-center justify-between"
-            >
-              <span className="text-gray-900">{formatSelectedDate()}</span>
-              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-              </svg>
-            </button>
-            
-            {/* 달력 드롭다운 */}
-            {showDatePicker && (
-              <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
-                <div className="p-4">
-                  {/* 년도 선택 */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">년도</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {Array.from({ length: 5 }, (_, i) => {
-                        const year = new Date().getFullYear() - i;
-                        return (
-                          <button
-                            key={year}
-                            onClick={() => setFilterYear(year.toString())}
-                            className={`px-3 py-2 text-sm rounded-md ${
-                              filterYear === year.toString()
-                                ? 'bg-[${COLORS.PRIMARY}] text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                          >
-                            {year}
-                          </button>
-                        );
-                      })}
+      <SearchFilterSection
+        filters={[
+          {
+            key: "dateRange",
+            label: "조회 기간",
+            type: "custom",
+            component: (
+              <div className="relative date-picker-container">
+                <button
+                  type="button"
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left flex items-center justify-between"
+                >
+                  <span className="text-gray-900">{formatSelectedDate()}</span>
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                  </svg>
+                </button>
+                
+                {/* 달력 드롭다운 */}
+                {showDatePicker && (
+                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                    <div className="p-4">
+                      {/* 년도 선택 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">년도</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {Array.from({ length: 5 }, (_, i) => {
+                            const year = new Date().getFullYear() - i;
+                            return (
+                              <button
+                                key={year}
+                                onClick={() => setFilterYear(year.toString())}
+                                className={`px-3 py-2 text-sm rounded-md ${
+                                  filterYear === year.toString()
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                              >
+                                {year}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* 월 선택 */}
+                      <div className="mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">월</label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {Array.from({ length: 12 }, (_, i) => {
+                            const month = i + 1;
+                            const monthStr = month.toString().padStart(2, '0');
+                            return (
+                              <button
+                                key={month}
+                                onClick={() => setFilterMonth(monthStr)}
+                                className={`px-3 py-2 text-sm rounded-md ${
+                                  filterMonth === monthStr
+                                    ? 'bg-blue-500 text-white'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                }`}
+                              >
+                                {month}월
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* 확인 버튼 */}
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => setShowDatePicker(false)}
+                          className="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md hover:bg-blue-600"
+                        >
+                          확인
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* 월 선택 */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">월</label>
-                    <div className="grid grid-cols-4 gap-2">
-                      {Array.from({ length: 12 }, (_, i) => {
-                        const month = i + 1;
-                        const monthStr = month.toString().padStart(2, '0');
-                        return (
-                          <button
-                            key={month}
-                            onClick={() => setFilterMonth(monthStr)}
-                            className={`px-3 py-2 text-sm rounded-md ${
-                              filterMonth === monthStr
-                                ? 'bg-[${COLORS.PRIMARY}] text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                          >
-                            {month}월
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  
-                  {/* 확인 버튼 */}
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => setShowDatePicker(false)}
-                      className="px-4 py-2 bg-[${COLORS.PRIMARY}] text-white text-sm font-medium rounded-md hover:bg-[#3d3f8a]"
-                    >
-                      확인
-                    </button>
-                  </div>
-                </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* 구역 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">구역</label>
-            <select
-              value={filterZone}
-              onChange={(e) => setFilterZone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] focus:border-transparent"
-            >
-              <option value="all">전체</option>
-              {(() => {
+            )
+          },
+          {
+            key: "zone",
+            label: "구역",
+            type: "select",
+            value: filterZone,
+            options: [
+              { value: "all", label: "전체" },
+              ...(() => {
                 // 사용자 scope에 따른 구역 옵션 필터링
                 if (!user?.scope) {
-                  return (
-                    <>
-                      <option value="a">A구역</option>
-                      <option value="b">B구역</option>
-                      <option value="c">C구역</option>
-                    </>
-                  );
+                  return [
+                    { value: "a", label: "A구역" },
+                    { value: "b", label: "B구역" },
+                    { value: "c", label: "C구역" }
+                  ];
                 }
                 
                 const userScopes = Array.isArray(user.scope) 
@@ -338,48 +339,48 @@ const AIRecommend = () => {
                 
                 const allowedZones = [];
                 
-                if (userScopes.includes('a')) allowedZones.push(<option key="a" value="a">A구역</option>);
-                if (userScopes.includes('b')) allowedZones.push(<option key="b" value="b">B구역</option>);
-                if (userScopes.includes('c')) allowedZones.push(<option key="c" value="c">C구역</option>);
+                if (userScopes.includes('a')) allowedZones.push({ value: "a", label: "A구역" });
+                if (userScopes.includes('b')) allowedZones.push({ value: "b", label: "B구역" });
+                if (userScopes.includes('c')) allowedZones.push({ value: "c", label: "C구역" });
                 
                 return allowedZones;
-              })()}
-            </select>
-          </div>
-
-          {/* 센서 종류 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">센서 종류</label>
-            <select
-              value={filterSensorType}
-              onChange={(e) => setFilterSensorType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] focus:border-transparent"
-            >
-              <option value="all">전체</option>
-              {SENSOR_TYPES_FOR_FILTER.filter(type => type !== 'all').map(type => (
-                <option key={type} value={type}>
-                  {getSensorTypeName(type)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 처리 상태 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">처리 상태</label>
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] focus:border-transparent"
-            >
-              <option value="all">전체</option>
-              <option value="PENDING">대기중</option>
-              <option value="APPROVED">승인됨</option>
-              <option value="REJECTED">거부됨</option>
-            </select>
-          </div>
-        </div>
-      </div>
+              })()
+            ]
+          },
+          {
+            key: "sensorType",
+            label: "센서 종류",
+            type: "select",
+            value: filterSensorType,
+            options: [
+              { value: "all", label: "전체" },
+              ...SENSOR_TYPES_FOR_FILTER.filter(type => type !== 'all').map(type => ({
+                value: type,
+                label: getSensorTypeName(type)
+              }))
+            ]
+          },
+          {
+            key: "status",
+            label: "처리 상태",
+            type: "select",
+            value: filterStatus,
+            options: [
+              { value: "all", label: "전체" },
+              { value: "PENDING", label: "대기중" },
+              { value: "APPROVED", label: "승인됨" },
+              { value: "REJECTED", label: "거부됨" }
+            ]
+          }
+        ]}
+        resultCount={filteredRecommendations.length}
+        onFilterChange={(key, value) => {
+          if (key === 'zone') setFilterZone(value);
+          if (key === 'sensorType') setFilterSensorType(value);
+          if (key === 'status') setFilterStatus(value);
+        }}
+        className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-6"
+      />
 
       {/* 임계치 추천 목록 - 데스크톱 테이블 */}
       <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">

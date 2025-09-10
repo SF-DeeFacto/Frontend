@@ -7,6 +7,7 @@ import { getModelPath } from '../../config/sensorConfig';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 import { useAuth } from '../../hooks/useAuth';
 import Text from './Text';
+import LoadingSpinner from './LoadingSpinner';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -144,7 +145,11 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           {hasPermission === null && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="flex flex-col items-center gap-2">
-                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <LoadingSpinner 
+                  size="sm" 
+                  variant="primary"
+                  className="text-white/60"
+                />
                 <Text variant="caption" size="xs" color="white" className="opacity-60">권한 확인 중...</Text>
               </div>
             </div>
@@ -172,7 +177,11 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
               {(!isModelLoaded || isSensorLoading) && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <LoadingSpinner 
+                      size="sm" 
+                      variant="primary"
+                      className="text-white/60"
+                    />
                     <Text variant="caption" size="xs" color="white" className="opacity-60">
                       {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
                     </Text>

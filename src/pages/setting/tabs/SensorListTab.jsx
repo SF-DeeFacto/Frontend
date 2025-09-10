@@ -4,6 +4,7 @@ import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER, ZONE_INFO } from '../../../config/sensorConfig';
 import { useAuth } from '../../../hooks/useAuth';
+import SearchFilterSection from '../../../components/common/SearchFilterSection';
 
 const SensorListTab = () => {
   const navigate = useNavigate();
@@ -135,66 +136,41 @@ const SensorListTab = () => {
   return (
     <div>
       {/* 필터 및 검색 영역 */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* 검색 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              검색
-            </label>
-            <input
-              type="text"
-              placeholder="센서ID, 센서종류, 구역 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* 센서 타입 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              센서 종류
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {sensorTypes.map(type => (
-                <option key={type} value={type}>
-                  {type === 'all' ? '전체' : getSensorTypeName(type)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 구역 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              구역
-            </label>
-            <select
-              value={filterZone}
-              onChange={(e) => setFilterZone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {zones.map(zone => (
-                <option key={zone} value={zone}>
-                  {zone === 'all' ? '전체' : zone}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 결과 수 */}
-          <div className="flex items-end">
-            <div className="text-sm text-gray-600">
-              총 {filteredSensors.length}개의 센서
-            </div>
-          </div>
-        </div>
-      </div>
+      <SearchFilterSection
+        searchConfig={{
+          label: "검색",
+          placeholder: "센서ID, 센서종류, 구역 검색",
+          value: searchTerm
+        }}
+        filters={[
+          {
+            key: "sensorType",
+            label: "센서 종류",
+            type: "select",
+            value: filterType,
+            options: sensorTypes.map(type => ({
+              value: type,
+              label: type === 'all' ? '전체' : getSensorTypeName(type)
+            }))
+          },
+          {
+            key: "zone",
+            label: "구역",
+            type: "select",
+            value: filterZone,
+            options: zones.map(zone => ({
+              value: zone,
+              label: zone === 'all' ? '전체' : zone
+            }))
+          }
+        ]}
+        resultCount={filteredSensors.length}
+        onSearchChange={setSearchTerm}
+        onFilterChange={(key, value) => {
+          if (key === 'sensorType') setFilterType(value);
+          if (key === 'zone') setFilterZone(value);
+        }}
+      />
 
       {/* 센서 목록 테이블 */}
       <div className="bg-white rounded-lg border overflow-hidden">
