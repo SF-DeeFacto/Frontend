@@ -88,12 +88,18 @@ export const SENSOR_TYPE_CONFIG = {
 };
 
 // 센서 타입 패턴 매핑 (이름 → 타입)
-export const SENSOR_TYPE_PATTERNS = Object.entries(SENSOR_TYPE_CONFIG).reduce((acc, [type, config]) => {
-  config.patterns.forEach(pattern => {
-    acc[pattern] = type;
-  });
-  return acc;
-}, {});
+// 상세 타입보다 기본 타입을 우선하도록 수동으로 정의
+export const SENSOR_TYPE_PATTERNS = {
+  'TEMP': 'temperature',
+  'HUM': 'humidity', 
+  'ESD': 'electrostatic',
+  'LPM': 'particle',  // 기본 먼지 센서로 매칭
+  'WD': 'winddirection',
+  // 상세 먼지 센서는 별도 패턴으로 처리
+  '0_1um': 'particle_0_1um',
+  '0_3um': 'particle_0_3um', 
+  '0_5um': 'particle_0_5um'
+};
 
 // ==================== 센서 상태 설정 ====================
 
@@ -193,6 +199,12 @@ export const getSensorTypeConfig = (type) => {
 export const getSensorTypeFromName = (name) => {
   if (!name) return 'Unknown';
   
+  // 상세 타입 패턴 먼저 확인 (더 구체적인 패턴 우선)
+  if (name.includes('0_5um')) return 'particle_0_5um';
+  if (name.includes('0_3um')) return 'particle_0_3um';
+  if (name.includes('0_1um')) return 'particle_0_1um';
+  
+  // 기본 패턴 매칭
   for (const [pattern, type] of Object.entries(SENSOR_TYPE_PATTERNS)) {
     if (name.includes(pattern)) {
       return type;
@@ -205,52 +217,18 @@ export const getSensorTypeFromName = (name) => {
 export const getSensorTypeMapping = (type) => {
   if (!type) return type;
   
-  // 대소문자 변환
-  const lowerType = type.toLowerCase();
-  
-  // 직접 매칭 시도
-  let config = getSensorTypeConfig(lowerType);
+  // SENSOR_TYPE_CONFIG에서 직접 찾기
+  const config = getSensorTypeConfig(type);
   if (config) return config.name;
   
-  // 대문자 매칭 시도
-  config = getSensorTypeConfig(type.toUpperCase());
-  if (config) return config.name;
-  
-  // 패턴 매칭 시도 (예: TEMP -> temperature)
+  // 패턴 매칭으로 찾기
   for (const [sensorType, sensorConfig] of Object.entries(SENSOR_TYPE_CONFIG)) {
     if (sensorConfig.patterns.some(pattern => 
-      lowerType.includes(pattern.toLowerCase()) || 
+      type.toLowerCase().includes(pattern.toLowerCase()) || 
       type.toUpperCase().includes(pattern)
     )) {
       return sensorConfig.name;
     }
-  }
-  
-  // 특별한 경우 처리
-  if (lowerType.includes('particle') || lowerType.includes('lpm')) {
-    // 먼지 센서 상세 타입 처리
-    if (lowerType.includes('0_1um') || lowerType.includes('0.1')) {
-      return '먼지 0.1μm';
-    }
-    if (lowerType.includes('0_3um') || lowerType.includes('0.3')) {
-      return '먼지 0.3μm';
-    }
-    if (lowerType.includes('0_5um') || lowerType.includes('0.5')) {
-      return '먼지 0.5μm';
-    }
-    return '먼지';
-  }
-  if (lowerType.includes('temp')) {
-    return '온도';
-  }
-  if (lowerType.includes('hum') || lowerType.includes('humidity')) {
-    return '습도';
-  }
-  if (lowerType.includes('wind') || lowerType.includes('wd')) {
-    return '풍향';
-  }
-  if (lowerType.includes('esd') || lowerType.includes('electrostatic')) {
-    return '정전기';
   }
   
   return type; // 매칭되지 않으면 원본 반환
@@ -569,25 +547,27 @@ export const calculateModelBounds = (scene) => {
 
 // ==================== UI 관련 ====================
 
-// 센서 타입 배열 (실시간 데이터용) - 기본 타입만
-export const SENSOR_TYPES = [
-  { type: 'temperature', name: '온도', icon: Thermometer },
-  { type: 'humidity', name: '습도', icon: Droplet },
-  { type: 'electrostatic', name: '정전기', icon: Zap },
-  { type: 'particle', name: '먼지', icon: ChartScatter },
-  { type: 'winddirection', name: '풍향', icon: Wind }
-];
+// 센서 타입 배열 생성 함수들 (SENSOR_TYPE_CONFIG 기반)
+export const getSensorTypesForRealtime = () => {
+  // 기본 타입만 (상세 먼지 타입 제외)
+  const basicTypes = ['temperature', 'humidity', 'electrostatic', 'particle', 'winddirection'];
+  return basicTypes.map(type => ({
+    type,
+    name: SENSOR_TYPE_CONFIG[type].name,
+    icon: SENSOR_TYPE_CONFIG[type].icon
+  }));
+};
 
+export const getSensorTypesForFilter = () => {
+  // 설정 페이지용: 기본 먼지 센서 제외하고 상세 먼지 센서만 포함
+  const allTypes = Object.keys(SENSOR_TYPE_CONFIG);
+  const filteredTypes = allTypes.filter(type => type !== 'particle'); // 기본 먼지 센서 제외
+  return ['all', ...filteredTypes];
+};
 
-// 센서 타입 목록 (UI 필터용) - 중복 제거
-export const SENSOR_TYPES_FOR_FILTER = [
-  'all',
-  'temperature', 
-  'humidity', 
-  'electrostatic', 
-  'particle',
-  'winddirection'
-];
+// 하위 호환성을 위한 상수 (기존 코드 호환)
+export const SENSOR_TYPES = getSensorTypesForRealtime();
+export const SENSOR_TYPES_FOR_FILTER = getSensorTypesForFilter();
 
 // 시간 포맷팅
 export const formatTime = (date) => {
