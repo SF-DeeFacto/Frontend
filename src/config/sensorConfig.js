@@ -397,38 +397,19 @@ export const ZONE_INFO = {
   C02: { id: 'c02', name: 'Zone C02', zone_name: 'zone_C02' }
 };
 
-// Zone 매핑 (소문자 → 대문자)
-export const ZONE_MAPPING = {
-  'a01': 'A01',
-  'a02': 'A02', 
-  'b01': 'B01',
-  'b02': 'B02',
-  'b03': 'B03',
-  'b04': 'B04',
-  'c01': 'C01',
-  'c02': 'C02'
-};
+// Zone 매핑 (소문자 → 대문자) - ZONE_INFO에서 동적 생성
+export const ZONE_MAPPING = Object.fromEntries(
+  Object.entries(ZONE_INFO).map(([zoneId, zoneInfo]) => [zoneInfo.id, zoneId])
+);
 
-// Zone 상태 키 매핑
+// Zone 상태 키 매핑 - ZONE_INFO에서 동적 생성
 export const getZoneStatusKey = (meshName) => {
-  const zoneMapping = {
-    'a01': 'zone_A01',
-    'a02': 'zone_A02',
-    'b01': 'zone_B01', 
-    'b02': 'zone_B02',
-    'b03': 'zone_B03',
-    'b04': 'zone_B04',
-    'c01': 'zone_C01',
-    'c02': 'zone_C02',
-    'A01': 'zone_A01',
-    'A02': 'zone_A02',
-    'B01': 'zone_B01', 
-    'B02': 'zone_B02',
-    'B03': 'zone_B03',
-    'B04': 'zone_B04',
-    'C01': 'zone_C01',
-    'C02': 'zone_C02'
-  };
+  // ZONE_INFO에서 동적으로 매핑 생성
+  const zoneMapping = {};
+  Object.entries(ZONE_INFO).forEach(([zoneId, zoneInfo]) => {
+    zoneMapping[zoneInfo.id] = zoneInfo.zone_name; // 'a01' -> 'zone_A01'
+    zoneMapping[zoneId] = zoneInfo.zone_name;      // 'A01' -> 'zone_A01'
+  });
   return zoneMapping[meshName];
 };
 

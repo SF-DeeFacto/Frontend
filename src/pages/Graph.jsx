@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { getSensorTypesForRealtime } from '../config/sensorConfig';
+import { getSensorTypesForRealtime, ZONE_INFO, ZONE_MAPPING } from '../config/sensorConfig';
 
 const SENSORS = getSensorTypesForRealtime().map(sensor => sensor.name);
 
@@ -23,21 +23,17 @@ const Graph = () => {
     return scopes.includes(zoneScope);
   };
   
-  // 고정된 구역 순서 (대시보드 매핑용)
-  const ZONE_ORDER = ['전체', 'A01', 'A02', 'B01', 'B02', 'B03', 'B04', 'C01', 'C02'];
+  // 존 정보를 ZONE_INFO에서 가져오기
+  const ZONE_ORDER = ['전체', ...Object.keys(ZONE_INFO)];
 
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
     const allZones = [
       { value: '전체', scope: null },
-      { value: 'A01', scope: 'a' },
-      { value: 'A02', scope: 'a' },
-      { value: 'B01', scope: 'b' },
-      { value: 'B02', scope: 'b' },
-      { value: 'B03', scope: 'b' },
-      { value: 'B04', scope: 'b' },
-      { value: 'C01', scope: 'c' },
-      { value: 'C02', scope: 'c' }
+      ...Object.entries(ZONE_INFO).map(([zoneId, zoneInfo]) => ({
+        value: zoneId,
+        scope: zoneId[0].toLowerCase() // 'A01' -> 'a'
+      }))
     ];
 
     // 사용자 scope가 없으면 모든 구역 표시
@@ -60,18 +56,8 @@ const Graph = () => {
   // URL에서 zone 파라미터가 있으면 해당 Zone을 선택, 없으면 기본값
   const getInitialZone = () => {
     if (zoneFromUrl) {
-      // URL의 zone 파라미터를 ZONES 배열 형식에 맞게 변환
-      const zoneMapping = {
-        'a01': 'A01',
-        'a02': 'A02', 
-        'b01': 'B01',
-        'b02': 'B02',
-        'b03': 'B03',
-        'b04': 'B04',
-        'c01': 'C01',
-        'c02': 'C02'
-      };
-      const mappedZone = zoneMapping[zoneFromUrl.toLowerCase()];
+      // URL의 zone 파라미터를 ZONE_MAPPING으로 변환
+      const mappedZone = ZONE_MAPPING[zoneFromUrl.toLowerCase()];
       // 사용자가 접근 가능한 구역인지 확인
       if (mappedZone && ZONES.includes(mappedZone)) {
         return mappedZone;
@@ -92,17 +78,7 @@ const Graph = () => {
   // URL 파라미터가 변경될 때 selectedZone 업데이트
   useEffect(() => {
     if (zoneFromUrl) {
-      const zoneMapping = {
-        'a01': 'A01',
-        'a02': 'A02', 
-        'b01': 'B01',
-        'b02': 'B02',
-        'b03': 'B03',
-        'b04': 'B04',
-        'c01': 'C01',
-        'c02': 'C02'
-      };
-      const newZone = zoneMapping[String(zoneFromUrl).toLowerCase()];
+      const newZone = ZONE_MAPPING[String(zoneFromUrl).toLowerCase()];
       if (newZone) {
         if (!canAccessZoneValue(newZone)) {
           window.alert('해당 구역에 대한 접근 권한이 없습니다.');

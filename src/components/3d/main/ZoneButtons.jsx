@@ -36,10 +36,10 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
 
   // 존별 연결 정보 확인
   const getZoneConnectionInfo = (zone) => {
-    // Zone 이름을 API 응답 형식에 맞게 변환
-    const zoneName = zone.name.replace('Zone ', ''); // "Zone A01" → "A01"
-    const status = zoneStatuses[zoneName];
-    const lastUpdate = lastUpdated[zoneName];
+    // Zone 이름을 zone_A01 형태로 변환
+    const zoneKey = zone.zone_name; // "zone_A01"
+    const status = zoneStatuses[zoneKey];
+    const lastUpdate = lastUpdated[zoneKey];
     
     return {
       status: status || SENSOR_STATUS.CONNECTING,
