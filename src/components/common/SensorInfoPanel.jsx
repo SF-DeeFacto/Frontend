@@ -2,6 +2,7 @@ import React from 'react';
 import { getStatusColor, getStatusEmoji, getStatusText, getSensorTypeFromName, getSensorTypeMapping, getSensorTypeConfig } from '../../config/sensorConfig';
 import { COLORS } from '../../config/constants';
 import { SENSOR_STATUS } from '../../config/sensorConfig';
+import Text from './Text';
 
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;
@@ -24,9 +25,9 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
               })()
             }}
           ></div>
-          <span className="text-sm font-medium text-gray-300">
+          <Text variant="body" size="sm" weight="medium" color="neutral-300">
             {selectedObject.isSensor ? '센서 정보' : '객체 정보'}
-          </span>
+          </Text>
         </div>
         <button
           onClick={onClose}
@@ -45,24 +46,24 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
           {selectedObject.isSensor ? (
             <div className="space-y-2">
               {/* 센서 타입 한글 이름 */}
-              <h3 className="text-lg font-semibold text-white mb-2">
+              <Text variant="title" size="lg" weight="semibold" color="white" className="mb-2">
                 {selectedObject.sensorData?.sensorType ? 
                   getSensorTypeMapping(selectedObject.sensorData.sensorType) + '센서' :
                   getSensorTypeMapping(getSensorTypeFromName(selectedObject.name)) + '센서'
                 }
-              </h3>
+              </Text>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-400">센서 ID:</span>
-                <span className="text-sm text-white">
+                <Text variant="body" size="sm" color="neutral-400">센서 ID:</Text>
+                <Text variant="body" size="sm" color="white">
                   {selectedObject.sensorData?.sensorId || selectedObject.id || '알 수 없음'}
-                </span>
+                </Text>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-400">상태:</span>
-                <span className="text-sm text-white">
+                <Text variant="body" size="sm" color="neutral-400">상태:</Text>
+                <Text variant="body" size="sm" color="white">
                   {selectedObject.sensorData?.status ? getStatusText(selectedObject.sensorData.status) : 
                    selectedObject.status ? getStatusText(selectedObject.status) : '알 수 없음'}
-                </span>
+                </Text>
               </div>
               <div className="space-y-1">
                 <div className="text-sm text-gray-400">센서 데이터:</div>

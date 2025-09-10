@@ -305,7 +305,7 @@ const Header = () => {
               {weatherData.temp && ` ${Math.round(weatherData.temp)}°C`}
             </>
           ) : (
-            <span className="text-secondary-500">로딩중...</span>
+            <Text variant="body" size="sm" color="secondary-500">로딩중...</Text>
           )}
         </Text>
       </div>
@@ -350,8 +350,10 @@ const Header = () => {
         
         {/* 알림 개수 뱃지 - 알림이 있을 때만 표시 */}
         {alarmCount > 0 && (
-          <span className="absolute -top-2 -right-2 min-w-[18px] h-[14px] bg-danger-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-0.5">
-            {alarmCount > 99 ? '99+' : alarmCount}
+          <span className="absolute -top-2 -right-2 min-w-[18px] h-[14px] bg-danger-500 rounded-full flex items-center justify-center px-0.5">
+            <Text variant="caption" size="2xs" weight="bold" color="white">
+              {alarmCount > 99 ? '99+' : alarmCount}
+            </Text>
           </span>
         )}
       </button>
@@ -407,7 +409,7 @@ const Header = () => {
         <div className="flex-1"></div>
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 border-2 border-brand-main border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-sm text-secondary-500">로딩중...</span>
+          <Text variant="body" size="sm" color="secondary-500">로딩중...</Text>
         </div>
       </header>
     );

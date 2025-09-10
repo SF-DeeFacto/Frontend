@@ -1,4 +1,5 @@
 import React from 'react';
+import Text from './Text';
 
 const LoadingSpinner = ({ 
   size = 'md', 
@@ -45,7 +46,7 @@ const LoadingSpinner = ({
       
       {text && (
         <div className="mt-4 text-center animate-pulse">
-          <p className="text-secondary-600 dark:text-neutral-300 font-medium">{text}</p>
+          <Text variant="body" size="md" weight="medium" color="secondary-600">{text}</Text>
         </div>
       )}
     </div>

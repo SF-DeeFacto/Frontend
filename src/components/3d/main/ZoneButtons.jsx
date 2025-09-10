@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../../config/sensorConfig';
 import { COLORS } from '../../../config/constants';
+import Text from '../../common/Text';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
@@ -78,9 +79,9 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
             <div className="relative z-10 flex items-center justify-center gap-4">
               {/* Zone 이름 */}
               <div className="flex-shrink-0">
-                <h3 className="text-lg font-bold text-secondary-800 group-hover:text-primary-600 transition-colors duration-200">
+                <Text variant="title" size="lg" weight="bold" color="secondary-800" className="group-hover:text-primary-600 transition-colors duration-200">
                   {zone.name}
-                </h3>
+                </Text>
               </div>
               
               {/*TODO: 상태 인디케이터 */}

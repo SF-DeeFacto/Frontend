@@ -2,6 +2,7 @@ import React from 'react';
 import { Clock, Bookmark, Check, CheckCircle } from 'lucide-react';
 import Text from '../common/Text';
 import Icon from '../common/Icon';
+import Button from '../common/Button';
 import { stripHtmlTags } from '../../utils/notificationUtils';
 
 // 유틸리티 함수들
@@ -102,31 +103,37 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
         </div>
 
         {/* 즐겨찾기 버튼 */}
-        <button
+        <Button
           onClick={() => onToggleFavorite(alarm.id)}
+          variant="ghost"
+          size="sm"
+          icon={
+            <Icon>
+              <Bookmark />
+            </Icon>
+          }
           className={`p-2 rounded-xl transition-all duration-200 shadow-soft hover:shadow-medium hover:scale-105 ${
             alarm.isFavorite
               ? 'bg-gradient-to-r from-warning-500 to-warning-600 text-white'
               : 'bg-white/80 dark:bg-neutral-700/80 text-secondary-400 dark:text-neutral-400 hover:bg-warning-50 dark:hover:bg-warning-900/30 hover:text-warning-500'
           }`}
           title={alarm.isFavorite ? "즐겨찾기 해제" : "즐겨찾기 추가"}
-        >
-          <Icon>
-            <Bookmark />
-          </Icon>
-        </button>
+        />
 
         {/* 읽음 상태 버튼 - 읽음 처리만 가능 */}
         {!alarm.isRead && (
-          <button
+          <Button
             onClick={() => onMarkAsRead(alarm.id)}
+            variant="ghost"
+            size="sm"
+            icon={
+              <Icon>
+                <Check />
+              </Icon>
+            }
             className="p-2 rounded-xl transition-all duration-200 bg-white/80 dark:bg-neutral-700/80 text-secondary-400 dark:text-neutral-400 hover:bg-success-50 dark:hover:bg-success-900/30 hover:text-success-500 shadow-soft hover:shadow-medium hover:scale-105"
             title="읽음 처리"
-          >
-            <Icon>
-              <Check />
-            </Icon>
-          </button>
+          />
         )}
 
         {/* 이미 읽은 알림은 체크 표시만 */}

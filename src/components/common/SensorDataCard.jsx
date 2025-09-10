@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../config/sensorConfig';
+import Text from './Text';
 
 /**
  * 센서 데이터 카드 컴포넌트
@@ -80,8 +81,8 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
     // 센서 값이 유효하지 않은 경우
     if (!isSensorValueValid(sensorData)) {
       return (
-        <div className="text-center text-gray-500 dark:text-neutral-400">
-          <div className="text-sm">데이터 준비 중</div>
+        <div className="text-center">
+          <Text variant="body" size="sm" color="secondary-500">데이터 준비 중</Text>
         </div>
       );
     }

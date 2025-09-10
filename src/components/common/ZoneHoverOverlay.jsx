@@ -6,6 +6,7 @@ import { getStatusHexColor, getStatusText, ZONE_INFO, SENSOR_STATUS } from '../.
 import { getModelPath } from '../../config/sensorConfig';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 import { useAuth } from '../../hooks/useAuth';
+import Text from './Text';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
@@ -105,14 +106,14 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/20">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400/80 to-purple-500/80 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">
+              <Text variant="body" size="sm" weight="bold" color="white">
                 {hoveredZone.toUpperCase().charAt(0)}
-              </span>
+              </Text>
             </div>
             <div>
-              <h3 className="text-lg font-bold text-white">
+              <Text variant="title" size="lg" weight="bold" color="white">
                 Zone {hoveredZone.toUpperCase()}
-              </h3>
+              </Text>
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}15` }}>
@@ -123,12 +124,14 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                 boxShadow: `0 0 4px ${statusColor}40`
               }} 
             />
-            <span 
-              className="text-xs font-semibold"
+            <Text 
+              variant="caption" 
+              size="xs" 
+              weight="semibold"
               style={{ color: statusColor }}
             >
               {statusText}
-            </span>
+            </Text>
           </div>
         </div>
         
@@ -142,7 +145,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <div className="text-white/60 text-xs">권한 확인 중...</div>
+                <Text variant="caption" size="xs" color="white" className="opacity-60">권한 확인 중...</Text>
               </div>
             </div>
           )}
@@ -156,8 +159,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                   </svg>
                 </div>
-                <div className="text-white/80 text-sm font-medium">권한이 없습니다</div>
-                <div className="text-white/60 text-xs">해당 구역에 대한 접근 권한이 없습니다</div>
+                <Text variant="body" size="sm" weight="medium" color="white" className="opacity-80">권한이 없습니다</Text>
+                <Text variant="caption" size="xs" color="white" className="opacity-60">해당 구역에 대한 접근 권한이 없습니다</Text>
               </div>
             </div>
           )}
@@ -170,9 +173,9 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    <div className="text-white/60 text-xs">
+                    <Text variant="caption" size="xs" color="white" className="opacity-60">
                       {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
-                    </div>
+                    </Text>
                   </div>
                 </div>
               )}

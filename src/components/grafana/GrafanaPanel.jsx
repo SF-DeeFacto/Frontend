@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import Text from '../common/Text';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -242,7 +243,7 @@ const GrafanaPanel = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-lg">데이터를 불러오는 중...</div>
+        <Text variant="body" size="lg">데이터를 불러오는 중...</Text>
       </div>
     );
   }
@@ -250,14 +251,16 @@ const GrafanaPanel = ({
   if (error) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <div className="text-red-800 font-semibold">오류</div>
-        <div className="text-red-600">{error}</div>
-        <button 
+        <Text variant="body" size="md" weight="semibold" color="danger-800">오류</Text>
+        <Text variant="body" size="md" color="danger-600">{error}</Text>
+        <Button 
           onClick={fetchData}
-          className="mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          variant="danger"
+          size="sm"
+          className="mt-2"
         >
           다시 시도
-        </button>
+        </Button>
       </div>
     );
   }
@@ -265,13 +268,14 @@ const GrafanaPanel = ({
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
-        <button
+        <Text variant="title" size="xl" weight="semibold" color="secondary-800">{title}</Text>
+        <Button
           onClick={fetchData}
-          className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+          variant="primary"
+          size="xs"
         >
           새로고침
-        </button>
+        </Button>
       </div>
       
       {chartData ? (
@@ -279,14 +283,14 @@ const GrafanaPanel = ({
           {renderChart()}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          표시할 데이터가 없습니다.
+        <div className="text-center py-8">
+          <Text variant="body" size="md" color="secondary-500">표시할 데이터가 없습니다.</Text>
         </div>
       )}
 
       {dashboards.length > 0 && !chartData && (
         <div className="mt-4">
-          <h4 className="text-lg font-medium mb-2">사용 가능한 대시보드:</h4>
+          <Text variant="title" size="lg" weight="medium" color="secondary-800" className="mb-2">사용 가능한 대시보드:</Text>
           <ul className="space-y-2">
             {dashboards.slice(0, 5).map((dashboard) => (
               <li key={dashboard.uid} className="p-2 border rounded hover:bg-gray-50">
