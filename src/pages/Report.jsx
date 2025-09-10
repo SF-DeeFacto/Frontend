@@ -421,7 +421,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { authApiClient } from '../services';
-// import axios from 'axios';
+ import axios from 'axios';
 
 // const API_BASE = 'http://localhost:8085';
  const API_BASE = '/report-api';
@@ -430,7 +430,7 @@ import { authApiClient } from '../services';
 
 const Report = () => {
   // 공통 인증 로직 사용
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user, token } = useAuth();
   // TODO: 실제로는 로그인 정보에서 employeeId를 가져오도록 변경하세요
   
 
@@ -448,7 +448,9 @@ const Report = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const itemsPerPage = 5; // 서버 page size에 맞춰 변경 가능
+  const[tocken,setToken]=useState("");
+
+  const itemsPerPage = 10; // 서버 page size에 맞춰 변경 가능
 
   // 서버에서 리포트 목록 조회
   const fetchReports = async (page = currentPage) => {
@@ -457,7 +459,7 @@ const Report = () => {
       console.log('인증되지 않은 사용자입니다.');
       return;
     }
-
+    const EMPLOYEE_ID = localStorage.getItem('employeeId');
     setLoading(true);
     setError(null);
     try {
@@ -472,22 +474,24 @@ const Report = () => {
       console.log('🚀 리포트 목록 조회 시작');
       console.log('📋 요청 파라미터:', params);
       console.log('👤 사용자 정보:', user.employeeId);
+      console.log("tocken : "+token);
 
       // 기존 axios 방식 (주석 처리)
-      // const res = await axios.get(`${API_BASE}/reports/list`, {
-      //   params,
-      //   headers: {
-      //     'X-Employee-Id': EMPLOYEE_ID
-      //   },
-      // });
-
-      // 새로운 authApiClient 방식
-      const res = await authApiClient.get(`${API_BASE}/reports/list`, {
+      const res = await axios.get(`${API_BASE}/reports/list`, {
         params,
         headers: {
-          'X-Employee-Id': user.employeeId
+          
+          'Authorization': `Bearer ${token}`
         },
       });
+      
+      // 새로운 authApiClient 방식
+      // const res = await authApiClient.get(`${API_BASE}/reports/list`, {
+      //   params,
+      //   headers: {
+      //     'X-Employee-Id': user.employeeId
+      //   },
+      // });
       console.log('✅ 리포트 목록 조회 성공:', res.data);
 
       // ApiResponseDto 형태: { code, message, data }
@@ -512,6 +516,7 @@ const Report = () => {
 
   // 초기 및 필터/페이지 변경 시 조회
   useEffect(() => {
+    setToken(localStorage.getItem('access_Token'));
     if (isAuthenticated && user?.employeeId) {
       setCurrentPage(1);
       fetchReports(1);
@@ -566,7 +571,11 @@ const Report = () => {
       console.log('인증되지 않은 사용자입니다.');
       setError('인증이 필요합니다.');
       return;
+
     }
+    console.log('다운로드 요청:', fileName);
+    console.log('👤 사용자 정보:', user.employeeId);
+    console.log("token : " + token);
 
     setError(null);
     const url = `${API_BASE}/reports/download/${fileName}`;
@@ -574,18 +583,16 @@ const Report = () => {
       console.log('[REPORTS] download', url);
       
       // 기존 axios 방식 (주석 처리)
-      // const res = await axios.get(url, {
-      //   headers: { 'X-Employee-Id': EMPLOYEE_ID },
-      //   responseType: 'blob',
-      //   validateStatus: (s) => true, // always let us inspect the response
-      // });
-
-      // 새로운 authApiClient 방식
-      const res = await authApiClient.get(url, {
-        headers: { 'X-Employee-Id': user.employeeId },
+      const res = await axios.get(url, {
+        headers: {
+          'X-Employee-Id': user.employeeId,
+          'Authorization': `Bearer ${token}`
+        },
         responseType: 'blob',
         validateStatus: (s) => true, // always let us inspect the response
       });
+
+      
 
     // 서버가 에러를 JSON/text로 반환했을 수 있음 -> blob을 텍스트로 읽어 검사
     if (res.status !== 200) {
@@ -621,10 +628,14 @@ const Report = () => {
   }
 }
   // 기존 화면 렌더링 로직을 유지하면서 데이터 바인딩
+  // 리포트명 검색 기능 보완: 대소문자 무시, 공백 무시, fileName도 포함, 부분 일치 지원
   const filteredReports = reports.filter(report => {
-    // 클라이언트 추가 필터(서버에서 이미 필터링이 가능하면 불필요)
     if (!searchQuery) return true;
-    return (report.report_name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    // report_name, fileName 모두 검사, 공백/대소문자 무시
+    const reportName = (report.report_name || '').replace(/\s+/g, '').toLowerCase();
+    const fileName = (report.fileName || '').replace(/\s+/g, '').toLowerCase();
+    return reportName.includes(normalizedQuery.replace(/\s+/g, '')) || fileName.includes(normalizedQuery.replace(/\s+/g, ''));
   });
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -672,6 +683,7 @@ const Report = () => {
       {/* 기존 필터/검색 UI (생략 가능) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          {/* 리포트 형식 드롭다운 */}
           <div className="relative">
             <select
               value={reportType}
@@ -683,16 +695,23 @@ const Report = () => {
               <option value="비정기">비정기</option>
             </select>
           </div>
-        </div>
-
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="리포트명 입력하세요"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
-          />
+          {/* 기간 검색 (startDate, endDate) */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={e => { setStartDate(e.target.value); handleFilterChange(); }}
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+            />
+            <span className="mx-1">~</span>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={e => { setEndDate(e.target.value); handleFilterChange(); }}
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+            />
+          </div>
         </div>
       </div>
 
