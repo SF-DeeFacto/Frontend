@@ -1,7 +1,6 @@
 /**
  * SSE API 연동 완료:
  * - 모든 Zone에서 실시간 SSE 데이터 사용
- * - 더미 데이터 완전 제거
  * - 백엔드 연결 상태에 따른 정확한 데이터 표시
  */
 import { useState, useEffect, useCallback } from 'react';

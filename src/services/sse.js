@@ -98,6 +98,7 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
     onError(new Error('인증 토큰이 없습니다.'));
     return () => {}; // 빈 함수 반환
   }
+
   
   // 실제 EventSource API 사용
   let eventSource = null;
@@ -326,6 +327,7 @@ export const connectNotificationSSE = ({ onMessage, onError, onOpen }) => {
     onError(new Error('인증 토큰이 없습니다.'));
     return () => {}; // 빈 함수 반환
   }
+
   
   // 알림 SSE 전용 설정
   let eventSource = null;

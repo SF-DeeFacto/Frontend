@@ -306,6 +306,12 @@ const AlertPopup = () => {
   }, [addAlert, setAutoCloseTimer]);
 
   useEffect(() => {
+    // 인증되지 않은 경우 SSE 연결하지 않음
+    if (!isAuthenticated || isLoading) {
+      console.log('🔐 인증되지 않음 - SSE 연결 건너뜀');
+      return;
+    }
+
     let disconnectSSE = null;
 
     const handleSSEError = (error) => {
@@ -328,7 +334,7 @@ const AlertPopup = () => {
         disconnectSSE();
       }
     };
-  }, []);
+  }, [isAuthenticated, isLoading, handleSSEMessage]);
 
   const handleCloseAlert = (alertId) => {
     // 타이머 정리
