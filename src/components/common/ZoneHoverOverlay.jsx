@@ -5,17 +5,50 @@ import SensorIndicator from '../3d/zone/SensorIndicator';
 import { getStatusHexColor, getStatusText, ZONE_INFO, SENSOR_STATUS } from '../../config/sensorConfig';
 import { getModelPath } from '../../config/sensorConfig';
 import { useZoneSensorData } from '../../hooks/useZoneSensorData';
+import { useAuth } from '../../hooks/useAuth';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null); // null: 체크 중, true: 권한 있음, false: 권한 없음
+  
+  // 인증 정보 가져오기
+  const { user } = useAuth();
   
   // 센서 데이터 가져오기
   const { sensorData, isLoading: isSensorLoading } = useZoneSensorData(hoveredZone);
   
-  // 호버된 존이 변경될 때 로딩 상태 리셋
+  // 권한 체크 함수
+  const checkPermission = (zoneId) => {
+    if (!zoneId) return false;
+    if (!user?.scope) return true; // scope 미설정이면 모든 구역 접근 허용
+    
+    // scope가 문자열인지 확인
+    if (typeof user.scope !== 'string') {
+      console.warn('user.scope is not a string:', user.scope);
+      return true; // 안전하게 접근 허용
+    }
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const zoneScope = String(zoneId)[0]?.toLowerCase();
+    return scopes.includes(zoneScope);
+  };
+
+  // 호버된 존이 변경될 때 로딩 상태 리셋 및 권한 체크
   useEffect(() => {
     setIsModelLoaded(false);
-  }, [hoveredZone]);
+    setHasPermission(null); // 권한 체크 상태 리셋
+    
+    // 권한 체크 (약간의 지연을 두어 로딩 상태를 보여줌)
+    const timer = setTimeout(() => {
+      const permission = checkPermission(hoveredZone);
+      setHasPermission(permission);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [hoveredZone, user?.scope]);
   
   if (!hoveredZone) return null;
 
@@ -104,38 +137,68 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           {/* 배경 그라디언트 효과 */}
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-400/3 to-pink-400/5"></div>
           
-          {/* 로딩 인디케이터 - Canvas 외부 */}
-          {(!isModelLoaded || isSensorLoading) && (
+          {/* 권한 체크 중 로딩 인디케이터 */}
+          {hasPermission === null && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="flex flex-col items-center gap-2">
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <div className="text-white/60 text-xs">
-                  {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
-                </div>
+                <div className="text-white/60 text-xs">권한 확인 중...</div>
               </div>
             </div>
           )}
           
-          {(() => {
-            const zoneId = hoveredZone.toUpperCase();
-            const modelPath = getModelPath(zoneId);
-            
-            return (
-              <HoverCanvas
-                className="opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              >
-                <BaseModel 
-                  modelPath={modelPath} 
-                  onLoad={() => setIsModelLoaded(true)}
-                  sensorData={sensorData}
-                  zoneId={hoveredZone}
-                  lighting="soft"
-                  scale={[0.0018, 0.0018, 0.0018]}
-                  position={[0, 0, 0]}
-                />
-              </HoverCanvas>
-            );
-          })()}
+          {/* 권한이 없는 경우 메시지 표시 */}
+          {hasPermission === false && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mb-2">
+                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <div className="text-white/80 text-sm font-medium">권한이 없습니다</div>
+                <div className="text-white/60 text-xs">해당 구역에 대한 접근 권한이 없습니다</div>
+              </div>
+            </div>
+          )}
+          
+          {/* 권한이 있는 경우 모델 로딩 및 표시 */}
+          {hasPermission === true && (
+            <>
+              {/* 모델 로딩 인디케이터 */}
+              {(!isModelLoaded || isSensorLoading) && (
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    <div className="text-white/60 text-xs">
+                      {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {(() => {
+                const zoneId = hoveredZone.toUpperCase();
+                const modelPath = getModelPath(zoneId);
+                
+                return (
+                  <HoverCanvas
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  >
+                    <BaseModel 
+                      modelPath={modelPath} 
+                      onLoad={() => setIsModelLoaded(true)}
+                      sensorData={sensorData}
+                      zoneId={hoveredZone}
+                      lighting="soft"
+                      scale={[0.0018, 0.0018, 0.0018]}
+                      position={[0, 0, 0]}
+                    />
+                  </HoverCanvas>
+                );
+              })()}
+            </>
+          )}
         </div>
       </div>
     </div>
