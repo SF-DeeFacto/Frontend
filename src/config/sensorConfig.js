@@ -171,7 +171,15 @@ export const SENSOR_TYPE_MAPPING = {
   'particle_0_1um': '미세먼지 0.1μm',
   'particle_0_3um': '미세먼지 0.3μm',
   'particle_0_5um': '미세먼지 0.5μm',
-  'winddirection': '풍향'
+  'winddirection': '풍향',
+  // 대문자 키들 추가
+  'ESD': '정전기',
+  'TEMP': '온도',
+  'HUMIDITY': '습도',
+  'LPM': '먼지',
+  'WD': '풍향',
+  'HANDLE': '핸들',
+  'Unknown': '알 수 없음'
 };
 
 // 센서 타입 매핑 함수
