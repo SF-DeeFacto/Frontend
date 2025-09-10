@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from '@react-three/drei';
 import { useModelLoader } from '../../../hooks/useModelLoader';
 import { SensorRenderer } from './SensorRenderer';
 import { BasicLighting, SoftLighting, EnhancedLighting } from './Lighting';
@@ -44,15 +45,28 @@ export const BaseModel = ({
           <boxGeometry args={[1, 1, 1]} />
           <meshBasicMaterial color="red" />
         </mesh>
-        <text position={[0, 2, 0]} fontSize={0.5} color="red">
+        <Text 
+          position={[0, 2, 0]} 
+          fontSize={0.5} 
+          color="red"
+          anchorX="center"
+          anchorY="middle"
+        >
           모델 로딩 실패: {error.message}
-        </text>
+        </Text>
       </group>
     );
   }
 
   if (!isLoaded || !gltf.scene) {
-    return null;
+    return (
+      <group {...props}>
+        <mesh position={[0, 0, 0]}>
+          <boxGeometry args={[0.1, 0.1, 0.1]} />
+          <meshBasicMaterial color="gray" transparent opacity={0.3} />
+        </mesh>
+      </group>
+    );
   }
 
   const LightingComponent = {

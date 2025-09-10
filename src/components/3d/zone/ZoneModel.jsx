@@ -3,7 +3,7 @@ import { useThree } from '@react-three/fiber';
 import { BaseModel } from '../common/BaseModel';
 import { getZoneModelConfig } from '../../../config/modelConfig';
 
-function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
+function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick, onLoad, onError }) {
   const groupRef = useRef();
   const { camera } = useThree();
 
@@ -26,6 +26,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
       
       camera.position.set(...position);
       camera.lookAt(...lookAt);
+      
+      // 상위 컴포넌트에 로딩 완료 알림
+      if (onLoad) onLoad(loadedGltf);
     }
   };
 
@@ -47,6 +50,7 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
       <BaseModel
         modelPath={modelPath}
         onLoad={handleModelLoad}
+        onError={onError}
         sensorData={sensorData}
         zoneId={zoneId}
         onSensorClick={handleSensorClick}

@@ -1,11 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ZoneCanvas } from '../common/CanvasWrapper';
 import ZoneModel from './ZoneModel';
 import { getZoneModelPath } from '../../../config/modelConfig';
 
 // 범용 존 뷰어 컴포넌트
-function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }) {
+function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick, onLoadingChange, onErrorChange }) {
   const modelPath = getZoneModelPath(zoneId);
+  
+  const handleModelLoad = () => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(null);
+  };
+  
+  const handleModelError = (error) => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(error);
+  };
   
   return (
     <div style={{ 
@@ -24,13 +34,15 @@ function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }
           sensorData={sensorData}
           selectedObject={selectedObject}
           onObjectClick={onObjectClick}
+          onLoad={handleModelLoad}
+          onError={handleModelError}
         />
       </ZoneCanvas>
     </div>
   );
 }
 
-const ZoneModelViewer = ({ zoneId, sensorData, selectedObject, onObjectClick }) => {
+const ZoneModelViewer = ({ zoneId, sensorData, selectedObject, onObjectClick, onLoadingChange, onErrorChange }) => {
   // 모든 존을 범용 뷰어로 처리
   return (
     <div className="w-full h-full">
@@ -38,7 +50,9 @@ const ZoneModelViewer = ({ zoneId, sensorData, selectedObject, onObjectClick }) 
         zoneId={zoneId} 
         sensorData={sensorData}
         selectedObject={selectedObject}
-        onObjectClick={onObjectClick} 
+        onObjectClick={onObjectClick}
+        onLoadingChange={onLoadingChange}
+        onErrorChange={onErrorChange}
       />
     </div>
   );

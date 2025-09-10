@@ -8,7 +8,7 @@ import { BaseModel } from '../common/BaseModel';
 import { useModelInteractions } from '../../../hooks/useModelInteractions';
 import { getMainModelPath, getMainModelConfig } from '../../../config/modelConfig';
 
-function Model({ zoneStatuses, onHoverZoneChange }) {
+function Model({ zoneStatuses, onHoverZoneChange, onModelLoad, onModelError }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -52,6 +52,9 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
     if (loadedGltf.scene) {
       // Zone 매핑 설정
       setupZoneMapping(loadedGltf.scene, navigate);
+      
+      // 상위 컴포넌트에 로딩 완료 알림
+      if (onModelLoad) onModelLoad(loadedGltf);
     }
   };
 
@@ -70,6 +73,7 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
     <BaseModel
       modelPath={getMainModelPath()}
       onLoad={handleModelLoad}
+      onError={onModelError}
       lighting="enhanced"
       scale={modelInfo.scale}
       position={modelInfo.position}
@@ -87,17 +91,27 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 function LoadingFallback() {
   return (
     <mesh>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="gray" />
+      <boxGeometry args={[0.1, 0.1, 0.1]} />
+      <meshBasicMaterial color="gray" transparent opacity={0.3} />
     </mesh>
   );
 }
 
-export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
+export default function MainModelViewer({ zoneStatuses, onHoverZoneChange, onLoadingChange, onErrorChange }) {
   const controlsRef = useRef();
   
   // 메인 모델 설정 가져오기
   const modelConfig = getMainModelConfig();
+  
+  const handleModelLoad = () => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(null);
+  };
+  
+  const handleModelError = (error) => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(error);
+  };
 
   // 카메라 초기 설정
   useEffect(() => {
@@ -114,7 +128,12 @@ export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
 
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <Model zoneStatuses={zoneStatuses} onHoverZoneChange={onHoverZoneChange} />
+      <Model 
+        zoneStatuses={zoneStatuses} 
+        onHoverZoneChange={onHoverZoneChange}
+        onModelLoad={handleModelLoad}
+        onModelError={handleModelError}
+      />
       <OrbitControls 
         ref={controlsRef}
         target={modelConfig.camera.target}
