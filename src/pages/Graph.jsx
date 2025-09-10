@@ -196,8 +196,6 @@ const Graph = () => {
       break;
   }
   
-  // console.log('Generated dashboardUrl:', dashboardUrl);
-  
   return (
     <>
       {/* 상단 필터/조회 영역 - Equipset 스타일과 통일 */}
