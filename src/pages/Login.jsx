@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../components/common/Button';
 import Text from '../components/common/Text';
 import { login } from '../services/api/auth';
+// ===== 개발용 더미 로그인 기능 시작 =====
+import { dummyUsers } from '../dummy/dummyUser';
+// ===== 개발용 더미 로그인 기능 끝 =====
 
 const Login = () => {
   const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -26,6 +29,44 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
+    // ===== 개발용 더미 로그인 기능 시작 =====
+    // 먼저 더미 데이터에서 사용자 찾기
+    const dummyUser = dummyUsers.find(user => 
+      user.employee_id === credentials.username && 
+      user.password === credentials.password
+    );
+    
+    if (dummyUser) {
+      // 더미 토큰 생성
+      const dummyToken = 'dummy_token_' + Date.now();
+      const dummyRefreshToken = 'dummy_refresh_token_' + Date.now();
+      
+      // localStorage에 더미 데이터 저장
+      localStorage.setItem('access_token', dummyToken);
+      localStorage.setItem('refresh_token', dummyRefreshToken);
+      localStorage.setItem('employeeId', dummyUser.employee_id);
+      localStorage.setItem('user', JSON.stringify({
+        employeeId: dummyUser.employee_id,
+        name: dummyUser.name,
+        email: dummyUser.email,
+        department: dummyUser.department,
+        position: dummyUser.position,
+        role: dummyUser.role,
+        gender: dummyUser.gender,
+        scope: ['A', 'B', 'C'], // 기본 권한 추가
+        shift: dummyUser.shift,
+        active: true,
+        createdAt: dummyUser.created_at,
+        updatedAt: dummyUser.updated_at
+      }));
+      
+      setIsLoading(false);
+      navigate('/home');
+      return;
+    }
+    // ===== 개발용 더미 로그인 기능 끝 =====
+
+    // 실제 백엔드 로그인 기능 시작
     try {
       const result = await login(credentials);
       if (result.success) {
@@ -34,10 +75,12 @@ const Login = () => {
         setError(result.error);
       }
     } catch (e) {
+      console.log('백엔드 연동 실패');
       setError('사원번호 또는 비밀번호가 올바르지 않습니다.');
     } finally {
       setIsLoading(false);
     }
+    // ===== 실제 백엔드 로그인 기능 끝 =====
   };
 
   const styles = {
