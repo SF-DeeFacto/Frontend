@@ -450,7 +450,7 @@ const Report = () => {
 
   const[tocken,setToken]=useState("");
 
-  const itemsPerPage = 5; // 서버 page size에 맞춰 변경 가능
+  const itemsPerPage = 10; // 서버 page size에 맞춰 변경 가능
 
   // 서버에서 리포트 목록 조회
   const fetchReports = async (page = currentPage) => {
@@ -628,10 +628,14 @@ const Report = () => {
   }
 }
   // 기존 화면 렌더링 로직을 유지하면서 데이터 바인딩
+  // 리포트명 검색 기능 보완: 대소문자 무시, 공백 무시, fileName도 포함, 부분 일치 지원
   const filteredReports = reports.filter(report => {
-    // 클라이언트 추가 필터(서버에서 이미 필터링이 가능하면 불필요)
     if (!searchQuery) return true;
-    return (report.report_name || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    // report_name, fileName 모두 검사, 공백/대소문자 무시
+    const reportName = (report.report_name || '').replace(/\s+/g, '').toLowerCase();
+    const fileName = (report.fileName || '').replace(/\s+/g, '').toLowerCase();
+    return reportName.includes(normalizedQuery.replace(/\s+/g, '')) || fileName.includes(normalizedQuery.replace(/\s+/g, ''));
   });
 
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -679,6 +683,7 @@ const Report = () => {
       {/* 기존 필터/검색 UI (생략 가능) */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          {/* 리포트 형식 드롭다운 */}
           <div className="relative">
             <select
               value={reportType}
@@ -690,16 +695,23 @@ const Report = () => {
               <option value="비정기">비정기</option>
             </select>
           </div>
-        </div>
-
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="리포트명 입력하세요"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 pr-4 py-2 border border-gray-300 dark:border-neutral-600 bg-white dark:bg-neutral-700 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 rounded-md text-sm w-64 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
-          />
+          {/* 기간 검색 (startDate, endDate) */}
+          <div className="flex items-center space-x-2">
+            <input
+              type="date"
+              value={startDate}
+              onChange={e => { setStartDate(e.target.value); handleFilterChange(); }}
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+            />
+            <span className="mx-1">~</span>
+            <input
+              type="date"
+              value={endDate}
+              min={startDate}
+              onChange={e => { setEndDate(e.target.value); handleFilterChange(); }}
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+            />
+          </div>
         </div>
       </div>
 
