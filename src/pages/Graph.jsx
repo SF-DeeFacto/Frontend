@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { getSensorTypesForRealtime, ZONE_INFO, ZONE_MAPPING } from '../config/sensorConfig';
+import Button from '../components/common/Button';
 
 const SENSORS = getSensorTypesForRealtime().map(sensor => sensor.name);
 
@@ -192,28 +193,22 @@ const Graph = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">그래프 종류</label>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
+              <Button
                 onClick={() => setTimeMode('실시간')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  timeMode === '실시간'
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={timeMode === '실시간' ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 실시간
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={() => setTimeMode('요약')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  timeMode === '요약'
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={timeMode === '요약' ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 요약
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -224,23 +219,19 @@ const Graph = () => {
               {ZONES.map(zone => {
                 console.log('Zone 버튼 렌더링:', zone);
                 return (
-                  <button
-                    type="button"
+                  <Button
                     key={zone}
                     onClick={() => {
                       console.log('Zone 클릭:', zone);
                       setSelectedZone(zone);
                       setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
                     }}
-                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      selectedZone === zone
-                        ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                        : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                    }`}
-                    style={{ minWidth: '60px', minHeight: '40px' }} // 최소 크기 보장
+                    variant={selectedZone === zone ? "primary" : "default"}
+                    size="sm"
+                    className="min-w-[60px] min-h-[40px]"
                   >
                     {zone}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
