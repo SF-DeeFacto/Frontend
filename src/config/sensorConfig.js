@@ -6,7 +6,7 @@ import {
   Wind 
 } from 'lucide-react';
 
-// ==================== 센서 상태 타입 정의 ====================
+// ==================== 상수 정의 ====================
 
 // 센서 상태 타입
 export const SENSOR_STATUS = {
@@ -34,206 +34,198 @@ export const CONNECTION_STATE = {
   ERROR: 'error'
 };
 
-// ==================== 센서 타입별 상세 정보 ====================
+// ==================== 센서 타입 설정 ====================
 
 // 센서 타입별 상세 정보
 export const SENSOR_TYPE_CONFIG = {
   temperature: {
     name: '온도',
     icon: Thermometer,
-    unit: '°C'
+    unit: '°C',
+    patterns: ['TEMP']
   },
   humidity: {
     name: '습도',
     icon: Droplet,
-    unit: '%'
+    unit: '%',
+    patterns: ['HUM']
   },
   electrostatic: {
     name: '정전기',
     icon: Zap,
-    unit: 'V'
+    unit: 'V',
+    patterns: ['ESD']
   },
   particle: {
     name: '먼지',
     icon: ChartScatter,
-    unit: 'μg/m³'
+    unit: 'μg/m³',
+    patterns: ['LPM']
   },
   winddirection: {
     name: '풍향',
     icon: Wind,
-    unit: '°'
+    unit: '°',
+    patterns: ['WD']
   }
 };
 
-// ==================== 센서 상태별 색상 ====================
+// 센서 타입 패턴 매핑 (이름 → 타입)
+export const SENSOR_TYPE_PATTERNS = Object.entries(SENSOR_TYPE_CONFIG).reduce((acc, [type, config]) => {
+  config.patterns.forEach(pattern => {
+    acc[pattern] = type;
+  });
+  return acc;
+}, {});
 
-// 센서 상태별 색상 (HEX 값)
-export const SENSOR_STATUS_HEX_COLORS = {
-  [SENSOR_STATUS.GREEN]: '#10b981',
-  [SENSOR_STATUS.YELLOW]: '#f59e0b',
-  [SENSOR_STATUS.RED]: '#ef4444',
-  [SENSOR_STATUS.CONNECTING]: '#3b82f6',
-  [SENSOR_STATUS.DISCONNECTED]: '#6b7280',
-  normal: '#10b981',
-  warning: '#f59e0b',
-  error: '#ef4444',
-  unknown: '#6b7280',
-  default: '#6b7280'
+// ==================== 센서 상태 설정 ====================
+
+// 센서 상태별 설정 (색상, 텍스트, 이모지 통합)
+const SENSOR_STATUS_CONFIG = {
+  [SENSOR_STATUS.GREEN]: {
+    hexColor: '#10b981',
+    color3D: 0x10b981,
+    text: '정상',
+    emoji: '🟢',
+    tailwindClass: 'bg-green-500',
+    priority: 1
+  },
+  [SENSOR_STATUS.YELLOW]: {
+    hexColor: '#f59e0b',
+    color3D: 0xf59e0b,
+    text: '경고',
+    emoji: '🟡',
+    tailwindClass: 'bg-yellow-500',
+    priority: 2
+  },
+  [SENSOR_STATUS.RED]: {
+    hexColor: '#ef4444',
+    color3D: 0xef4444,
+    text: '경고',
+    emoji: '🔴',
+    tailwindClass: 'bg-red-500',
+    priority: 3
+  },
+  [SENSOR_STATUS.CONNECTING]: {
+    hexColor: '#3b82f6',
+    color3D: 0x3b82f6,
+    text: '연결중',
+    emoji: '🔵',
+    tailwindClass: 'bg-blue-500',
+    priority: 0
+  },
+  [SENSOR_STATUS.DISCONNECTED]: {
+    hexColor: '#6b7280',
+    color3D: 0x6b7280,
+    text: '연결끊김',
+    emoji: '⚫',
+    tailwindClass: 'bg-gray-500',
+    priority: 0
+  },
+  // 호환성을 위한 별칭
+  normal: {
+    hexColor: '#10b981',
+    color3D: 0x10b981,
+    text: '정상',
+    emoji: '🟢',
+    tailwindClass: 'bg-green-500',
+    priority: 1
+  },
+  warning: {
+    hexColor: '#f59e0b',
+    color3D: 0xf59e0b,
+    text: '경고',
+    emoji: '🟡',
+    tailwindClass: 'bg-yellow-500',
+    priority: 2
+  },
+  error: {
+    hexColor: '#ef4444',
+    color3D: 0xef4444,
+    text: '오류',
+    emoji: '🔴',
+    tailwindClass: 'bg-red-500',
+    priority: 3
+  },
+  unknown: {
+    hexColor: '#6b7280',
+    color3D: 0x6b7280,
+    text: '알 수 없음',
+    emoji: '⚪',
+    tailwindClass: 'bg-gray-500',
+    priority: 0
+  },
+  default: {
+    hexColor: '#6b7280',
+    color3D: 0x6b7280,
+    text: '알 수 없음',
+    emoji: '⚪',
+    tailwindClass: 'bg-gray-500',
+    priority: 0
+  }
 };
-
-// 센서 상태별 색상 (3D Three.js용 숫자 형태)
-export const SENSOR_STATUS_3D_COLORS = {
-  [SENSOR_STATUS.GREEN]: 0x10b981,
-  [SENSOR_STATUS.YELLOW]: 0xf59e0b,
-  [SENSOR_STATUS.RED]: 0xef4444,
-  [SENSOR_STATUS.CONNECTING]: 0x3b82f6,
-  [SENSOR_STATUS.DISCONNECTED]: 0x6b7280,
-  normal: 0x10b981,
-  warning: 0xf59e0b,
-  error: 0xef4444,
-  unknown: 0x6b7280,
-  default: 0x6b7280
-};
-
-// 센서 상태별 텍스트
-export const SENSOR_STATUS_TEXT = {
-  [SENSOR_STATUS.GREEN]: '정상',
-  [SENSOR_STATUS.YELLOW]: '경고',
-  [SENSOR_STATUS.RED]: '경고',
-  [SENSOR_STATUS.CONNECTING]: '연결중',
-  [SENSOR_STATUS.DISCONNECTED]: '연결끊김',
-  normal: '정상',
-  warning: '경고',
-  error: '오류',
-  unknown: '알 수 없음',
-  default: '알 수 없음'
-};
-
-// 센서 타입 배열 (UI 렌더링용)
-export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, config]) => ({
-  type,
-  name: config.name,
-  icon: config.icon
-}));
 
 // ==================== 센서 설정 함수들 ====================
 
-// 센서 설정 가져오기
+// 센서 타입 설정 가져오기
 export const getSensorTypeConfig = (type) => {
   return SENSOR_TYPE_CONFIG[type] || null;
 };
 
-// 센서 상태 색상 가져오기 (HEX)
-export const getStatusHexColor = (status) => {
-  return SENSOR_STATUS_HEX_COLORS[status] || SENSOR_STATUS_HEX_COLORS.default;
-};
-
-// 센서 상태 텍스트 가져오기
-export const getStatusText = (status) => {
-  return SENSOR_STATUS_TEXT[status] || SENSOR_STATUS_TEXT.default;
-};
-
-// 센서 상태 3D 색상 가져오기 (Three.js용)
-export const getStatus3DColor = (status) => {
-  return SENSOR_STATUS_3D_COLORS[status] || SENSOR_STATUS_3D_COLORS.default;
-};
-
-// ==================== 센서 타입 분류 통합 ====================
-
-// 센서 타입 패턴 정의
-export const SENSOR_TYPE_PATTERNS = {
-  ESD: ['ESD'],
-  HUMIDITY: ['HUM'], 
-  WIND: ['WD'],
-  TEMPERATURE: ['TEMP'],
-  PARTICLE: ['LPM'],
-  HANDLE: ['Handle']
-};
-
-// 센서 이름으로 타입 분류하는 통합 함수
+// 센서 이름으로 타입 분류
 export const getSensorTypeFromName = (name) => {
   if (!name) return 'Unknown';
   
-  for (const [type, patterns] of Object.entries(SENSOR_TYPE_PATTERNS)) {
-    if (patterns.some(pattern => name.includes(pattern))) {
+  for (const [pattern, type] of Object.entries(SENSOR_TYPE_PATTERNS)) {
+    if (name.includes(pattern)) {
       return type;
     }
   }
   return 'Unknown';
 };
 
-// 센서 타입 매핑 (한글명)
-export const SENSOR_TYPE_MAPPING = {
-  'electrostatic': '정전기',
-  'temperature': '온도',
-  'humidity': '습도', 
-  'particle': '먼지',
-  'particle_0_1um': '미세먼지 0.1μm',
-  'particle_0_3um': '미세먼지 0.3μm',
-  'particle_0_5um': '미세먼지 0.5μm',
-  'winddirection': '풍향',
-  // 대문자 키들 추가
-  'ESD': '정전기',
-  'TEMP': '온도',
-  'HUMIDITY': '습도',
-  'LPM': '먼지',
-  'WD': '풍향',
-  'HANDLE': '핸들',
-  'Unknown': '알 수 없음'
-};
-
-// 센서 타입 매핑 함수
+// 센서 타입 한글명 가져오기
 export const getSensorTypeMapping = (type) => {
-  return SENSOR_TYPE_MAPPING[type] || type;
+  const config = getSensorTypeConfig(type);
+  return config?.name || type;
 };
 
-// 센서 타입 목록 (UI 필터용)
-export const SENSOR_TYPES_FOR_FILTER = [
-  'all',
-  'temperature', 
-  'humidity', 
-  'electrostatic', 
-  'particle_0_1um', 
-  'particle_0_3um', 
-  'particle_0_5um', 
-  'winddirection'
-];
-
-// Particle 센서 타입 상세 배열 (UI에서 사용)
-export const PARTICLE_SENSOR_TYPES = [
-  'particle_0_1um',
-  'particle_0_3um', 
-  'particle_0_5um'
-];
-
-// Particle 센서 타입별 한글 매핑 (UI에서 사용)
-export const PARTICLE_SENSOR_MAPPING = {
-  'particle_0_1um': '미세먼지 0.1μm',
-  'particle_0_3um': '미세먼지 0.3μm',
-  'particle_0_5um': '미세먼지 0.5μm'
+// 센서 상태 설정 가져오기
+const getStatusConfig = (status) => {
+  return SENSOR_STATUS_CONFIG[status] || SENSOR_STATUS_CONFIG.default;
 };
 
-// ==================== 센서 ID 생성 통합 ====================
-
-// 센서 ID 생성 설정
-export const SENSOR_ID_CONFIG = {
-  MAX_COUNT: 55,
-  ID_PREFIX: 'S'
+// 센서 상태 색상 가져오기 (HEX)
+export const getStatusHexColor = (status) => {
+  return getStatusConfig(status).hexColor;
 };
 
-// 센서 ID 배열 생성 함수
-export const generateSensorIds = () => {
-  const ids = [];
-  for (let i = 1; i <= SENSOR_ID_CONFIG.MAX_COUNT; i++) {
-    ids.push(`${SENSOR_ID_CONFIG.ID_PREFIX}${i.toString().padStart(2, '0')}`);
-  }
-  return ids;
+// 센서 상태 3D 색상 가져오기 (Three.js용)
+export const getStatus3DColor = (status) => {
+  return getStatusConfig(status).color3D;
 };
 
-// 센서 패턴 배열 (3D 모델용)
-export const SENSOR_PATTERNS = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
+// 센서 상태 텍스트 가져오기
+export const getStatusText = (status) => {
+  return getStatusConfig(status).text;
+};
 
-// ==================== 센서 유틸리티 함수 통합 ====================
+// 센서 상태 이모지 가져오기
+export const getStatusEmoji = (status) => {
+  return getStatusConfig(status).emoji;
+};
+
+// 센서 상태 Tailwind CSS 클래스 가져오기
+export const getStatusColor = (status) => {
+  return getStatusConfig(status).tailwindClass;
+};
+
+// 센서 상태 우선순위 가져오기
+export const getSensorStatusPriority = (status) => {
+  return getStatusConfig(status).priority;
+};
+
+// ==================== 센서 데이터 처리 ====================
 
 // 센서 데이터 검증
 export const isValidSensorData = (sensorData) => {
@@ -247,20 +239,6 @@ export const isValidSensorData = (sensorData) => {
 
 // 센서 값이 유효한지 확인 (기존 함수명 유지)
 export const isSensorValueValid = isValidSensorData;
-
-// 센서 상태 우선순위
-export const getSensorStatusPriority = (status) => {
-  switch (status) {
-    case SENSOR_STATUS.RED:
-      return 3; // 최고 우선순위
-    case SENSOR_STATUS.YELLOW:
-      return 2; // 중간 우선순위
-    case SENSOR_STATUS.GREEN:
-      return 1; // 낮은 우선순위
-    default:
-      return 0; // 알 수 없음
-  }
-};
 
 // 센서 값 변경 확인
 export const hasSensorValueChanged = (oldSensor, newSensor) => {
@@ -285,110 +263,6 @@ export const hasSensorValueChanged = (oldSensor, newSensor) => {
     return oldValue !== newValue;
   }
 };
-
-// ==================== Zone 정보 통합 ====================
-
-// Zone 정보 타입
-export const ZONE_INFO = {
-  A01: { id: 'a01', name: 'Zone A01', zone_name: 'zone_A01' },
-  A02: { id: 'a02', name: 'Zone A02', zone_name: 'zone_A02' },
-  B01: { id: 'b01', name: 'Zone B01', zone_name: 'zone_B01' },
-  B02: { id: 'b02', name: 'Zone B02', zone_name: 'zone_B02' },
-  B03: { id: 'b03', name: 'Zone B03', zone_name: 'zone_B03' },
-  B04: { id: 'b04', name: 'Zone B04', zone_name: 'zone_B04' },
-  C01: { id: 'c01', name: 'Zone C01', zone_name: 'zone_C01' },
-  C02: { id: 'c02', name: 'Zone C02', zone_name: 'zone_C02' }
-};
-
-// Zone 매핑 (소문자 → 대문자)
-export const ZONE_MAPPING = {
-  'a01': 'A01',
-  'a02': 'A02', 
-  'b01': 'B01',
-  'b02': 'B02',
-  'b03': 'B03',
-  'b04': 'B04',
-  'c01': 'C01',
-  'c02': 'C02'
-};
-
-// Zone 상태 키 매핑
-export const getZoneStatusKey = (meshName) => {
-  const zoneMapping = {
-    'a01': 'zone_A',
-    'a02': 'zone_A02',
-    'b01': 'zone_B', 
-    'b02': 'zone_B02',
-    'b03': 'zone_B03',
-    'b04': 'zone_B04',
-    'c01': 'zone_C01',
-    'c02': 'zone_C02',
-    'A01': 'zone_A',
-    'A02': 'zone_A02',
-    'B01': 'zone_B', 
-    'B02': 'zone_B02',
-    'B03': 'zone_B03',
-    'B04': 'zone_B04',
-    'C01': 'zone_C01',
-    'C02': 'zone_C02'
-  };
-  return zoneMapping[meshName];
-};
-
-// 모델 경로 생성
-export const getModelPath = (zoneId) => {
-  return `/models/${zoneId.toUpperCase()}-meshopt.glb`;
-};
-
-// ==================== 센서 UI 유틸리티 통합 ====================
-
-// 센서 상태에 따른 Tailwind CSS 색상 클래스 반환
-export const getStatusColor = (status) => {
-  switch (status) {
-    case SENSOR_STATUS.GREEN:
-      return 'bg-green-500';
-    case SENSOR_STATUS.YELLOW:
-      return 'bg-yellow-500';
-    case SENSOR_STATUS.RED:
-      return 'bg-red-500';
-    case SENSOR_STATUS.CONNECTING:
-      return 'bg-blue-500';
-    case SENSOR_STATUS.DISCONNECTED:
-      return 'bg-gray-500';
-    default:
-      return 'bg-gray-500';
-  }
-};
-
-// 센서 상태에 따른 이모지 반환
-export const getStatusEmoji = (status) => {
-  switch (status) {
-    case SENSOR_STATUS.GREEN:
-      return '🟢';
-    case SENSOR_STATUS.YELLOW:
-      return '🟡';
-    case SENSOR_STATUS.RED:
-      return '🔴';
-    case SENSOR_STATUS.CONNECTING:
-      return '🔵';
-    case SENSOR_STATUS.DISCONNECTED:
-      return '⚫';
-    default:
-      return '⚪';
-  }
-};
-
-// 시간 포맷팅
-export const formatTime = (date) => {
-  if (!date) return '';
-  return new Date(date).toLocaleTimeString('ko-KR', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit'
-  });
-};
-
-// ==================== 센서 데이터 처리 통합 ====================
 
 // 백엔드 센서 데이터를 센서 타입별로 그룹화하고 정렬
 export const groupSensorData = (backendData) => {
@@ -464,7 +338,7 @@ export const groupSensorData = (backendData) => {
   return grouped;
 };
 
-// ==================== 센서 데이터 디바운싱 통합 ====================
+// ==================== 센서 데이터 디바운싱 ====================
 
 // 센서 데이터 디바운싱을 위한 유틸리티 클래스
 export class SensorDataDebouncer {
@@ -503,7 +377,61 @@ export class SensorDataDebouncer {
   }
 }
 
-// ==================== 센서 데이터 찾기 통합 ====================
+// ==================== Zone 정보 ====================
+
+// Zone 정보 타입
+export const ZONE_INFO = {
+  A01: { id: 'a01', name: 'Zone A01', zone_name: 'zone_A01' },
+  A02: { id: 'a02', name: 'Zone A02', zone_name: 'zone_A02' },
+  B01: { id: 'b01', name: 'Zone B01', zone_name: 'zone_B01' },
+  B02: { id: 'b02', name: 'Zone B02', zone_name: 'zone_B02' },
+  B03: { id: 'b03', name: 'Zone B03', zone_name: 'zone_B03' },
+  B04: { id: 'b04', name: 'Zone B04', zone_name: 'zone_B04' },
+  C01: { id: 'c01', name: 'Zone C01', zone_name: 'zone_C01' },
+  C02: { id: 'c02', name: 'Zone C02', zone_name: 'zone_C02' }
+};
+
+// Zone 매핑 (소문자 → 대문자)
+export const ZONE_MAPPING = {
+  'a01': 'A01',
+  'a02': 'A02', 
+  'b01': 'B01',
+  'b02': 'B02',
+  'b03': 'B03',
+  'b04': 'B04',
+  'c01': 'C01',
+  'c02': 'C02'
+};
+
+// Zone 상태 키 매핑
+export const getZoneStatusKey = (meshName) => {
+  const zoneMapping = {
+    'a01': 'zone_A1',
+    'a02': 'zone_A02',
+    'b01': 'zone_B01', 
+    'b02': 'zone_B02',
+    'b03': 'zone_B03',
+    'b04': 'zone_B04',
+    'c01': 'zone_C01',
+    'c02': 'zone_C02',
+    'A01': 'zone_A01',
+    'A02': 'zone_A02',
+    'B01': 'zone_B01', 
+    'B02': 'zone_B02',
+    'B03': 'zone_B03',
+    'B04': 'zone_B04',
+    'C01': 'zone_C01',
+    'C02': 'zone_C02'
+  };
+  return zoneMapping[meshName];
+};
+
+// 모델 경로 생성
+export const getModelPath = (zoneId) => {
+  return `/models/${zoneId.toUpperCase()}-meshopt.glb`;
+};
+
+// ==================== 센서 데이터 찾기 ====================
 
 // 센서 데이터에서 meshName에 해당하는 센서 찾기
 export const findSensorDataByMeshName = (meshName, sensorData) => {
@@ -534,7 +462,7 @@ export const findSensorDataByMeshName = (meshName, sensorData) => {
   return null;
 };
 
-// ==================== 3D 센서 함수 통합 ====================
+// ==================== 3D 센서 함수 ====================
 
 // 센서 Mesh의 AABB 정보 계산 (Three.js용)
 export const calculateMeshBounds = (mesh) => {
@@ -610,3 +538,87 @@ export const calculateModelBounds = (scene) => {
     maxDimension: Math.max(size.x, size.y, size.z)
   };
 };
+
+// ==================== 센서 ID 생성 ====================
+
+// 센서 ID 생성 설정
+export const SENSOR_ID_CONFIG = {
+  MAX_COUNT: 55,
+  ID_PREFIX: 'S'
+};
+
+// 센서 ID 배열 생성 함수
+export const generateSensorIds = () => {
+  const ids = [];
+  for (let i = 1; i <= SENSOR_ID_CONFIG.MAX_COUNT; i++) {
+    ids.push(`${SENSOR_ID_CONFIG.ID_PREFIX}${i.toString().padStart(2, '0')}`);
+  }
+  return ids;
+};
+
+// 센서 패턴 배열 (3D 모델용)
+export const SENSOR_PATTERNS = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
+
+// ==================== UI 관련 ====================
+
+// 센서 타입 배열 (UI 렌더링용)
+export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, config]) => ({
+  type,
+  name: config.name,
+  icon: config.icon
+}));
+
+// 센서 타입 목록 (UI 필터용)
+export const SENSOR_TYPES_FOR_FILTER = [
+  'all',
+  'temperature', 
+  'humidity', 
+  'electrostatic', 
+  'particle_0_1um', 
+  'particle_0_3um', 
+  'particle_0_5um', 
+  'winddirection'
+];
+
+// Particle 센서 타입 상세 배열 (UI에서 사용)
+export const PARTICLE_SENSOR_TYPES = [
+  'particle_0_1um',
+  'particle_0_3um', 
+  'particle_0_5um'
+];
+
+// Particle 센서 타입별 한글 매핑 (UI에서 사용)
+export const PARTICLE_SENSOR_MAPPING = {
+  'particle_0_1um': '먼지 0.1μm',
+  'particle_0_3um': '먼지 0.3μm',
+  'particle_0_5um': '먼지 0.5μm'
+};
+
+// 시간 포맷팅
+export const formatTime = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit'
+  });
+};
+
+// ==================== 호환성을 위한 별칭 ====================
+
+// 기존 코드와의 호환성을 위한 별칭들
+export const SENSOR_STATUS_HEX_COLORS = Object.fromEntries(
+  Object.entries(SENSOR_STATUS_CONFIG).map(([key, config]) => [key, config.hexColor])
+);
+
+export const SENSOR_STATUS_3D_COLORS = Object.fromEntries(
+  Object.entries(SENSOR_STATUS_CONFIG).map(([key, config]) => [key, config.color3D])
+);
+
+export const SENSOR_STATUS_TEXT = Object.fromEntries(
+  Object.entries(SENSOR_STATUS_CONFIG).map(([key, config]) => [key, config.text])
+);
+
+export const SENSOR_TYPE_MAPPING = Object.fromEntries(
+  Object.entries(SENSOR_TYPE_CONFIG).map(([key, config]) => [key, config.name])
+);

@@ -1,21 +1,8 @@
 import { useCallback } from 'react';
 import * as THREE from 'three';
-import { getStatus3DColor, ZONE_MAPPING } from '../../../config/sensorConfig';
+import { getStatus3DColor, getZoneStatusKey } from '../../../config/sensorConfig';
 
 export const useMainModelMaterials = () => {
-  // Zone 상태 키 매핑 (API 응답 형식에 맞게 수정)
-  const getZoneStatusKey = useCallback((meshName) => {
-    // ZONE_MAPPING을 사용하되, 대소문자 모두 지원
-    const lowerCaseMapping = Object.fromEntries(
-      Object.entries(ZONE_MAPPING).map(([key, value]) => [key.toLowerCase(), value])
-    );
-    const upperCaseMapping = Object.fromEntries(
-      Object.entries(ZONE_MAPPING).map(([key, value]) => [key.toUpperCase(), value])
-    );
-    
-    return lowerCaseMapping[meshName] || upperCaseMapping[meshName] || ZONE_MAPPING[meshName];
-  }, []);
-
   // Zone 상태에 따른 재질 업데이트
   const updateZoneMaterials = useCallback((scene, zoneStatuses) => {
     if (!zoneStatuses) return;
@@ -51,10 +38,9 @@ export const useMainModelMaterials = () => {
         }
       }
     });
-  }, [getZoneStatusKey]);
+  }, []);
 
   return {
-    getZoneStatusKey,
     updateZoneMaterials
   };
 };
