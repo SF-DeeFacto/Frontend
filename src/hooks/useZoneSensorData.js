@@ -1,5 +1,42 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { groupSensorData, formatTime, SensorDataDebouncer, CONNECTION_STATE } from '../config/sensorConfig';
+import { groupSensorData, formatTime, CONNECTION_STATE } from '../config/sensorConfig';
+
+// 센서 데이터 디바운싱을 위한 유틸리티 클래스 (로컬 정의)
+class SensorDataDebouncer {
+  constructor(delay = 300) {
+    this.delay = delay;
+    this.timeoutId = null;
+    this.callback = null;
+  }
+
+  addCallback(callback) {
+    this.callback = callback;
+  }
+
+  update(data) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+    
+    this.timeoutId = setTimeout(() => {
+      if (this.callback) {
+        try {
+          this.callback(data);
+        } catch (error) {
+          console.error('센서 데이터 디바운싱 콜백 오류:', error);
+        }
+      }
+    }, this.delay);
+  }
+
+  destroy() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+    this.callback = null;
+  }
+}
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 import { connectZoneSSE } from '../services/sse';

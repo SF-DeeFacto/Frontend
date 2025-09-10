@@ -399,44 +399,6 @@ export const groupSensorData = (backendData) => {
   return grouped;
 };
 
-// ==================== 센서 데이터 디바운싱 ====================
-
-// 센서 데이터 디바운싱을 위한 유틸리티 클래스
-export class SensorDataDebouncer {
-  constructor(delay = 300) {
-    this.delay = delay;
-    this.timeoutId = null;
-    this.callback = null;
-  }
-
-  addCallback(callback) {
-    this.callback = callback;
-  }
-
-  update(data) {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
-    
-    this.timeoutId = setTimeout(() => {
-      if (this.callback) {
-        try {
-          this.callback(data);
-        } catch (error) {
-          console.error('센서 데이터 디바운싱 콜백 오류:', error);
-        }
-      }
-    }, this.delay);
-  }
-
-  destroy() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = null;
-    }
-    this.callback = null;
-  }
-}
 
 // ==================== Zone 정보 ====================
 
@@ -467,7 +429,7 @@ export const ZONE_MAPPING = {
 // Zone 상태 키 매핑
 export const getZoneStatusKey = (meshName) => {
   const zoneMapping = {
-    'a01': 'zone_A1',
+    'a01': 'zone_A01',
     'a02': 'zone_A02',
     'b01': 'zone_B01', 
     'b02': 'zone_B02',
@@ -600,34 +562,17 @@ export const calculateModelBounds = (scene) => {
   };
 };
 
-// ==================== 센서 ID 생성 ====================
-
-// 센서 ID 생성 설정
-export const SENSOR_ID_CONFIG = {
-  MAX_COUNT: 55,
-  ID_PREFIX: 'S'
-};
-
-// 센서 ID 배열 생성 함수
-export const generateSensorIds = () => {
-  const ids = [];
-  for (let i = 1; i <= SENSOR_ID_CONFIG.MAX_COUNT; i++) {
-    ids.push(`${SENSOR_ID_CONFIG.ID_PREFIX}${i.toString().padStart(2, '0')}`);
-  }
-  return ids;
-};
-
-// 센서 패턴 배열 (3D 모델용)
-export const SENSOR_PATTERNS = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
-
 // ==================== UI 관련 ====================
 
-// 센서 타입 배열 (UI 렌더링용)
-export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, config]) => ({
-  type,
-  name: config.name,
-  icon: config.icon
-}));
+// 센서 타입 배열 (실시간 데이터용) - 기본 타입만
+export const SENSOR_TYPES = [
+  { type: 'temperature', name: '온도', icon: Thermometer },
+  { type: 'humidity', name: '습도', icon: Droplet },
+  { type: 'electrostatic', name: '정전기', icon: Zap },
+  { type: 'particle', name: '먼지', icon: ChartScatter },
+  { type: 'winddirection', name: '풍향', icon: Wind }
+];
+
 
 // 센서 타입 목록 (UI 필터용) - 중복 제거
 export const SENSOR_TYPES_FOR_FILTER = [
@@ -635,15 +580,9 @@ export const SENSOR_TYPES_FOR_FILTER = [
   'temperature', 
   'humidity', 
   'electrostatic', 
-  'particle_0_1um',
-  'particle_0_3um', 
-  'particle_0_5um', 
+  'particle',
   'winddirection'
 ];
-
-// PARTICLE_SENSOR_TYPES는 사용되지 않으므로 제거
-
-// PARTICLE_SENSOR_MAPPING은 SENSOR_TYPE_CONFIG에서 관리하므로 제거
 
 // 시간 포맷팅
 export const formatTime = (date) => {

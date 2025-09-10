@@ -3,7 +3,16 @@ import { useLoader } from '@react-three/fiber';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
-import { calculateMeshBounds, calculateIndicatorPosition, SENSOR_PATTERNS } from '../config/sensorConfig';
+import { calculateMeshBounds, calculateIndicatorPosition } from '../config/sensorConfig';
+
+// 센서 ID 생성 함수 (로컬 정의)
+const generateSensorIds = () => {
+  const ids = [];
+  for (let i = 1; i <= 55; i++) {
+    ids.push(`S${i.toString().padStart(2, '0')}`);
+  }
+  return ids;
+};
 
 // 공통 모델 로더 훅
 export const useModelLoader = (modelPath, options = {}) => {
