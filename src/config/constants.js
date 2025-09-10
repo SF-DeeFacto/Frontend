@@ -38,16 +38,8 @@ export const SYSTEM_CONFIG = {
 // 존(Zone) 관련 - sensorConfig.js에서 import
 // ZONE_INFO, ZONE_MAPPING은 sensorConfig.js에서 관리
 
-// 센서 관련
-export const SENSORS = {
-  TEMPERATURE: '온도',
-  HUMIDITY: '습도',
-  WIND_DIRECTION: '풍향',
-  STATIC_ELECTRICITY: '정전기',
-  PARTICLE: '파티클'
-};
-
-export const SENSOR_LIST = Object.values(SENSORS);
+// 센서 관련 - sensorConfig.js에서 통합 관리
+// 센서 타입은 sensorConfig.js의 SENSOR_TYPE_CONFIG를 사용
 
 // 사용자 관리 관련
 export const USER_MANAGEMENT = {
@@ -242,8 +234,6 @@ export const DATE_FORMATS = {
 
 export default {
   SYSTEM_CONFIG,
-  SENSORS,
-  SENSOR_LIST,
   USER_MANAGEMENT,
   NOTIFICATION_TYPES,
   NOTIFICATION_TYPE_COLORS,

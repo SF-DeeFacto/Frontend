@@ -17,14 +17,7 @@ export const SENSOR_STATUS = {
   DISCONNECTED: 'DISCONNECTED'
 };
 
-// 센서 타입
-export const SENSOR_TYPE = {
-  TEMPERATURE: 'temperature',
-  HUMIDITY: 'humidity',
-  ELECTROSTATIC: 'electrostatic',
-  PARTICLE: 'particle',
-  WINDDIRECTION: 'winddirection'
-};
+// SENSOR_TYPE은 사용되지 않으므로 제거
 
 // 연결 상태 타입
 export const CONNECTION_STATE = {
@@ -67,6 +60,25 @@ export const SENSOR_TYPE_CONFIG = {
     icon: Wind,
     unit: '°',
     patterns: ['WD']
+  },
+  // 먼지 센서 상세 타입들
+  particle_0_1um: {
+    name: '먼지 0.1μm',
+    icon: ChartScatter,
+    unit: 'μg/m³',
+    patterns: ['LPM', '0_1um']
+  },
+  particle_0_3um: {
+    name: '먼지 0.3μm',
+    icon: ChartScatter,
+    unit: 'μg/m³',
+    patterns: ['LPM', '0_3um']
+  },
+  particle_0_5um: {
+    name: '먼지 0.5μm',
+    icon: ChartScatter,
+    unit: 'μg/m³',
+    patterns: ['LPM', '0_5um']
   }
 };
 
@@ -184,10 +196,59 @@ export const getSensorTypeFromName = (name) => {
   return 'Unknown';
 };
 
-// 센서 타입 한글명 가져오기
+// 센서 타입 한글명 가져오기 (대소문자 및 다양한 형태 지원)
 export const getSensorTypeMapping = (type) => {
-  const config = getSensorTypeConfig(type);
-  return config?.name || type;
+  if (!type) return type;
+  
+  // 대소문자 변환
+  const lowerType = type.toLowerCase();
+  
+  // 직접 매칭 시도
+  let config = getSensorTypeConfig(lowerType);
+  if (config) return config.name;
+  
+  // 대문자 매칭 시도
+  config = getSensorTypeConfig(type.toUpperCase());
+  if (config) return config.name;
+  
+  // 패턴 매칭 시도 (예: TEMP -> temperature)
+  for (const [sensorType, sensorConfig] of Object.entries(SENSOR_TYPE_CONFIG)) {
+    if (sensorConfig.patterns.some(pattern => 
+      lowerType.includes(pattern.toLowerCase()) || 
+      type.toUpperCase().includes(pattern)
+    )) {
+      return sensorConfig.name;
+    }
+  }
+  
+  // 특별한 경우 처리
+  if (lowerType.includes('particle') || lowerType.includes('lpm')) {
+    // 먼지 센서 상세 타입 처리
+    if (lowerType.includes('0_1um') || lowerType.includes('0.1')) {
+      return '먼지 0.1μm';
+    }
+    if (lowerType.includes('0_3um') || lowerType.includes('0.3')) {
+      return '먼지 0.3μm';
+    }
+    if (lowerType.includes('0_5um') || lowerType.includes('0.5')) {
+      return '먼지 0.5μm';
+    }
+    return '먼지';
+  }
+  if (lowerType.includes('temp')) {
+    return '온도';
+  }
+  if (lowerType.includes('hum') || lowerType.includes('humidity')) {
+    return '습도';
+  }
+  if (lowerType.includes('wind') || lowerType.includes('wd')) {
+    return '풍향';
+  }
+  if (lowerType.includes('esd') || lowerType.includes('electrostatic')) {
+    return '정전기';
+  }
+  
+  return type; // 매칭되지 않으면 원본 반환
 };
 
 // 센서 상태 설정 가져오기
@@ -568,31 +629,21 @@ export const SENSOR_TYPES = Object.entries(SENSOR_TYPE_CONFIG).map(([type, confi
   icon: config.icon
 }));
 
-// 센서 타입 목록 (UI 필터용)
+// 센서 타입 목록 (UI 필터용) - 중복 제거
 export const SENSOR_TYPES_FOR_FILTER = [
   'all',
   'temperature', 
   'humidity', 
   'electrostatic', 
-  'particle_0_1um', 
+  'particle_0_1um',
   'particle_0_3um', 
   'particle_0_5um', 
   'winddirection'
 ];
 
-// Particle 센서 타입 상세 배열 (UI에서 사용)
-export const PARTICLE_SENSOR_TYPES = [
-  'particle_0_1um',
-  'particle_0_3um', 
-  'particle_0_5um'
-];
+// PARTICLE_SENSOR_TYPES는 사용되지 않으므로 제거
 
-// Particle 센서 타입별 한글 매핑 (UI에서 사용)
-export const PARTICLE_SENSOR_MAPPING = {
-  'particle_0_1um': '먼지 0.1μm',
-  'particle_0_3um': '먼지 0.3μm',
-  'particle_0_5um': '먼지 0.5μm'
-};
+// PARTICLE_SENSOR_MAPPING은 SENSOR_TYPE_CONFIG에서 관리하므로 제거
 
 // 시간 포맷팅
 export const formatTime = (date) => {

@@ -4,7 +4,7 @@ import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { useAuth } from '../../../hooks/useAuth';
 import { COLORS } from '../../../config/constants';
-import { SENSOR_TYPE_MAPPING } from '../../../config/sensorConfig';
+import { getSensorTypeMapping } from '../../../config/sensorConfig';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -176,7 +176,7 @@ const Equipset = ({ onTabChange }) => {
     };
     
     // 수정 내용 확인창
-    const confirmMessage = `다음 내용으로 수정하시겠습니까?\n\n구역: ${selectedZones[0].toUpperCase()}구역\n센서 유형: ${sensorTypeMapping[editingType] || editingType}\n\n경고 Low: ${formatValue(v.warningLow, originalSensor?.warningLow)}\n경고 High: ${formatValue(v.warningHigh, originalSensor?.warningHigh)}\n알림 Low: ${formatValue(v.alertLow, originalSensor?.alertLow)}\n알림 High: ${formatValue(v.alertHigh, originalSensor?.alertHigh)}`;
+    const confirmMessage = `다음 내용으로 수정하시겠습니까?\n\n구역: ${selectedZones[0].toUpperCase()}구역\n센서 유형: ${getSensorTypeName(editingType)}\n\n경고 Low: ${formatValue(v.warningLow, originalSensor?.warningLow)}\n경고 High: ${formatValue(v.warningHigh, originalSensor?.warningHigh)}\n알림 Low: ${formatValue(v.alertLow, originalSensor?.alertLow)}\n알림 High: ${formatValue(v.alertHigh, originalSensor?.alertHigh)}`;
     
     if (!window.confirm(confirmMessage)) {
       return; // 사용자가 취소한 경우
@@ -255,8 +255,8 @@ const Equipset = ({ onTabChange }) => {
     }
   };
 
-  // 센서 타입별 한글 매핑 (config에서 가져옴)
-  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
+  // 센서 타입별 한글 매핑 함수 사용
+  const getSensorTypeName = getSensorTypeMapping;
 
   // 날짜 포맷팅 함수 - 날짜와 시간 분리
   const formatDateFromISO = (isoString) => {
@@ -368,7 +368,7 @@ const Equipset = ({ onTabChange }) => {
               return (
                 <tr key={uniqueKey} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">{s.zoneId.toUpperCase()}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{sensorTypeMapping[s.sensorType] || s.sensorType}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{getSensorTypeName(s.sensorType)}</td>
 
                   {/* 경고L */}
                   <td className="px-4 py-3 text-sm text-gray-700">

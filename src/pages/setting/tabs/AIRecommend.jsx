@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { aiRecommendService } from '../../../services/api/aiRecommend';
 import { useAuth } from '../../../hooks/useAuth';
 import { COLORS } from '../../../config/constants';
-import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
+import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
 
 const AIRecommend = () => {
   const { user } = useAuth();
@@ -152,8 +152,8 @@ const AIRecommend = () => {
     };
   }, [showDatePicker]);
 
-  // 센서 타입 매핑 (config에서 가져옴)
-  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
+  // 센서 타입 매핑 함수 사용
+  const getSensorTypeName = getSensorTypeMapping;
 
   // 날짜 포맷팅 함수
   const formatDateTime = (dateTimeString) => {
@@ -358,7 +358,7 @@ const AIRecommend = () => {
               <option value="all">전체</option>
               {SENSOR_TYPES_FOR_FILTER.filter(type => type !== 'all').map(type => (
                 <option key={type} value={type}>
-                  {sensorTypeMapping[type] || type}
+                  {getSensorTypeName(type)}
                 </option>
               ))}
             </select>
@@ -426,7 +426,7 @@ const AIRecommend = () => {
                     {rec.zoneId.toUpperCase()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {sensorTypeMapping[rec.sensorType] || rec.sensorType}
+                    {getSensorTypeName(rec.sensorType)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {formatThresholdValue(rec.currentWarningLow)} / {formatThresholdValue(rec.currentWarningHigh)}
@@ -489,7 +489,7 @@ const AIRecommend = () => {
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
                 <h3 className="text-sm font-medium text-gray-900">
-                  {rec.zoneId.toUpperCase()}구역 - {sensorTypeMapping[rec.sensorType] || rec.sensorType}
+                  {rec.zoneId.toUpperCase()}구역 - {getSensorTypeName(rec.sensorType)}
                 </h3>
                 <p className="text-xs text-gray-500 mt-1">
                   {formatDateTime(rec.recommendedAt)}
@@ -628,7 +628,7 @@ const AIRecommend = () => {
                           </svg>
                           <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">센서타입</label>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium">{sensorTypeMapping[selectedRecommendation.sensorType] || selectedRecommendation.sensorType || '-'}</p>
+                        <p className="text-sm text-gray-900 font-medium">{getSensorTypeName(selectedRecommendation.sensorType)}</p>
                       </div>
                       
                       <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">

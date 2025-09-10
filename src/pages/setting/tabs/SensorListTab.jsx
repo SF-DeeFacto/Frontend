@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
-import { SENSOR_TYPE_MAPPING, SENSOR_TYPES_FOR_FILTER, ZONE_INFO } from '../../../config/sensorConfig';
+import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER, ZONE_INFO } from '../../../config/sensorConfig';
 import { useAuth } from '../../../hooks/useAuth';
 
 const SensorListTab = () => {
@@ -51,8 +51,8 @@ const SensorListTab = () => {
     return () => { isMounted = false; };
   }, [filterType, filterZone]);
 
-  // 센서 타입별 한글 매핑 (config에서 가져옴)
-  const sensorTypeMapping = SENSOR_TYPE_MAPPING;
+  // 센서 타입별 한글 매핑 함수 사용
+  const getSensorTypeName = getSensorTypeMapping;
 
   // 검색어 필터링 (클라이언트 사이드)
   useEffect(() => {
@@ -71,14 +71,14 @@ const SensorListTab = () => {
         sensor.zoneId.toLowerCase().includes(searchLower);
       
       // 한글 센서 타입명 검색
-      const koreanTypeName = sensorTypeMapping[sensor.sensorType];
+      const koreanTypeName = getSensorTypeName(sensor.sensorType);
       const koreanMatch = koreanTypeName && koreanTypeName.includes(searchTerm);
       
       return basicMatch || koreanMatch;
     });
     
     setFilteredSensors(filtered);
-  }, [sensors, searchTerm, sensorTypeMapping]);
+  }, [sensors, searchTerm, getSensorTypeName]);
 
   // 센서 타입 목록 (config에서 가져옴)
   const sensorTypes = SENSOR_TYPES_FOR_FILTER;
@@ -163,7 +163,7 @@ const SensorListTab = () => {
             >
               {sensorTypes.map(type => (
                 <option key={type} value={type}>
-                  {type === 'all' ? '전체' : sensorTypeMapping[type] || type}
+                  {type === 'all' ? '전체' : getSensorTypeName(type)}
                 </option>
               ))}
             </select>
@@ -241,7 +241,7 @@ const SensorListTab = () => {
                     {sensor.zoneId.toUpperCase()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {sensorTypeMapping[sensor.sensorType] || sensor.sensorType}
+                    {getSensorTypeName(sensor.sensorType)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                     {formatThresholdValue(sensor.warningLow)}
