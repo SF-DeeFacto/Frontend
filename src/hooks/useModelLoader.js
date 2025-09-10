@@ -20,6 +20,10 @@ export const useModelLoader = (modelPath, options = {}) => {
 
   const gltf = useLoader(GLTFLoader, modelPath, (loader) => {
     loader.setMeshoptDecoder(MeshoptDecoder);
+  }, undefined, (error) => {
+    console.error('GLTF 로딩 에러:', error);
+    setError(error);
+    if (onError) onError(error);
   });
 
   // 센서 위치 찾기 함수

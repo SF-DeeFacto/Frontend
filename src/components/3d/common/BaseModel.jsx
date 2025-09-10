@@ -20,10 +20,13 @@ export const BaseModel = ({
   autoCenter = true,
   ...props 
 }) => {
-  const { gltf, isLoaded, sensorPositions } = useModelLoader(modelPath, {
+  const { gltf, isLoaded, error, sensorPositions } = useModelLoader(modelPath, {
     autoCenter,
     onLoad: (loadedGltf) => {
       if (onLoad) onLoad(loadedGltf);
+    },
+    onError: (err) => {
+      console.error('모델 로딩 에러:', err);
     }
   });
 
@@ -33,6 +36,20 @@ export const BaseModel = ({
       updateZoneMaterials(gltf.scene, zoneStatuses);
     }
   }, [zoneStatuses, gltf?.scene, updateZoneMaterials]);
+
+  if (error) {
+    return (
+      <group {...props}>
+        <mesh>
+          <boxGeometry args={[1, 1, 1]} />
+          <meshBasicMaterial color="red" />
+        </mesh>
+        <text position={[0, 2, 0]} fontSize={0.5} color="red">
+          모델 로딩 실패: {error.message}
+        </text>
+      </group>
+    );
+  }
 
   if (!isLoaded || !gltf.scene) {
     return null;
