@@ -1,5 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusEmoji, getStatusText, getSensorTypeFromName, getSensorTypeMapping } from '../../config/sensorConfig';
+import { getStatusColor, getStatusEmoji, getStatusText, getSensorTypeFromName, getSensorTypeMapping, getSensorTypeConfig } from '../../config/sensorConfig';
 import { COLORS } from '../../config/constants';
 import { SENSOR_STATUS } from '../../config/sensorConfig';
 
@@ -58,16 +58,16 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
                   <div className="text-sm text-gray-400">센서 데이터:</div>
                   <div className="text-xs text-gray-300 bg-gray-800 p-2 rounded">
                     {selectedObject.sensorData.val !== undefined && (
-                      <div>값: {selectedObject.sensorData.val}</div>
+                      <div>값: {selectedObject.sensorData.val} {getSensorTypeConfig(selectedObject.type?.toLowerCase())?.unit || ''}</div>
                     )}
                     {selectedObject.sensorData.val_0_1 !== undefined && (
-                      <div>0.1μm: {selectedObject.sensorData.val_0_1}</div>
+                      <div>0.1μm: {selectedObject.sensorData.val_0_1} μg/m³</div>
                     )}
                     {selectedObject.sensorData.val_0_3 !== undefined && (
-                      <div>0.3μm: {selectedObject.sensorData.val_0_3}</div>
+                      <div>0.3μm: {selectedObject.sensorData.val_0_3} μg/m³</div>
                     )}
                     {selectedObject.sensorData.val_0_5 !== undefined && (
-                      <div>0.5μm: {selectedObject.sensorData.val_0_5}</div>
+                      <div>0.5μm: {selectedObject.sensorData.val_0_5} μg/m³</div>
                     )}
                     {selectedObject.sensorData.timestamp && (
                       <div>시간: {new Date(selectedObject.sensorData.timestamp).toLocaleString()}</div>
