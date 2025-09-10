@@ -14,6 +14,9 @@ const generateSensorIds = () => {
   return ids;
 };
 
+// 센서 패턴 배열 (3D 모델용)
+const SENSOR_PATTERNS = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
+
 // 공통 모델 로더 훅
 export const useModelLoader = (modelPath, options = {}) => {
   const {
