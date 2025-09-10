@@ -1,11 +1,11 @@
 import React from 'react';
 import { ZoneCanvas } from '../common/CanvasWrapper';
 import ZoneModel from './ZoneModel';
-import { getModelPath } from '../../../config/sensorConfig';
+import { getZoneModelPath } from '../../../config/modelConfig';
 
 // 범용 존 뷰어 컴포넌트
 function GenericZoneViewer({ zoneId, sensorData, selectedObject, onObjectClick }) {
-  const modelPath = getModelPath(zoneId);
+  const modelPath = getZoneModelPath(zoneId);
   
   return (
     <div style={{ 

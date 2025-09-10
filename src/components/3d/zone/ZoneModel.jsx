@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useThree } from '@react-three/fiber';
 import { BaseModel } from '../common/BaseModel';
+import { getZoneModelConfig } from '../../../config/modelConfig';
 
 function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const groupRef = useRef();
@@ -19,9 +20,12 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
   // 모델 로딩 완료 후 처리
   const handleModelLoad = (loadedGltf) => {
     if (loadedGltf.scene) {
-      // 카메라 설정 - 모델을 더 작게 보이게 하기
-      camera.position.set(10, 10, 19);
-      camera.lookAt(0, 0, 0);
+      // 존별 카메라 설정 가져오기
+      const modelConfig = getZoneModelConfig(zoneId);
+      const { position, lookAt } = modelConfig.camera;
+      
+      camera.position.set(...position);
+      camera.lookAt(...lookAt);
     }
   };
 
@@ -35,6 +39,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
   };
 
 
+  // 존별 모델 설정 가져오기
+  const modelConfig = getZoneModelConfig(zoneId);
+
   return (
     <group ref={groupRef}>
       <BaseModel
@@ -44,7 +51,9 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
         zoneId={zoneId}
         onSensorClick={handleSensorClick}
         lighting="basic"
-        scale={[0.002, 0.002, 0.002]}
+        scale={modelConfig.scale}
+        position={modelConfig.position}
+        rotation={modelConfig.rotation}
         onPointerDown={handleClick}
       />
     </group>

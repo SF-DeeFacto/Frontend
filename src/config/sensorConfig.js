@@ -449,7 +449,7 @@ export const getZoneStatusKey = (meshName) => {
   return zoneMapping[meshName];
 };
 
-// 모델 경로 생성
+// 모델 경로 생성 (modelConfig.js로 이동됨)
 export const getModelPath = (zoneId) => {
   return `/models/${zoneId.toUpperCase()}-meshopt.glb`;
 };

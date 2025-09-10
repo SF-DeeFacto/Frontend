@@ -1,11 +1,12 @@
 import React, { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
+import { MODEL_CONFIG } from '../../../config/modelConfig';
 
 // 공통 Canvas 래퍼 컴포넌트
 export const CanvasWrapper = ({
   children,
-  camera = { position: [10, 10, 10], fov: 75 },
+  camera = MODEL_CONFIG.CAMERA_CONFIG.DEFAULT,
   style = { width: '100%', height: '100%' },
   background = 'transparent',
   enableShadows = false,
@@ -48,12 +49,8 @@ export const CanvasWrapper = ({
 // 특화된 Canvas 래퍼들
 export const ZoneCanvas = ({ children, ...props }) => (
   <CanvasWrapper
-    camera={{ position: [10, 10, 10], fov: 75 }}
-    orbitConfig={{
-      maxPolarAngle: Math.PI / 2,
-      minDistance: 5,
-      maxDistance: 50
-    }}
+    camera={MODEL_CONFIG.CAMERA_CONFIG.ZONE}
+    orbitConfig={MODEL_CONFIG.CAMERA_CONFIG.ZONE.orbitConfig}
     {...props}
   >
     {children}
@@ -62,13 +59,8 @@ export const ZoneCanvas = ({ children, ...props }) => (
 
 export const HoverCanvas = ({ children, ...props }) => (
   <CanvasWrapper
-    camera={{ position: [10, 10, 10], fov: 75 }}
-    orbitConfig={{
-      enablePan: false,
-      enableZoom: false,
-      autoRotate: true,
-      autoRotateSpeed: 0.8
-    }}
+    camera={MODEL_CONFIG.CAMERA_CONFIG.HOVER}
+    orbitConfig={MODEL_CONFIG.CAMERA_CONFIG.HOVER.orbitConfig}
     {...props}
   >
     {children}
@@ -77,8 +69,8 @@ export const HoverCanvas = ({ children, ...props }) => (
 
 export const MainCanvas = ({ children, ...props }) => (
   <CanvasWrapper
-    camera={{ position: [5, 7, 5], fov: 45 }}
-    enableShadows={true}
+    camera={MODEL_CONFIG.CAMERA_CONFIG.MAIN}
+    enableShadows={MODEL_CONFIG.CAMERA_CONFIG.MAIN.enableShadows}
     {...props}
   >
     {children}

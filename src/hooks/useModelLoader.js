@@ -4,18 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import * as THREE from 'three';
 import { calculateMeshBounds, calculateIndicatorPosition } from '../config/sensorConfig';
-
-// 센서 ID 생성 함수 (로컬 정의)
-const generateSensorIds = () => {
-  const ids = [];
-  for (let i = 1; i <= 55; i++) {
-    ids.push(`S${i.toString().padStart(2, '0')}`);
-  }
-  return ids;
-};
-
-// 센서 패턴 배열 (3D 모델용)
-const SENSOR_PATTERNS = ['ESD', 'LPM', 'HUM', 'WD', 'TEMP'];
+import { generateSensorIds, getSensorPatterns } from '../config/modelConfig';
 
 // 공통 모델 로더 훅
 export const useModelLoader = (modelPath, options = {}) => {
@@ -36,10 +25,11 @@ export const useModelLoader = (modelPath, options = {}) => {
   // 센서 위치 찾기 함수
   const findSensorPositions = useCallback((scene) => {
     const foundSensors = {};
+    const sensorPatterns = getSensorPatterns();
     
     scene.traverse((child) => {
       if (child.isMesh && child.name) {
-        const isSensor = SENSOR_PATTERNS.some(pattern => 
+        const isSensor = sensorPatterns.some(pattern => 
           child.name.includes(pattern)
         );
         

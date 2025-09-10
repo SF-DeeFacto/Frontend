@@ -6,6 +6,7 @@ import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
 import { useAuth } from '../../../hooks/useAuth';
 import { BaseModel } from '../common/BaseModel';
 import { useModelInteractions } from '../../../hooks/useModelInteractions';
+import { getMainModelPath, getMainModelConfig } from '../../../config/modelConfig';
 
 function Model({ zoneStatuses, onHoverZoneChange }) {
   const navigate = useNavigate();
@@ -32,10 +33,12 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
     return scopes.includes(zoneScope);
   };
 
+  // 메인 모델 설정 가져오기
+  const modelConfig = getMainModelConfig();
   const [modelInfo, setModelInfo] = useState({
-    position: [0, -18, 0],
-    rotation: [0, 58 * Math.PI / 180, 0],
-    scale: [0.01, 0.01, 0.01]
+    position: modelConfig.position,
+    rotation: modelConfig.rotation,
+    scale: modelConfig.scale
   });
 
   // Zone 매핑 훅 사용
@@ -65,7 +68,7 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
 
   return (
     <BaseModel
-      modelPath="/models/mainhome-meshopt.glb"
+      modelPath={getMainModelPath()}
       onLoad={handleModelLoad}
       lighting="enhanced"
       scale={modelInfo.scale}
@@ -92,25 +95,30 @@ function LoadingFallback() {
 
 export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
   const controlsRef = useRef();
+  
+  // 메인 모델 설정 가져오기
+  const modelConfig = getMainModelConfig();
 
   // 카메라 초기 설정
   useEffect(() => {
     if (controlsRef.current) {
       const camera = controlsRef.current.object;
-      // 이미지에 표시된 회전값 적용 (도 단위를 라디안으로 변환)
-      camera.rotation.x = -80.33 * Math.PI / 180; // -80.33°
-      camera.rotation.y = 9.66 * Math.PI / 180;   // 9.66°
-      camera.rotation.z = 44.57 * Math.PI / 180;  // 44.57°
+      const { rotation } = modelConfig.camera;
+      
+      // 설정된 회전값 적용
+      camera.rotation.x = rotation.x;
+      camera.rotation.y = rotation.y;
+      camera.rotation.z = rotation.z;
     }
-  }, []);
+  }, [modelConfig.camera]);
 
   return (
     <Suspense fallback={<LoadingFallback />}>
       <Model zoneStatuses={zoneStatuses} onHoverZoneChange={onHoverZoneChange} />
       <OrbitControls 
         ref={controlsRef}
-        target={[2.096, -3.749, 3.199]}
-        position={[3.989, 7.212, 5.067]}
+        target={modelConfig.camera.target}
+        position={modelConfig.camera.position}
         enableDamping={true}
         dampingFactor={0.05}
       />
