@@ -6,7 +6,6 @@ import { SENSOR_STATUS } from '../../config/sensorConfig';
 const SensorInfoPanel = ({ selectedObject, onClose }) => {
   if (!selectedObject) return null;
 
-
   return (
     <div className="absolute top-4 right-4 bg-gray-900 bg-opacity-95 text-white rounded-lg shadow-2xl z-50 min-w-80 max-w-96 backdrop-blur-sm border border-gray-700">
       {/* 헤더 */}
@@ -25,9 +24,6 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
           <span className="text-sm font-medium text-gray-300">
             {selectedObject.isSensor ? '센서 정보' : '객체 정보'}
           </span>
-          {selectedObject.sensorData && (
-            <span className="text-lg">{getStatusEmoji(selectedObject.status)}</span>
-          )}
         </div>
         <button
           onClick={onClose}
@@ -43,7 +39,7 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
       {/* 내용 */}
       <div className="p-4 space-y-4">
         <div>
-          {selectedObject.isSensor && (
+          {selectedObject.isSensor ? (
             <div className="space-y-2">
               {/* 센서 타입 한글 이름 */}
               <h3 className="text-lg font-semibold text-white mb-2">
@@ -61,8 +57,45 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
                 <div className="space-y-1">
                   <div className="text-sm text-gray-400">센서 데이터:</div>
                   <div className="text-xs text-gray-300 bg-gray-800 p-2 rounded">
-                    {JSON.stringify(selectedObject.sensorData, null, 2)}
+                    {selectedObject.sensorData.val !== undefined && (
+                      <div>값: {selectedObject.sensorData.val}</div>
+                    )}
+                    {selectedObject.sensorData.val_0_1 !== undefined && (
+                      <div>0.1μm: {selectedObject.sensorData.val_0_1}</div>
+                    )}
+                    {selectedObject.sensorData.val_0_3 !== undefined && (
+                      <div>0.3μm: {selectedObject.sensorData.val_0_3}</div>
+                    )}
+                    {selectedObject.sensorData.val_0_5 !== undefined && (
+                      <div>0.5μm: {selectedObject.sensorData.val_0_5}</div>
+                    )}
+                    {selectedObject.sensorData.timestamp && (
+                      <div>시간: {new Date(selectedObject.sensorData.timestamp).toLocaleString()}</div>
+                    )}
                   </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {/* 일반 객체 정보 */}
+              <h3 className="text-lg font-semibold text-white mb-2">
+                {selectedObject.name || '객체'}
+              </h3>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-400">ID:</span>
+                <span className="text-sm text-white">{selectedObject.id || selectedObject.name}</span>
+              </div>
+              {selectedObject.status && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">상태:</span>
+                  <span className="text-sm text-white">{getStatusText(selectedObject.status)}</span>
+                </div>
+              )}
+              {selectedObject.type && (
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-400">타입:</span>
+                  <span className="text-sm text-white">{selectedObject.type}</span>
                 </div>
               )}
             </div>

@@ -35,7 +35,9 @@ export const SensorRenderer = ({
                   status,
                   id: sensorName,
                   type: getSensorTypeFromName(sensorName),
-                  sensorInfo
+                  sensorInfo,
+                  isSensor: true,
+                  sensorData: sensorInfo
                 });
               }
             }}
