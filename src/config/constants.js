@@ -1,5 +1,6 @@
 /**
  * 애플리케이션 전역 상수 정의
+ * 각 섹션별로 논리적으로 그룹화하여 관리
  */
 
 // ==================== 시스템 설정 ====================
@@ -33,185 +34,92 @@ export const SYSTEM_CONFIG = {
   CHART_DEFAULT_HEIGHT: 400,
 };
 
-// ==================== 비즈니스 도메인 상수 ====================
-
-// 존(Zone) 관련 - sensorConfig.js에서 import
-// ZONE_INFO, ZONE_MAPPING은 sensorConfig.js에서 관리
-
-// 센서 관련 - sensorConfig.js에서 통합 관리
-// 센서 타입은 sensorConfig.js의 SENSOR_TYPE_CONFIG를 사용
-
-// 사용자 관리 관련
+// ==================== 사용자 관리 ====================
 export const USER_MANAGEMENT = {
   DEPARTMENTS: ['개발팀', '디자인팀', '마케팅팀', '영업팀', '인사팀', '기획팀'],
   POSITIONS: ['사원', '대리', '과장', '차장', '부장', '이사', '대표'],
   ROLES: [
     { value: 'USER', label: '일반 사용자' },
     { value: 'ADMIN', label: '관리자' },
-    // { value: 'ROOT', label: '슈퍼 관리자' }
+    { value: 'SUPER_ADMIN', label: '최고 관리자' }
   ],
-  SCOPES: [
-    { value: 'a,b,c', label: '전체구역' },
-    { value: 'a', label: 'A구역' },
-    { value: 'b', label: 'B구역' },
-    { value: 'c', label: 'C구역' }
-  ],
-  SHIFTS: [
-    { value: 'DAY', label: '주간(D)' },
-    { value: 'NIGHT', label: '야간(N)' }
+  STATUS: [
+    { value: 'ACTIVE', label: '활성', color: 'green' },
+    { value: 'INACTIVE', label: '비활성', color: 'gray' },
+    { value: 'SUSPENDED', label: '정지', color: 'red' }
   ]
 };
 
-// 알림 관련
+// ==================== 알림 설정 ====================
 export const NOTIFICATION_TYPES = {
-  ALERT: 'ALERT',
-  REPORT: 'REPORT', 
-  INFO: 'INFO',
-  MAINTENANCE: 'MAINTENANCE',
-  SYSTEM: 'SYSTEM',
-  SCHEDULE: 'SCHEDULE'
+  SUCCESS: 'success',
+  ERROR: 'error',
+  WARNING: 'warning',
+  INFO: 'info'
 };
 
 export const NOTIFICATION_TYPE_COLORS = {
-  [NOTIFICATION_TYPES.ALERT]: 'bg-red-100 text-red-600',
-  [NOTIFICATION_TYPES.REPORT]: 'bg-green-100 text-green-600',
-  [NOTIFICATION_TYPES.INFO]: 'bg-blue-100 text-blue-600',
-  [NOTIFICATION_TYPES.MAINTENANCE]: 'bg-yellow-100 text-yellow-600',
-  [NOTIFICATION_TYPES.SYSTEM]: 'bg-purple-100 text-purple-600',
-  [NOTIFICATION_TYPES.SCHEDULE]: 'bg-indigo-100 text-indigo-600'
+  [NOTIFICATION_TYPES.SUCCESS]: '#10B981',
+  [NOTIFICATION_TYPES.ERROR]: '#EF4444',
+  [NOTIFICATION_TYPES.WARNING]: '#F59E0B',
+  [NOTIFICATION_TYPES.INFO]: '#3B82F6'
 };
 
-// 리포트 관련
-export const REPORT_TYPES = {
-  ALL: '전체',
-  DAILY: '일일 리포트',
-  WEEKLY: '주간 리포트',
-  MONTHLY: '월간 리포트'
-};
-
-export const REPORT_PERIODS = {
-  ALL: '전체',
-  TODAY: '오늘',
-  YESTERDAY: '어제',
-  LAST_7_DAYS: '최근 7일',
-  LAST_30_DAYS: '최근 30일',
-  THIS_MONTH: '이번 달',
-  LAST_MONTH: '지난 달',
-  CUSTOM: '직접입력'
-};
-
-// ==================== UI 상수 ====================
-
-// 색상 관련
-export const COLORS = {
-  PRIMARY: '#494FA2',
-  SECONDARY: '#6B7280',
-  SUCCESS: '#10B981',
-  WARNING: '#F59E0B',
-  DANGER: '#EF4444',
-  INFO: '#3B82F6'
-};
-
-// 그라데이션
-export const GRADIENTS = {
-  PRIMARY: 'bg-gradient-to-r from-primary-500 to-primary-600',
-  SUCCESS: 'bg-gradient-to-r from-success-500 to-success-600',
-  WARNING: 'bg-gradient-to-r from-warning-500 to-warning-600',
-  DANGER: 'bg-gradient-to-r from-danger-500 to-danger-600'
-};
-
-// 애니메이션 지속시간
-export const ANIMATION_DURATION = {
-  FAST: 200,
-  NORMAL: 300,
-  SLOW: 500
-};
-
-// ==================== 로컬 스토리지 키 ====================
-export const STORAGE_KEYS = {
-  ACCESS_TOKEN: 'access_token',
-  REFRESH_TOKEN: 'refresh_token',
-  EMPLOYEE_ID: 'employeeId',
-  USER: 'user',
-  UNREAD_ALARM_COUNT: 'unread_alarm_count',
-  ERROR_STATS: 'error_stats',
-  THEME: 'theme'
-};
-
-// ==================== API 관련 ====================
+// ==================== API 설정 ====================
 export const API_ENDPOINTS = {
   // 인증
-  LOGIN: '/auth/login',
-  LOGOUT: '/auth/logout',
-  USER_PROFILE: '/user/info/profile',
+  AUTH: {
+    LOGIN: '/api/auth/login',
+    LOGOUT: '/api/auth/logout',
+    REFRESH: '/api/auth/refresh',
+    PROFILE: '/api/auth/profile'
+  },
   
-  // 대시보드
-  DASHBOARD: '/home/dashboard',
-  ZONE_DATA: '/home/zone',
+  // 사용자 관리
+  USERS: {
+    LIST: '/api/users',
+    CREATE: '/api/users',
+    UPDATE: '/api/users/:id',
+    DELETE: '/api/users/:id',
+    SEARCH: '/api/users/search'
+  },
+  
+  // 센서 데이터
+  SENSORS: {
+    DATA: '/api/sensors/data',
+    STATUS: '/api/sensors/status',
+    HISTORY: '/api/sensors/history'
+  },
   
   // 알림
-  NOTIFICATIONS: '/noti/list',
-  NOTIFICATION_COUNT: '/noti/count',
-  MARK_READ: '/noti/read',
-  MARK_ALL_READ: '/noti/read/all',
-  TOGGLE_FAVORITE: '/noti/favorite',
-  
-  // 센서
-  SENSORS: '/home/setting/sensor',
-  THRESHOLDS: '/home/setting/sensor/threshold',
-  THRESHOLD_UPDATE: '/home/setting/sensor/threshold/update',
-  
-  // 리포트
-  REPORTS_LIST: '/reports/list',
-  REPORT_DOWNLOAD: '/reports/download',
-  
-  // 날씨
-  WEATHER: '/weather/current'
+  NOTIFICATIONS: {
+    LIST: '/api/notifications',
+    MARK_READ: '/api/notifications/:id/read',
+    MARK_ALL_READ: '/api/notifications/read-all'
+  }
 };
 
-// HTTP 상태 코드
+// ==================== HTTP 상태 코드 ====================
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
+  NO_CONTENT: 204,
   BAD_REQUEST: 400,
   UNAUTHORIZED: 401,
   FORBIDDEN: 403,
   NOT_FOUND: 404,
-  UNPROCESSABLE_ENTITY: 422,
-  INTERNAL_SERVER_ERROR: 500,
-  BAD_GATEWAY: 502,
-  SERVICE_UNAVAILABLE: 503,
-  GATEWAY_TIMEOUT: 504
+  INTERNAL_SERVER_ERROR: 500
 };
 
-// ==================== 차트 관련 ====================
-export const CHART_TYPES = {
-  LINE: 'line',
-  BAR: 'bar',
-  DOUGHNUT: 'doughnut',
-  PIE: 'pie'
+// ==================== 로컬 스토리지 키 ====================
+export const STORAGE_KEYS = {
+  AUTH_TOKEN: 'auth_token',
+  REFRESH_TOKEN: 'refresh_token',
+  USER_INFO: 'user_info',
+  THEME: 'theme',
+  LANGUAGE: 'language',
+  SETTINGS: 'app_settings'
 };
-
-export const CHART_COLORS = [
-  '#494FA2',
-  '#10B981', 
-  '#F59E0B',
-  '#EF4444',
-  '#3B82F6',
-  '#8B5CF6',
-  '#06B6D4',
-  '#84CC16'
-];
-
-// ==================== 파일 관련 ====================
-export const FILE_EXTENSIONS = {
-  PDF: '.pdf',
-  EXCEL: '.xlsx',
-  CSV: '.csv',
-  IMAGE: ['.jpg', '.jpeg', '.png', '.gif']
-};
-
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 // ==================== 정규식 패턴 ====================
 export const REGEX_PATTERNS = {
@@ -232,23 +140,78 @@ export const DATE_FORMATS = {
   TIME_ONLY: 'HH:mm:ss'
 };
 
+// ==================== 파일 관련 ====================
+export const FILE_CONFIG = {
+  EXTENSIONS: {
+    PDF: '.pdf',
+    EXCEL: '.xlsx',
+    CSV: '.csv',
+    IMAGE: ['.jpg', '.jpeg', '.png', '.gif']
+  },
+  MAX_SIZE: 10 * 1024 * 1024, // 10MB
+  ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf']
+};
+
+// ==================== 차트 설정 ====================
+export const CHART_CONFIG = {
+  TYPES: {
+    LINE: 'line',
+    BAR: 'bar',
+    PIE: 'pie',
+    AREA: 'area',
+    SCATTER: 'scatter'
+  },
+  COLORS: [
+    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
+    '#8B5CF6', '#06B6D4', '#84CC16', '#F97316'
+  ],
+  DEFAULT_HEIGHT: 400,
+  REFRESH_INTERVAL: 30000
+};
+
+// ==================== 애니메이션 설정 ====================
+export const ANIMATION_DURATION = {
+  FAST: 150,
+  NORMAL: 300,
+  SLOW: 500,
+  VERY_SLOW: 1000
+};
+
+// ==================== 색상 팔레트 ====================
+export const COLORS = {
+  PRIMARY: '#3B82F6',
+  SECONDARY: '#6B7280',
+  SUCCESS: '#10B981',
+  WARNING: '#F59E0B',
+  ERROR: '#EF4444',
+  INFO: '#06B6D4',
+  GRAY: {
+    50: '#F9FAFB',
+    100: '#F3F4F6',
+    200: '#E5E7EB',
+    300: '#D1D5DB',
+    400: '#9CA3AF',
+    500: '#6B7280',
+    600: '#4B5563',
+    700: '#374151',
+    800: '#1F2937',
+    900: '#111827'
+  }
+};
+
+// ==================== 기본 내보내기 ====================
 export default {
   SYSTEM_CONFIG,
   USER_MANAGEMENT,
   NOTIFICATION_TYPES,
   NOTIFICATION_TYPE_COLORS,
-  REPORT_TYPES,
-  REPORT_PERIODS,
-  COLORS,
-  GRADIENTS,
-  ANIMATION_DURATION,
-  STORAGE_KEYS,
   API_ENDPOINTS,
   HTTP_STATUS,
-  CHART_TYPES,
-  CHART_COLORS,
-  FILE_EXTENSIONS,
-  MAX_FILE_SIZE,
+  STORAGE_KEYS,
   REGEX_PATTERNS,
-  DATE_FORMATS
+  DATE_FORMATS,
+  FILE_CONFIG,
+  CHART_CONFIG,
+  ANIMATION_DURATION,
+  COLORS
 };

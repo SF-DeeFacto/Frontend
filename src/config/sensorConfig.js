@@ -1,3 +1,8 @@
+/**
+ * 센서 관련 설정
+ * 센서 타입, 상태, 데이터 처리 등을 관리
+ */
+
 import { 
   Thermometer, 
   Droplet, 

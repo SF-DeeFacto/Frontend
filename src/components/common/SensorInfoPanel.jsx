@@ -12,13 +12,16 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         <div className="flex items-center space-x-3">
           <div 
-            className={`w-3 h-3 rounded-full ${getStatusColor(selectedObject.status)}`}
+            className={`w-3 h-3 rounded-full ${getStatusColor(selectedObject.sensorData?.status || selectedObject.status)}`}
             style={{ 
-              backgroundColor: selectedObject.status === 'normal' || selectedObject.status === SENSOR_STATUS.GREEN ? COLORS.SUCCESS :
-                              selectedObject.status === 'warning' || selectedObject.status === SENSOR_STATUS.YELLOW ? COLORS.WARNING :
-                              selectedObject.status === 'error' || selectedObject.status === SENSOR_STATUS.RED ? COLORS.DANGER :
-                              selectedObject.status === 'unknown' || selectedObject.status === SENSOR_STATUS.DISCONNECTED ? COLORS.SECONDARY :
-                              COLORS.INFO // 기본값 (연결중)
+              backgroundColor: (() => {
+                const status = selectedObject.sensorData?.status || selectedObject.status;
+                return status === 'normal' || status === SENSOR_STATUS.GREEN ? COLORS.SUCCESS :
+                       status === 'warning' || status === SENSOR_STATUS.YELLOW ? COLORS.WARNING :
+                       status === 'error' || status === SENSOR_STATUS.RED ? COLORS.ERROR :
+                       status === 'unknown' || status === SENSOR_STATUS.DISCONNECTED ? COLORS.SECONDARY :
+                       COLORS.INFO; // 기본값 (연결중)
+              })()
             }}
           ></div>
           <span className="text-sm font-medium text-gray-300">
@@ -43,22 +46,30 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
             <div className="space-y-2">
               {/* 센서 타입 한글 이름 */}
               <h3 className="text-lg font-semibold text-white mb-2">
-                {getSensorTypeMapping(getSensorTypeFromName(selectedObject.name))}센서
+                {selectedObject.sensorData?.sensorType ? 
+                  getSensorTypeMapping(selectedObject.sensorData.sensorType) + '센서' :
+                  getSensorTypeMapping(getSensorTypeFromName(selectedObject.name)) + '센서'
+                }
               </h3>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-400">센서 ID:</span>
-                <span className="text-sm text-white">{selectedObject.id}</span>
+                <span className="text-sm text-white">
+                  {selectedObject.sensorData?.sensorId || selectedObject.id || '알 수 없음'}
+                </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-400">상태:</span>
-                <span className="text-sm text-white">{getStatusText(selectedObject.status)}</span>
+                <span className="text-sm text-white">
+                  {selectedObject.sensorData?.status ? getStatusText(selectedObject.sensorData.status) : 
+                   selectedObject.status ? getStatusText(selectedObject.status) : '알 수 없음'}
+                </span>
               </div>
-              {selectedObject.sensorData && (
-                <div className="space-y-1">
-                  <div className="text-sm text-gray-400">센서 데이터:</div>
+              <div className="space-y-1">
+                <div className="text-sm text-gray-400">센서 데이터:</div>
+                {selectedObject.sensorData ? (
                   <div className="text-xs text-gray-300 bg-gray-800 p-2 rounded">
                     {selectedObject.sensorData.val !== undefined && (
-                      <div>값: {selectedObject.sensorData.val} {getSensorTypeConfig(selectedObject.type?.toLowerCase())?.unit || ''}</div>
+                      <div>값: {selectedObject.sensorData.val} {getSensorTypeConfig(selectedObject.sensorData.sensorType?.toLowerCase())?.unit || ''}</div>
                     )}
                     {selectedObject.sensorData.val_0_1 !== undefined && (
                       <div>0.1μm: {selectedObject.sensorData.val_0_1} μg/m³</div>
@@ -73,8 +84,12 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
                       <div>시간: {new Date(selectedObject.sensorData.timestamp).toLocaleString()}</div>
                     )}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="text-xs text-gray-500 bg-gray-800 p-2 rounded">
+                    센서 데이터 없음
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="space-y-2">
