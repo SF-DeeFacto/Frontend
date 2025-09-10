@@ -86,8 +86,8 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
       );
     }
 
-    // 먼지 센서는 특별한 레이아웃
-    if (sensorData.sensorType === 'particle') {
+    // 먼지 센서는 특별한 레이아웃 (particle 또는 particle_* 타입)
+    if (sensorData.sensorType === 'particle' || sensorData.sensorType?.startsWith('particle_')) {
       return renderParticleValues();
     }
     
@@ -135,7 +135,7 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
           <div className="sensor-value-container">
             <div className="sensor-value">
               {renderSensorValue()}
-              {sensorData.sensorType !== 'particle' && (
+              {!(sensorData.sensorType === 'particle' || sensorData.sensorType?.startsWith('particle_')) && (
                 <span className="sensor-unit">{sensorInfo.unit}</span>
               )}
             </div>

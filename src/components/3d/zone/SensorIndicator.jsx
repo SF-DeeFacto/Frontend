@@ -76,7 +76,7 @@ function SensorIndicator({ position, status, onClick, sensorName, sensorData }) 
           });
           
           if (foundSensor) {
-            if (foundSensor.sensorType === 'particle') {
+            if (foundSensor.sensorType === 'particle' || foundSensor.sensorType?.startsWith('particle_')) {
               return `${foundSensor.val_0_1}-${foundSensor.val_0_3}-${foundSensor.val_0_5}`;
             }
             return foundSensor.val;

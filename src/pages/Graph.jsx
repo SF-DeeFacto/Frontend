@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { getSensorTypesForRealtime } from '../config/sensorConfig';
 
-const SENSORS = ['온도', '습도', '풍향', '정전기', '파티클'];
+const SENSORS = getSensorTypesForRealtime().map(sensor => sensor.name);
 
 const Graph = () => {
   const { user } = useAuth();
