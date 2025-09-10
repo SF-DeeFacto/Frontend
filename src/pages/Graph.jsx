@@ -23,9 +23,6 @@ const Graph = () => {
     return scopes.includes(zoneScope);
   };
   
-  // 존 정보를 ZONE_INFO에서 가져오기
-  const ZONE_ORDER = ['전체', ...Object.keys(ZONE_INFO)];
-
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
     const allZones = [
@@ -43,8 +40,8 @@ const Graph = () => {
 
     // 사용자 scope에 따라 필터링
     const userScopes = Array.isArray(user.scope) 
-      ? user.scope 
-      : user.scope.split(',').map(s => s.trim());
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map(s => s.trim().toLowerCase());
     
     return allZones
       .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
@@ -52,6 +49,19 @@ const Graph = () => {
   };
 
   const ZONES = getAllowedZones();
+  const ZONE_ORDER = ZONES; // ZONES와 동일하게 설정
+  
+  // 디버깅용 로그
+  console.log('Graph 페이지 디버깅:', {
+    userScope: user?.scope,
+    ZONES,
+    ZONE_ORDER,
+    ZONE_INFO: Object.keys(ZONE_INFO),
+    allZones: Object.entries(ZONE_INFO).map(([zoneId, zoneInfo]) => ({
+      value: zoneId,
+      scope: zoneId[0].toLowerCase()
+    }))
+  });
 
   // URL에서 zone 파라미터가 있으면 해당 Zone을 선택, 없으면 기본값
   const getInitialZone = () => {
@@ -211,23 +221,28 @@ const Graph = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Zone</label>
             <div className="flex flex-wrap gap-2">
-              {ZONES.map(zone => (
-                <button
-                  type="button"
-                  key={zone}
-                  onClick={() => {
-                    setSelectedZone(zone);
-                    setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
-                  }}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedZone === zone
-                      ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                      : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                  }`}
-                >
-                  {zone}
-                </button>
-              ))}
+              {ZONES.map(zone => {
+                console.log('Zone 버튼 렌더링:', zone);
+                return (
+                  <button
+                    type="button"
+                    key={zone}
+                    onClick={() => {
+                      console.log('Zone 클릭:', zone);
+                      setSelectedZone(zone);
+                      setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
+                    }}
+                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                      selectedZone === zone
+                        ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
+                        : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
+                    }`}
+                    style={{ minWidth: '60px', minHeight: '40px' }} // 최소 크기 보장
+                  >
+                    {zone}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
