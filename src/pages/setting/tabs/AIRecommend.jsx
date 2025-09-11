@@ -29,10 +29,12 @@ const AIRecommend = () => {
 
       let recommendationsArray = [];
 
-      // API 호출 시 월별 파라미터 전달
+      // API 호출 시 필터 파라미터 전달
       const apiParams = {
         year: filterYear,
-        month: filterMonth
+        month: filterMonth,
+        zoneId: filterZone !== 'all' ? filterZone : undefined,
+        sensorType: filterSensorType !== 'all' ? filterSensorType : undefined
       };
 
       if (filterStatus === 'all') {
@@ -104,21 +106,12 @@ const AIRecommend = () => {
     }
   };
 
-  // 필터링 로직
+  // 필터링 로직 (API에서 이미 필터링된 데이터를 받아오므로 클라이언트 사이드 필터링은 불필요)
+  // 다만, 월별 필터는 API에서 처리되지 않을 수 있으므로 클라이언트에서 처리
   useEffect(() => {
     let filtered = recommendations;
 
-    // 구역 필터
-    if (filterZone !== 'all') {
-      filtered = filtered.filter(rec => rec.zoneId === filterZone);
-    }
-
-    // 센서 타입 필터
-    if (filterSensorType !== 'all') {
-      filtered = filtered.filter(rec => rec.sensorType === filterSensorType);
-    }
-
-    // 월별 필터 (년도/월 기준)
+    // 월별 필터 (년도/월 기준) - API에서 처리되지 않는 경우를 위한 백업
     if (filterYear && filterMonth) {
       filtered = filtered.filter(rec => {
         if (!rec.recommendedAt) return false;
@@ -132,12 +125,12 @@ const AIRecommend = () => {
     }
 
     setFilteredRecommendations(filtered);
-  }, [recommendations, filterZone, filterSensorType, filterYear, filterMonth]);
+  }, [recommendations, filterYear, filterMonth]);
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     loadRecommendations();
-  }, [filterStatus, filterYear, filterMonth]);
+  }, [filterStatus, filterYear, filterMonth, filterZone, filterSensorType]);
 
   // 달력 외부 클릭 시 닫기
   useEffect(() => {
