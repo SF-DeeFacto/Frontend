@@ -6,8 +6,8 @@ import Text from "../common/Text";
 const createMenuItemStyles = (isActive, collapsed) => {
   const baseTransition = "transition-colors duration-200";
   const activeColor = "text-primary-600";
-  const inactiveColor = "text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600";
-  const rightIconInactiveColor = "text-secondary-400 dark:text-neutral-400 group-hover:text-primary-600";
+  const inactiveColor = "text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600 dark:group-hover:text-primary-400";
+  const rightIconInactiveColor = "text-secondary-400 dark:text-neutral-400 group-hover:text-primary-600 dark:group-hover:text-primary-400";
   
   return {
     container: `nav-item group relative overflow-hidden transition-all duration-200 cursor-pointer ${

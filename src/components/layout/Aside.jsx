@@ -39,7 +39,7 @@ const Aside = () => {
     <div
       key={key}
       onClick={() => navigate(path)}
-      className="text-secondary-600 dark:text-neutral-300 cursor-pointer hover:bg-primary-50 dark:hover:bg-neutral-700/50 hover:text-primary-600 px-4 py-2.5 rounded-xl ml-6 transition-all duration-200 group hover:scale-105"
+      className="text-secondary-600 dark:text-neutral-300 cursor-pointer hover:bg-primary-50 dark:hover:bg-neutral-700/50 hover:text-primary-600 dark:hover:text-primary-400 px-4 py-2.5 rounded-xl ml-6 transition-all duration-200 group hover:scale-105"
     >
       <div className="flex items-center gap-2">
         <div className="w-1.5 h-1.5 rounded-full bg-secondary-400 dark:bg-neutral-500 group-hover:bg-primary-500 transition-colors duration-200"></div>
@@ -160,7 +160,7 @@ const Aside = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-primary-500/10 to-primary-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl"></div>
             
             <div className="relative z-10 flex items-center justify-center w-full">
-              <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600">
+              <div className="flex items-center justify-center transition-all duration-200 text-secondary-600 dark:text-neutral-300 group-hover:text-primary-600 dark:group-hover:text-primary-400">
                 {isCollapsed ? (
                   <Icon><ChevronsRight /></Icon>
                 ) : (
@@ -203,7 +203,7 @@ const Aside = () => {
                       <div
                         key={zone.zoneId}
                         onClick={() => navigate(zone.path)}
-                        className="text-secondary-600 dark:text-neutral-300 cursor-pointer hover:bg-primary-50 dark:hover:bg-neutral-700/50 hover:text-primary-600 px-4 py-2.5 transition-all duration-200 group hover:scale-105"
+                        className="text-secondary-600 dark:text-neutral-300 cursor-pointer hover:bg-primary-50 dark:hover:bg-neutral-700/50 hover:text-primary-600 dark:hover:text-primary-400 px-4 py-2.5 transition-all duration-200 group hover:scale-105"
                       >
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-secondary-400 dark:bg-neutral-500 group-hover:bg-primary-500 transition-colors duration-200"></div>

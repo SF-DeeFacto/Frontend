@@ -124,7 +124,7 @@
 
   /* 네비게이션 아이템 - 브랜드 색상 적용 */
   .nav-item {
-    @apply flex items-center px-4 py-3 text-secondary-600 dark:text-neutral-300 hover:text-brand-main hover:bg-brand-light dark:hover:bg-neutral-700 rounded-xl transition-all duration-200 cursor-pointer;
+    @apply flex items-center px-4 py-3 text-secondary-600 dark:text-neutral-300 hover:text-brand-main hover:bg-brand-light dark:hover:bg-neutral-700 dark:hover:text-primary-400 rounded-xl transition-all duration-200 cursor-pointer;
   }
 
   .nav-item.active {
