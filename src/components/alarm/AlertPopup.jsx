@@ -14,9 +14,8 @@ const AlertPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [autoCloseTimers, setAutoCloseTimers] = useState(new Map());
 
-  // 테스트용 알림 생성 함수들을 window 객체에 노출
+  // 테스트용 알림 생성 함수들을 window 객체에 노출 (개발 환경에서만)
   useEffect(() => {
-    // 개발 환경에서만 테스트 함수들을 노출
     if (process.env.NODE_ENV === 'development') {
       window.testAlert = {
         // 기본 알림 생성
@@ -120,13 +119,9 @@ const AlertPopup = () => {
             
             if (notification) {
               addAlert(notification);
-              console.log('✅ 실제 서버 알림을 팝업으로 표시:', notification);
-            } else {
-              console.log('❌ 해당 notiId의 알림을 찾을 수 없습니다:', notiId);
-              console.log('사용 가능한 notiId들:', notifications.map(n => n.notiId));
             }
           } catch (error) {
-            console.error('❌ 실제 알림 가져오기 실패:', error);
+            // 알림 가져오기 실패는 조용히 처리
           }
         },
         
@@ -139,12 +134,9 @@ const AlertPopup = () => {
             if (notifications.length > 0) {
               const latestNotification = notifications[0]; // 가장 최신
               addAlert(latestNotification);
-              console.log('✅ 최신 안읽음 알림을 팝업으로 표시:', latestNotification);
-            } else {
-              console.log('❌ 안읽음 알림이 없습니다.');
             }
           } catch (error) {
-            console.error('❌ 최신 안읽음 알림 가져오기 실패:', error);
+            // 알림 가져오기 실패는 조용히 처리
           }
         },
         
@@ -159,69 +151,19 @@ const AlertPopup = () => {
         
         // 모든 타이머 강제 정리
         clearAllTimers: () => {
-          console.log('🧹 모든 타이머 강제 정리');
           autoCloseTimers.forEach((timer, alertId) => {
-            console.log(`- AlertId ${alertId} 타이머 정리`);
             clearTimeout(timer);
           });
           setAutoCloseTimers(new Map());
-          console.log('✅ 모든 타이머 정리 완료');
         },
         
         // 도움말 출력
         help: () => {
-          console.log(`
-🚨 AlertPopup 테스트 도구 사용법:
-
-=== 가상 테스트 (팝업만 표시) ===
-1. 기본 알림 생성:
-   window.testAlert.createAlert()
-
-2. 온도 센서 알림:
-   window.testAlert.createTempAlert('a01', 25.5)
-
-3. 습도 센서 알림:
-   window.testAlert.createHumidityAlert('b01', 85.2)
-
-4. 압력 센서 알림:
-   window.testAlert.createPressureAlert('c01', 1015.8)
-
-5. 다중 알림 생성 (1초 간격):
-   window.testAlert.createMultipleAlerts()
-
-=== 실제 서버 연동 테스트 ===
-6. 최신 안읽음 알림을 팝업으로 표시:
-   window.testAlert.showLatestUnread()
-
-7. 특정 notiId의 알림을 팝업으로 표시:
-   window.testAlert.showRealNotification(5115)
-
-=== 디버깅 도구 ===
-8. 현재 상태 확인:
-   window.testAlert.getStatus()
-
-9. SSE 연결 상태 확인:
-   window.testAlert.checkSSEConnection()
-
-10. 강제로 알림 표시:
-    window.testAlert.forceShow()
-
-11. 모든 타이머 강제 정리:
-    window.testAlert.clearAllTimers()
-
-=== 기타 ===
-12. 모든 알림 제거:
-    window.testAlert.clearAll()
-
-13. 도움말:
-    window.testAlert.help()
-          `);
+          console.log('AlertPopup 테스트 도구 사용법: window.testAlert.help()');
         }
       };
       
-      // 도움말 자동 출력
-      console.log('🚨 AlertPopup 테스트 도구가 준비되었습니다!');
-      console.log('사용법: window.testAlert.help()');
+      // 테스트 도구 준비 완료
     }
   }, []);
 
@@ -268,54 +210,29 @@ const AlertPopup = () => {
 
   // 알림 처리 함수를 useCallback으로 최적화
   const handleSSEMessage = useCallback((data) => {
-    console.log('✨ AlertPopup: handleSSEMessage 호출됨');
-    console.log('🚨 실시간 알림 수신:', data);
-    console.log('데이터 타입:', typeof data);
-    console.log('notiType:', data?.notiType);
-    console.log('notiId:', data?.notiId);
-    console.log('title:', data?.title);
-    console.log('zoneId:', data?.zoneId);
-    
     // 데이터 유효성 검사
-    if (!data) {
-      console.log('❌ 데이터가 없습니다.');
-      return;
-    }
-    
-    if (!data.notiType) {
-      console.log('❌ notiType이 없습니다.');
+    if (!data || !data.notiType) {
       return;
     }
     
     if (data.notiType === 'ALERT') {
-      console.log('✅ ALERT 타입 알림 처리 시작');
-      
       // 커스텀 알림창에 추가
-      console.log('📝 새 알림 데이터 처리:', data);
-      
-      // addAlert 함수 사용으로 최적화
       const newAlert = addAlert(data);
-      console.log('👁️ 팝업 표시 상태 변경: true');
       
       // 자동 닫기 타이머 설정
       setAutoCloseTimer(newAlert.id);
-      console.log('⏰ 자동 닫기 타이머 설정 완료');
-    } else {
-      console.log('ℹ️ ALERT 타입이 아닌 알림:', data.notiType);
     }
   }, [addAlert, setAutoCloseTimer]);
 
   useEffect(() => {
     // 인증되지 않은 경우 SSE 연결하지 않음
     if (!isAuthenticated || isLoading) {
-      console.log('🔐 인증되지 않음 - SSE 연결 건너뜀');
       return;
     }
 
     // 추가 토큰 검증
     const token = localStorage.getItem('access_token');
     if (!token) {
-      console.log('🔐 토큰이 없음 - SSE 연결 건너뜀');
       return;
     }
 
@@ -324,12 +241,11 @@ const AlertPopup = () => {
 
     const handleSSEError = (error) => {
       if (!isMounted) return;
-      console.error('❌ SSE 연결 오류:', error);
+      // SSE 연결 오류는 조용히 처리
     };
 
     const handleSSEOpen = () => {
       if (!isMounted) return;
-      console.log('✅ SSE 연결 성공');
     };
 
     // SSE 연결 시작
@@ -342,7 +258,6 @@ const AlertPopup = () => {
     return () => {
       isMounted = false;
       if (disconnectSSE) {
-        console.log('🔌 AlertPopup SSE 연결 해제');
         disconnectSSE();
       }
     };
@@ -386,9 +301,7 @@ const AlertPopup = () => {
       // 팝업에서 제거
       handleCloseAlert(alertId);
       
-      console.log('✅ 알림이 읽음 상태로 변경되었습니다:', alertId);
     } catch (error) {
-      console.error('❌ 알림 읽음 처리 실패:', error);
       // 에러가 발생해도 팝업은 닫기
       handleCloseAlert(alertId);
     }
@@ -396,7 +309,6 @@ const AlertPopup = () => {
 
   // 나중에 처리 (팝업만 닫기, 읽음 상태 변경 없음)
   const handleLaterAlert = (alertId) => {
-    console.log('⏰ 알림을 나중에 처리합니다:', alertId);
     handleCloseAlert(alertId);
   };
 
@@ -411,53 +323,21 @@ const AlertPopup = () => {
 
   // 강제로 알림 표시 (디버깅용)
   const forceShow = () => {
-    console.log('🔧 강제로 알림 표시');
-    console.log('🔧 현재 isVisible:', isVisible);
-    console.log('🔧 현재 alerts.length:', alerts.length);
-    
-    // 강제로 상태 설정
     setIsVisible(true);
-    console.log('🔧 isVisible을 true로 설정');
     
     const testAlert = {
       notiId: Date.now(),
-      title: '[디버깅] 강제 표시 테스트 알림 - 새로운 디자인 테스트',
-      content: '이 알림은 디버깅을 위해 강제로 표시된 것입니다. 새로운 디자인이 제대로 보이는지 확인해보겠습니다.',
+      title: '[디버깅] 강제 표시 테스트 알림',
+      content: '이 알림은 디버깅을 위해 강제로 표시된 것입니다.',
       zoneId: 'test',
       timestamp: new Date().toISOString()
     };
     
     setAlerts([testAlert]);
-    console.log('🔧 테스트 알림 직접 설정:', testAlert);
-    
-    // 1초 후 상태 확인
-    setTimeout(() => {
-      console.log('🔧 1초 후 상태 확인:');
-      console.log('- isVisible:', isVisible);
-      console.log('- alerts.length:', alerts.length);
-      console.log('- alerts:', alerts);
-    }, 1000);
   };
 
   // 현재 상태 확인
   const getStatus = () => {
-    console.log('🔍 AlertPopup 현재 상태:');
-    console.log('- isVisible:', isVisible);
-    console.log('- alerts.length:', alerts.length);
-    console.log('- alerts:', alerts);
-    console.log('- autoCloseTimers.size:', autoCloseTimers.size);
-    console.log('- autoCloseTimers:', autoCloseTimers);
-    
-    // 활성 타이머들 확인
-    if (autoCloseTimers.size > 0) {
-      console.log('⚠️ 활성 타이머가 있습니다!');
-      autoCloseTimers.forEach((timer, alertId) => {
-        console.log(`- AlertId ${alertId}: 타이머 활성`);
-      });
-    } else {
-      console.log('✅ 활성 타이머 없음');
-    }
-    
     return {
       isVisible,
       alertsCount: alerts.length,
@@ -468,44 +348,32 @@ const AlertPopup = () => {
 
   // SSE 연결 상태 확인
   const checkSSEConnection = () => {
-    console.log('🔍 SSE 연결 상태 확인:');
-    console.log('- SSE URL:', '/api/noti/sse/subscribe');
-    console.log('- 토큰 존재:', !!localStorage.getItem('accessToken'));
-    console.log('- 현재 시간:', new Date().toISOString());
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      return false;
+    }
     
-    // SSE 연결 테스트
-    const testSSE = () => {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.log('❌ 인증 토큰이 없습니다.');
-        return;
-      }
-      
-      console.log('🔌 SSE 연결 테스트 시작...');
-      const testEventSource = new EventSource('/api/noti/sse/subscribe', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
-      
-      testEventSource.onopen = () => {
-        console.log('✅ SSE 연결 테스트 성공');
-        testEventSource.close();
-      };
-      
-      testEventSource.onerror = (error) => {
-        console.log('❌ SSE 연결 테스트 실패:', error);
-        testEventSource.close();
-      };
-      
-      // 5초 후 자동 종료
-      setTimeout(() => {
-        testEventSource.close();
-      }, 5000);
+    const testEventSource = new EventSource('/api/noti/sse/subscribe', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      withCredentials: true,
+    });
+    
+    testEventSource.onopen = () => {
+      testEventSource.close();
     };
     
-    testSSE();
+    testEventSource.onerror = (error) => {
+      testEventSource.close();
+    };
+    
+    // 5초 후 자동 종료
+    setTimeout(() => {
+      testEventSource.close();
+    }, 5000);
+    
+    return true;
   };
 
   // formatContent와 formatTimestamp는 notificationUtils에서 import한 함수 사용

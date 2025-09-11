@@ -33,8 +33,6 @@ export const useAlarmData = (pageSize = 7) => {
       setTotalElements(newTotalElements);
       setCurrentPage(page);
       
-      console.log(`알림 ${newAlarms.length}개 로드됨 (총 ${newTotalElements}개)`, { filters, page });
-      
       return { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements };
     } catch (error) {
       const errorInfo = handleApiError(error, '알림 조회');

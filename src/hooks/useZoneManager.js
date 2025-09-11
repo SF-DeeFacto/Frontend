@@ -4,10 +4,9 @@
  * - 백엔드 연결 상태에 따른 정확한 데이터 표시
  */
 import { useState, useEffect, useCallback } from 'react';
-import { connectMainSSE, connectZoneSSE } from '../services/sse';
+import { connectMainSSE } from '../services/sse';
 import { ZONE_INFO, SENSOR_STATUS, CONNECTION_STATE } from '../config/sensorConfig';
 import { handleSSEError } from '../utils/unifiedErrorHandler';
-
 
 export const useZoneManager = () => {
   // ZONE_INFO에서 동적으로 초기 상태 생성
@@ -99,7 +98,6 @@ export const useZoneManager = () => {
     // 로그인 상태 확인
     const token = localStorage.getItem('access_token');
     if (!token) {
-      console.log('🔐 토큰이 없음 - 메인 SSE 연결 건너뜀');
       return;
     }
 
@@ -113,10 +111,9 @@ export const useZoneManager = () => {
       // SSE 연결 해제
       if (disconnectMainSSE) {
         try {
-          console.log('🔌 메인 SSE 연결 해제');
           disconnectMainSSE();
         } catch (error) {
-          console.error('메인 SSE 연결 해제 오류:', error);
+          // SSE 연결 해제 오류는 조용히 처리
         }
       }
     };

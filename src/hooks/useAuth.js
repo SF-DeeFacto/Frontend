@@ -159,21 +159,16 @@ export const useAuth = (options = {}) => {
    * 로그아웃 함수
    */
   const logout = () => {
-    console.log('🚪 로그아웃 시작...');
-    
     // 모든 SSE 연결 해제 (먼저 실행)
-    console.log('🔌 SSE 연결 해제 중...');
     sseConnectionManager.disconnectAllConnections();
     
     // 로컬 스토리지 정리
-    console.log('🗑️ 로컬 스토리지 정리 중...');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('employeeId');
     localStorage.removeItem('user');
     localStorage.removeItem('unread_alarm_count');
     localStorage.removeItem('role');
-    console.log('✅ 로컬 스토리지 정리 완료');
     
     // 인증 상태 즉시 업데이트
     setAuthState({
@@ -189,8 +184,6 @@ export const useAuth = (options = {}) => {
       newValue: null,
       oldValue: authState.token
     }));
-
-    console.log('🎉 로그아웃 완료!');
     
     if (redirectOnFail) {
       navigate(redirectPath);
@@ -209,7 +202,7 @@ export const useAuth = (options = {}) => {
         user: updatedUser
       }));
     } catch (error) {
-      console.error('사용자 정보 업데이트 실패:', error);
+      // 사용자 정보 업데이트 실패는 조용히 처리
     }
   };
 

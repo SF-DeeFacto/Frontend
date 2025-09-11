@@ -18,7 +18,6 @@ class SSEConnectionManager {
   registerConnection(disconnectFn) {
     const id = ++this.connectionId;
     this.connections.set(id, disconnectFn);
-    console.log(`🔌 SSE 연결 등록됨 (ID: ${id}), 총 연결 수: ${this.connections.size}`);
     return id;
   }
 
@@ -26,37 +25,28 @@ class SSEConnectionManager {
   disconnectConnection(id) {
     const disconnectFn = this.connections.get(id);
     if (disconnectFn) {
-      console.log(`🔌 SSE 연결 해제 중 (ID: ${id})`);
       disconnectFn();
       this.connections.delete(id);
-      console.log(`✅ SSE 연결 해제 완료 (ID: ${id}), 남은 연결 수: ${this.connections.size}`);
-    } else {
-      console.warn(`⚠️ SSE 연결을 찾을 수 없음 (ID: ${id})`);
     }
   }
 
   // 모든 SSE 연결 해제 (로그아웃 시 사용)
   disconnectAllConnections() {
     const connectionCount = this.connections.size;
-    console.log(`🔌 모든 SSE 연결 해제 시작... (총 ${connectionCount}개 연결)`);
     
     if (connectionCount === 0) {
-      console.log('ℹ️ 해제할 SSE 연결이 없습니다.');
       return;
     }
     
     this.connections.forEach((disconnectFn, id) => {
       try {
-        console.log(`🔌 SSE 연결 해제 중 (ID: ${id})`);
         disconnectFn();
-        console.log(`✅ SSE 연결 해제 완료 (ID: ${id})`);
       } catch (error) {
-        console.error(`❌ SSE 연결 해제 실패 (ID: ${id}):`, error);
+        // 연결 해제 실패는 조용히 처리
       }
     });
     
     this.connections.clear();
-    console.log(`🎉 모든 SSE 연결 해제 완료! (${connectionCount}개 연결 해제됨)`);
   }
 
   // 연결 상태 확인
@@ -123,14 +113,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
   const createEventSource = () => {
     if (isDestroyed) return; // 이미 해제된 경우 연결하지 않음
     
-    console.log('🔌 SSE 연결 시작:', url);
-    console.log('🔍 SSE 연결 설정:', {
-      url,
-      token: token ? `${token.substring(0, 10)}...` : '없음',
-      maxRetries,
-      retryDelay
-    });
-    
     try {
       eventSource = new EventSourcePolyfill(url, {
         headers: {
@@ -144,14 +126,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
       eventSource.onopen = (event) => {
         if (isDestroyed) return;
         
-        console.log('✅ SSE 연결 성공:', url);
-        console.log('📊 SSE 연결 상태:', {
-          readyState: eventSource.readyState,
-          url: eventSource.url,
-          timestamp: new Date().toISOString(),
-          connectionId: '등록 예정'
-        });
-        
         lastMessageTime = Date.now();
         retryCount = 0; // 연결 성공 시 재시도 카운트 리셋
         
@@ -163,7 +137,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
           const timeSinceLastMessage = now - lastMessageTime;
           
           if (timeSinceLastMessage > heartbeatTimeout) {
-            console.log(`⚠️ SSE 하트비트 타임아웃 (${isNotificationSSE ? '알림' : '일반'}), 재연결 시도`);
             reconnect();
           }
         }, heartbeatCheckInterval);
@@ -176,17 +149,10 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
         
         lastMessageTime = Date.now();
         
-        console.log('🔍 SSE onmessage 이벤트 발생:', event);
-        console.log('🔍 event.data:', event.data);
-        
         try {
           const parsedData = JSON.parse(event.data);
-          console.log('📨 SSE 메시지 수신:', parsedData);
-          console.log('📨 onMessage 콜백 호출 전');
           onMessage(parsedData);
-          console.log('📨 onMessage 콜백 호출 후');
         } catch (parseError) {
-          console.error('❌ SSE 메시지 파싱 오류:', parseError);
           onError(parseError);
         }
       };
@@ -199,10 +165,8 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
         
         try {
           const parsedData = JSON.parse(event.data);
-          console.log('🚨 SSE alert 이벤트 수신:', parsedData);
           onMessage(parsedData);
         } catch (parseError) {
-          console.error('❌ SSE alert 메시지 파싱 오류:', parseError);
           onError(parseError);
         }
       });
@@ -218,8 +182,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
           context: 'SSE 연결 에러'
         });
         
-        console.error('❌ SSE 연결 오류:', error);
-        
         // 하트비트 타이머 정리
         if (heartbeatTimer) {
           clearInterval(heartbeatTimer);
@@ -232,7 +194,6 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
         if (retryCount < maxRetries && errorInfo.retryable) {
           retryCount++;
           const currentRetryDelay = retryDelay * Math.pow(1.5, retryCount - 1); // 지수 백오프
-          console.log(`🔄 SSE 재연결 시도 ${retryCount}/${maxRetries} (${currentRetryDelay}ms 후)`);
           
           reconnectTimer = setTimeout(() => {
             if (!isDestroyed) {
@@ -240,11 +201,9 @@ export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) =>
             }
           }, currentRetryDelay);
         } else {
-          console.error('❌ SSE 최대 재시도 횟수 초과, 연결 포기');
           // 최대 재시도 후에도 5분 후에 다시 시도
           setTimeout(() => {
             if (!isDestroyed) {
-              console.log('🔄 SSE 장기 재연결 시도');
               retryCount = 0; // 재시도 카운트 리셋
               reconnect();
             }

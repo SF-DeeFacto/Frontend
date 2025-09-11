@@ -11,16 +11,12 @@ export const useAlarmPolling = (
   interval = 30000
 ) => {
   const intervalRef = useRef(null);
-  const [pollingStatus, setPollingStatus] = useState('폴링 대기 중...');
 
   /**
    * 폴링 실행
    */
   const executePolling = useCallback(async () => {
     try {
-      // console.log('폴링: 알림 목록 및 카운터 자동 업데이트');
-      setPollingStatus('폴링 중...');
-      
       // 현재 페이지의 알림 목록 업데이트
       if (onPollingUpdate) {
         await onPollingUpdate();
@@ -31,21 +27,8 @@ export const useAlarmPolling = (
         await onHeaderUpdate();
       }
       
-      setPollingStatus('폴링 완료');
-      
-      // 3초 후 상태 메시지 초기화
-      setTimeout(() => {
-        setPollingStatus('폴링 대기 중...');
-      }, 3000);
-      
     } catch (error) {
       console.error('폴링 실행 중 오류:', error);
-      setPollingStatus('폴링 실패');
-      
-      // 5초 후 상태 메시지 초기화
-      setTimeout(() => {
-        setPollingStatus('폴링 대기 중...');
-      }, 5000);
     }
   }, [onPollingUpdate, onHeaderUpdate]);
 
@@ -103,7 +86,6 @@ export const useAlarmPolling = (
   }, [currentPage, restartPolling]);
 
   return {
-    pollingStatus,
     startPolling,
     stopPolling,
     restartPolling,

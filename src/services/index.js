@@ -22,17 +22,10 @@ const createAuthApiClient = () => {
       
       // 요청 시작 시간 기록
       config.metadata = { startTime: new Date() };
-      console.log(`🚀 API 요청 시작: ${config.method?.toUpperCase()} ${config.url}`);
-      console.log(`📊 요청 설정:`, {
-        baseURL: config.baseURL,
-        timeout: config.timeout,
-        headers: config.headers
-      });
       
       return config;
     },
     (error) => {
-      console.error('❌ API 요청 인터셉터 오류:', error);
       return Promise.reject(error);
     }
   );

@@ -95,7 +95,6 @@ export const useZoneSensorData = (zoneId) => {
     // 로그인 상태 확인
     const token = localStorage.getItem('access_token');
     if (!token) {
-      console.log('🔐 토큰이 없음 - Zone SSE 연결 건너뜀');
       setConnectionState(CONNECTION_STATE.ERROR);
       setIsLoading(false);
       return;
@@ -149,12 +148,10 @@ export const useZoneSensorData = (zoneId) => {
         setConnectionState(CONNECTION_STATE.ERROR);
         setIsLoading(false);
         // 연결 오류 시에도 이전 센서 데이터는 유지
-        console.warn(`Zone ${zoneId} SSE 연결 오류:`, errorInfo.message);
       }
     });
     
     return () => {
-      console.log(`🔌 Zone ${zoneId} SSE 연결 해제`);
       disconnectSSE();
       // 디바운서 정리
       if (debouncerRef.current) {

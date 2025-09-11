@@ -11,8 +11,6 @@ import Pagination from '../components/common/Pagination';
 import Text from '../components/common/Text';
 import EmptyState from '../components/common/EmptyState';
 
-
-
 // 메인 알림 컴포넌트
 const Alarm = () => {
   const [alarmType, setAlarmType] = useState('전체');

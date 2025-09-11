@@ -79,7 +79,7 @@
 
   /* 모던 카드 스타일 */
   .modern-card {
-    @apply bg-primary-50/70 dark:bg-neutral-800/80 backdrop-blur-sm border border-white/20 dark:border-neutral-700/30 shadow-soft hover:shadow-medium transition-all duration-300 rounded-2xl;
+    @apply bg-primary-50/70 dark:bg-neutral-700/60 backdrop-blur-sm border border-white/20 dark:border-neutral-600/40 shadow-soft hover:shadow-medium transition-all duration-300 rounded-2xl;
   }
 
   .modern-card-hover {
