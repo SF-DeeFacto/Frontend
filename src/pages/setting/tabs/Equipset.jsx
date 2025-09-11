@@ -4,8 +4,9 @@ import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { useAuth } from '../../../hooks/useAuth';
 import { COLORS } from '../../../config/constants';
-import { getSensorTypeMapping } from '../../../config/sensorConfig';
+import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
 import Button from '../../../components/common/Button';
+import SearchFilterSection from '../../../components/common/SearchFilterSection';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -35,6 +36,10 @@ const Equipset = ({ onTabChange }) => {
   
   // 선택된 구역들 (다중 선택)
   const [selectedZones, setSelectedZones] = useState(getInitialZones());
+  
+  // 검색 및 필터 상태
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterType, setFilterType] = useState('all');
   
   // API에서 가져온 임계치 상태 (구역별 배열 매핑)
   const [sensorThresholds, setSensorThresholds] = useState({});
@@ -69,11 +74,33 @@ const Equipset = ({ onTabChange }) => {
   }, [selectedZones]);
 
   // 현재 선택된 구역들의 센서 데이터
-  const currentSensors = selectedZones.length === 0 
+  const allSensors = selectedZones.length === 0 
     ? [] // 아무 구역도 선택되지 않으면 빈 배열
     : selectedZones.length === 3 
       ? Object.values(sensorThresholds).flat() 
       : selectedZones.flatMap(zone => sensorThresholds[zone] || []);
+
+  // 필터링된 센서 데이터
+  const currentSensors = allSensors.filter(sensor => {
+    // 센서 타입 필터
+    if (filterType !== 'all' && sensor.sensorType !== filterType) {
+      return false;
+    }
+    
+    // 검색어 필터
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const sensorTypeName = getSensorTypeName(sensor.sensorType);
+      
+      return (
+        sensor.zoneId.toLowerCase().includes(searchLower) ||
+        sensor.sensorType.toLowerCase().includes(searchLower) ||
+        (sensorTypeName && sensorTypeName.includes(searchTerm))
+      );
+    }
+    
+    return true;
+  });
 
   // 인라인 수정 상태 - 센서 타입 기준으로 변경
   const [editingType, setEditingType] = useState(null);
@@ -286,54 +313,52 @@ const Equipset = ({ onTabChange }) => {
   return (
     <div>
       {/* 필터 및 구역 선택 영역 */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="space-y-4">
-          {/* 구역 선택 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              구역 선택
-            </label>
-            <div className="flex flex-wrap items-center gap-4">
-              {/* 토글 버튼들을 한 줄로 나열 */}
-              <div className="flex flex-wrap gap-2">
-                {/* 전체 선택/해제 버튼 */}
-                <Button
-                  onClick={() => {
-                    toggleAllZones();
-                    setEditingType(null); // 구역 변경 시 편집 상태 초기화
-                  }}
-                  variant={selectedZones.length === zones.length ? "primary" : "default"}
-                  size="sm"
-                  className="min-w-[100px]"
-                >
-                  {selectedZones.length === zones.length ? '전체 해제' : '전체 선택'}
-                </Button>
-                
-                {/* 개별 구역 토글 버튼들 */}
-                {zones.map(zone => (
-                  <Button
-                    key={zone}
-                    onClick={() => {
-                      toggleZone(zone);
-                      setEditingType(null); // 구역 변경 시 편집 상태 초기화
-                    }}
-                    variant={selectedZones.includes(zone) ? "primary" : "default"}
-                    size="sm"
-                    className="min-w-[80px]"
-                  >
-                    {zone.toUpperCase()}구역
-                  </Button>
-                ))}
-              </div>
-              
-              {/* 결과 수 - 버튼들과 가깝게 배치 */}
-              <div className="text-sm text-gray-600">
-                총 {currentSensors.length}개의 센서
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SearchFilterSection
+        searchConfig={{
+          label: "검색",
+          placeholder: "구역, 센서종류 검색",
+          value: searchTerm
+        }}
+        filters={[
+          {
+            key: "sensorType",
+            label: "센서 종류",
+            type: "select",
+            value: filterType,
+            options: SENSOR_TYPES_FOR_FILTER.map(type => ({
+              value: type,
+              label: type === 'all' ? '전체' : getSensorTypeName(type)
+            }))
+          },
+          {
+            key: "zone",
+            label: "구역 선택",
+            type: "select",
+            value: selectedZones.length === 1 ? selectedZones[0] : 'all',
+            options: [
+              { value: 'all', label: '전체' },
+              ...zones.map(zone => ({
+                value: zone,
+                label: `${zone.toUpperCase()}구역`
+              }))
+            ]
+          }
+        ]}
+        resultCount={currentSensors.length}
+        onSearchChange={setSearchTerm}
+        onFilterChange={(key, value) => {
+          if (key === 'sensorType') {
+            setFilterType(value);
+          } else if (key === 'zone') {
+            if (value === 'all') {
+              setSelectedZones([...zones]);
+            } else {
+              setSelectedZones([value]);
+            }
+            setEditingType(null); // 구역 변경 시 편집 상태 초기화
+          }
+        }}
+      />
 
       {/* 안내 문구 */}
       <div className="mb-3 flex items-start space-x-2">
