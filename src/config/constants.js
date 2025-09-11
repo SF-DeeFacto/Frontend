@@ -114,6 +114,7 @@ export const HTTP_STATUS = {
 // ==================== 로컬 스토리지 키 ====================
 export const STORAGE_KEYS = {
   AUTH_TOKEN: 'auth_token',
+  ACCESS_TOKEN: 'access_token',  // SSE 연결에서 사용하는 키 추가
   REFRESH_TOKEN: 'refresh_token',
   USER_INFO: 'user_info',
   THEME: 'theme',
