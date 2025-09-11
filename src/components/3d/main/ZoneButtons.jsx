@@ -52,15 +52,55 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
     }
   };
 
+  // 상태별 애니메이션 클래스 반환 (호버와 동일한 프로파일 적용)
+  const getStatusAnimationClass = (status) => {
+    switch ((status || '').toString().toUpperCase()) {
+      case 'RED':
+      case 'ERROR':
+      case 'DANGER':
+        return 'animate-pulse'; // 빨간색 - 빠른 깜빡임 (breathSpeed: 1.2)
+      case 'YELLOW':
+      case 'WARNING':
+        return 'animate-pulse'; // 노란색 - 중간 깜빡임 (breathSpeed: 0.9)
+      case 'GREEN':
+      case 'NORMAL':
+        return ''; // 초록색 - 애니메이션 없음 (breathSpeed: 0.6, breathAmp: 0.08 - 매우 부드러움)
+      case 'CONNECTING':
+        return 'animate-pulse'; // 연결 중 - 깜빡임
+      case 'DISCONNECTED':
+      case 'UNKNOWN':
+        return ''; // 연결 끊김 - 애니메이션 없음
+      default:
+        return ''; // 기본 - 애니메이션 없음 (호버의 base 프로파일과 동일)
+    }
+  };
+
+  // 호버와 동일한 로직으로 존 상태 가져오기
+  const getZoneStatus = (zone) => {
+    // 대문자로 변환하여 zoneStatuses에서 찾기 (호버와 동일한 로직)
+    const zoneKey = zone.toUpperCase();
+    const status = zoneStatuses?.[zoneKey] || SENSOR_STATUS.CONNECTING;
+    
+    // 디버깅 로그
+    console.log('ZoneButtons - getZoneStatus:', {
+      zone,
+      zoneKey,
+      status,
+      zoneStatuses,
+      availableKeys: Object.keys(zoneStatuses || {})
+    });
+    
+    return status;
+  };
+
   // 존별 연결 정보 확인
   const getZoneConnectionInfo = (zone) => {
-    // Zone 이름을 zone_A01 형태로 변환
-    const zoneKey = zone.zone_name; // "zone_A01"
-    const status = zoneStatuses[zoneKey];
-    const lastUpdate = lastUpdated[zoneKey];
+    // 호버와 동일한 방식으로 상태 가져오기
+    const status = getZoneStatus(zone);
+    const lastUpdate = lastUpdated[zone.toUpperCase()];
     
     return {
-      status: status || SENSOR_STATUS.CONNECTING,
+      status: status,
       isRealtime: connectionStates.mainSSE === CONNECTION_STATE.CONNECTED,
       connectionState: connectionStates.mainSSE || CONNECTION_STATE.DISCONNECTED,
       lastUpdate,
@@ -73,7 +113,9 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
       {/* Zone 버튼 그리드 */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
       {zones.map((zone) => {
-        const connectionInfo = getZoneConnectionInfo(zone);
+        // 호버와 동일한 방식으로 존 ID 사용
+        const zoneId = zone.id; // 'a01', 'b01' 등
+        const connectionInfo = getZoneConnectionInfo(zoneId);
         const statusColor = getStatusHexColor(connectionInfo.status);
         const connectionColor = getConnectionColor(connectionInfo.connectionState);
         
@@ -105,15 +147,39 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
                 </Text>
               </div>
               
-              {/*TODO: 상태 인디케이터 */}
-              <div 
-                className="w-4 h-4 rounded-full animate-pulse"
-                style={{ 
-                  backgroundColor: statusColor,
-                  boxShadow: `0 0 6px ${statusColor}40`
-                }}
-                title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
-              ></div>
+              {/* 상태 인디케이터 - 호버와 동일한 스타일 적용 */}
+              <div className="relative">
+                {/* 메인 상태 점 */}
+                <div 
+                  className={`w-4 h-4 rounded-full relative z-10 ${getStatusAnimationClass(connectionInfo.status)}`}
+                  style={{ 
+                    backgroundColor: statusColor,
+                    boxShadow: `0 0 8px ${statusColor}60`
+                  }}
+                ></div>
+                
+                {/* 발광 효과 (상태등 효과) */}
+                <div 
+                  className={`absolute inset-0 w-4 h-4 rounded-full ${getStatusAnimationClass(connectionInfo.status)}`}
+                  style={{ 
+                    backgroundColor: statusColor,
+                    opacity: 0.4,
+                    transform: 'scale(1.3)',
+                    zIndex: 1
+                  }}
+                ></div>
+                
+                {/* 광륜 효과 (상시 호흡) - 호버와 동일한 부드러운 효과 */}
+                <div 
+                  className="absolute inset-0 w-4 h-4 rounded-full"
+                  style={{ 
+                    backgroundColor: statusColor,
+                    opacity: connectionInfo.status === 'GREEN' ? 0.1 : 0.2, // 초록색일 때 더 투명하게
+                    transform: 'scale(1.6)',
+                    zIndex: 0
+                  }}
+                ></div>
+              </div>
             </div>
             
             {/* 호버 효과 아이콘 */}
