@@ -329,7 +329,7 @@
   }
 
   .particle-item {
-    @apply flex justify-between items-center px-2 py-1;
+    @apply flex justify-between items-center px-2 py-1 gap-2;
   }
 
   .particle-label {
