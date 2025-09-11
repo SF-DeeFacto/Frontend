@@ -4,7 +4,7 @@ import { BaseModel } from '../3d/common/BaseModel';
 import SensorIndicator from '../3d/zone/SensorIndicator';
 import { getStatusHexColor, getStatusText, ZONE_INFO, SENSOR_STATUS } from '../../config/sensorConfig';
 import { getModelPath } from '../../config/sensorConfig';
-// import { useZoneSensorData } from '../../hooks/useZoneSensorData';
+import { useZoneSensorData } from '../../hooks/useZoneSensorData';
 import { useAuth } from '../../hooks/useAuth';
 import Text from './Text';
 import LoadingSpinner from './LoadingSpinner';
@@ -16,8 +16,8 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   // 인증 정보 가져오기
   const { user } = useAuth();
   
-  // 센서 데이터는 메인 페이지에서 사용하지 않음 (존 상태만 표시)
-  // const { sensorData, isLoading: isSensorLoading } = useZoneSensorData(hoveredZone);
+  // 센서 데이터 가져오기
+  const { sensorData, isLoading: isSensorLoading } = useZoneSensorData(hoveredZone);
   
   // 권한 체크 함수
   const checkPermission = (zoneId) => {
@@ -174,7 +174,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
           {hasPermission === true && (
             <>
               {/* 모델 로딩 인디케이터 */}
-              {!isModelLoaded && (
+              {(!isModelLoaded || isSensorLoading) && (
                 <div className="absolute inset-0 flex items-center justify-center z-10">
                   <div className="flex flex-col items-center gap-2">
                     <LoadingSpinner 
@@ -183,7 +183,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                       className="text-white/60"
                     />
                     <Text variant="caption" size="xs" color="white" className="opacity-60">
-                      모델 로딩 중...
+                      {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
                     </Text>
                   </div>
                 </div>
@@ -200,6 +200,7 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                     <BaseModel 
                       modelPath={modelPath} 
                       onLoad={() => setIsModelLoaded(true)}
+                      sensorData={sensorData}
                       zoneId={hoveredZone}
                       lighting="soft"
                       scale={[0.0018, 0.0018, 0.0018]}
