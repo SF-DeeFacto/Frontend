@@ -7,6 +7,7 @@ import { COLORS } from '../../../config/constants';
 import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER } from '../../../config/sensorConfig';
 import Button from '../../../components/common/Button';
 import SearchFilterSection from '../../../components/common/SearchFilterSection';
+import ErrorBoundary from '../../../components/common/ErrorBoundary';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -43,6 +44,9 @@ const Equipset = ({ onTabChange }) => {
   
   // API에서 가져온 임계치 상태 (구역별 배열 매핑)
   const [sensorThresholds, setSensorThresholds] = useState({});
+  
+  // 필터링된 센서 데이터 상태 (SensorListTab과 동일한 패턴)
+  const [filteredSensors, setFilteredSensors] = useState([]);
 
   // 초기 및 구역 변경 시 임계치 로드
   useEffect(() => {
@@ -63,43 +67,58 @@ const Equipset = ({ onTabChange }) => {
           return acc;
         }, {});
         setSensorThresholds(grouped);
+        
+        // 센서 데이터를 flat하게 만들어서 filteredSensors 초기화
+        const allSensors = Object.values(grouped).flat();
+        setFilteredSensors(allSensors);
       } else {
         const errorInfo = handleApiError(new Error(result.error), '임계치 목록 조회');
         console.error('임계치 목록 조회 실패:', errorInfo.message);
         setSensorThresholds({});
+        setFilteredSensors([]);
       }
     };
     loadThresholds();
     return () => { isMounted = false; };
   }, [selectedZones]);
 
-  // 현재 선택된 구역들의 센서 데이터
-  const allSensors = selectedZones.length === 0 
-    ? [] // 아무 구역도 선택되지 않으면 빈 배열
-    : selectedZones.length === 3 
-      ? Object.values(sensorThresholds).flat() 
-      : selectedZones.flatMap(zone => sensorThresholds[zone] || []);
+  // 센서 타입별 한글 매핑 함수 사용 (SensorListTab과 동일)
+  const getSensorTypeName = getSensorTypeMapping;
 
-  // 필터링된 센서 데이터
-  const currentSensors = allSensors.filter(sensor => {
-    // 센서 타입 필터
-    if (filterType !== 'all' && sensor.sensorType !== filterType) {
-      return false;
+  // 검색어 필터링 (구역 검색 개선)
+  useEffect(() => {
+    // 현재 선택된 구역들의 센서 데이터 (구역 필터링)
+    const allSensors = selectedZones.length === 0 
+      ? [] // 아무 구역도 선택되지 않으면 빈 배열
+      : selectedZones.length === 3 
+        ? Object.values(sensorThresholds).flat() 
+        : selectedZones.flatMap(zone => sensorThresholds[zone] || []);
+
+    if (!searchTerm) {
+      setFilteredSensors(allSensors);
+      return;
     }
     
-    // 검색어 필터
-    if (searchTerm) {
+    const filtered = allSensors.filter(sensor => {
       const searchLower = searchTerm.toLowerCase();
-      const sensorTypeName = getSensorTypeName(sensor.sensorType);
       
-      return (
-        sensor.zoneId.toLowerCase().includes(searchLower) ||
-        sensor.sensorType.toLowerCase().includes(searchLower) ||
-        (sensorTypeName && sensorTypeName.includes(searchTerm))
-      );
-    }
+      // 센서 타입 검색 (영문)
+      const sensorTypeMatch = sensor.sensorType && sensor.sensorType.toLowerCase().includes(searchLower);
+      
+      // 센서 타입 한글명 검색
+      const koreanTypeName = getSensorTypeMapping(sensor.sensorType);
+      const koreanTypeMatch = koreanTypeName && koreanTypeName.includes(searchTerm);
+      
+      return sensorTypeMatch || koreanTypeMatch;
+    });
     
-    return true;
+    setFilteredSensors(filtered);
+  }, [selectedZones, sensorThresholds, searchTerm]); // 안정적인 의존성 배열
+
+  // 센서 타입 필터링
+  const currentSensors = filteredSensors.filter(sensor => {
+    if (filterType === 'all') return true;
+    return sensor.sensorType === filterType;
   });
 
   // 인라인 수정 상태 - 센서 타입 기준으로 변경
@@ -283,8 +302,6 @@ const Equipset = ({ onTabChange }) => {
     }
   };
 
-  // 센서 타입별 한글 매핑 함수 사용
-  const getSensorTypeName = getSensorTypeMapping;
 
   // 날짜 포맷팅 함수 - 날짜와 시간 분리
   const formatDateFromISO = (isoString) => {
@@ -311,12 +328,13 @@ const Equipset = ({ onTabChange }) => {
   };
 
   return (
-    <div>
-      {/* 필터 및 구역 선택 영역 */}
-      <SearchFilterSection
+    <ErrorBoundary>
+      <div>
+        {/* 필터 및 구역 선택 영역 */}
+        <SearchFilterSection
         searchConfig={{
           label: "검색",
-          placeholder: "구역, 센서종류 검색",
+          placeholder: "센서종류 검색",
           value: searchTerm
         }}
         filters={[
@@ -510,7 +528,8 @@ const Equipset = ({ onTabChange }) => {
           </tbody>
         </table>
       </div>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 
