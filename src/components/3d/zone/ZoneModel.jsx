@@ -3,7 +3,7 @@ import { useThree, useFrame } from '@react-three/fiber';
 import { useGLTF, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import SensorIndicator from './SensorIndicator';
-import { getSensorTypeConfig, getStatusText } from '../../../config/sensorConfig';
+import { getSensorTypeConfig, getStatusText, getSensorTypeFromName, SENSOR_TYPE_PATTERNS } from '../../../config/sensorConfig';
 
 function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClick }) {
   const { scene } = useGLTF(modelPath);
@@ -38,6 +38,11 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     }
     
     return 'unknown';
+  };
+
+  // 센서 타입을 결정하는 함수 (공통 설정 사용)
+  const getSensorType = (name) => {
+    return getSensorTypeFromName(name);
   };
 
   // 센서 데이터에서 센서 정보를 찾는 함수
@@ -130,12 +135,12 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
     
     scene.traverse((child) => {
       if (child.isMesh && child.name) {
-        // 실제 센서 패턴 확인 (LPM, TEMP 사용)
-        if (child.name.includes('ESD') || 
-            child.name.includes('LPM') || 
-            child.name.includes('HUM') || 
-            child.name.includes('WD') ||
-            child.name.includes('TEMP')) {
+        // 공통 센서 패턴 설정을 사용하여 센서 검색
+        const isSensor = Object.keys(SENSOR_TYPE_PATTERNS).some(pattern => 
+          child.name.includes(pattern)
+        );
+        
+        if (isSensor) {
           traverseFoundSensors.push(child.name);
           
           // 센서 추가
@@ -214,7 +219,8 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
         isSensor: true,
         status: sensor.status,
         id: sensor.id,
-        type: sensor.type
+        type: sensor.type,
+        sensorData: sensor.sensorInfo // 센서 데이터 추가
       });
     }
   };
@@ -228,17 +234,6 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
       />
 
       {Object.entries(sensorPositions).map(([meshName, sensorPositionData]) => {
-        // 센서 타입 분류
-        const getSensorType = (name) => {
-          if (name.includes('ESD')) return 'ESD';
-          if (name.includes('Handle')) return 'Handle';
-          if (name.includes('HUM')) return 'Humidity';
-          if (name.includes('WD')) return 'WaterDetector';
-          if (name.includes('TEM')) return 'Temperature';
-          if (name.includes('LPM')) return 'Particle';
-          return 'Unknown';
-        };
-
         // 실제 센서 데이터에서 상태 가져오기
         const actualStatus = getSensorStatusFromData(meshName);
         const sensorInfo = getSensorInfoFromData(meshName);
