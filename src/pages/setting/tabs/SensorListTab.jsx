@@ -173,68 +173,68 @@ const SensorListTab = () => {
       />
 
       {/* 센서 목록 테이블 */}
-      <div className="bg-white rounded-lg border overflow-hidden">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-neutral-700">
+            <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   센서ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   구역ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   센서유형
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   경고L
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   경고H
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   초과L
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   초과H
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   수정시간
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   수정자
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
               {filteredSensors.map((sensor, index) => (
-                <tr key={`${sensor.sensorId}-${sensor.zoneId}-${index}`} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr key={`${sensor.sensorId}-${sensor.zoneId}-${index}`} className={index % 2 === 0 ? 'bg-white dark:bg-neutral-800' : 'bg-gray-50 dark:bg-neutral-700'}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                     {sensor.sensorId}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
                     {sensor.zoneId.toUpperCase()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
                     {getSensorTypeName(sensor.sensorType)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-white">
                     {formatThresholdValue(sensor.warningLow)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-white">
                     {formatThresholdValue(sensor.warningHigh)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-white">
                     {formatThresholdValue(sensor.alertLow)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500 dark:text-white">
                     {formatThresholdValue(sensor.alertHigh)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
                     {formatDateTime(sensor.updatedAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
                     {sensor.updatedUserId}
                   </td>
                 </tr>
@@ -246,8 +246,8 @@ const SensorListTab = () => {
         {/* 빈 결과 메시지 */}
         {filteredSensors.length === 0 && (
           <div className="text-center py-12">
-            <div className="text-gray-500 text-lg">검색 결과가 없습니다.</div>
-            <div className="text-gray-400 text-sm mt-2">다른 검색 조건을 시도해보세요.</div>
+            <div className="text-gray-500 dark:text-neutral-400 text-lg">검색 결과가 없습니다.</div>
+            <div className="text-gray-400 dark:text-neutral-500 text-sm mt-2">다른 검색 조건을 시도해보세요.</div>
           </div>
         )}
       </div>

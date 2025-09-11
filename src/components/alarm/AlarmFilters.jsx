@@ -20,11 +20,11 @@ const AlarmFilters = ({
   hasUnreadAlarms 
 }) => {
   return (
-    <div className="bg-gray-50 p-6 rounded-lg mb-6">
+    <div className="bg-white dark:bg-neutral-800 p-6 rounded-lg mb-6 border border-gray-200 dark:border-neutral-700 shadow">
       <div className="flex flex-wrap items-start gap-6">
         {/* 알림 유형 필터 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">알림 유형</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">알림 유형</label>
           <div className="flex flex-wrap gap-2">
             {ALARM_TYPES.map((type) => (
               <Button
@@ -42,7 +42,7 @@ const AlarmFilters = ({
 
         {/* 즐겨찾기 필터 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">즐겨찾기</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">즐겨찾기</label>
           <div className="flex flex-wrap gap-2">
             {['전체', '즐겨찾기'].map((status) => (
               <Button
@@ -60,7 +60,7 @@ const AlarmFilters = ({
 
         {/* 읽음 상태 필터 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">읽음 상태</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">읽음 상태</label>
           <div className="flex flex-wrap gap-2">
             {READ_STATUS_FILTERS.map((status) => (
               <Button
@@ -78,7 +78,7 @@ const AlarmFilters = ({
 
         {/* 전체 읽음 버튼 */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">액션</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">액션</label>
           <Button
             onClick={onMarkAllAsRead}
             variant={hasUnreadAlarms ? "primary" : "default"}

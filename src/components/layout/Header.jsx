@@ -29,6 +29,7 @@ let globalLogoError = false;
 
 // 로고 컴포넌트 - Header 외부에서 정의하여 리렌더링 방지
 const Logo = memo(() => {
+  const { theme } = useTheme();
   const [logoImageLoaded, setLogoImageLoaded] = useState(globalLogoLoaded);
   const [logoImageError, setLogoImageError] = useState(globalLogoError);
 
@@ -50,6 +51,9 @@ const Logo = memo(() => {
     setLogoImageLoaded(false);
   };
 
+  // 다크모드에 따른 로고 이미지 경로 결정
+  const logoSrc = theme === 'dark' ? '/logow.png' : '/logo2.png';
+
   const styles = {
     logo: {
       display: 'flex',
@@ -68,7 +72,7 @@ const Logo = memo(() => {
     <div className="flex items-center" style={styles.logo}>
       {!logoImageError && (
         <img 
-          src="/logo2.png" 
+          src={logoSrc} 
           alt="DeeFacto Logo" 
           className="w-[47px] h-[40px] opacity-100"
           onLoad={handleLogoLoad}

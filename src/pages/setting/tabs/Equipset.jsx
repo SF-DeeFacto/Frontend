@@ -380,107 +380,107 @@ const Equipset = ({ onTabChange }) => {
 
       {/* 안내 문구 */}
       <div className="mb-3 flex items-start space-x-2">
-        <Info className="w-4 h-4 text-primary-500 mt-0.5 flex-shrink-0" />
-        <p className="text-sm text-gray-500 tracking-wide">
+        <Info className="w-4 h-4 text-primary-500 dark:text-brand-main mt-0.5 flex-shrink-0" />
+        <p className="text-sm text-gray-500 dark:text-neutral-400 tracking-wide">
           각 구역별로 Warning(경고) 및 Alert(알림) 임계치만 수정 가능합니다. 저장 시 수정일자와 수정인이 자동 갱신됩니다.
         </p>
       </div>
 
-      <div className="overflow-x-auto bg-white border border-gray-200 rounded-lg">
-        <table className="min-w-full table-fixed divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="overflow-x-auto bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg">
+        <table className="min-w-full table-fixed divide-y divide-gray-200 dark:divide-neutral-700">
+          <thead className="bg-gray-50 dark:bg-neutral-700">
             <tr>
-              <th className="w-16 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역ID</th>
-              <th className="w-24 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서유형</th>
-              <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Warning(경고)<br/>Low</th>
-              <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Warning(경고)<br/>High</th>
-              <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Alert(알림)<br/>Low</th>
-              <th className="w-24 px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Alert(알림)<br/>High</th>
-              <th className="w-28 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정시간</th>
-              <th className="w-20 px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정자</th>
-              <th className="w-20 px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">작업</th>
+              <th className="w-16 px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">구역ID</th>
+              <th className="w-24 px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">센서유형</th>
+              <th className="w-24 px-4 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Warning(경고)<br/>Low</th>
+              <th className="w-24 px-4 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Warning(경고)<br/>High</th>
+              <th className="w-24 px-4 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Alert(알림)<br/>Low</th>
+              <th className="w-24 px-4 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">Alert(알림)<br/>High</th>
+              <th className="w-28 px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">수정시간</th>
+              <th className="w-20 px-4 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">수정자</th>
+              <th className="w-20 px-4 py-3 text-right text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">작업</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-200 dark:divide-neutral-700">
             {currentSensors.map((s, index) => {
               const isEditing = editingType === s.sensorType && selectedZones.length === 1;
               const uniqueKey = selectedZones.length > 1 ? `${s.zoneId}-${s.sensorType}` : s.sensorType;
               return (
-                <tr key={uniqueKey} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.zoneId.toUpperCase()}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{getSensorTypeName(s.sensorType)}</td>
+                <tr key={uniqueKey} className="hover:bg-gray-50 dark:hover:bg-neutral-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">{s.zoneId.toUpperCase()}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">{getSensorTypeName(s.sensorType)}</td>
 
                   {/* 경고L */}
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-neutral-300">
                     {isEditing ? (
                       <input
                         type="text"
                         value={editForm.warningLow}
                         onChange={(e) => onChange('warningLow', e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-center text-sm"
+                        className="w-full border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-center text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
                         placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{formatThresholdValue(s.warningLow)}</span>
+                      <span className="block text-center dark:text-white">{formatThresholdValue(s.warningLow)}</span>
                     )}
                   </td>
 
                   {/* 경고H */}
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-neutral-300">
                     {isEditing ? (
                       <input
                         type="text"
                         value={editForm.warningHigh}
                         onChange={(e) => onChange('warningHigh', e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-center text-sm"
+                        className="w-full border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-center text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
                         placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{formatThresholdValue(s.warningHigh)}</span>
+                      <span className="block text-center dark:text-white">{formatThresholdValue(s.warningHigh)}</span>
                     )}
                   </td>
 
                   {/* 초과L */}
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-neutral-300">
                     {isEditing ? (
                       <input
                         type="text"
                         value={editForm.alertLow}
                         onChange={(e) => onChange('alertLow', e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-center text-sm"
+                        className="w-full border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-center text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
                         placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{formatThresholdValue(s.alertLow)}</span>
+                      <span className="block text-center dark:text-white">{formatThresholdValue(s.alertLow)}</span>
                     )}
                   </td>
 
                   {/* 초과H */}
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-neutral-300">
                     {isEditing ? (
                       <input
                         type="text"
                         value={editForm.alertHigh}
                         onChange={(e) => onChange('alertHigh', e.target.value)}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-center text-sm"
+                        className="w-full border border-gray-300 dark:border-neutral-600 rounded px-2 py-1 text-center text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
                         placeholder="-"
                         inputMode="decimal"
                       />
                     ) : (
-                      <span className="block text-center">{formatThresholdValue(s.alertHigh)}</span>
+                      <span className="block text-center dark:text-white">{formatThresholdValue(s.alertHigh)}</span>
                     )}
                   </td>
 
-                  <td className="px-4 py-3 text-sm text-gray-700">
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">
                     <div className="flex flex-col">
                       <span className="text-xs">{formatDateFromISO(s.updatedAt)}</span>
-                      <span className="text-xs text-gray-500">{formatTimeFromISO(s.updatedAt)}</span>
+                      <span className="text-xs text-gray-500 dark:text-neutral-400">{formatTimeFromISO(s.updatedAt)}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{s.updatedUserId}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700 dark:text-white">{s.updatedUserId}</td>
 
                   <td className="px-4 py-3 text-sm text-right">
                     {isEditing ? (
@@ -520,7 +520,7 @@ const Equipset = ({ onTabChange }) => {
             })}
             {currentSensors.length === 0 && (
               <tr>
-                <td className="px-4 py-6 text-center text-sm text-gray-500" colSpan={9}>
+                <td className="px-4 py-6 text-center text-sm text-gray-500 dark:text-neutral-400" colSpan={9}>
                   {selectedZones.length === 0 ? '구역을 선택해주세요.' : '데이터가 없습니다.'}
                 </td>
               </tr>

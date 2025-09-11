@@ -188,7 +188,7 @@ const AIRecommend = () => {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[${COLORS.PRIMARY}]"></div>
-        <span className="ml-3 text-gray-600">임계치 추천 데이터를 불러오는 중...</span>
+        <span className="ml-3 text-gray-600 dark:text-neutral-400">임계치 추천 데이터를 불러오는 중...</span>
       </div>
     );
   }
@@ -196,20 +196,20 @@ const AIRecommend = () => {
   // 에러 상태
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
         <div className="flex">
           <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <svg className="h-5 w-5 text-red-400 dark:text-red-500" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-red-800">오류가 발생했습니다</h3>
-            <div className="mt-2 text-sm text-red-700">
+            <h3 className="text-sm font-medium text-red-800 dark:text-red-300">오류가 발생했습니다</h3>
+            <div className="mt-2 text-sm text-red-700 dark:text-red-400">
               <p>{error}</p>
               <button 
                 onClick={() => window.location.reload()}
-                className="mt-2 bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-sm font-medium"
+                className="mt-2 bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700 text-red-800 dark:text-red-200 px-3 py-1 rounded text-sm font-medium"
               >
                 페이지 새로고침
               </button>
@@ -235,21 +235,21 @@ const AIRecommend = () => {
                 <button
                   type="button"
                   onClick={() => setShowDatePicker(!showDatePicker)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left flex items-center justify-between"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-left flex items-center justify-between bg-white dark:bg-neutral-800"
                 >
-                  <span className="text-gray-900">{formatSelectedDate()}</span>
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className="text-gray-900 dark:text-neutral-100">{formatSelectedDate()}</span>
+                  <svg className="w-5 h-5 text-gray-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </button>
                 
                 {/* 달력 드롭다운 */}
                 {showDatePicker && (
-                  <div className="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                  <div className="absolute z-10 mt-1 w-full bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 rounded-md shadow-lg">
                     <div className="p-4">
                       {/* 년도 선택 */}
                       <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">년도</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">년도</label>
                         <div className="grid grid-cols-3 gap-2">
                           {Array.from({ length: 5 }, (_, i) => {
                             const year = new Date().getFullYear() - i;
@@ -260,7 +260,7 @@ const AIRecommend = () => {
                                 className={`px-3 py-2 text-sm rounded-md ${
                                   filterYear === year.toString()
                                     ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-600'
                                 }`}
                               >
                                 {year}
@@ -272,7 +272,7 @@ const AIRecommend = () => {
                       
                       {/* 월 선택 */}
                       <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">월</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">월</label>
                         <div className="grid grid-cols-4 gap-2">
                           {Array.from({ length: 12 }, (_, i) => {
                             const month = i + 1;
@@ -284,7 +284,7 @@ const AIRecommend = () => {
                                 className={`px-3 py-2 text-sm rounded-md ${
                                   filterMonth === monthStr
                                     ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-300 hover:bg-gray-200 dark:hover:bg-neutral-600'
                                 }`}
                               >
                                 {month}월
@@ -375,85 +375,85 @@ const AIRecommend = () => {
       />
 
       {/* 임계치 추천 목록 - 데스크톱 테이블 */}
-      <div className="hidden lg:block bg-white rounded-lg border overflow-hidden">
+      <div className="hidden lg:block bg-white dark:bg-neutral-800 rounded-lg border border-gray-200 dark:border-neutral-700 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full divide-y divide-gray-200" style={{minWidth: '800px'}}>
-            <thead className="bg-gray-50">
+          <table className="w-full divide-y divide-gray-200 dark:divide-neutral-700" style={{minWidth: '800px'}}>
+            <thead className="bg-gray-50 dark:bg-neutral-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">추천일시</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">구역</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">센서타입</th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">추천일시</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">구역</th>
+                <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">센서타입</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   <div>현재 Warning</div>
                   <div className="text-xs font-normal normal-case">Low/High</div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   <div>추천 Warning</div>
                   <div className="text-xs font-normal normal-case">Low/High</div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   <div>현재 Alert</div>
                   <div className="text-xs font-normal normal-case">Low/High</div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">
                   <div>추천 Alert</div>
                   <div className="text-xs font-normal normal-case">Low/High</div>
                 </th>
-                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
+                <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 dark:text-neutral-400 uppercase tracking-wider">상태</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-neutral-800 divide-y divide-gray-200 dark:divide-neutral-700">
               {filteredRecommendations.map((rec) => (
                 <tr key={rec.id} 
                     onClick={() => {
                       setSelectedRecommendation(rec);
                     }}
-                    className={`cursor-pointer hover:bg-gray-50 ${
-                      rec.appliedStatus === 'APPROVED' ? 'bg-green-50' : 
-                      rec.appliedStatus === 'REJECTED' ? 'bg-red-50' : ''
+                    className={`cursor-pointer hover:bg-gray-50 dark:hover:bg-neutral-700 ${
+                      rec.appliedStatus === 'APPROVED' ? 'bg-green-50 dark:bg-green-900/20' : 
+                      rec.appliedStatus === 'REJECTED' ? 'bg-red-50 dark:bg-red-900/20' : ''
                     }`}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {formatDateTime(rec.recommendedAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {rec.zoneId.toUpperCase()}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                     {getSensorTypeName(rec.sensorType)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
                     {formatThresholdValue(rec.currentWarningLow)} / {formatThresholdValue(rec.currentWarningHigh)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <div className={`font-medium ${
-                      rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
-                      rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[${COLORS.PRIMARY}]'
+                      rec.appliedStatus === 'APPROVED' ? 'text-green-600 dark:text-green-400' : 
+                      rec.appliedStatus === 'REJECTED' ? 'text-red-600 dark:text-red-400' : 'text-[${COLORS.PRIMARY}] dark:text-primary-400'
                     }`}>
                       {formatThresholdValue(rec.warningLow)} / {formatThresholdValue(rec.warningHigh)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white text-center">
                     {formatThresholdValue(rec.currentAlertLow)} / {formatThresholdValue(rec.currentAlertHigh)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
                     <div className={`font-medium ${
-                      rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
-                      rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[${COLORS.PRIMARY}]'
+                      rec.appliedStatus === 'APPROVED' ? 'text-green-600 dark:text-green-400' : 
+                      rec.appliedStatus === 'REJECTED' ? 'text-red-600 dark:text-red-400' : 'text-[${COLORS.PRIMARY}] dark:text-primary-400'
                     }`}>
                       {formatThresholdValue(rec.alertLow)} / {formatThresholdValue(rec.alertHigh)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-center text-sm">
                     {rec.appliedStatus === 'APPROVED' ? (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                         승인됨
                       </span>
                     ) : rec.appliedStatus === 'REJECTED' ? (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                         거부됨
                       </span>
                     ) : (
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[${COLORS.PRIMARY}]/10 text-[${COLORS.PRIMARY}]">
+                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[${COLORS.PRIMARY}]/10 dark:bg-primary-900/30 text-[${COLORS.PRIMARY}] dark:text-primary-400">
                         대기중
                       </span>
                     )}
@@ -473,32 +473,32 @@ const AIRecommend = () => {
             onClick={() => {
               setSelectedRecommendation(rec);
             }}
-            className={`bg-white rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow ${
-              rec.appliedStatus === 'APPROVED' ? 'border-green-200 bg-green-50' : 
-              rec.appliedStatus === 'REJECTED' ? 'border-red-200 bg-red-50' : 'border-gray-200'
+            className={`bg-white dark:bg-neutral-800 rounded-lg border p-4 cursor-pointer hover:shadow-md transition-shadow ${
+              rec.appliedStatus === 'APPROVED' ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20' : 
+              rec.appliedStatus === 'REJECTED' ? 'border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20' : 'border-gray-200 dark:border-neutral-700'
             }`}
           >
             {/* 헤더 */}
             <div className="flex justify-between items-start mb-3">
               <div className="flex-1">
-                <h3 className="text-sm font-medium text-gray-900">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white">
                   {rec.zoneId.toUpperCase()}구역 - {getSensorTypeName(rec.sensorType)}
                 </h3>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
                   {formatDateTime(rec.recommendedAt)}
                 </p>
               </div>
               <div>
                 {rec.appliedStatus === 'APPROVED' ? (
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                     승인됨
                   </span>
                 ) : rec.appliedStatus === 'REJECTED' ? (
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
                     거부됨
                   </span>
                 ) : (
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[${COLORS.PRIMARY}]/10 text-[${COLORS.PRIMARY}]">
+                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-[${COLORS.PRIMARY}]/10 dark:bg-primary-900/30 text-[${COLORS.PRIMARY}] dark:text-primary-400">
                     대기중
                   </span>
                 )}
@@ -508,31 +508,31 @@ const AIRecommend = () => {
             {/* 임계치 정보 */}
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
-                <div className="text-gray-500 mb-1">현재 Warning</div>
-                <div className="font-medium">
+                <div className="text-gray-500 dark:text-neutral-400 mb-1">현재 Warning</div>
+                <div className="font-medium text-gray-900 dark:text-white">
                   {formatThresholdValue(rec.currentWarningLow)} / {formatThresholdValue(rec.currentWarningHigh)}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500 mb-1">추천 Warning</div>
+                <div className="text-gray-500 dark:text-neutral-400 mb-1">추천 Warning</div>
                 <div className={`font-medium ${
-                  rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
-                  rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[${COLORS.PRIMARY}]'
+                  rec.appliedStatus === 'APPROVED' ? 'text-green-600 dark:text-green-400' : 
+                  rec.appliedStatus === 'REJECTED' ? 'text-red-600 dark:text-red-400' : 'text-[${COLORS.PRIMARY}] dark:text-primary-400'
                 }`}>
                   {formatThresholdValue(rec.warningLow)} / {formatThresholdValue(rec.warningHigh)}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500 mb-1">현재 Alert</div>
-                <div className="font-medium">
+                <div className="text-gray-500 dark:text-neutral-400 mb-1">현재 Alert</div>
+                <div className="font-medium text-gray-900 dark:text-white">
                   {formatThresholdValue(rec.currentAlertLow)} / {formatThresholdValue(rec.currentAlertHigh)}
                 </div>
               </div>
               <div>
-                <div className="text-gray-500 mb-1">추천 Alert</div>
+                <div className="text-gray-500 dark:text-neutral-400 mb-1">추천 Alert</div>
                 <div className={`font-medium ${
-                  rec.appliedStatus === 'APPROVED' ? 'text-green-600' : 
-                  rec.appliedStatus === 'REJECTED' ? 'text-red-600' : 'text-[${COLORS.PRIMARY}]'
+                  rec.appliedStatus === 'APPROVED' ? 'text-green-600 dark:text-green-400' : 
+                  rec.appliedStatus === 'REJECTED' ? 'text-red-600 dark:text-red-400' : 'text-[${COLORS.PRIMARY}] dark:text-primary-400'
                 }`}>
                   {formatThresholdValue(rec.alertLow)} / {formatThresholdValue(rec.alertHigh)}
                 </div>
@@ -545,19 +545,19 @@ const AIRecommend = () => {
       {/* 빈 결과 메시지 */}
       {filteredRecommendations.length === 0 && !loading && !error && (
         <div className="text-center py-8 sm:py-12">
-          <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
           </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">임계치 추천이 없습니다</h3>
-            <p className="mt-1 text-sm text-gray-500">현재 조건에 맞는 임계치 추천 데이터가 없습니다.</p>
-          <p className="mt-1 text-xs text-gray-400">데이터 개수: {recommendations.length}, 필터링된 개수: {filteredRecommendations.length}</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-neutral-100">임계치 추천이 없습니다</h3>
+            <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">현재 조건에 맞는 임계치 추천 데이터가 없습니다.</p>
+          <p className="mt-1 text-xs text-gray-400 dark:text-neutral-500">데이터 개수: {recommendations.length}, 필터링된 개수: {filteredRecommendations.length}</p>
         </div>
       )}
 
       {/* 안내 문구 */}
-      <div className="mt-4 sm:mt-6 bg-primary-100 p-3 sm:p-4 rounded-lg">
-        <h5 className="text-sm font-bold text-primary-900 mb-2">임계치 추천 안내</h5>
-        <ul className="text-xs sm:text-sm text-primary-800 space-y-1">
+      <div className="mt-4 sm:mt-6 bg-primary-100 dark:bg-primary-900/20 p-3 sm:p-4 rounded-lg border border-primary-200 dark:border-primary-700/30">
+        <h5 className="text-sm font-bold text-primary-900 dark:text-primary-400 mb-2">임계치 추천 안내</h5>
+        <ul className="text-xs sm:text-sm text-primary-800 dark:text-primary-300 space-y-1">
           <li>• AI를 통해 센서 데이터를 분석하여 최적의 임계치를 추천합니다.</li>
           <li>• 행을 클릭하면 상세 정보와 추천 사유를 확인할 수 있습니다.</li>
           <li>• 승인된 추천은 자동으로 센서 임계치에 적용됩니다.</li>
@@ -569,15 +569,15 @@ const AIRecommend = () => {
       {selectedRecommendation && (() => {
         try {
           return (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" onClick={() => setSelectedRecommendation(null)}>
-              <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border w-11/12 sm:w-10/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-black dark:bg-opacity-50 overflow-y-auto h-full w-full z-50" onClick={() => setSelectedRecommendation(null)}>
+              <div className="relative top-4 sm:top-20 mx-auto p-4 sm:p-5 border border-gray-200 dark:border-neutral-700 w-11/12 sm:w-10/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white dark:bg-neutral-800" onClick={(e) => e.stopPropagation()}>
                 <div className="mt-3">
                   {/* 모달 헤더 */}
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">임계치 추천 상세 정보</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-neutral-100">임계치 추천 상세 정보</h3>
                     <button
                       onClick={() => setSelectedRecommendation(null)}
-                      className="text-gray-400 hover:text-gray-600"
+                      className="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -587,49 +587,49 @@ const AIRecommend = () => {
 
                   {/* 기본 정보 */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4 flex items-center">
-                      <svg className="w-5 h-5 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4 className="text-md font-medium text-gray-900 dark:text-primary-400 mb-4 flex items-center">
+                      <svg className="w-5 h-5 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                       </svg>
                       기본 정보
                     </h4>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                      <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                      <div className="bg-[${COLORS.PRIMARY}]/5 dark:bg-primary-900/20 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                         <div className="flex items-center mb-2">
-                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                           </svg>
-                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">추천일시</label>
+                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}] dark:text-primary-400">추천일시</label>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium whitespace-nowrap">{formatDateTime(selectedRecommendation.recommendedAt) || '-'}</p>
+                        <p className="text-sm text-gray-900 dark:text-white font-medium whitespace-nowrap">{formatDateTime(selectedRecommendation.recommendedAt) || '-'}</p>
                       </div>
                       
-                      <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                      <div className="bg-[${COLORS.PRIMARY}]/5 dark:bg-primary-900/20 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                         <div className="flex items-center mb-2">
-                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                           </svg>
-                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">구역</label>
+                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}] dark:text-primary-400">구역</label>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium">{selectedRecommendation.zoneId?.toUpperCase() || '-'}</p>
+                        <p className="text-sm text-gray-900 dark:text-white font-medium">{selectedRecommendation.zoneId?.toUpperCase() || '-'}</p>
                       </div>
                       
-                      <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                      <div className="bg-[${COLORS.PRIMARY}]/5 dark:bg-primary-900/20 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                         <div className="flex items-center mb-2">
-                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
                           </svg>
-                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">센서타입</label>
+                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}] dark:text-primary-400">센서타입</label>
                         </div>
-                        <p className="text-sm text-gray-900 font-medium">{getSensorTypeName(selectedRecommendation.sensorType)}</p>
+                        <p className="text-sm text-gray-900 dark:text-white font-medium">{getSensorTypeName(selectedRecommendation.sensorType)}</p>
                       </div>
                       
-                      <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                      <div className="bg-[${COLORS.PRIMARY}]/5 dark:bg-primary-900/20 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                         <div className="flex items-center mb-2">
-                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                           </svg>
-                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">처리상태</label>
+                          <label className="text-sm font-medium text-[${COLORS.PRIMARY}] dark:text-primary-400">처리상태</label>
                         </div>
                         <div className="flex items-center">
                           {selectedRecommendation.appliedStatus === 'APPROVED' ? (
@@ -658,14 +658,14 @@ const AIRecommend = () => {
                       </div>
                       
                       {selectedRecommendation.appliedAt && (
-                        <div className="bg-[${COLORS.PRIMARY}]/5 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                        <div className="bg-[${COLORS.PRIMARY}]/5 dark:bg-primary-900/20 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                           <div className="flex items-center mb-2">
-                            <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-4 h-4 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <label className="text-sm font-medium text-[${COLORS.PRIMARY}]">적용시간</label>
+                            <label className="text-sm font-medium text-[${COLORS.PRIMARY}] dark:text-primary-400">적용시간</label>
                           </div>
-                          <p className="text-sm text-gray-900 font-medium whitespace-nowrap">
+                          <p className="text-sm text-gray-900 dark:text-white font-medium whitespace-nowrap">
                             {formatDateTime(selectedRecommendation.appliedAt)}
                           </p>
                         </div>
@@ -675,18 +675,18 @@ const AIRecommend = () => {
 
                   {/* 추천 사유 */}
                   <div className="mb-6">
-                    <h4 className="text-md font-medium text-gray-900 mb-4 flex items-center">
-                      <svg className="w-5 h-5 mr-2 text-[${COLORS.PRIMARY}]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <h4 className="text-md font-medium text-gray-900 dark:text-primary-400 mb-4 flex items-center">
+                      <svg className="w-5 h-5 mr-2 text-[${COLORS.PRIMARY}] dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
                       </svg>
                       추천 사유
                     </h4>
-                    <div className="bg-gradient-to-r from-[${COLORS.PRIMARY}]/5 to-[${COLORS.PRIMARY}]/10 border border-[${COLORS.PRIMARY}]/20 rounded-lg p-4">
+                    <div className="bg-gradient-to-r from-[${COLORS.PRIMARY}]/5 to-[${COLORS.PRIMARY}]/10 dark:from-primary-900/20 dark:to-primary-800/30 border border-[${COLORS.PRIMARY}]/20 dark:border-primary-700/30 rounded-lg p-4">
                       <div className="flex items-start">
-                        <svg className="w-5 h-5 mr-3 text-[${COLORS.PRIMARY}] mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 mr-3 text-[${COLORS.PRIMARY}] dark:text-primary-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                         </svg>
-                        <div className="text-sm text-gray-900 leading-relaxed">
+                        <div className="text-sm text-gray-900 dark:text-white leading-relaxed">
                           {selectedRecommendation.reasonContent || selectedRecommendation.reason || '추천 사유가 제공되지 않았습니다.'}
                         </div>
                       </div>

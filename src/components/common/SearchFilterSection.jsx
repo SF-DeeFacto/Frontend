@@ -7,7 +7,7 @@ const SearchFilterSection = ({
   onSearchChange, 
   onFilterChange,
   actionButton,
-  className = "bg-white p-4 rounded-lg shadow mb-6"
+  className = "bg-white dark:bg-neutral-800 p-4 rounded-lg shadow mb-6 border border-gray-200 dark:border-neutral-700"
 }) => {
   return (
     <div className={className}>
@@ -15,7 +15,7 @@ const SearchFilterSection = ({
         {/* 검색바 - 2칸 차지 */}
         {searchConfig && (
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
               {searchConfig.label}
             </label>
             <div className="relative">
@@ -24,11 +24,11 @@ const SearchFilterSection = ({
                 placeholder={searchConfig.placeholder}
                 value={searchConfig.value}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${searchConfig.showIcon ? 'pl-10' : ''}`}
+                className={`w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 ${searchConfig.showIcon ? 'pl-10' : ''}`}
               />
               {searchConfig.showIcon && (
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5 text-gray-400 dark:text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </div>
@@ -37,7 +37,7 @@ const SearchFilterSection = ({
             {searchConfig.showClearButton && searchConfig.value && (
               <button
                 onClick={() => onSearchChange('')}
-                className="mt-2 px-3 py-1 text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
+                className="mt-2 px-3 py-1 text-sm text-gray-600 dark:text-neutral-400 hover:text-gray-800 dark:hover:text-neutral-200 focus:outline-none"
               >
                 검색 초기화
               </button>
@@ -48,14 +48,14 @@ const SearchFilterSection = ({
         {/* 필터들 */}
         {filters.map(filter => (
           <div key={filter.key}>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
               {filter.label}
             </label>
             {filter.type === 'select' ? (
               <select
                 value={filter.value}
                 onChange={(e) => onFilterChange(filter.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
               >
                 {filter.options.map(option => (
                   <option key={option.value} value={option.value}>
@@ -72,7 +72,7 @@ const SearchFilterSection = ({
         {/* 결과수 */}
         {resultCount !== undefined && (
           <div className="flex items-end">
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-gray-600 dark:text-neutral-400">
               총 {resultCount}개
             </div>
           </div>

@@ -357,61 +357,61 @@ const Userset = () => {
 
       {/* 에러 메시지 */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
           <div className="flex">
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">오류 발생</h3>
-              <p className="mt-1 text-sm text-red-700">{error}</p>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-300">오류 발생</h3>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-400">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {/* 사용자 목록 */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
+      <div className="bg-white dark:bg-neutral-800 rounded-lg shadow border border-gray-200 dark:border-neutral-700">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
           <div className="flex justify-between items-center">
-            <h5 className="font-medium text-gray-900">
+            <h5 className="font-medium text-gray-900 dark:text-neutral-100">
               사용자 목록 
               {pagination.totalElements > 0 && (
-                <span className="text-sm text-gray-500 ml-2">
+                <span className="text-sm text-gray-500 dark:text-neutral-400 ml-2">
                   ({pagination.totalElements}명)
                 </span>
               )}
             </h5>
             {loading && (
-              <div className="text-sm text-gray-500">로딩 중...</div>
+              <div className="text-sm text-gray-500 dark:text-neutral-400">로딩 중...</div>
             )}
           </div>
         </div>
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="text-gray-500">사용자 목록을 불러오는 중...</div>
+              <div className="text-gray-500 dark:text-neutral-400">사용자 목록을 불러오는 중...</div>
             </div>
           ) : filteredUsers.length === 0 ? (
             <div className="flex items-center justify-center py-8">
-              <div className="text-gray-500">
+              <div className="text-gray-500 dark:text-neutral-400">
                 {searchTerm ? '검색 결과가 없습니다.' : '등록된 사용자가 없습니다.'}
               </div>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-200 dark:divide-neutral-700">
               {filteredUsers.map((user) => (
-              <li key={user.employeeId} className="px-6 py-4 hover:bg-gray-50">
+              <li key={user.employeeId} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-neutral-700">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="flex-shrink-0">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <span className="text-sm font-medium text-gray-700">
+                      <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-neutral-600 flex items-center justify-center">
+                        <span className="text-sm font-medium text-gray-700 dark:text-neutral-300">
                           {user.name?.charAt(0) || 'U'}
                         </span>
                       </div>
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">{user.name || '이름 없음'}</div>
-                      <div className="text-sm text-gray-500">{user.employeeId} • {user.email}</div>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm font-medium text-gray-900 dark:text-neutral-100">{user.name || '이름 없음'}</div>
+                      <div className="text-sm text-gray-500 dark:text-neutral-400">{user.employeeId} • {user.email}</div>
+                      <div className="text-sm text-gray-400 dark:text-neutral-500">
                         {getGenderLabel(user.gender)} • 
                         {user.position} • 
                         {user.department} •
@@ -423,28 +423,28 @@ const Userset = () => {
                   <div className="flex items-center space-x-2">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                       user.role === 'ROOT' 
-                        ? 'bg-red-100 text-red-800' 
+                        ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300' 
                         : user.role === 'ADMIN'
-                        ? 'bg-purple-100 text-purple-800'
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300'
+                        : 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
                     }`}>
                       {getRoleLabel(user.role)}
                     </span>
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                      user.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      user.isActive ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300'
                     }`}>
                       {user.isActive ? '활성' : '비활성'}
                     </span>
                     <button
                       onClick={() => handleEditClick(user)}
-                      className="text-[${COLORS.PRIMARY}] hover:text-[#3d4490] text-sm font-medium"
+                      className="text-[${COLORS.PRIMARY}] dark:text-brand-main hover:text-[#3d4490] dark:hover:text-brand-main/80 text-sm font-medium"
                       disabled={loading}
                     >
                       수정
                     </button>
                     <button
                       onClick={() => handleDeleteUser(user.employeeId, user.name)}
-                      className="text-red-600 hover:text-red-900 text-sm font-medium"
+                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm font-medium"
                       disabled={loading}
                     >
                       삭제
@@ -459,9 +459,9 @@ const Userset = () => {
         
         {/* 페이지네이션 */}
         {pagination.totalPages > 1 && (
-          <div className="px-6 py-3 border-t border-gray-200">
+          <div className="px-6 py-3 border-t border-gray-200 dark:border-neutral-700">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-neutral-300">
                 총 {pagination.totalElements}명 중 {pagination.page * pagination.size + 1}-{Math.min((pagination.page + 1) * pagination.size, pagination.totalElements)}명 표시
               </div>
               <div className="flex items-center space-x-2">
@@ -473,7 +473,7 @@ const Userset = () => {
                 >
                   이전
                 </Button>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 dark:text-neutral-400">
                   {pagination.page + 1} / {pagination.totalPages}
                 </span>
                 <Button
@@ -492,15 +492,15 @@ const Userset = () => {
 
                      {/* 사용자 등록 모달 */}
         {showAddModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-[500px] shadow-lg rounded-md bg-white">
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 dark:bg-black dark:bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border border-gray-200 dark:border-neutral-700 w-[500px] shadow-lg rounded-md bg-white dark:bg-neutral-800">
              <div className="mt-3">
                {/* 모달 헤더 */}
                <div className="flex justify-between items-center mb-4">
-                 <h5 className="font-medium text-gray-900">사용자 등록</h5>
+                 <h5 className="font-medium text-gray-900 dark:text-neutral-100">사용자 등록</h5>
                  <button
                    onClick={() => setShowAddModal(false)}
-                   className="text-gray-400 hover:text-gray-600 focus:outline-none"
+                   className="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 focus:outline-none"
                  >
                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -513,14 +513,14 @@ const Userset = () => {
                 {/* 사번 - 이름 - 성별 */}
                 <div className="grid grid-cols-3 gap-2">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      사번 <span className="text-red-500">*</span>
+                    <label className="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1">
+                      사번 <span className="text-red-500 dark:text-red-400">*</span>
                     </label>
                     <input
                       type="text"
                       value={newUser.employeeId}
                       onChange={(e) => handleNewUserChange('employeeId', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-neutral-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}] bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100"
                       placeholder="사번"
                     />
                   </div>

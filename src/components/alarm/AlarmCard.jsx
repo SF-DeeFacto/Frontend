@@ -57,21 +57,21 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
           <div>
             {/* 모바일/태블릿: 줄바꿈, 데스크톱: 한줄 */}
             <div className="block lg:hidden">
-              <Text variant="body" size="md" weight="semibold" color="secondary-800" className="leading-relaxed">
+              <Text variant="body" size="md" weight="semibold" color="secondary-800" className="leading-relaxed dark:text-white">
                 {alarm.title || alarm.message}
               </Text>
               {alarm.content && (
-                <Text variant="body" size="sm" color="secondary-600" className="leading-relaxed whitespace-pre-line mt-1 block">
+                <Text variant="body" size="sm" color="secondary-600" className="leading-relaxed whitespace-pre-line mt-1 block dark:text-neutral-300">
                   {stripHtmlTags(alarm.content)}
                 </Text>
               )}
             </div>
             {/* 데스크톱: 한줄로 표시 */}
             <div className="hidden lg:block">
-              <Text variant="body" size="md" weight="semibold" color="secondary-800" className="leading-relaxed">
+              <Text variant="body" size="md" weight="semibold" color="secondary-800" className="leading-relaxed dark:text-white">
                 {alarm.title || alarm.message}
                 {alarm.content && (
-                  <span className="text-sm font-normal text-secondary-600 ml-2">
+                  <span className="text-sm font-normal text-secondary-600 ml-2 dark:text-neutral-300">
                     : {stripHtmlTags(alarm.content)}
                   </span>
                 )}
@@ -80,7 +80,7 @@ const AlarmCard = React.memo(({ alarm, onMarkAsRead, onToggleFavorite }) => (
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-brand-main rounded-full"></div>
-            <Text variant="caption" size="sm" color="secondary-500" className="font-medium">
+            <Text variant="caption" size="sm" color="secondary-500" className="font-medium dark:text-neutral-400">
               {alarm.zone || alarm.zoneId?.toUpperCase()}
               {alarm.sensorName && (
                 <span className="ml-2">| {alarm.sensorName}</span>

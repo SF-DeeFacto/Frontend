@@ -114,56 +114,56 @@ const PwudTab = () => {
         {/* <h4 className="text-lg font-medium text-gray-900 mb-4">비밀번호 변경</h4> */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
               현재 비밀번호
             </label>
             <input
               type="password"
               value={passwords.currentPassword}
               onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
-                errors.currentPassword ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 ${
+                errors.currentPassword ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-neutral-600'
               }`}
             />
             {errors.currentPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.currentPassword}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.currentPassword}</p>
             )}
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
               새 비밀번호
             </label>
             <input
               type="password"
               value={passwords.newPassword}
               onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
-                errors.newPassword ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 ${
+                errors.newPassword ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-neutral-600'
               }`}
             />
             {errors.newPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.newPassword}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.newPassword}</p>
             )}
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
               비밀번호는 4자 이상 설정해주세요.
             </p>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">
               새 비밀번호 확인
             </label>
             <input
               type="password"
               value={passwords.confirmPassword}
               onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
-                errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 ${
+                errors.confirmPassword ? 'border-red-500 dark:border-red-400' : 'border-gray-300 dark:border-neutral-600'
               }`}
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-sm text-red-600">{errors.confirmPassword}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.confirmPassword}</p>
             )}
           </div>
           
@@ -173,8 +173,8 @@ const PwudTab = () => {
               disabled={isLoading}
               className={`px-4 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2] ${
                 isLoading 
-                  ? 'bg-gray-400 text-white cursor-not-allowed' 
-                  : 'bg-[#494FAF] text-white hover:bg-[#494FA2]'
+                  ? 'bg-gray-400 dark:bg-neutral-600 text-white cursor-not-allowed' 
+                  : 'bg-[#494FAF] dark:bg-brand-main text-white hover:bg-[#494FA2] dark:hover:bg-brand-main/80'
               }`}
             >
               {isLoading ? '변경 중...' : '비밀번호 변경'}
