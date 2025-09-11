@@ -92,6 +92,15 @@ export const useZoneSensorData = (zoneId) => {
 
   // 초기화 및 데이터 설정
   useEffect(() => {
+    // 로그인 상태 확인
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      console.log('🔐 토큰이 없음 - Zone SSE 연결 건너뜀');
+      setConnectionState(CONNECTION_STATE.ERROR);
+      setIsLoading(false);
+      return;
+    }
+
     // Zone이 변경될 때마다 상태 초기화
     setSensorData({});
     setIsLoading(true);
@@ -145,6 +154,7 @@ export const useZoneSensorData = (zoneId) => {
     });
     
     return () => {
+      console.log(`🔌 Zone ${zoneId} SSE 연결 해제`);
       disconnectSSE();
       // 디바운서 정리
       if (debouncerRef.current) {

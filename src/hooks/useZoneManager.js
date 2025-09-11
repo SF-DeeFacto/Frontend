@@ -99,6 +99,7 @@ export const useZoneManager = () => {
     // 로그인 상태 확인
     const token = localStorage.getItem('access_token');
     if (!token) {
+      console.log('🔐 토큰이 없음 - 메인 SSE 연결 건너뜀');
       return;
     }
 
@@ -112,13 +113,14 @@ export const useZoneManager = () => {
       // SSE 연결 해제
       if (disconnectMainSSE) {
         try {
+          console.log('🔌 메인 SSE 연결 해제');
           disconnectMainSSE();
         } catch (error) {
           console.error('메인 SSE 연결 해제 오류:', error);
         }
       }
     };
-  }, [connectMainSSEHandler]);
+  }, []); // connectMainSSEHandler 의존성 제거
 
   // Zone 정보 배열 반환
   const zones = Object.values(ZONE_INFO);

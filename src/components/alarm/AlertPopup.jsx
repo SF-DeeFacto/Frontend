@@ -312,13 +312,23 @@ const AlertPopup = () => {
       return;
     }
 
+    // 추가 토큰 검증
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+      console.log('🔐 토큰이 없음 - SSE 연결 건너뜀');
+      return;
+    }
+
     let disconnectSSE = null;
+    let isMounted = true;
 
     const handleSSEError = (error) => {
+      if (!isMounted) return;
       console.error('❌ SSE 연결 오류:', error);
     };
 
     const handleSSEOpen = () => {
+      if (!isMounted) return;
       console.log('✅ SSE 연결 성공');
     };
 
@@ -330,7 +340,9 @@ const AlertPopup = () => {
     });
 
     return () => {
+      isMounted = false;
       if (disconnectSSE) {
+        console.log('🔌 AlertPopup SSE 연결 해제');
         disconnectSSE();
       }
     };

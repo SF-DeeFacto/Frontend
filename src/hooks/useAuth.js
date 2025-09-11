@@ -161,7 +161,7 @@ export const useAuth = (options = {}) => {
   const logout = () => {
     console.log('🚪 로그아웃 시작...');
     
-    // 모든 SSE 연결 해제
+    // 모든 SSE 연결 해제 (먼저 실행)
     console.log('🔌 SSE 연결 해제 중...');
     sseConnectionManager.disconnectAllConnections();
     
@@ -172,21 +172,23 @@ export const useAuth = (options = {}) => {
     localStorage.removeItem('employeeId');
     localStorage.removeItem('user');
     localStorage.removeItem('unread_alarm_count');
+    localStorage.removeItem('role');
     console.log('✅ 로컬 스토리지 정리 완료');
     
-    // 로그아웃 이벤트 발생
-    window.dispatchEvent(new StorageEvent('storage', {
-      key: 'access_token',
-      newValue: null,
-      oldValue: authState.token
-    }));
-
+    // 인증 상태 즉시 업데이트
     setAuthState({
       isAuthenticated: false,
       isLoading: false,
       user: null,
       token: null
     });
+
+    // 로그아웃 이벤트 발생 (상태 업데이트 후)
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'access_token',
+      newValue: null,
+      oldValue: authState.token
+    }));
 
     console.log('🎉 로그아웃 완료!');
     
