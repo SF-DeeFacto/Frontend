@@ -61,12 +61,10 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
             <span className="particle-label">{label}</span>
             <span className="particle-value">
               {value?.toFixed(2) || 0}
+              <span className="sensor-unit">{sensorInfo.unit}</span>
             </span>
           </div>
         ))}
-        <div className="particle-unit">
-          <span className="sensor-unit">{sensorInfo.unit}</span>
-        </div>
       </div>
     );
   };
