@@ -680,21 +680,9 @@ const Report = () => {
       {loading && <div className="text-sm text-gray-500 dark:text-neutral-400">로딩 중...</div>}
       {error && <div className="text-sm text-red-600 dark:text-red-400">{error}</div>}
 
-      {/* 기존 필터/검색 UI (생략 가능) */}
+      {/* 기간 검색 UI */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          {/* 리포트 형식 드롭다운 */}
-          <div className="relative">
-            <select
-              value={reportType}
-              onChange={(e) => { setReportType(e.target.value); handleFilterChange(); }}
-              className="appearance-none bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 text-gray-900 dark:text-neutral-100 rounded-md px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
-            >
-              <option value="전체">리포트 형식</option>
-              <option value="정기">정기</option>
-              <option value="비정기">비정기</option>
-            </select>
-          </div>
           {/* 기간 검색 (startDate, endDate) */}
           <div className="flex items-center space-x-2">
             <input
