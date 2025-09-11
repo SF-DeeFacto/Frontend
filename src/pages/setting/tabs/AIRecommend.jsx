@@ -372,7 +372,6 @@ const AIRecommend = () => {
           if (key === 'sensorType') setFilterSensorType(value);
           if (key === 'status') setFilterStatus(value);
         }}
-        className="bg-gray-50 p-4 sm:p-6 rounded-lg mb-6"
       />
 
       {/* 임계치 추천 목록 - 데스크톱 테이블 */}

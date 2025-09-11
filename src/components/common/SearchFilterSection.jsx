@@ -6,14 +6,15 @@ const SearchFilterSection = ({
   resultCount, 
   onSearchChange, 
   onFilterChange,
-  className = "bg-gray-50 p-6 rounded-lg mb-6"
+  actionButton,
+  className = "bg-white p-4 rounded-lg shadow mb-6"
 }) => {
   return (
     <div className={className}>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {/* 검색바 */}
+        {/* 검색바 - 2칸 차지 */}
         {searchConfig && (
-          <div>
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               {searchConfig.label}
             </label>
@@ -23,7 +24,7 @@ const SearchFilterSection = ({
                 placeholder={searchConfig.placeholder}
                 value={searchConfig.value}
                 onChange={(e) => onSearchChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${searchConfig.showIcon ? 'pl-10' : ''}`}
               />
               {searchConfig.showIcon && (
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -74,6 +75,13 @@ const SearchFilterSection = ({
             <div className="text-sm text-gray-600">
               총 {resultCount}개
             </div>
+          </div>
+        )}
+        
+        {/* 액션 버튼 - 맨 오른쪽 */}
+        {actionButton && (
+          <div className="flex items-end justify-end">
+            {actionButton}
           </div>
         )}
       </div>

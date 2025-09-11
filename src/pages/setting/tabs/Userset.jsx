@@ -3,6 +3,7 @@ import { userService } from '../../../services/userService';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { USER_MANAGEMENT, SYSTEM_CONFIG, COLORS } from '../../../config/constants';
 import SearchFilterSection from '../../../components/common/SearchFilterSection';
+import Button from '../../../components/common/Button';
 
 const Userset = () => {
   // 실제 API 연결용 상태
@@ -35,11 +36,6 @@ const Userset = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { DEPARTMENTS: departments, POSITIONS: positions, ROLES: roles, SCOPES: scopes, SHIFTS: shifts } = USER_MANAGEMENT;
-  
-  // 디버깅용 로그
-  console.log('USER_MANAGEMENT:', USER_MANAGEMENT);
-  console.log('scopes:', scopes);
-  console.log('shifts:', shifts);
 
   // 사용자 목록 로드
   const loadUsers = async (page = 0, searchTerm = '', size = 10) => {
@@ -333,20 +329,6 @@ const Userset = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        {/* <h4 className="text-lg font-medium text-gray-900">회원정보 관리</h4> */}
-        <button
-          onClick={() => {
-            setShowAddModal(true);
-            setShowEditForm(false); // 수정 모달 닫기
-            setEditingUser(null);
-          }}
-          className="bg-[${COLORS.PRIMARY}] text-white px-4 py-2 rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
-        >
-          사용자 등록
-        </button>
-      </div>
-
       {/* 검색 바 */}
       <SearchFilterSection
         searchConfig={{
@@ -358,7 +340,19 @@ const Userset = () => {
         }}
         resultCount={pagination.totalElements}
         onSearchChange={setSearchTerm}
-        className="bg-white p-4 rounded-lg shadow"
+        actionButton={
+          <Button
+            onClick={() => {
+              setShowAddModal(true);
+              setShowEditForm(false); // 수정 모달 닫기
+              setEditingUser(null);
+            }}
+            variant="primary"
+            size="md"
+          >
+            사용자 등록
+          </Button>
+        }
       />
 
       {/* 에러 메시지 */}
@@ -471,23 +465,25 @@ const Userset = () => {
                 총 {pagination.totalElements}명 중 {pagination.page * pagination.size + 1}-{Math.min((pagination.page + 1) * pagination.size, pagination.totalElements)}명 표시
               </div>
               <div className="flex items-center space-x-2">
-                <button
+                <Button
                   onClick={() => loadUsers(pagination.page - 1, searchTerm)}
                   disabled={pagination.page === 0 || loading}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  variant="outline"
+                  size="sm"
                 >
                   이전
-                </button>
+                </Button>
                 <span className="text-sm text-gray-600">
                   {pagination.page + 1} / {pagination.totalPages}
                 </span>
-                <button
+                <Button
                   onClick={() => loadUsers(pagination.page + 1, searchTerm)}
                   disabled={pagination.page >= pagination.totalPages - 1 || loading}
-                  className="px-3 py-1 text-sm border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  variant="outline"
+                  size="sm"
                 >
                   다음
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -670,18 +666,22 @@ const Userset = () => {
                                   {/* 신규 사용자는 기본적으로 활성으로 생성되므로 활성상태 필드 제거 */}
 
                  <div className="flex space-x-2 mt-4">
-                   <button
+                   <Button
                      onClick={handleAddUser}
-                     className="flex-1 bg-[${COLORS.PRIMARY}] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
+                     variant="primary"
+                     size="md"
+                     fullWidth
                    >
                      등록
-                   </button>
-                   <button
+                   </Button>
+                   <Button
                      onClick={() => setShowAddModal(false)}
-                     className="flex-1 bg-gray-500 text-white px-3 py-2 text-sm rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                     variant="secondary"
+                     size="md"
+                     fullWidth
                    >
                      취소
-                   </button>
+                   </Button>
                  </div>
                </div>
              </div>
@@ -864,21 +864,25 @@ const Userset = () => {
                 </div>
 
                 <div className="flex space-x-2 mt-4">
-                  <button
+                  <Button
                     onClick={handleEditUser}
-                    className="flex-1 bg-[${COLORS.PRIMARY}] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
+                    variant="primary"
+                    size="md"
+                    fullWidth
                   >
                     수정
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => {
                       setShowEditForm(false);
                       setEditingUser(null);
                     }}
-                    className="flex-1 bg-gray-500 text-white px-3 py-2 text-sm rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500"
+                    variant="secondary"
+                    size="md"
+                    fullWidth
                   >
                     취소
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
