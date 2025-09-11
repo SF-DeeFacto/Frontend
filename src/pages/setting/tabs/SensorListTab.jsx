@@ -77,9 +77,9 @@ const SensorListTab = () => {
     'Temperature': '온도',
     'humidity': '습도',
     'Humidity': '습도',
-    'particle_0_1um': '미세먼지 0.1μm',
-    'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_5um': '미세먼지 0.5μm',
+    'particle_0_1um': '먼지 0.1μm',
+    'particle_0_3um': '먼지 0.3μm',
+    'particle_0_5um': '먼지 0.5μm',
     'windDirection': '풍향',
     'WindDirection': '풍향'
   };
@@ -91,7 +91,17 @@ const SensorListTab = () => {
   const getAllowedZones = () => {
     if (!user?.scope) return ['all', 'a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
+    let userScopes;
+    if (Array.isArray(user.scope)) {
+      userScopes = user.scope.map(s => String(s).trim());
+    } else if (typeof user.scope === 'string') {
+      userScopes = user.scope.split(',').map(s => s.trim());
+    } else {
+      // 다른 타입인 경우 문자열로 변환 후 처리
+      userScopes = String(user.scope).split(',').map(s => s.trim());
+    }
+    
     const allowedZones = ['all']; // '전체' 옵션은 항상 포함
     
     if (userScopes.includes('a')) allowedZones.push('a');

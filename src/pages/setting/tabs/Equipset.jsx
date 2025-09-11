@@ -22,7 +22,17 @@ const Equipset = ({ onTabChange }) => {
   const getInitialZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
+    let userScopes;
+    if (Array.isArray(user.scope)) {
+      userScopes = user.scope.map(s => String(s).trim());
+    } else if (typeof user.scope === 'string') {
+      userScopes = user.scope.split(',').map(s => s.trim());
+    } else {
+      // 다른 타입인 경우 문자열로 변환 후 처리
+      userScopes = String(user.scope).split(',').map(s => s.trim());
+    }
+    
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
   
@@ -214,7 +224,17 @@ const Equipset = ({ onTabChange }) => {
   const getAllowedZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
+    let userScopes;
+    if (Array.isArray(user.scope)) {
+      userScopes = user.scope.map(s => String(s).trim());
+    } else if (typeof user.scope === 'string') {
+      userScopes = user.scope.split(',').map(s => s.trim());
+    } else {
+      // 다른 타입인 경우 문자열로 변환 후 처리
+      userScopes = String(user.scope).split(',').map(s => s.trim());
+    }
+    
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
   
