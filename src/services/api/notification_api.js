@@ -8,16 +8,29 @@ const isDev = import.meta.env.DEV;
 // 알림 관련 API 함수들
 export const notificationApi = {
   // 알림 목록 조회 (페이지네이션 및 필터링 지원)
-  getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null) => {
+  getNotifications: async (page = 0, size = 10, isRead = null, isFlagged = null, notiType = null) => {
     try {
       const params = new URLSearchParams();
       if (page !== null) params.append('page', page);
       if (size !== null) params.append('size', size);
       if (isRead !== null) params.append('isRead', isRead);
       if (isFlagged !== null) params.append('isFlagged', isFlagged);
+      if (notiType !== null) params.append('notiType', notiType);
       
       const requestUrl = `/noti/list?${params.toString()}`;
+      console.log('API 호출:', { page, size, isRead, isFlagged, notiType, requestUrl });
+      
       const response = await authApiClient.get(requestUrl);
+      
+      console.log('API 응답:', { 
+        totalElements: response.data.data?.totalElements,
+        content: response.data.data?.content?.map(item => ({ 
+          id: item.id, 
+          notiType: item.notiType, 
+          type: item.type,
+          title: item.title 
+        }))
+      });
       
       return response.data.data || { content: [], totalPages: 0, totalElements: 0 };
     } catch (error) {

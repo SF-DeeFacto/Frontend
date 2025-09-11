@@ -23,9 +23,9 @@ export const useAlarmData = (pageSize = 7) => {
       setError(null);
       
       // 필터 파라미터 설정
-      const { isRead = null, isFlagged = null } = filters;
+      const { isRead = null, isFlagged = null, notiType = null } = filters;
       
-      const response = await notificationApi.getNotifications(page, pageSize, isRead, isFlagged);
+      const response = await notificationApi.getNotifications(page, pageSize, isRead, isFlagged, notiType);
       const { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements } = mapAlarmList(response);
       
       setAlarms(newAlarms);
@@ -50,9 +50,10 @@ export const useAlarmData = (pageSize = 7) => {
   /**
    * 폴링을 위한 알림 업데이트
    */
-  const updateAlarmsForPolling = useCallback(async (page) => {
+  const updateAlarmsForPolling = useCallback(async (page, filters = {}) => {
     try {
-      const response = await notificationApi.getNotifications(page, pageSize);
+      const { isRead = null, isFlagged = null, notiType = null } = filters;
+      const response = await notificationApi.getNotifications(page, pageSize, isRead, isFlagged, notiType);
       const { alarms: newAlarms, totalPages: newTotalPages, totalElements: newTotalElements } = mapAlarmList(response);
       
       setAlarms(newAlarms);
@@ -181,6 +182,7 @@ export const useAlarmData = (pageSize = 7) => {
   return {
     // 상태
     alarms,
+    setAlarms,
     loading,
     currentPage,
     totalPages,

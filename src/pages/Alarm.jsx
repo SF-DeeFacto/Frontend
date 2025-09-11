@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { notificationApi } from '../services/api/notification_api';
 import { getFilteredAlarms, shouldResetPage } from '../utils/alarmFilters';
+import { mapAlarmList } from '../utils/alarmMapper';
 import { useAlarmData } from '../hooks/useAlarmData';
 import { useAlarmPolling } from '../hooks/useAlarmPolling';
 import { handleApiError } from '../utils/unifiedErrorHandler';
@@ -21,6 +22,7 @@ const Alarm = () => {
   // 커스텀 훅 사용
   const {
     alarms,
+    setAlarms,
     loading,
     currentPage,
     totalPages,
@@ -54,9 +56,33 @@ const Alarm = () => {
     }
   }, []);
 
+  // 폴링을 위한 알림 업데이트 (필터 적용)
+  const updateAlarmsWithFilters = useCallback(async () => {
+    const filters = {};
+    
+    if (readStatusFilter === '읽음') {
+      filters.isRead = true;
+    } else if (readStatusFilter === '안읽음') {
+      filters.isRead = false;
+    }
+    
+    if (statusFilter === '즐겨찾기') {
+      filters.isFlagged = true;
+    }
+    
+    // 알림 타입 필터 설정 (서버로 전송)
+    if (alarmType === '알림') {
+      filters.notiType = 'ALERT';
+    } else if (alarmType === '리포트') {
+      filters.notiType = 'REPORT';
+    }
+    
+    return updateAlarmsForPolling(currentPage, filters);
+  }, [updateAlarmsForPolling, currentPage, readStatusFilter, statusFilter, alarmType]);
+
   // 폴링 훅 사용
   const { pollingStatus } = useAlarmPolling(
-    () => updateAlarmsForPolling(currentPage),
+    updateAlarmsWithFilters,
     updateHeaderAlarmCount,
     currentPage,
     30000
@@ -78,30 +104,96 @@ const Alarm = () => {
       filters.isFlagged = true;
     }
     
-    console.log('필터 변경으로 인한 데이터 재로드:', { filters, currentPage });
+    // 알림 타입 필터 설정 (서버로 전송)
+    if (alarmType === '알림') {
+      filters.notiType = 'ALERT';
+    } else if (alarmType === '리포트') {
+      filters.notiType = 'REPORT';
+    }
+    
+    console.log('필터 변경으로 인한 데이터 재로드:', { filters, currentPage, alarmType });
     fetchAlarms(currentPage, filters);
-  }, [fetchAlarms, currentPage, readStatusFilter, statusFilter]);
+  }, [fetchAlarms, currentPage, readStatusFilter, statusFilter, alarmType]);
 
-  // 서버에서 필터링된 알림 목록 (클라이언트 사이드 필터링 제거)
+  // 서버에서 필터링된 알림 목록 (서버 필터링이 안 될 경우 클라이언트에서 백업 필터링)
   const filteredAlarms = useMemo(() => {
-    // 알림 타입만 클라이언트에서 필터링 (서버에서 지원하지 않을 수 있음)
     let filtered = alarms;
     
+    // 서버에서 notiType 필터링이 제대로 안 될 경우를 대비한 클라이언트 필터링
     if (alarmType && alarmType !== '전체') {
       filtered = alarms.filter(alarm => {
         const alarmNotiType = alarm.notiType || alarm.type;
-        return alarmNotiType === alarmType || (alarmType === '알림' && alarmNotiType === 'ALERT');
+        if (alarmType === '알림') {
+          return alarmNotiType === 'ALERT';
+        } else if (alarmType === '리포트') {
+          return alarmNotiType === 'REPORT';
+        }
+        return true;
       });
     }
     
-    console.log('클라이언트 필터링 결과:', { 
+    console.log('필터링 결과:', { 
       alarmType, 
-      totalAlarms: alarms.length, 
-      filteredCount: filtered.length 
+      totalAlarms: alarms.length,
+      filteredCount: filtered.length,
+      sampleData: filtered.slice(0, 3).map(item => ({ 
+        id: item.id, 
+        notiType: item.notiType, 
+        type: item.type 
+      }))
     });
     
     return filtered;
   }, [alarms, alarmType]);
+
+  // 필터링 후 7개 미만일 때 추가 데이터 로드
+  const loadMoreIfNeeded = useCallback(async () => {
+    if (filteredAlarms.length < pageSize && currentPage < totalPages - 1) {
+      console.log('필터링 후 7개 미만, 다음 페이지 로드 시도');
+      const nextPage = currentPage + 1;
+      const filters = {};
+      
+      if (readStatusFilter === '읽음') {
+        filters.isRead = true;
+      } else if (readStatusFilter === '안읽음') {
+        filters.isRead = false;
+      }
+      
+      if (statusFilter === '즐겨찾기') {
+        filters.isFlagged = true;
+      }
+      
+      // 알림 타입 필터 설정 (서버로 전송)
+      if (alarmType === '알림') {
+        filters.notiType = 'ALERT';
+      } else if (alarmType === '리포트') {
+        filters.notiType = 'REPORT';
+      }
+      
+      try {
+        const response = await notificationApi.getNotifications(nextPage, pageSize, filters.isRead, filters.isFlagged, filters.notiType);
+        const { alarms: newAlarms } = mapAlarmList(response);
+        
+        // 현재 알림에 새 알림 추가
+        setAlarms(prev => [...prev, ...newAlarms]);
+        
+        // 서버에서 이미 필터링되었으므로 클라이언트 필터링은 불필요
+        // 여전히 7개 미만이면 재귀적으로 더 로드
+        if (filteredAlarms.length + newAlarms.length < pageSize && nextPage < totalPages - 1) {
+          setTimeout(() => loadMoreIfNeeded(), 100);
+        }
+      } catch (error) {
+        console.warn('추가 데이터 로드 실패:', error);
+      }
+    }
+  }, [filteredAlarms.length, currentPage, totalPages, pageSize, readStatusFilter, statusFilter, alarmType]);
+
+  // 필터링 후 7개 미만일 때 추가 로드
+  useEffect(() => {
+    if (!loading && filteredAlarms.length < pageSize && currentPage < totalPages - 1) {
+      loadMoreIfNeeded();
+    }
+  }, [filteredAlarms.length, loading, currentPage, totalPages, loadMoreIfNeeded]);
 
   // 필터 변경 핸들러
   const handleFilterChange = useCallback((newType, newStatus, newReadStatus) => {
