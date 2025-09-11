@@ -35,6 +35,11 @@ const Userset = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const { DEPARTMENTS: departments, POSITIONS: positions, ROLES: roles, SCOPES: scopes, SHIFTS: shifts } = USER_MANAGEMENT;
+  
+  // 디버깅용 로그
+  console.log('USER_MANAGEMENT:', USER_MANAGEMENT);
+  console.log('scopes:', scopes);
+  console.log('shifts:', shifts);
 
   // 사용자 목록 로드
   const loadUsers = async (page = 0, searchTerm = '', size = 10) => {
@@ -640,7 +645,7 @@ const Userset = () => {
                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      >
                        <option value="">선택</option>
-                       {scopes.map(scope => (
+                       {(scopes || []).map(scope => (
                          <option key={scope.value} value={scope.value}>{scope.label}</option>
                        ))}
                      </select>
@@ -655,7 +660,7 @@ const Userset = () => {
                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      >
                        <option value="">선택</option>
-                       {shifts.map(shift => (
+                       {(shifts || []).map(shift => (
                          <option key={shift.value} value={shift.value}>{shift.label}</option>
                        ))}
                      </select>
@@ -807,7 +812,7 @@ const Userset = () => {
                       }}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
-                      {scopes.map(scope => (
+                      {(scopes || []).map(scope => (
                         <option key={scope.value} value={scope.value}>{scope.label}</option>
                       ))}
                     </select>
@@ -821,7 +826,7 @@ const Userset = () => {
                       onChange={(e) => handleEditUserChange('shift', e.target.value)}
                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
-                      {shifts.map(shift => (
+                      {(shifts || []).map(shift => (
                         <option key={shift.value} value={shift.value}>{shift.label}</option>
                       ))}
                     </select>

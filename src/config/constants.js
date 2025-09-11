@@ -43,6 +43,16 @@ export const USER_MANAGEMENT = {
     { value: 'ADMIN', label: '관리자' },
     { value: 'SUPER_ADMIN', label: '최고 관리자' }
   ],
+  SCOPES: [
+    { value: 'a,b,c', label: '전체구역' },
+    { value: 'a', label: 'A구역' },
+    { value: 'b', label: 'B구역' },
+    { value: 'c', label: 'C구역' }
+  ],
+  SHIFTS: [
+    { value: 'DAY', label: '주간(D)' },
+    { value: 'NIGHT', label: '야간(N)' }
+  ],
   STATUS: [
     { value: 'ACTIVE', label: '활성', color: 'green' },
     { value: 'INACTIVE', label: '비활성', color: 'gray' },
