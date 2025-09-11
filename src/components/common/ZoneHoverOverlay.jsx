@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import SimpleModel from '../3d/main/SimpleModel';
 import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
+import { default as TextComponent } from './Text';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   if (!hoveredZone) return null;
@@ -54,36 +55,35 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
         }}
       >
         {/* 헤더 */}
-        <div style={{ 
-          borderBottom: '1px solid rgba(255,255,255,0.2)', 
-          paddingBottom: '8px', 
-          marginBottom: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div style={{ fontSize: '16px' }}>
-            Zone {hoveredZone.toUpperCase()}
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/20">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-400/80 to-purple-500/80 rounded-lg flex items-center justify-center">
+              <TextComponent variant="body" size="sm" weight="bold" color="white">
+                {hoveredZone.toUpperCase().charAt(0)}
+              </TextComponent>
+            </div>
+            <div>
+              <TextComponent variant="title" size="lg" weight="bold" color="white">
+                Zone {hoveredZone.toUpperCase()}
+              </TextComponent>
+            </div>
           </div>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px'
-          }}>
-            <span style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              backgroundColor: statusColor,
-              boxShadow: `0 0 4px ${statusColor}`
-            }} />
-            <span style={{
-              color: statusColor,
-              fontWeight: 'bold',
-              fontSize: '12px'
-            }}>
+          <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}15` }}>
+            <div 
+              className="w-3 h-3 rounded-full animate-pulse"
+              style={{ 
+                backgroundColor: statusColor,
+                boxShadow: `0 0 4px ${statusColor}40`
+              }} 
+            />
+            <TextComponent 
+              variant="caption" 
+              size="xs" 
+              weight="semibold"
+              style={{ color: statusColor }}
+            >
               {statusText}
-            </span>
+            </TextComponent>
           </div>
         </div>
         

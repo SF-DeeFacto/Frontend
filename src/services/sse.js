@@ -89,7 +89,7 @@ export const SSE_URLS = {
 };
 
 // SSE 연결 함수
-export const connectSSE = (url, { onMessage, onError, onOpen }) => {
+export const connectSSE = (url, { onMessage, onError, onOpen }, options = {}) => {
   // 인증 토큰 가져오기
   const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   
@@ -104,6 +104,15 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
   let retryCount = 0;
   const maxRetries = SYSTEM_CONFIG.SSE_MAX_RETRIES;
   const retryDelay = SYSTEM_CONFIG.SSE_RETRY_DELAY;
+  
+  // 알림 SSE인지 확인하여 하트비트 설정 조정
+  const isNotificationSSE = url === SSE_URLS.notification;
+  const heartbeatTimeout = isNotificationSSE 
+    ? SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_TIMEOUT 
+    : SYSTEM_CONFIG.SSE_HEARTBEAT_TIMEOUT;
+  const heartbeatCheckInterval = isNotificationSSE 
+    ? SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_CHECK_INTERVAL 
+    : SYSTEM_CONFIG.SSE_HEARTBEAT_CHECK_INTERVAL;
   
   let lastMessageTime = Date.now(); // 마지막 메시지 수신 시간
   let heartbeatTimer = null; // 하트비트 타이머
@@ -127,6 +136,8 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
           Authorization: `Bearer ${token}`,
         },
         withCredentials: true,
+        // EventSourcePolyfill 타임아웃 설정 (알림 SSE는 더 길게)
+        heartbeatTimeout: isNotificationSSE ? 600000 : 120000, // 10분 또는 2분
       });
       
       eventSource.onopen = (event) => {
@@ -150,11 +161,11 @@ export const connectSSE = (url, { onMessage, onError, onOpen }) => {
           const now = Date.now();
           const timeSinceLastMessage = now - lastMessageTime;
           
-          if (timeSinceLastMessage > SYSTEM_CONFIG.SSE_HEARTBEAT_TIMEOUT) {
-            console.log('⚠️ SSE 하트비트 타임아웃, 재연결 시도');
+          if (timeSinceLastMessage > heartbeatTimeout) {
+            console.log(`⚠️ SSE 하트비트 타임아웃 (${isNotificationSSE ? '알림' : '일반'}), 재연결 시도`);
             reconnect();
           }
-        }, SYSTEM_CONFIG.SSE_HEARTBEAT_CHECK_INTERVAL);
+        }, heartbeatCheckInterval);
         
         onOpen?.(event);
       };
@@ -316,196 +327,7 @@ export const connectZoneSSE = (zoneId, { onMessage, onError, onOpen }) => {
   return connectSSE(SSE_URLS.zone(zoneId), { onMessage, onError, onOpen });
 };
 
-// 알림 전용 SSE 연결 (데이터가 없어도 연결 유지)
+// 알림 전용 SSE 연결 (일반 SSE와 동일한 로직 사용)
 export const connectNotificationSSE = ({ onMessage, onError, onOpen }) => {
-  // 인증 토큰 가져오기
-  const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
-  
-  // 토큰이 없으면 연결하지 않음
-  if (!token) {
-    onError(new Error('인증 토큰이 없습니다.'));
-    return () => {}; // 빈 함수 반환
-  }
-  
-  // 알림 SSE 전용 설정
-  let eventSource = null;
-  let retryCount = 0;
-  const maxRetries = SYSTEM_CONFIG.SSE_MAX_RETRIES;
-  const retryDelay = SYSTEM_CONFIG.SSE_RETRY_DELAY;
-  
-  let lastMessageTime = Date.now();
-  let heartbeatTimer = null;
-  let reconnectTimer = null;
-  let isDestroyed = false;
-
-  const createEventSource = () => {
-    if (isDestroyed) return;
-    
-    console.log('🔔 알림 SSE 연결 시작:', SSE_URLS.notification);
-    
-    try {
-      eventSource = new EventSourcePolyfill(SSE_URLS.notification, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-        // 알림 SSE 전용 타임아웃 설정 (더 길게)
-        heartbeatTimeout: SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_TIMEOUT,
-      });
-      
-      eventSource.onopen = (event) => {
-        if (isDestroyed) return;
-        
-        console.log('✅ 알림 SSE 연결 성공');
-        lastMessageTime = Date.now();
-        retryCount = 0;
-        
-        // 알림 SSE 전용 하트비트 타이머 (더 긴 간격)
-        heartbeatTimer = setInterval(() => {
-          if (isDestroyed) return;
-          
-          const now = Date.now();
-          const timeSinceLastMessage = now - lastMessageTime;
-          
-          if (timeSinceLastMessage > SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_TIMEOUT) {
-            console.log('⚠️ 알림 SSE 하트비트 타임아웃, 재연결 시도');
-            reconnect();
-          }
-        }, SYSTEM_CONFIG.NOTIFICATION_SSE_HEARTBEAT_CHECK_INTERVAL);
-        
-        onOpen?.(event);
-      };
-      
-      eventSource.onmessage = (event) => {
-        if (isDestroyed) return;
-        
-        lastMessageTime = Date.now();
-        
-        try {
-          const parsedData = JSON.parse(event.data);
-          console.log('🔔 알림 SSE 메시지 수신:', parsedData);
-          onMessage(parsedData);
-        } catch (parseError) {
-          console.error('❌ 알림 SSE 메시지 파싱 오류:', parseError);
-          onError(parseError);
-        }
-      };
-
-      // alert 이벤트 처리
-      eventSource.addEventListener('alert', (event) => {
-        if (isDestroyed) return;
-        
-        lastMessageTime = Date.now();
-        
-        try {
-          const parsedData = JSON.parse(event.data);
-          console.log('🚨 알림 SSE alert 이벤트 수신:', parsedData);
-          onMessage(parsedData);
-        } catch (parseError) {
-          console.error('❌ 알림 SSE alert 메시지 파싱 오류:', parseError);
-          onError(parseError);
-        }
-      });
-      
-      eventSource.onerror = (error) => {
-        if (isDestroyed) return;
-        
-        console.error('❌ 알림 SSE 연결 오류:', error);
-        
-        // 하트비트 타이머 정리
-        if (heartbeatTimer) {
-          clearInterval(heartbeatTimer);
-          heartbeatTimer = null;
-        }
-        
-        onError(error);
-        
-        // 자동 재연결 시도
-        if (retryCount < maxRetries) {
-          retryCount++;
-          const currentRetryDelay = retryDelay * Math.pow(1.5, retryCount - 1);
-          console.log(`🔄 알림 SSE 재연결 시도 ${retryCount}/${maxRetries} (${currentRetryDelay}ms 후)`);
-          
-          reconnectTimer = setTimeout(() => {
-            if (!isDestroyed) {
-              reconnect();
-            }
-          }, currentRetryDelay);
-        } else {
-          console.error('❌ 알림 SSE 최대 재시도 횟수 초과, 연결 포기');
-          // 최대 재시도 후에도 10분 후에 다시 시도
-          setTimeout(() => {
-            if (!isDestroyed) {
-              console.log('🔄 알림 SSE 장기 재연결 시도');
-              retryCount = 0;
-              reconnect();
-            }
-          }, 600000); // 10분 후
-        }
-      };
-      
-    } catch (error) {
-      onError(error);
-    }
-  };
-
-  // 재연결 함수
-  const reconnect = () => {
-    if (isDestroyed) return;
-    
-    if (eventSource) {
-      eventSource.close();
-      eventSource = null;
-    }
-    
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer);
-      reconnectTimer = null;
-    }
-    
-    if (heartbeatTimer) {
-      clearInterval(heartbeatTimer);
-      heartbeatTimer = null;
-    }
-    
-    createEventSource();
-  };
-
-  // 초기 연결 시작
-  createEventSource();
-
-  // 정리 함수 생성
-  const disconnectFn = () => {
-    console.log('🔔 알림 SSE 연결 해제 함수 실행');
-    isDestroyed = true;
-    
-    if (reconnectTimer) {
-      console.log('⏰ 알림 SSE 재연결 타이머 정리');
-      clearTimeout(reconnectTimer);
-      reconnectTimer = null;
-    }
-    
-    if (heartbeatTimer) {
-      console.log('💓 알림 SSE 하트비트 타이머 정리');
-      clearInterval(heartbeatTimer);
-      heartbeatTimer = null;
-    }
-    
-    if (eventSource) {
-      console.log('🔔 알림 EventSource 연결 종료');
-      eventSource.close();
-      eventSource = null;
-    }
-    
-    console.log('✅ 알림 SSE 연결 해제 완료');
-  };
-
-  // 전역 연결 관리자에 등록
-  const connectionId = sseConnectionManager.registerConnection(disconnectFn);
-
-  // 정리 함수 반환 (등록된 연결 ID도 함께 반환)
-  return () => {
-    disconnectFn();
-    sseConnectionManager.disconnectConnection(connectionId);
-  };
+  return connectSSE(SSE_URLS.notification, { onMessage, onError, onOpen });
 };
