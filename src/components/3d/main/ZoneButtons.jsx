@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
 import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
@@ -7,14 +7,35 @@ import { CONNECTION_STATE } from '../../../types/sensor';
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [zonePermissions, setZonePermissions] = useState({});
 
-  const canAccessZone = (zoneId) => {
-    // scope 정보가 없으면 전체 접근 허용
-    if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
-    const zoneScope = (zoneId || '')[0]?.toLowerCase(); // 'a01' -> 'a'
+  // 권한 체크 함수 (ZoneHoverOverlay와 동일한 패턴)
+  const checkPermission = (zoneId) => {
+    if (!zoneId) return false;
+    if (!user?.scope) return true; // scope 미설정이면 모든 구역 접근 허용
+    
+    // scope가 문자열인지 확인
+    if (typeof user.scope !== 'string') {
+      console.warn('user.scope is not a string:', user.scope);
+      return true; // 안전하게 접근 허용
+    }
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const zoneScope = String(zoneId)[0]?.toLowerCase();
     return scopes.includes(zoneScope);
   };
+
+  // 존별 권한 체크
+  useEffect(() => {
+    const permissions = {};
+    zones.forEach(zone => {
+      permissions[zone.id] = checkPermission(zone.id);
+    });
+    setZonePermissions(permissions);
+  }, [zones, user?.scope]);
 
   // 연결 상태에 따른 색상 반환
   const getConnectionColor = (connectionState) => {
@@ -55,17 +76,21 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
         const statusColor = getStatusHexColor(connectionInfo.status);
         const connectionColor = getConnectionColor(connectionInfo.connectionState);
         
+        const hasPermission = zonePermissions[zone.id];
+        
         return (
           <div
             key={zone.id}
             onClick={() => {
-              if (!canAccessZone(zone.id)) {
+              if (!hasPermission) {
                 window.alert('해당 구역에 대한 접근 권한이 없습니다.');
                 return;
               }
               navigate(`/home/zone/${zone.id}`);
             }}
-            className="modern-card modern-card-hover group cursor-pointer p-4 min-w-[140px] relative overflow-hidden"
+            className={`modern-card group cursor-pointer p-4 min-w-[140px] relative overflow-hidden ${
+              hasPermission ? 'modern-card-hover' : 'opacity-50 cursor-not-allowed'
+            }`}
           >
             {/* 배경 그라디언트 */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/60 to-primary-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
