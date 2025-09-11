@@ -65,28 +65,28 @@ const SensorInfoPanel = ({ selectedObject, onClose }) => {
                    selectedObject.status ? getStatusText(selectedObject.status) : '알 수 없음'}
                 </Text>
               </div>
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <div className="text-sm text-gray-400">센서 데이터:</div>
                 {selectedObject.sensorData ? (
-                  <div className="text-xs text-gray-300 bg-gray-800 p-2 rounded">
+                  <div className="text-xs text-gray-300 bg-gray-800 p-3 rounded space-y-2">
                     {selectedObject.sensorData.val !== undefined && (
-                      <div>값: {selectedObject.sensorData.val} {getSensorTypeConfig(selectedObject.sensorData.sensorType?.toLowerCase())?.unit || ''}</div>
+                      <div className="py-1">값: {selectedObject.sensorData.val} {getSensorTypeConfig(selectedObject.sensorData.sensorType?.toLowerCase())?.unit || ''}</div>
                     )}
                     {selectedObject.sensorData.val_0_1 !== undefined && (
-                      <div>0.1μm: {selectedObject.sensorData.val_0_1} μg/m³</div>
+                      <div className="py-1">0.1μm: {selectedObject.sensorData.val_0_1} μg/m³</div>
                     )}
                     {selectedObject.sensorData.val_0_3 !== undefined && (
-                      <div>0.3μm: {selectedObject.sensorData.val_0_3} μg/m³</div>
+                      <div className="py-1">0.3μm: {selectedObject.sensorData.val_0_3} μg/m³</div>
                     )}
                     {selectedObject.sensorData.val_0_5 !== undefined && (
-                      <div>0.5μm: {selectedObject.sensorData.val_0_5} μg/m³</div>
+                      <div className="py-1">0.5μm: {selectedObject.sensorData.val_0_5} μg/m³</div>
                     )}
                     {selectedObject.sensorData.timestamp && (
-                      <div>시간: {new Date(selectedObject.sensorData.timestamp).toLocaleString()}</div>
+                      <div className="py-1">시간: {new Date(selectedObject.sensorData.timestamp).toLocaleString()}</div>
                     )}
                   </div>
                 ) : (
-                  <div className="text-xs text-gray-500 bg-gray-800 p-2 rounded">
+                  <div className="text-xs text-gray-500 bg-gray-800 p-3 rounded">
                     센서 데이터 없음
                   </div>
                 )}
