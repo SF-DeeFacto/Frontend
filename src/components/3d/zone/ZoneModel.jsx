@@ -42,25 +42,34 @@ function ZoneModel({ modelPath, zoneId, sensorData, selectedObject, onObjectClic
 
   // 센서 데이터에서 센서 정보를 찾는 함수
   const getSensorInfoFromData = (sensorName) => {
+    console.log('🔍 getSensorInfoFromData 호출:', sensorName);
+    console.log('🔍 sensorData:', sensorData);
+    
     if (!sensorData || Object.keys(sensorData).length === 0) {
+      console.log('❌ 센서 데이터가 없음');
       return null;
     }
 
     for (const [sensorType, sensors] of Object.entries(sensorData)) {
+      console.log(`🔍 센서 타입 ${sensorType} 검색 중:`, sensors);
+      
       if (Array.isArray(sensors)) {
         const foundSensor = sensors.find(sensor => {
           const sensorId = sensor.sensorId || sensor.id || '';
+          console.log(`🔍 센서 ID 비교: "${sensorId}" vs "${sensorName}"`);
           
           // 정확한 매칭만 사용 (대소문자 무시)
           return sensorId.toLowerCase() === sensorName.toLowerCase();
         });
         
         if (foundSensor) {
+          console.log('✅ 센서 데이터 찾음:', foundSensor);
           return foundSensor;
         }
       }
     }
     
+    console.log('❌ 센서 데이터를 찾지 못함');
     return null;
   };
 
