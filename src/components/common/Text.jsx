@@ -10,12 +10,14 @@ const Text = ({
   ...props 
 }) => {
   const sizeClasses = {
+    "2xs": "text-[10px]",
     xs: "text-xs",
     sm: "text-sm", 
     md: "text-base",
     lg: "text-lg",
     xl: "text-xl",
     "2xl": "text-2xl",
+    "3xl": "text-3xl",
     "28px": "text-[28px]"
   };
 
