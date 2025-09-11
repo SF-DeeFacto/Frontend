@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { authApiClient } from '../services';
- import axios from 'axios';
+import { Button } from '../components/common';
+import axios from 'axios';
 
 // const API_BASE = 'http://localhost:8085';
  const API_BASE = '/report-api';
@@ -267,15 +268,15 @@ const Report = () => {
               type="date"
               value={startDate}
               onChange={e => { setStartDate(e.target.value); handleFilterChange(); }}
-              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
             />
-            <span className="mx-1">~</span>
+            <span className="mx-1 text-gray-700 dark:text-neutral-300">~</span>
             <input
               type="date"
               value={endDate}
               min={startDate}
               onChange={e => { setEndDate(e.target.value); handleFilterChange(); }}
-              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
+              className="px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md text-sm bg-white dark:bg-neutral-800 text-gray-900 dark:text-neutral-100 placeholder-gray-500 dark:placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200"
             />
           </div>
         </div>
@@ -301,12 +302,13 @@ const Report = () => {
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.fileName || '내용 입력'}</td>
                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-neutral-100">{report.createdAt ? formatDate(report.createdAt) : '내용 입력'}</td>
                 <td className="px-6 py-4">
-                  <button
+                  <Button
                     onClick={() => handleDownload(report.fileName)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 text-white rounded-md text-sm transition-colors duration-200"
+                    variant="primary"
+                    size="sm"
                   >
                     Download
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -318,33 +320,32 @@ const Report = () => {
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">
           <nav className="flex items-center space-x-2">
-            <button 
+            <Button 
               onClick={() => handlePageChange(currentPage - 1)} 
               disabled={currentPage === 1} 
-              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              variant="secondary"
+              size="sm"
             >
               Previous
-            </button>
+            </Button>
             {Array.from({ length: totalPages }, (_, i) => (
-              <button 
+              <Button 
                 key={i + 1} 
                 onClick={() => handlePageChange(i + 1)} 
-                className={`px-3 py-2 text-sm rounded-md transition-colors duration-200 ${
-                  currentPage === i + 1 
-                    ? 'bg-blue-600 dark:bg-blue-700 text-white' 
-                    : 'bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600'
-                }`}
+                variant={currentPage === i + 1 ? "primary" : "secondary"}
+                size="sm"
               >
                 {i + 1}
-              </button>
+              </Button>
             ))}
-            <button 
+            <Button 
               onClick={() => handlePageChange(currentPage + 1)} 
               disabled={currentPage === totalPages} 
-              className="px-3 py-2 text-sm rounded-md bg-gray-100 dark:bg-neutral-700 text-gray-700 dark:text-neutral-200 hover:bg-gray-200 dark:hover:bg-neutral-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              variant="secondary"
+              size="sm"
             >
               Next
-            </button>
+            </Button>
           </nav>
         </div>
       )}
