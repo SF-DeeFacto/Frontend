@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { userService } from '../../../services/userService';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
-import { USER_MANAGEMENT, SYSTEM_CONFIG } from '../../../config/constants';
+import { USER_MANAGEMENT, SYSTEM_CONFIG, COLORS } from '../../../config/constants';
+import SearchFilterSection from '../../../components/common/SearchFilterSection';
 
 const Userset = () => {
   // 실제 API 연결용 상태
@@ -61,8 +62,6 @@ const Userset = () => {
           employeeId: trimmedTerm
         };
         
-        console.log('이름 검색 파라미터:', nameSearchParams);
-        console.log('사번 검색 파라미터:', employeeIdSearchParams);
         
         // 두 검색을 병렬로 실행
         const [nameResponse, employeeIdResponse] = await Promise.all([
@@ -92,7 +91,6 @@ const Userset = () => {
           size: size || pagination.size || 10
         };
         
-        console.log('전체 조회 파라미터:', searchParams);
         const response = await userService.searchUsers(searchParams);
         
         if (response && response.data) {
@@ -118,7 +116,6 @@ const Userset = () => {
         totalPages: totalPages
       });
       
-      console.log('검색 결과:', mappedUsers.length, '개의 사용자 발견');
       
     } catch (error) {
       const errorInfo = handleApiError(error, '사용자 목록 로드');
@@ -158,13 +155,11 @@ const Userset = () => {
   };
 
   const handleEditUserChange = (key, value) => {
-    console.log(`사용자 수정 필드 변경: ${key} = ${value}`); // 디버깅용
     setEditingUser(prev => {
       const updated = {
         ...prev,
         [key]: value
       };
-      console.log('수정된 사용자 정보:', updated); // 디버깅용
       return updated;
     });
   };
@@ -188,7 +183,6 @@ const Userset = () => {
           shift: newUser.shift || 'DAY' // 기본값 설정
         };
         
-        console.log('등록 요청 데이터:', userData); // 디버깅용
         
         await userService.registerUser(userData);
         
@@ -243,8 +237,6 @@ const Userset = () => {
           active: editingUser.isActive !== undefined ? editingUser.isActive : true // 백엔드는 'active' 필드 사용
         };
         
-        console.log('사용자 수정 요청 데이터:', userData); // 디버깅용
-        console.log('원본 editingUser.scope:', editingUser.scope); // 디버깅용
         
         await userService.updateUser(userData);
         
@@ -333,10 +325,6 @@ const Userset = () => {
   // API에서 이미 필터링된 데이터를 받으므로 users를 그대로 사용
   const filteredUsers = users;
   
-  // 디버깅: users 상태 확인
-  console.log('현재 users 상태:', users);
-  console.log('filteredUsers:', filteredUsers);
-  console.log('users 길이:', users.length);
 
   return (
     <div className="space-y-6">
@@ -348,44 +336,25 @@ const Userset = () => {
             setShowEditForm(false); // 수정 모달 닫기
             setEditingUser(null);
           }}
-          className="bg-[#494FA2] text-white px-4 py-2 rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+          className="bg-[${COLORS.PRIMARY}] text-white px-4 py-2 rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
         >
           사용자 등록
         </button>
       </div>
 
       {/* 검색 바 */}
-      <div className="bg-white p-4 rounded-lg shadow">
-        <div className="flex items-center space-x-4">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              검색
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="사번 또는 이름으로 검색하세요"
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="mt-6 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 focus:outline-none"
-            >
-              검색 초기화
-            </button>
-          )}
-        </div>
-      </div>
+      <SearchFilterSection
+        searchConfig={{
+          label: "검색",
+          placeholder: "사번 또는 이름으로 검색하세요",
+          value: searchTerm,
+          showIcon: true,
+          showClearButton: true
+        }}
+        resultCount={pagination.totalElements}
+        onSearchChange={setSearchTerm}
+        className="bg-white p-4 rounded-lg shadow"
+      />
 
       {/* 에러 메시지 */}
       {error && (
@@ -469,7 +438,7 @@ const Userset = () => {
                     </span>
                     <button
                       onClick={() => handleEditClick(user)}
-                      className="text-[#494FA2] hover:text-[#3d4490] text-sm font-medium"
+                      className="text-[${COLORS.PRIMARY}] hover:text-[#3d4490] text-sm font-medium"
                       disabled={loading}
                     >
                       수정
@@ -550,7 +519,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.employeeId}
                       onChange={(e) => handleNewUserChange('employeeId', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                       placeholder="사번"
                     />
                   </div>
@@ -562,7 +531,7 @@ const Userset = () => {
                       type="text"
                       value={newUser.name}
                       onChange={(e) => handleNewUserChange('name', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                       placeholder="이름"
                     />
                   </div>
@@ -573,7 +542,7 @@ const Userset = () => {
                     <select
                       value={newUser.gender}
                       onChange={(e) => handleNewUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       <option value="male">남성</option>
@@ -591,7 +560,7 @@ const Userset = () => {
                     <select
                       value={newUser.department}
                       onChange={(e) => handleNewUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -606,7 +575,7 @@ const Userset = () => {
                     <select
                       value={newUser.position}
                       onChange={(e) => handleNewUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -621,7 +590,7 @@ const Userset = () => {
                     <select
                       value={newUser.role}
                       onChange={(e) => handleNewUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       {roles.map(role => (
@@ -640,7 +609,7 @@ const Userset = () => {
                      type="password"
                      value={newUser.password}
                      onChange={(e) => handleNewUserChange('password', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      placeholder="비밀번호를 입력하세요"
                    />
                  </div>
@@ -654,7 +623,7 @@ const Userset = () => {
                      type="email"
                      value={newUser.email}
                      onChange={(e) => handleNewUserChange('email', e.target.value)}
-                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                     className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      placeholder="이메일을 입력하세요"
                    />
                                   </div>
@@ -668,7 +637,7 @@ const Userset = () => {
                      <select
                        value={newUser.scope}
                        onChange={(e) => handleNewUserChange('scope', e.target.value)}
-                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      >
                        <option value="">선택</option>
                        {scopes.map(scope => (
@@ -683,7 +652,7 @@ const Userset = () => {
                      <select
                        value={newUser.shift}
                        onChange={(e) => handleNewUserChange('shift', e.target.value)}
-                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                       className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                      >
                        <option value="">선택</option>
                        {shifts.map(shift => (
@@ -698,7 +667,7 @@ const Userset = () => {
                  <div className="flex space-x-2 mt-4">
                    <button
                      onClick={handleAddUser}
-                     className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                     className="flex-1 bg-[${COLORS.PRIMARY}] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                    >
                      등록
                    </button>
@@ -769,7 +738,7 @@ const Userset = () => {
                     <select
                       value={editingUser.gender}
                       onChange={(e) => handleEditUserChange('gender', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="male">남성</option>
                       <option value="female">여성</option>
@@ -786,7 +755,7 @@ const Userset = () => {
                     <select
                       value={editingUser.department}
                       onChange={(e) => handleEditUserChange('department', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       {departments.map(dept => (
@@ -801,7 +770,7 @@ const Userset = () => {
                     <select
                       value={editingUser.position}
                       onChange={(e) => handleEditUserChange('position', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       <option value="">선택</option>
                       {positions.map(pos => (
@@ -816,7 +785,7 @@ const Userset = () => {
                     <select
                       value={editingUser.role}
                       onChange={(e) => handleEditUserChange('role', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       {roles.map(role => (
                         <option key={role.value} value={role.value}>{role.label}</option>
@@ -834,10 +803,9 @@ const Userset = () => {
                     <select
                       value={editingUser.scope || 'a,b,c'}
                       onChange={(e) => {
-                        console.log('구역범위 변경:', e.target.value); // 디버깅용
                         handleEditUserChange('scope', e.target.value);
                       }}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       {scopes.map(scope => (
                         <option key={scope.value} value={scope.value}>{scope.label}</option>
@@ -851,7 +819,7 @@ const Userset = () => {
                     <select
                       value={editingUser.shift || 'DAY'}
                       onChange={(e) => handleEditUserChange('shift', e.target.value)}
-                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                      className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                     >
                       {shifts.map(shift => (
                         <option key={shift.value} value={shift.value}>{shift.label}</option>
@@ -871,7 +839,7 @@ const Userset = () => {
                     type="email"
                     value={editingUser.email}
                     onChange={(e) => handleEditUserChange('email', e.target.value)}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                   />
                 </div>
 
@@ -883,7 +851,7 @@ const Userset = () => {
                   <select
                     value={editingUser.isActive ? 'active' : 'inactive'}
                     onChange={(e) => handleEditUserChange('isActive', e.target.value === 'active')}
-                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                   >
                     <option value="active">활성</option>
                     <option value="inactive">비활성</option>
@@ -893,7 +861,7 @@ const Userset = () => {
                 <div className="flex space-x-2 mt-4">
                   <button
                     onClick={handleEditUser}
-                    className="flex-1 bg-[#494FA2] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[#494FA2]"
+                    className="flex-1 bg-[${COLORS.PRIMARY}] text-white px-3 py-2 text-sm rounded-md hover:bg-[#3d4490] focus:outline-none focus:ring-2 focus:ring-[${COLORS.PRIMARY}]"
                   >
                     수정
                   </button>

@@ -1,6 +1,5 @@
 import React from 'react';
-import { getStatusColor, getStatusText } from '../../../utils/sensorUtils';
-import { SENSOR_STATUS } from '../../../types/sensor';
+import { getStatusColor, getStatusText, SENSOR_STATUS } from '../../../config/sensorConfig';
 
 const StatusIndicator = () => {
   const statuses = [

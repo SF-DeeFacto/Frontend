@@ -1,18 +1,64 @@
-import React, { Suspense } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
-import SimpleModel from '../3d/main/SimpleModel';
-import { getStatusHexColor, getStatusText } from '../../config/sensorConfig';
-import { default as TextComponent } from './Text';
+import React, { useState, useEffect } from 'react';
+import { HoverCanvas } from '../3d/common/CanvasWrapper';
+import { BaseModel } from '../3d/common/BaseModel';
+import SensorIndicator from '../3d/zone/SensorIndicator';
+import { getStatusHexColor, getStatusText, ZONE_INFO, SENSOR_STATUS } from '../../config/sensorConfig';
+import { getModelPath } from '../../config/sensorConfig';
+import { useZoneSensorData } from '../../hooks/useZoneSensorData';
+import { useAuth } from '../../hooks/useAuth';
+import Text from './Text';
+import LoadingSpinner from './LoadingSpinner';
 
 const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
+  const [isModelLoaded, setIsModelLoaded] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null); // null: 체크 중, true: 권한 있음, false: 권한 없음
+  
+  // 인증 정보 가져오기
+  const { user } = useAuth();
+  
+  // 센서 데이터 가져오기
+  const { sensorData, isLoading: isSensorLoading } = useZoneSensorData(hoveredZone);
+  
+  // 권한 체크 함수
+  const checkPermission = (zoneId) => {
+    if (!zoneId) return false;
+    if (!user?.scope) return true; // scope 미설정이면 모든 구역 접근 허용
+    
+    // scope가 문자열인지 확인
+    if (typeof user.scope !== 'string') {
+      console.warn('user.scope is not a string:', user.scope);
+      return true; // 안전하게 접근 허용
+    }
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const zoneScope = String(zoneId)[0]?.toLowerCase();
+    return scopes.includes(zoneScope);
+  };
+
+  // 호버된 존이 변경될 때 로딩 상태 리셋 및 권한 체크
+  useEffect(() => {
+    setIsModelLoaded(false);
+    setHasPermission(null); // 권한 체크 상태 리셋
+    
+    // 권한 체크 (약간의 지연을 두어 로딩 상태를 보여줌)
+    const timer = setTimeout(() => {
+      const permission = checkPermission(hoveredZone);
+      setHasPermission(permission);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [hoveredZone, user?.scope]);
+  
   if (!hoveredZone) return null;
 
   // 호버된 존의 상태를 가져오는 함수 (실제 SSE 데이터 사용)
   const getZoneStatus = (hoveredZone) => {
     // 대문자로 변환하여 zoneStatuses에서 찾기
     const zoneKey = hoveredZone.toUpperCase();
-    return zoneStatuses?.[zoneKey] || 'CONNECTING';
+    return zoneStatuses?.[zoneKey] || SENSOR_STATUS.CONNECTING;
   };
 
   // 호버된 존의 상태 색상을 가져오는 함수
@@ -27,9 +73,9 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
     return getStatusText(status);
   };
 
-  // A01, A02, B01, B02는 왼쪽에, 나머지는 오른쪽에 표시
-  const leftZones = ['a01', 'a02', 'b01', 'b02', 'A01', 'A02', 'B01', 'B02'];
-  const isLeftZone = leftZones.includes(hoveredZone);
+  // A구역, B구역은 왼쪽에, C구역은 오른쪽에 표시
+  const leftZones = Object.keys(ZONE_INFO).filter(zone => zone.startsWith('A') || zone.startsWith('B'));
+  const isLeftZone = leftZones.includes(hoveredZone) || leftZones.includes(hoveredZone?.toUpperCase());
   const overlayPosition = isLeftZone ? 'left-4' : 'right-4';
 
   // 현재 존 상태
@@ -38,34 +84,37 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
   const statusText = getZoneStatusText(hoveredZone);
 
   return (
-    <div className={`absolute top-20 ${overlayPosition} z-50`}>
+    <div className={`absolute top-20 ${overlayPosition} z-50 animate-in slide-in-from-left-4 fade-in duration-300`}>
       <div
+        className="modern-card relative overflow-hidden group"
         style={{
-          background: 'rgba(0, 0, 0, 0.9)',
+          background: 'rgba(0, 0, 0, 0.85)',
           color: 'white',
-          padding: '16px',
-          borderRadius: '12px',
+          padding: '20px',
+          borderRadius: '16px',
           fontSize: '14px',
           fontWeight: 'bold',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-          border: '2px solid #6b7280',
-          width: '320px',
-          height: '380px',
-          backdropFilter: 'blur(10px)'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          border: `1px solid ${statusColor}30`,
+          width: '340px',
+          height: '400px',
+          backdropFilter: 'blur(12px)',
+          transform: 'translateY(0)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       >
         {/* 헤더 */}
         <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/20">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-400/80 to-purple-500/80 rounded-lg flex items-center justify-center">
-              <TextComponent variant="body" size="sm" weight="bold" color="white">
+              <Text variant="body" size="sm" weight="bold" color="white">
                 {hoveredZone.toUpperCase().charAt(0)}
-              </TextComponent>
+              </Text>
             </div>
             <div>
-              <TextComponent variant="title" size="lg" weight="bold" color="white">
+              <Text variant="title" size="lg" weight="bold" color="white">
                 Zone {hoveredZone.toUpperCase()}
-              </TextComponent>
+              </Text>
             </div>
           </div>
           <div className="flex items-center gap-2 px-3 py-1 rounded-full" style={{ backgroundColor: `${statusColor}15` }}>
@@ -76,74 +125,94 @@ const ZoneHoverOverlay = ({ hoveredZone, zoneStatuses, lastUpdated }) => {
                 boxShadow: `0 0 4px ${statusColor}40`
               }} 
             />
-            <TextComponent 
+            <Text 
               variant="caption" 
               size="xs" 
               weight="semibold"
               style={{ color: statusColor }}
             >
               {statusText}
-            </TextComponent>
+            </Text>
           </div>
         </div>
         
         {/* 3D 모델 미리보기 */}
-        <div style={{
-          width: '100%',
-          height: '280px',
-          background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-          borderRadius: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid rgba(255,255,255,0.1)'
-        }}>
-          {(() => {
-            const zoneId = hoveredZone.toLowerCase();
-            const modelPaths = {
-              'a01': '/models/A01.glb',
-              'a02': '/models/A02.glb',
-              'b01': '/models/B01.glb',
-              'b02': '/models/B02.glb',
-              'b03': '/models/B03.glb',
-              'b04': '/models/B04.glb',
-              'c01': '/models/C01.glb',
-              'c02': '/models/C02.glb'
-            };
-            
-            const modelPath = modelPaths[zoneId];
-            
-            if (modelPath) {
-              return (
-                <Canvas
-                  camera={{ position: [10, 10, 10], fov: 75 }}
-                  style={{ width: '100%', height: '100%' }}
-                >
-                  <Suspense fallback={null}>
-                    <SimpleModel modelPath={modelPath} />
-                  </Suspense>
-                  <OrbitControls
-                    enablePan={false}
-                    enableZoom={false}
-                    autoRotate={true}
-                    autoRotateSpeed={1}
-                  />
-                </Canvas>
-              );
-            } else {
-              return <div style={{ color: '#666', fontSize: '12px' }}>미리보기 없음</div>;
-            }
-          })()}
+        <div className="relative w-full h-72 bg-gradient-to-br from-gray-700 via-gray-800 to-gray-900 rounded-xl overflow-hidden border border-white/5 group">
+          {/* 배경 그라디언트 효과 */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-purple-400/3 to-pink-400/5"></div>
+          
+          {/* 권한 체크 중 로딩 인디케이터 */}
+          {hasPermission === null && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-2">
+                <LoadingSpinner 
+                  size="sm" 
+                  variant="primary"
+                  className="text-white/60"
+                />
+                <Text variant="caption" size="xs" color="white" className="opacity-60">권한 확인 중...</Text>
+              </div>
+            </div>
+          )}
+          
+          {/* 권한이 없는 경우 메시지 표시 */}
+          {hasPermission === false && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="flex flex-col items-center gap-2 text-center">
+                <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mb-2">
+                  <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                </div>
+                <Text variant="body" size="sm" weight="medium" color="white" className="opacity-80">권한이 없습니다</Text>
+                <Text variant="caption" size="xs" color="white" className="opacity-60">해당 구역에 대한 접근 권한이 없습니다</Text>
+              </div>
+            </div>
+          )}
+          
+          {/* 권한이 있는 경우 모델 로딩 및 표시 */}
+          {hasPermission === true && (
+            <>
+              {/* 모델 로딩 인디케이터 */}
+              {(!isModelLoaded || isSensorLoading) && (
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="flex flex-col items-center gap-2">
+                    <LoadingSpinner 
+                      size="sm" 
+                      variant="primary"
+                      className="text-white/60"
+                    />
+                    <Text variant="caption" size="xs" color="white" className="opacity-60">
+                      {!isModelLoaded ? '모델 로딩 중...' : '센서 데이터 로딩 중...'}
+                    </Text>
+                  </div>
+                </div>
+              )}
+              
+              {(() => {
+                const zoneId = hoveredZone.toUpperCase();
+                const modelPath = getModelPath(zoneId);
+                
+                return (
+                  <HoverCanvas
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  >
+                    <BaseModel 
+                      modelPath={modelPath} 
+                      onLoad={() => setIsModelLoaded(true)}
+                      sensorData={sensorData}
+                      zoneId={hoveredZone}
+                      lighting="soft"
+                      scale={[0.0018, 0.0018, 0.0018]}
+                      position={[0, 0, 0]}
+                    />
+                  </HoverCanvas>
+                );
+              })()}
+            </>
+          )}
         </div>
       </div>
-
-      {/* CSS 애니메이션 */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
-        }
-      `}</style>
     </div>
   );
 };

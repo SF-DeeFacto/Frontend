@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../hooks/useAuth';
-import { getStatusHexColor, getStatusText } from '../../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../../types/sensor';
+import { getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../../config/sensorConfig';
+import { COLORS } from '../../../config/constants';
+import Text from '../../common/Text';
 
 const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => {
   const navigate = useNavigate();
@@ -41,25 +42,25 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
   const getConnectionColor = (connectionState) => {
     switch (connectionState) {
       case CONNECTION_STATE.CONNECTING:
-        return '#3b82f6'; // 파란색 (연결 중)
+        return COLORS.INFO; // 파란색 (연결 중)
       case CONNECTION_STATE.CONNECTED:
-        return '#10b981'; // 초록색 (연결됨)
+        return COLORS.SUCCESS; // 초록색 (연결됨)
       case CONNECTION_STATE.ERROR:
-        return '#ef4444'; // 빨간색 (연결 실패)
+        return COLORS.DANGER; // 빨간색 (연결 실패)
       default:
-        return '#9ca3af'; // 회색 (알 수 없음)
+        return COLORS.SECONDARY; // 회색 (알 수 없음)
     }
   };
 
   // 존별 연결 정보 확인
   const getZoneConnectionInfo = (zone) => {
-    // Zone 이름을 API 응답 형식에 맞게 변환
-    const zoneName = zone.name.replace('Zone ', ''); // "Zone A01" → "A01"
-    const status = zoneStatuses[zoneName];
-    const lastUpdate = lastUpdated[zoneName];
+    // Zone 이름을 zone_A01 형태로 변환
+    const zoneKey = zone.zone_name; // "zone_A01"
+    const status = zoneStatuses[zoneKey];
+    const lastUpdate = lastUpdated[zoneKey];
     
     return {
-      status: status || 'CONNECTING',
+      status: status || SENSOR_STATUS.CONNECTING,
       isRealtime: connectionStates.mainSSE === CONNECTION_STATE.CONNECTED,
       connectionState: connectionStates.mainSSE || CONNECTION_STATE.DISCONNECTED,
       lastUpdate,
@@ -99,19 +100,17 @@ const ZoneButtons = ({ zones, zoneStatuses, connectionStates, lastUpdated }) => 
             <div className="relative z-10 flex items-center justify-center gap-4">
               {/* Zone 이름 */}
               <div className="flex-shrink-0">
-                <h3 className="text-lg font-bold text-secondary-800 group-hover:text-primary-600 transition-colors duration-200">
+                <Text variant="title" size="lg" weight="bold" color="secondary-800" className="group-hover:text-primary-600 transition-colors duration-200">
                   {zone.name}
-                </h3>
+                </Text>
               </div>
               
-              {/* 상태 인디케이터 */}
+              {/*TODO: 상태 인디케이터 */}
               <div 
-                className={`w-4 h-4 rounded-full border-2 border-white shadow-soft transition-all duration-300 group-hover:scale-110 flex-shrink-0 ${
-                  connectionInfo.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
-                }`}
+                className="w-4 h-4 rounded-full animate-pulse"
                 style={{ 
                   backgroundColor: statusColor,
-                  boxShadow: `0 0 15px ${statusColor}30`
+                  boxShadow: `0 0 6px ${statusColor}40`
                 }}
                 title={`상태: ${getStatusText(connectionInfo.status)} | 연결: ${connectionInfo.connectionState} | 데이터: ${connectionInfo.dataSource}`}
               ></div>

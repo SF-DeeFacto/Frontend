@@ -1,18 +1,17 @@
 import React from 'react';
-import { getStatusHexColor } from '../../config/sensorConfig';
-import { CONNECTION_STATE } from '../../types/sensor';
+import { getStatusHexColor, CONNECTION_STATE, SENSOR_STATUS } from '../../config/sensorConfig';
 
 const ConnectionIndicator = ({ connectionState }) => {
   const getConnectionColor = (state) => {
     switch (state) {
       case CONNECTION_STATE.CONNECTED:
-        return getStatusHexColor('GREEN');
+        return getStatusHexColor(SENSOR_STATUS.GREEN);
       case CONNECTION_STATE.CONNECTING:
-        return getStatusHexColor('CONNECTING');
+        return getStatusHexColor(SENSOR_STATUS.CONNECTING);
       case CONNECTION_STATE.ERROR:
-        return getStatusHexColor('RED');
+        return getStatusHexColor(SENSOR_STATUS.RED);
       default:
-        return getStatusHexColor('DISCONNECTED');
+        return getStatusHexColor(SENSOR_STATUS.DISCONNECTED);
     }
   };
 

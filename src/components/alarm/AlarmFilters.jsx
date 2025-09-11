@@ -1,5 +1,7 @@
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
+import { COLORS } from '../../config/constants';
+import Button from '../common/Button';
 
 // 상수 정의
 const ALARM_TYPES = ['전체', '알림', '리포트'];
@@ -25,17 +27,15 @@ const AlarmFilters = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">알림 유형</label>
           <div className="flex flex-wrap gap-2">
             {ALARM_TYPES.map((type) => (
-              <button
+              <Button
                 key={type}
                 onClick={() => setAlarmType(type)}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  alarmType === type
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={alarmType === type ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 {type}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -45,17 +45,15 @@ const AlarmFilters = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">즐겨찾기</label>
           <div className="flex flex-wrap gap-2">
             {['전체', '즐겨찾기'].map((status) => (
-              <button
+              <Button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  statusFilter === status
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={statusFilter === status ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 {status}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -65,17 +63,15 @@ const AlarmFilters = ({
           <label className="block text-sm font-medium text-gray-700 mb-2">읽음 상태</label>
           <div className="flex flex-wrap gap-2">
             {READ_STATUS_FILTERS.map((status) => (
-              <button
+              <Button
                 key={status}
                 onClick={() => setReadStatusFilter(status)}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  readStatusFilter === status
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={readStatusFilter === status ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 {status}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -83,18 +79,16 @@ const AlarmFilters = ({
         {/* 전체 읽음 버튼 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">액션</label>
-          <button
+          <Button
             onClick={onMarkAllAsRead}
-            className={`px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center gap-2 ${
-              hasUnreadAlarms 
-                ? 'bg-[#494FA2] text-white hover:bg-[#3a3f8a]' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
+            variant={hasUnreadAlarms ? "primary" : "default"}
+            size="sm"
             disabled={!hasUnreadAlarms}
+            icon={<CheckCircle className="w-4 h-4" />}
+            className="min-w-[120px]"
           >
-            <CheckCircle className="w-4 h-4" />
             전체 읽음
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Canvas } from '@react-three/fiber';
+import { MainCanvas } from '../common/CanvasWrapper';
 import MainModelViewer from '../main/MainModelViewer';
 import ModelCard from '../../common/ModelCard';
 import ZoneHoverOverlay from '../../common/ZoneHoverOverlay';
@@ -21,25 +21,31 @@ const ThreeDModelSection = ({ zoneStatuses, hoveredZone, onHoverZoneChange }) =>
         <div className="relative z-10 p-6 flex-1 flex flex-col">
           {/* 3D 모델 영역 */}
           <div className="flex-1 relative rounded-2xl overflow-hidden min-h-0">
-            <Canvas
-              camera={{ position: [5, 7, 5], fov: 45 }}
-              style={{ background: 'transparent' }}
-              onCreated={({ gl }) => {
-                gl.setClearColor(0x000000, 0); // 투명 배경
-              }}
-              shadows
-            >
+            <MainCanvas orbitControls={false}>
               <MainModelViewer 
                 zoneStatuses={zoneStatuses} 
                 onHoverZoneChange={onHoverZoneChange}
               />
-            </Canvas>
+            </MainCanvas>
             
             {/* 호버 오버레이 */}
-            <ZoneHoverOverlay 
-              hoveredZone={hoveredZone} 
-              zoneStatuses={zoneStatuses}
-            />
+            {hoveredZone && (
+              <ZoneHoverOverlay 
+                hoveredZone={hoveredZone} 
+                zoneStatuses={zoneStatuses}
+              />
+            )}
+            
+            {/* TODO: 호버 힌트 - 주석 처리됨
+            {!hoveredZone && (
+              <div className="absolute top-4 left-4 bg-black/60 text-white px-4 py-2 rounded-xl text-sm font-medium backdrop-blur-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                  <span>각 구역에 마우스를 올려보세요</span>
+                </div>
+              </div>
+            )}
+            */}
             
             {/* 컨트롤 힌트 */}
             <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-2 rounded-xl text-xs font-medium backdrop-blur-sm">

@@ -3,6 +3,9 @@ import { Info } from 'lucide-react';
 import { thresholdApi } from '../../../services/api/threshold_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
 import { useAuth } from '../../../hooks/useAuth';
+import { COLORS } from '../../../config/constants';
+import { getSensorTypeMapping } from '../../../config/sensorConfig';
+import Button from '../../../components/common/Button';
 
 const formatDateTime = (date) => {
   const pad = (n) => String(n).padStart(2, '0');
@@ -22,16 +25,10 @@ const Equipset = ({ onTabChange }) => {
   const getInitialZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
-    let userScopes;
-    if (Array.isArray(user.scope)) {
-      userScopes = user.scope.map(s => String(s).trim());
-    } else if (typeof user.scope === 'string') {
-      userScopes = user.scope.split(',').map(s => s.trim());
-    } else {
-      // 다른 타입인 경우 문자열로 변환 후 처리
-      userScopes = String(user.scope).split(',').map(s => s.trim());
-    }
+    // scope가 배열인지 문자열인지 확인
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
     
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
@@ -180,7 +177,7 @@ const Equipset = ({ onTabChange }) => {
     };
     
     // 수정 내용 확인창
-    const confirmMessage = `다음 내용으로 수정하시겠습니까?\n\n구역: ${selectedZones[0].toUpperCase()}구역\n센서 유형: ${sensorTypeMapping[editingType] || editingType}\n\n경고 Low: ${formatValue(v.warningLow, originalSensor?.warningLow)}\n경고 High: ${formatValue(v.warningHigh, originalSensor?.warningHigh)}\n알림 Low: ${formatValue(v.alertLow, originalSensor?.alertLow)}\n알림 High: ${formatValue(v.alertHigh, originalSensor?.alertHigh)}`;
+    const confirmMessage = `다음 내용으로 수정하시겠습니까?\n\n구역: ${selectedZones[0].toUpperCase()}구역\n센서 유형: ${getSensorTypeName(editingType)}\n\n경고 Low: ${formatValue(v.warningLow, originalSensor?.warningLow)}\n경고 High: ${formatValue(v.warningHigh, originalSensor?.warningHigh)}\n알림 Low: ${formatValue(v.alertLow, originalSensor?.alertLow)}\n알림 High: ${formatValue(v.alertHigh, originalSensor?.alertHigh)}`;
     
     if (!window.confirm(confirmMessage)) {
       return; // 사용자가 취소한 경우
@@ -224,16 +221,10 @@ const Equipset = ({ onTabChange }) => {
   const getAllowedZones = () => {
     if (!user?.scope) return ['a', 'b', 'c']; // scope가 없으면 전체 구역
     
-    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
-    let userScopes;
-    if (Array.isArray(user.scope)) {
-      userScopes = user.scope.map(s => String(s).trim());
-    } else if (typeof user.scope === 'string') {
-      userScopes = user.scope.split(',').map(s => s.trim());
-    } else {
-      // 다른 타입인 경우 문자열로 변환 후 처리
-      userScopes = String(user.scope).split(',').map(s => s.trim());
-    }
+    // scope가 배열인지 문자열인지 확인
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope 
+      : user.scope.split(',').map(s => s.trim());
     
     return userScopes.filter(scope => ['a', 'b', 'c'].includes(scope));
   };
@@ -265,16 +256,8 @@ const Equipset = ({ onTabChange }) => {
     }
   };
 
-  // 센서 타입별 한글 매핑
-  const sensorTypeMapping = {
-    'electrostatic': 'ESD',
-    'temperature': '온도',
-    'humidity': '습도',
-    'winddirection': '풍향',
-    'particle_0_1um': '미세먼지 0.1μm',
-    'particle_0_3um': '미세먼지 0.3μm',
-    'particle_0_5um': '미세먼지 0.5μm'
-  };
+  // 센서 타입별 한글 매핑 함수 사용
+  const getSensorTypeName = getSensorTypeMapping;
 
   // 날짜 포맷팅 함수 - 날짜와 시간 분리
   const formatDateFromISO = (isoString) => {
@@ -314,36 +297,32 @@ const Equipset = ({ onTabChange }) => {
               {/* 토글 버튼들을 한 줄로 나열 */}
               <div className="flex flex-wrap gap-2">
                 {/* 전체 선택/해제 버튼 */}
-                <button
+                <Button
                   onClick={() => {
                     toggleAllZones();
                     setEditingType(null); // 구역 변경 시 편집 상태 초기화
                   }}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedZones.length === zones.length
-                      ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                      : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                  }`}
+                  variant={selectedZones.length === zones.length ? "primary" : "default"}
+                  size="sm"
+                  className="min-w-[100px]"
                 >
                   {selectedZones.length === zones.length ? '전체 해제' : '전체 선택'}
-                </button>
+                </Button>
                 
                 {/* 개별 구역 토글 버튼들 */}
                 {zones.map(zone => (
-                  <button
+                  <Button
                     key={zone}
                     onClick={() => {
                       toggleZone(zone);
                       setEditingType(null); // 구역 변경 시 편집 상태 초기화
                     }}
-                    className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                      selectedZones.includes(zone)
-                        ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                        : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                    }`}
+                    variant={selectedZones.includes(zone) ? "primary" : "default"}
+                    size="sm"
+                    className="min-w-[80px]"
                   >
                     {zone.toUpperCase()}구역
-                  </button>
+                  </Button>
                 ))}
               </div>
               
@@ -386,7 +365,7 @@ const Equipset = ({ onTabChange }) => {
               return (
                 <tr key={uniqueKey} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-700">{s.zoneId.toUpperCase()}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{sensorTypeMapping[s.sensorType] || s.sensorType}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{getSensorTypeName(s.sensorType)}</td>
 
                   {/* 경고L */}
                   <td className="px-4 py-3 text-sm text-gray-700">
@@ -463,28 +442,34 @@ const Equipset = ({ onTabChange }) => {
                   <td className="px-4 py-3 text-sm text-right">
                     {isEditing ? (
                       <div className="flex justify-end space-x-1">
-                        <button
+                        <Button
                           onClick={onSave}
-                          className="inline-flex items-center px-2 py-1 text-xs rounded bg-[#494FA2] text-white hover:bg-[#3d4490]"
+                          variant="primary"
+                          size="xs"
+                          className="px-2 py-1"
                         >
                           저장
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           onClick={onCancel}
-                          className="inline-flex items-center px-2 py-1 text-xs rounded bg-gray-400 text-white hover:bg-gray-500"
+                          variant="secondary"
+                          size="xs"
+                          className="px-2 py-1"
                         >
                           취소
-                        </button>
+                        </Button>
                       </div>
                     ) : (
-                      <button
+                      <Button
                         onClick={() => onEditClick(s)}
-                        className="inline-flex items-center px-2 py-1 text-xs rounded bg-[#494FA2] text-white hover:bg-[#3d4490] disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        variant="primary"
+                        size="xs"
+                        className="px-2 py-1"
                         disabled={editingType !== null || selectedZones.length === 0 || selectedZones.length !== 1}
                         title={selectedZones.length === 0 ? '구역을 선택해주세요' : selectedZones.length !== 1 ? '수정하려면 하나의 구역만 선택해주세요' : editingType !== null ? '다른 행 수정 중' : '수정'}
                       >
                         수정
-                      </button>
+                      </Button>
                     )}
                   </td>
                 </tr>

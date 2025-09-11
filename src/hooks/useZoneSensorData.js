@@ -1,6 +1,42 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { groupSensorData, formatTime, SensorDataDebouncer } from '../utils/sensorUtils';
-import { CONNECTION_STATE } from '../types/sensor';
+import { groupSensorData, formatTime, CONNECTION_STATE } from '../config/sensorConfig';
+
+// 센서 데이터 디바운싱을 위한 유틸리티 클래스 (로컬 정의)
+class SensorDataDebouncer {
+  constructor(delay = 300) {
+    this.delay = delay;
+    this.timeoutId = null;
+    this.callback = null;
+  }
+
+  addCallback(callback) {
+    this.callback = callback;
+  }
+
+  update(data) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+    
+    this.timeoutId = setTimeout(() => {
+      if (this.callback) {
+        try {
+          this.callback(data);
+        } catch (error) {
+          console.error('센서 데이터 디바운싱 콜백 오류:', error);
+        }
+      }
+    }, this.delay);
+  }
+
+  destroy() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+    this.callback = null;
+  }
+}
 import { handleSSEError } from '../utils/unifiedErrorHandler';
 
 import { connectZoneSSE } from '../services/sse';
@@ -61,11 +97,11 @@ export const useZoneSensorData = (zoneId) => {
     setIsLoading(true);
     setConnectionState(CONNECTION_STATE.CONNECTING);
     
-    // 디바운서 초기화 (300ms 지연으로 단축)
+    // 디바운서 초기화 (150ms 지연으로 단축)
     if (debouncerRef.current) {
       debouncerRef.current.destroy();
     }
-    debouncerRef.current = new SensorDataDebouncer(300);
+    debouncerRef.current = new SensorDataDebouncer(150);
     
     // 디바운싱된 데이터 업데이트 콜백 등록
     debouncerRef.current.addCallback((newData) => {

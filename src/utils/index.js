@@ -2,4 +2,3 @@
 export * from './alarmFilters';
 export * from './alarmMapper';
 export * from './unifiedErrorHandler';
-export * from './sensorUtils';

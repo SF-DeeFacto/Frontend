@@ -1,9 +1,8 @@
 import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { getSensorTypeConfig } from '../../config/sensorConfig';
-import { isSensorValueValid, getStatusHexColor, getStatusText } from '../../utils/sensorUtils';
-import { CONNECTION_STATE } from '../../types/sensor';
+import { getSensorTypeConfig, isSensorValueValid, getStatusHexColor, getStatusText, CONNECTION_STATE, SENSOR_STATUS } from '../../config/sensorConfig';
+import Text from './Text';
 
 /**
  * 센서 데이터 카드 컴포넌트
@@ -18,7 +17,11 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
   const canAccessZone = (zoneId) => {
     if (!zoneId) return false;
     if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     const zoneScope = zoneId[0]?.toLowerCase();
     return scopes.includes(zoneScope);
   };
@@ -76,14 +79,14 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
     // 센서 값이 유효하지 않은 경우
     if (!isSensorValueValid(sensorData)) {
       return (
-        <div className="text-center text-gray-500 dark:text-neutral-400">
-          <div className="text-sm">데이터 준비 중</div>
+        <div className="text-center">
+          <Text variant="body" size="sm" color="secondary-500">데이터 준비 중</Text>
         </div>
       );
     }
 
-    // 먼지 센서는 특별한 레이아웃
-    if (sensorData.sensorType === 'particle') {
+    // 먼지 센서는 특별한 레이아웃 (particle 또는 particle_* 타입)
+    if (sensorData.sensorType === 'particle' || sensorData.sensorType?.startsWith('particle_')) {
       return renderParticleValues();
     }
     
@@ -118,10 +121,10 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
                 sensorData.connectionState === CONNECTION_STATE.CONNECTING ? 'animate-pulse-soft' : ''
               }`}
               style={{ 
-                backgroundColor: getStatusHexColor(sensorData.status || 'CONNECTING'),
-                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || 'CONNECTING')}30`
+                backgroundColor: getStatusHexColor(sensorData.status || SENSOR_STATUS.CONNECTING),
+                boxShadow: `0 0 15px ${getStatusHexColor(sensorData.status || SENSOR_STATUS.CONNECTING)}30`
               }}
-              title={`상태: ${getStatusText(sensorData.status || 'CONNECTING')} | 연결: ${sensorData.connectionState || 'DISCONNECTED'}`}
+              title={`상태: ${getStatusText(sensorData.status || SENSOR_STATUS.CONNECTING)} | 연결: ${sensorData.connectionState || CONNECTION_STATE.DISCONNECTED}`}
             ></div>
           </div>
         </div>
@@ -131,7 +134,7 @@ const SensorDataCard = ({ sensorData, zoneId }) => {
           <div className="sensor-value-container">
             <div className="sensor-value">
               {renderSensorValue()}
-              {sensorData.sensorType !== 'particle' && (
+              {!(sensorData.sensorType === 'particle' || sensorData.sensorType?.startsWith('particle_')) && (
                 <span className="sensor-unit">{sensorInfo.unit}</span>
               )}
             </div>

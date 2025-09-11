@@ -29,7 +29,10 @@ const Zone = ({ zoneId }) => {
       return;
     }
     
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     const zoneScope = String(currentZoneId)[0]?.toLowerCase();
     if (!scopes.includes(zoneScope)) {
       window.alert('해당 구역에 대한 접근 권한이 없습니다.');

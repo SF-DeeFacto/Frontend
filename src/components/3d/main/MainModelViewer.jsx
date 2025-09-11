@@ -1,11 +1,14 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
-import { useGLTF, OrbitControls } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { useNavigate } from 'react-router-dom';
+import * as THREE from 'three';
 import { useMainZoneMapping, useMainModelMaterials } from '../hooks';
 import { useAuth } from '../../../hooks/useAuth';
+import { BaseModel } from '../common/BaseModel';
+import { useModelInteractions } from '../../../hooks/useModelInteractions';
+import { getMainModelPath, getMainModelConfig } from '../../../config/modelConfig';
 
-function Model({ zoneStatuses, onHoverZoneChange }) {
-  const { scene } = useGLTF('/models/mainhome.glb');
+function Model({ zoneStatuses, onHoverZoneChange, onModelLoad, onModelError }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -23,14 +26,19 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
       return true; // 안전하게 접근 허용
     }
     
-    const scopes = user.scope.split(',').map((s) => s.trim().toLowerCase());
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map((s) => s.trim().toLowerCase());
+    
     return scopes.includes(zoneScope);
   };
 
+  // 메인 모델 설정 가져오기
+  const modelConfig = getMainModelConfig();
   const [modelInfo, setModelInfo] = useState({
-    position: [0, -18, 0],
-    rotation: [0, 58 * Math.PI / 180, 0],
-    scale: [0.01, 0.01, 0.01]
+    position: modelConfig.position,
+    rotation: modelConfig.rotation,
+    scale: modelConfig.scale
   });
 
   // Zone 매핑 훅 사용
@@ -39,110 +47,97 @@ function Model({ zoneStatuses, onHoverZoneChange }) {
   // 재질 관리 훅 사용
   const { updateZoneMaterials } = useMainModelMaterials();
 
-  // 모델 로딩 후 초기 설정
-  useEffect(() => {
-    if (scene) {
+  // 모델 로딩 후 초기 설정과 재질 업데이트를 BaseModel에서 처리
+  const handleModelLoad = (loadedGltf) => {
+    if (loadedGltf.scene) {
       // Zone 매핑 설정
-      setupZoneMapping(scene, navigate);
-    }
-  }, [scene, setupZoneMapping, navigate]);
-
-  // Zone 상태 변경 시 재질 업데이트
-  useEffect(() => {
-    if (scene && zoneStatuses) {
-      updateZoneMaterials(scene, zoneStatuses);
-    }
-  }, [zoneStatuses, scene, updateZoneMaterials]);
-
-  // 클릭 이벤트 핸들러
-  const handleClick = (event) => {
-    // 클릭 가능한 메시인지 확인
-    if (event.object.userData && event.object.userData.isClickable) {
-      const zoneName = event.object.userData.zoneName;
-      const targetPath = event.object.userData.targetPath;
+      setupZoneMapping(loadedGltf.scene, navigate);
       
-      if (zoneName) {
-        // 바로 페이지 이동
-        if (targetPath) {
-          if (!canAccessPath(targetPath)) {
-            window.alert('해당 구역에 대한 접근 권한이 없습니다.');
-            return;
-          }
-          navigate(targetPath);
-        }
+      // 상위 컴포넌트에 로딩 완료 알림
+      if (onModelLoad) onModelLoad(loadedGltf);
+    }
+  };
+
+
+
+  const { handlePointerOver, handlePointerOut, handleClick } = useModelInteractions({
+    onHoverZoneChange,
+    onZoneClick: (zoneInfo) => {
+      if (zoneInfo.targetPath && canAccessPath(zoneInfo.targetPath)) {
+        navigate(zoneInfo.targetPath);
       }
     }
-  };
-
-  // 호버 이벤트 핸들러
-  const handlePointerOver = (event) => {
-    if (event.object.userData && event.object.userData.isClickable) {
-      const zoneId = event.object.name; // 메쉬 이름 (a01/A01, b01/B01)
-      const zoneName = event.object.userData.zoneName;
-      
-      document.body.style.cursor = 'pointer';
-      
-      // 호버된 존 정보를 부모 컴포넌트로 전달
-      onHoverZoneChange(zoneId);
-    }
-  };
-
-  const handlePointerOut = (event) => {
-    if (event.object.userData && event.object.userData.isClickable) {
-      onHoverZoneChange(null);
-      document.body.style.cursor = 'default';
-    }
-  };
+  });
 
   return (
-    <group>
-      <primitive 
-        object={scene} 
-        scale={modelInfo.scale}
-        position={modelInfo.position}
-        rotation={modelInfo.rotation}
-        onClick={handleClick}
-        onPointerOver={handlePointerOver}
-        onPointerOut={handlePointerOut}
-      />
-      
-      {/* 기본 조명 */}
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[5, 5, 5]} intensity={1} />
-    </group>
+    <BaseModel
+      modelPath={getMainModelPath()}
+      onLoad={handleModelLoad}
+      onError={onModelError}
+      lighting="enhanced"
+      scale={modelInfo.scale}
+      position={modelInfo.position}
+      rotation={modelInfo.rotation}
+      onClick={handleClick}
+      onPointerOver={handlePointerOver}
+      onPointerOut={handlePointerOut}
+      zoneStatuses={zoneStatuses}
+      updateZoneMaterials={updateZoneMaterials}
+      autoCenter={false}
+    />
   );
 }
 
 function LoadingFallback() {
   return (
     <mesh>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="gray" />
+      <boxGeometry args={[0.1, 0.1, 0.1]} />
+      <meshBasicMaterial color="gray" transparent opacity={0.3} />
     </mesh>
   );
 }
 
-export default function MainModelViewer({ zoneStatuses, onHoverZoneChange }) {
+export default function MainModelViewer({ zoneStatuses, onHoverZoneChange, onLoadingChange, onErrorChange }) {
   const controlsRef = useRef();
+  
+  // 메인 모델 설정 가져오기
+  const modelConfig = getMainModelConfig();
+  
+  const handleModelLoad = () => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(null);
+  };
+  
+  const handleModelError = (error) => {
+    if (onLoadingChange) onLoadingChange(false);
+    if (onErrorChange) onErrorChange(error);
+  };
 
   // 카메라 초기 설정
   useEffect(() => {
     if (controlsRef.current) {
       const camera = controlsRef.current.object;
-      // 이미지에 표시된 회전값 적용 (도 단위를 라디안으로 변환)
-      camera.rotation.x = -80.33 * Math.PI / 180; // -80.33°
-      camera.rotation.y = 9.66 * Math.PI / 180;   // 9.66°
-      camera.rotation.z = 44.57 * Math.PI / 180;  // 44.57°
+      const { rotation } = modelConfig.camera;
+      
+      // 설정된 회전값 적용
+      camera.rotation.x = rotation.x;
+      camera.rotation.y = rotation.y;
+      camera.rotation.z = rotation.z;
     }
-  }, []);
+  }, [modelConfig.camera]);
 
   return (
     <Suspense fallback={<LoadingFallback />}>
-      <Model zoneStatuses={zoneStatuses} onHoverZoneChange={onHoverZoneChange} />
+      <Model 
+        zoneStatuses={zoneStatuses} 
+        onHoverZoneChange={onHoverZoneChange}
+        onModelLoad={handleModelLoad}
+        onModelError={handleModelError}
+      />
       <OrbitControls 
         ref={controlsRef}
-        target={[2.096, -3.749, 3.199]}
-        position={[3.989, 7.212, 5.067]}
+        target={modelConfig.camera.target}
+        position={modelConfig.camera.position}
         enableDamping={true}
         dampingFactor={0.05}
       />

@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sensorApi } from '../../../services/api/sensor_api';
 import { handleApiError } from '../../../utils/unifiedErrorHandler';
+import { getSensorTypeMapping, SENSOR_TYPES_FOR_FILTER, ZONE_INFO } from '../../../config/sensorConfig';
 import { useAuth } from '../../../hooks/useAuth';
+import SearchFilterSection from '../../../components/common/SearchFilterSection';
 
 const SensorListTab = () => {
   const navigate = useNavigate();
@@ -23,18 +25,15 @@ const SensorListTab = () => {
       
       const params = {
         sensorType: filterType !== 'all' ? filterType : undefined,
-        zoneId: filterZone !== 'all' ? filterZone : undefined,
+        zoneId: filterZone !== 'all' ? filterZone.toLowerCase() : undefined,
         page: 0,
         size: 100 // 충분히 큰 크기로 설정
       };
       
-      console.log('🚀 센서 목록 조회 시작');
-      console.log('📋 요청 파라미터:', params);
       
       const result = await sensorApi.getSensors(params);
       if (!isMounted) return;
       
-      console.log('✅ 센서 목록 조회 성공:', result);
       
       if (result.success) {
         const payload = result.data;
@@ -53,6 +52,9 @@ const SensorListTab = () => {
     return () => { isMounted = false; };
   }, [filterType, filterZone]);
 
+  // 센서 타입별 한글 매핑 함수 사용
+  const getSensorTypeName = getSensorTypeMapping;
+
   // 검색어 필터링 (클라이언트 사이드)
   useEffect(() => {
     if (!searchTerm) {
@@ -60,55 +62,55 @@ const SensorListTab = () => {
       return;
     }
     
-    const filtered = sensors.filter(sensor => 
-      sensor.sensorId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sensor.sensorType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sensor.zoneId.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = sensors.filter(sensor => {
+      const searchLower = searchTerm.toLowerCase();
+      
+      // 기본 필드 검색
+      const basicMatch = 
+        sensor.sensorId.toLowerCase().includes(searchLower) ||
+        sensor.sensorType.toLowerCase().includes(searchLower) ||
+        sensor.zoneId.toLowerCase().includes(searchLower);
+      
+      // 한글 센서 타입명 검색
+      const koreanTypeName = getSensorTypeName(sensor.sensorType);
+      const koreanMatch = koreanTypeName && koreanTypeName.includes(searchTerm);
+      
+      return basicMatch || koreanMatch;
+    });
     
     setFilteredSensors(filtered);
-  }, [sensors, searchTerm]);
+  }, [sensors, searchTerm, getSensorTypeName]);
 
-  // 센서 타입별 한글 매핑
-  const sensorTypeMapping = {
-    'electrostatic': '정전기',
-    'Electrostatic': '정전기',
-    'temperature': '온도',
-    'Temperature': '온도',
-    'humidity': '습도',
-    'Humidity': '습도',
-    'particle_0_1um': '먼지 0.1μm',
-    'particle_0_3um': '먼지 0.3μm',
-    'particle_0_5um': '먼지 0.5μm',
-    'windDirection': '풍향',
-    'WindDirection': '풍향'
-  };
-
-  // 센서 타입 목록
-  const sensorTypes = ['all', 'electrostatic', 'temperature', 'humidity', 'particle_0_1um', 'particle_0_3um', 'particle_0_5um', 'windDirection'];
+  // 센서 타입 목록 (config에서 가져옴)
+  const sensorTypes = SENSOR_TYPES_FOR_FILTER;
   
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
-    if (!user?.scope) return ['all', 'a', 'b', 'c']; // scope가 없으면 전체 구역
+    // ZONE_INFO에서 동적으로 구역 목록 생성
+    const allZones = Object.keys(ZONE_INFO).map(zoneId => ({
+      value: zoneId,
+      scope: zoneId[0].toLowerCase() // A01 -> 'a', B01 -> 'b', C01 -> 'c'
+    }));
     
-    // scope가 문자열인지 배열인지 확인하여 안전하게 처리
-    let userScopes;
-    if (Array.isArray(user.scope)) {
-      userScopes = user.scope.map(s => String(s).trim());
-    } else if (typeof user.scope === 'string') {
-      userScopes = user.scope.split(',').map(s => s.trim());
-    } else {
-      // 다른 타입인 경우 문자열로 변환 후 처리
-      userScopes = String(user.scope).split(',').map(s => s.trim());
+    // '전체' 옵션 추가
+    allZones.unshift({ value: 'all', scope: null });
+
+
+    // 사용자 scope가 없으면 모든 구역 표시
+    if (!user?.scope) {
+      return allZones.map(zone => zone.value);
     }
+
+    // 사용자 scope에 따라 필터링 (배열과 문자열 모두 처리)
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase()) // 이미 배열이면 소문자 변환
+      : user.scope.split(',').map(s => s.trim().toLowerCase()); // 문자열이면 split 후 소문자 변환
     
-    const allowedZones = ['all']; // '전체' 옵션은 항상 포함
+    const filteredZones = allZones
+      .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
+      .map(zone => zone.value);
     
-    if (userScopes.includes('a')) allowedZones.push('a');
-    if (userScopes.includes('b')) allowedZones.push('b');
-    if (userScopes.includes('c')) allowedZones.push('c');
-    
-    return allowedZones;
+    return filteredZones;
   };
   
   const zones = getAllowedZones();
@@ -134,66 +136,41 @@ const SensorListTab = () => {
   return (
     <div>
       {/* 필터 및 검색 영역 */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* 검색 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              검색
-            </label>
-            <input
-              type="text"
-              placeholder="센서ID, 센서종류, 구역 검색"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* 센서 타입 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              센서 종류
-            </label>
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {sensorTypes.map(type => (
-                <option key={type} value={type}>
-                  {type === 'all' ? '전체' : sensorTypeMapping[type] || type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 구역 필터 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              구역
-            </label>
-            <select
-              value={filterZone}
-              onChange={(e) => setFilterZone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {zones.map(zone => (
-                <option key={zone} value={zone}>
-                  {zone === 'all' ? '전체' : `${zone.toUpperCase()}구역`}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 결과 수 */}
-          <div className="flex items-end">
-            <div className="text-sm text-gray-600">
-              총 {filteredSensors.length}개의 센서
-            </div>
-          </div>
-        </div>
-      </div>
+      <SearchFilterSection
+        searchConfig={{
+          label: "검색",
+          placeholder: "센서ID, 센서종류, 구역 검색",
+          value: searchTerm
+        }}
+        filters={[
+          {
+            key: "sensorType",
+            label: "센서 종류",
+            type: "select",
+            value: filterType,
+            options: sensorTypes.map(type => ({
+              value: type,
+              label: type === 'all' ? '전체' : getSensorTypeName(type)
+            }))
+          },
+          {
+            key: "zone",
+            label: "구역",
+            type: "select",
+            value: filterZone,
+            options: zones.map(zone => ({
+              value: zone,
+              label: zone === 'all' ? '전체' : zone
+            }))
+          }
+        ]}
+        resultCount={filteredSensors.length}
+        onSearchChange={setSearchTerm}
+        onFilterChange={(key, value) => {
+          if (key === 'sensorType') setFilterType(value);
+          if (key === 'zone') setFilterZone(value);
+        }}
+      />
 
       {/* 센서 목록 테이블 */}
       <div className="bg-white rounded-lg border overflow-hidden">
@@ -240,7 +217,7 @@ const SensorListTab = () => {
                     {sensor.zoneId.toUpperCase()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {sensorTypeMapping[sensor.sensorType] || sensor.sensorType}
+                    {getSensorTypeName(sensor.sensorType)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                     {formatThresholdValue(sensor.warningLow)}

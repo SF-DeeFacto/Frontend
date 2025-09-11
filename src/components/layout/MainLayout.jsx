@@ -3,6 +3,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Header from './Header';
 import Aside from './Aside';
+import Text from '../common/Text';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -46,9 +47,9 @@ const MainLayout = () => {
               <div className="w-full flex items-center px-8">
                 <div className="flex items-center gap-4">
                   <div className="w-1 h-8 bg-gradient-to-b from-brand-main to-primary-700 rounded-full shadow-soft"></div>
-                  <h1 className="text-3xl font-bold text-secondary-800 dark:text-neutral-100 tracking-tight transition-colors duration-300">
+                  <Text variant="title" size="3xl" weight="bold" color="secondary-800" className="tracking-tight transition-colors duration-300">
                     {title}
-                  </h1>
+                  </Text>
                 </div>
               </div>
             </div>

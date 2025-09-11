@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { getSensorTypesForRealtime, ZONE_INFO, ZONE_MAPPING } from '../config/sensorConfig';
+import Button from '../components/common/Button';
 
-const SENSORS = ['온도', '습도', '풍향', '정전기', '파티클'];
+const SENSORS = getSensorTypesForRealtime().map(sensor => sensor.name);
 
 const Graph = () => {
   const { user } = useAuth();
@@ -14,26 +16,22 @@ const Graph = () => {
     if (!zoneValue) return false;
     if (zoneValue === '전체') return true;
     if (!user?.scope) return true;
-    const scopes = user.scope.split(',').map(s => s.trim().toLowerCase());
+    const scopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map(s => s.trim().toLowerCase());
+    
     const zoneScope = String(zoneValue)[0]?.toLowerCase();
     return scopes.includes(zoneScope);
   };
   
-  // 고정된 구역 순서 (대시보드 매핑용)
-  const ZONE_ORDER = ['전체', 'A01', 'A02', 'B01', 'B02', 'B03', 'B04', 'C01', 'C02'];
-
   // 사용자 scope에 따른 구역 목록 필터링
   const getAllowedZones = () => {
     const allZones = [
       { value: '전체', scope: null },
-      { value: 'A01', scope: 'a' },
-      { value: 'A02', scope: 'a' },
-      { value: 'B01', scope: 'b' },
-      { value: 'B02', scope: 'b' },
-      { value: 'B03', scope: 'b' },
-      { value: 'B04', scope: 'b' },
-      { value: 'C01', scope: 'c' },
-      { value: 'C02', scope: 'c' }
+      ...Object.entries(ZONE_INFO).map(([zoneId, zoneInfo]) => ({
+        value: zoneId,
+        scope: zoneId[0].toLowerCase() // 'A01' -> 'a'
+      }))
     ];
 
     // 사용자 scope가 없으면 모든 구역 표시
@@ -42,29 +40,35 @@ const Graph = () => {
     }
 
     // 사용자 scope에 따라 필터링
-    const userScopes = user.scope.split(',').map(s => s.trim());
+    const userScopes = Array.isArray(user.scope) 
+      ? user.scope.map(s => s.trim().toLowerCase())
+      : user.scope.split(',').map(s => s.trim().toLowerCase());
+    
     return allZones
       .filter(zone => zone.scope === null || userScopes.includes(zone.scope))
       .map(zone => zone.value);
   };
 
   const ZONES = getAllowedZones();
+  const ZONE_ORDER = ZONES; // ZONES와 동일하게 설정
+  
+  // 디버깅용 로그
+  console.log('Graph 페이지 디버깅:', {
+    userScope: user?.scope,
+    ZONES,
+    ZONE_ORDER,
+    ZONE_INFO: Object.keys(ZONE_INFO),
+    allZones: Object.entries(ZONE_INFO).map(([zoneId, zoneInfo]) => ({
+      value: zoneId,
+      scope: zoneId[0].toLowerCase()
+    }))
+  });
 
   // URL에서 zone 파라미터가 있으면 해당 Zone을 선택, 없으면 기본값
   const getInitialZone = () => {
     if (zoneFromUrl) {
-      // URL의 zone 파라미터를 ZONES 배열 형식에 맞게 변환
-      const zoneMapping = {
-        'a01': 'A01',
-        'a02': 'A02', 
-        'b01': 'B01',
-        'b02': 'B02',
-        'b03': 'B03',
-        'b04': 'B04',
-        'c01': 'C01',
-        'c02': 'C02'
-      };
-      const mappedZone = zoneMapping[zoneFromUrl.toLowerCase()];
+      // URL의 zone 파라미터를 ZONE_MAPPING으로 변환
+      const mappedZone = ZONE_MAPPING[zoneFromUrl.toLowerCase()];
       // 사용자가 접근 가능한 구역인지 확인
       if (mappedZone && ZONES.includes(mappedZone)) {
         return mappedZone;
@@ -85,17 +89,7 @@ const Graph = () => {
   // URL 파라미터가 변경될 때 selectedZone 업데이트
   useEffect(() => {
     if (zoneFromUrl) {
-      const zoneMapping = {
-        'a01': 'A01',
-        'a02': 'A02', 
-        'b01': 'B01',
-        'b02': 'B02',
-        'b03': 'B03',
-        'b04': 'B04',
-        'c01': 'C01',
-        'c02': 'C02'
-      };
-      const newZone = zoneMapping[String(zoneFromUrl).toLowerCase()];
+      const newZone = ZONE_MAPPING[String(zoneFromUrl).toLowerCase()];
       if (newZone) {
         if (!canAccessZoneValue(newZone)) {
           window.alert('해당 구역에 대한 접근 권한이 없습니다.');
@@ -190,8 +184,6 @@ const Graph = () => {
       break;
   }
   
-  // console.log('Generated dashboardUrl:', dashboardUrl);
-  
   return (
     <>
       {/* 상단 필터/조회 영역 - Equipset 스타일과 통일 */}
@@ -201,28 +193,22 @@ const Graph = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">그래프 종류</label>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
+              <Button
                 onClick={() => setTimeMode('실시간')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  timeMode === '실시간'
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={timeMode === '실시간' ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 실시간
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
                 onClick={() => setTimeMode('요약')}
-                className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                  timeMode === '요약'
-                    ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                    : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                }`}
+                variant={timeMode === '요약' ? "primary" : "default"}
+                size="sm"
+                className="min-w-[80px]"
               >
                 요약
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -230,23 +216,24 @@ const Graph = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Zone</label>
             <div className="flex flex-wrap gap-2">
-              {ZONES.map(zone => (
-                <button
-                  type="button"
-                  key={zone}
-                  onClick={() => {
-                    setSelectedZone(zone);
-                    setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
-                  }}
-                  className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    selectedZone === zone
-                      ? 'bg-[#494FA2] text-white hover:bg-white hover:text-[#494FA2]'
-                      : 'bg-white text-gray-700 hover:bg-[#494FA2] hover:text-white'
-                  }`}
-                >
-                  {zone}
-                </button>
-              ))}
+              {ZONES.map(zone => {
+                console.log('Zone 버튼 렌더링:', zone);
+                return (
+                  <Button
+                    key={zone}
+                    onClick={() => {
+                      console.log('Zone 클릭:', zone);
+                      setSelectedZone(zone);
+                      setSelectedSensors([]); // zone 변경 시 센서 선택 초기화
+                    }}
+                    variant={selectedZone === zone ? "primary" : "default"}
+                    size="sm"
+                    className="min-w-[60px] min-h-[40px]"
+                  >
+                    {zone}
+                  </Button>
+                );
+              })}
             </div>
           </div>
         </div>

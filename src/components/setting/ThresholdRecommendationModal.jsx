@@ -4,48 +4,11 @@ const ThresholdRecommendationModal = ({ isOpen, onClose, onApprove }) => {
   const [recommendations, setRecommendations] = useState([]);
   const [selectedRecommendations, setSelectedRecommendations] = useState(new Set());
 
-  // AI 추천 데이터 로드 (더미 데이터)
+  // AI 추천 데이터 로드
   useEffect(() => {
     if (isOpen) {
-      const dummyRecommendations = [
-        {
-          id: 'rec-001',
-          sensorId: 'esd-001',
-          sensorType: 'electrostatic',
-          zoneId: 'a01',
-          current: { warningLow: null, warningHigh: 80.0, alertLow: null, alertHigh: 100.0 },
-          recommended: { warningLow: null, warningHigh: 75.0, alertLow: null, alertHigh: 95.0 },
-          reason: '최근 3개월 ESD 데이터 분석 결과, 현재 설정된 임계치가 너무 높아 불필요한 알람이 발생하고 있습니다. 권장 임계치로 조정하면 알람 정확도가 15% 향상됩니다.',
-          confidence: 92,
-          basedOnData: '3개월 (2,160시간)',
-          expectedImprovement: '알람 정확도 15% 향상, 허위 알람 23% 감소'
-        },
-        {
-          id: 'rec-002',
-          sensorId: 'temp-001',
-          sensorType: 'temperature',
-          zoneId: 'a01',
-          current: { warningLow: 18.0, warningHigh: 25.0, alertLow: 15.0, alertHigh: 30.0 },
-          recommended: { warningLow: 20.0, warningHigh: 28.0, alertLow: 17.0, alertHigh: 32.0 },
-          reason: '계절별 온도 변화 패턴을 분석한 결과, 현재 임계치가 계절적 변동을 충분히 고려하지 못하고 있습니다. 조정된 임계치는 계절 변화에 더 적응적입니다.',
-          confidence: 87,
-          basedOnData: '6개월 (4,320시간)',
-          expectedImprovement: '계절별 적응성 향상, 예측 정확도 12% 증가'
-        },
-        {
-          id: 'rec-003',
-          sensorId: 'humid-001',
-          sensorType: 'humidity',
-          zoneId: 'a02',
-          current: { warningLow: 40.0, warningHigh: 60.0, alertLow: 30.0, alertHigh: 70.0 },
-          recommended: { warningLow: 35.0, warningHigh: 65.0, alertLow: 25.0, alertHigh: 75.0 },
-          reason: '해당 구역의 습도 패턴이 다른 구역과 상이한 특성을 보입니다. 구역별 최적화된 임계치 적용으로 모니터링 효율성을 높일 수 있습니다.',
-          confidence: 89,
-          basedOnData: '4개월 (2,880시간)',
-          expectedImprovement: '구역별 최적화로 모니터링 효율 18% 향상'
-        }
-      ];
-      setRecommendations(dummyRecommendations);
+      // TODO: 실제 API에서 추천 데이터를 가져와야 함
+      setRecommendations([]);
     }
   }, [isOpen]);
 
