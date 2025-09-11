@@ -407,8 +407,8 @@ export const getZoneStatusKey = (meshName) => {
   // ZONE_INFO에서 동적으로 매핑 생성
   const zoneMapping = {};
   Object.entries(ZONE_INFO).forEach(([zoneId, zoneInfo]) => {
-    zoneMapping[zoneInfo.id] = zoneInfo.zone_name; // 'a01' -> 'zone_A01'
-    zoneMapping[zoneId] = zoneInfo.zone_name;      // 'A01' -> 'zone_A01'
+    zoneMapping[zoneInfo.id] = zoneId; // 'a01' -> 'A01'
+    zoneMapping[zoneId] = zoneId;      // 'A01' -> 'A01'
   });
   return zoneMapping[meshName];
 };
